@@ -1,0 +1,7 @@
+:host { display: block; }
+.empty-state { display: grid; justify-items: center; gap: var(--nexa-space-3); padding: var(--nexa-space-10) var(--nexa-space-6); border: 1px dashed var(--nexa-color-border-default); border-radius: var(--nexa-radius-lg); text-align: center; }
+.empty-state.compact { padding: var(--nexa-space-6); }
+.icon { display: grid; place-items: center; width: 2.5rem; height: 2.5rem; border-radius: var(--nexa-radius-full); background: var(--nexa-color-primary-50); color: var(--nexa-color-primary-700); }
+h2 { margin: 0; font-size: var(--nexa-font-size-xl); }
+p { max-width: 36rem; margin: 0; color: var(--nexa-color-text-secondary); line-height: var(--nexa-line-height-relaxed); }
+.action { display: flex; gap: var(--nexa-space-2); }

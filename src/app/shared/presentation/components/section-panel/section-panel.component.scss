@@ -1,0 +1,8 @@
+:host { display: block; }
+.panel { padding: var(--nexa-space-6); border: 1px solid var(--nexa-color-border-default); border-radius: var(--nexa-radius-xl); background: var(--nexa-surface-card); box-shadow: var(--nexa-shadow-sm); }
+:host.subtle .panel { background: var(--nexa-surface-inset); box-shadow: none; }
+.panel-header { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--nexa-space-4); margin-bottom: var(--nexa-space-5); }
+h2 { margin: 0; font-size: var(--nexa-font-size-2xl); }
+.panel-header p { margin: var(--nexa-space-2) 0 0; color: var(--nexa-color-text-secondary); line-height: var(--nexa-line-height-relaxed); }
+.actions { display: flex; gap: var(--nexa-space-2); }
+@media (max-width: 600px) { .panel { padding: var(--nexa-space-5); } .panel-header { flex-direction: column; } }
