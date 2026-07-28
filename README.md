@@ -6,11 +6,9 @@
 
 Internal operations workspace for Nexa Suite's cold-chain organization.
 
-[![Angular 22](https://img.shields.io/badge/Angular-22-DD0031?logo=angular&logoColor=white)](https://angular.dev/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
-[![Angular Material](https://img.shields.io/badge/Angular%20Material-22-757575?logo=materialdesign&logoColor=white)](https://material.angular.dev/)
-[![DDD](https://img.shields.io/badge/architecture-DDD-2563EB)](#architecture)
-[![Status](https://img.shields.io/badge/status-baseline%20v0.1.0-16A34A)](#current-status)
+[![Angular 22](https://img.shields.io/badge/Angular-22-DD0031?logo=angular&logoColor=white)](https://angular.dev/) [![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/) [![Angular Material](https://img.shields.io/badge/Angular%20Material-22-757575?logo=materialdesign&logoColor=white)](https://material.angular.dev/)
+
+[Changelog](./CHANGELOG.md) · [v0.2.0 release notes](./docs/releases/v0.2.0.md) · [GitHub Releases](https://github.com/nexa-suite/platform/releases)
 
 [Platform](https://github.com/nexa-suite/platform) · [Portal](https://github.com/nexa-suite/portal) · [API](https://github.com/nexa-suite/api)
 
@@ -20,58 +18,38 @@ Internal operations workspace for Nexa Suite's cold-chain organization.
 
 ## Overview
 
-Nexa Platform is the independent Angular application for internal Sales, Warehouse, Logistics, Owner, administration and tenant operations.
+Nexa Platform is the independent Angular application for internal sales, warehouse, logistics and administration workflows.
 
 ## Role in the Nexa Ecosystem
 
-Platform serves internal organization users. It provides an operationally dense foundation for future workflows and consumes the shared Nexa API when approved vertical slices are implemented.
-
-```mermaid
-flowchart LR
-    InternalUsers["Sales · Warehouse · Logistics · Owner"] --> Platform["Nexa Platform<br/>Angular"]
-    Platform --> API["Nexa API<br/>Spring Boot"]
-```
+Platform is the internal operations surface and remains separate from the buyer-facing Portal. Both consume the API only through approved contracts.
 
 ## Repository Map
 
 | Repository | Responsibility | Technology |
 |---|---|---|
-| **Platform** — This repository | Internal operations for Sales, Warehouse, Logistics and Administration | Angular |
+| **Platform** — This repository | Internal operations | Angular |
 | [Portal](https://github.com/nexa-suite/portal) | Buyer-facing B2B experience | Angular |
-| [API](https://github.com/nexa-suite/api) | Business rules, contracts, security and persistence authority | Spring Boot |
+| [API](https://github.com/nexa-suite/api) | Business and integration API | Spring Boot |
 
 ## Scope
 
-- Internal operational shell.
-- Independent Angular workspace.
-- Layered DDD structure per bounded context.
-- Nexa tokens and Angular Material adaptation.
-- Baseline EN/ES translation surface.
+- Durable internal shell with `/overview` routing.
+- Reusable visual foundations, EN/ES language infrastructure and pure utilities.
+- Canonical catalog asset subset under `public/catalog-items/`.
+- No catalog JSON, catalog REST, authentication, persistence or business use cases.
 
 ## Architecture
 
-Presentation depends on Application. Application depends on Domain. Infrastructure implements future ports without leaking technical concerns into Domain.
-
-No business capability, authentication, persistence or API integration is implemented in this baseline.
+Presentation depends on Application. Application depends on Domain. Infrastructure remains outside Domain. Shared components are context-independent and visual.
 
 ## Bounded Contexts
 
-- Shared.
-- IAM.
-- Tenant Management.
-- Catalog Management.
-- Sales.
-- Warehouse.
-- Logistics.
-- Invoicing.
+Shared, IAM, Tenant Management, Catalog Management, Sales, Warehouse, Logistics and Invoicing remain represented as independent layers for future approved slices.
 
 ## Tech Stack
 
-- Angular 22 standalone components, routing, SCSS and strict mode.
-- Angular Material 22 and Angular CDK 22.
-- TypeScript, RxJS, Signals and HttpClient.
-- ngx-translate 18.
-- Node.js and npm.
+Angular 22, TypeScript strict mode, Angular Material/CDK 22, Signals, RxJS, ngx-translate 18, SCSS and npm.
 
 ## Getting Started
 
@@ -85,6 +63,7 @@ Open [http://localhost:4200](http://localhost:4200).
 ## Available Commands
 
 ```bash
+npm run validate:catalog-assets
 npm test
 npm run build
 ```
@@ -92,34 +71,22 @@ npm run build
 ## Project Structure
 
 ```text
-docs/assets/                 # Local Nexa documentation asset
-public/assets/               # Branding and baseline translations
-src/app/core/                # Shell, configuration and shared presentation
-src/app/<bounded-context>/   # domain, application, infrastructure, presentation
-src/styles.scss              # Nexa tokens and global styles
+src/app/core/                         # Shell, routes and language service
+src/app/shared/presentation/components # Reusable visual components
+src/app/shared/application/utilities   # Pure address, date and number utilities
+public/catalog-items/                  # Manifest-validated canonical media subset
+src/styles/                            # Tokens, typography, motion, Material and a11y
+docs/releases/                        # Versioned release notes
 ```
 
 ## Current Status
 
-This repository currently contains the approved architecture baseline.
-
-Business capabilities, API integrations, persistence and security will be implemented incrementally through vertical slices.
-
-Release v0.1.0 records this approved baseline; it does not claim production capability.
+v0.2.0 provides the durable Platform shell, `/overview` route, shared visual foundations, normalized tokens, EN/ES switching, pure utilities, and 50 canonical catalog assets. It does not claim business capability or production integration.
 
 ## Out of Scope
 
-- Authentication.
-- API integration.
-- Real business screens.
-- Persistence.
-- Production deployment.
-- Complete Vue parity.
+Authentication, API integration, catalog pages, orders, requests, persistence, deployment and complete Vue parity.
 
 ## Roadmap
 
-1. Architecture baseline.
-2. First approved vertical slice.
-3. Security and tenant isolation.
-4. Persistence and contracts.
-5. Progressive legacy parity.
+Future vertical slices require explicit contracts, identity, tenant rules and runtime/browser evidence.

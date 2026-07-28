@@ -16,4 +16,11 @@ describe('AppComponent', () => {
     expect(app).toBeTruthy();
   });
 
+  it('contains only the application router outlet', () => {
+    const fixture = TestBed.createComponent(AppComponent);
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('router-outlet')).toBeTruthy();
+    expect(fixture.nativeElement.querySelector('mat-sidenav-container')).toBeNull();
+  });
+
 });

@@ -1,0 +1,4 @@
+:host { display: inline-flex; }
+.language-control { display: inline-flex; align-items: center; gap: var(--nexa-space-2); color: var(--nexa-color-text-secondary); font-size: var(--nexa-font-size-xs); font-weight: var(--nexa-font-weight-semibold); text-transform: uppercase; }
+select { min-height: 2rem; padding: 0 var(--nexa-space-2); border: 1px solid var(--nexa-color-border-default); border-radius: var(--nexa-radius-sm); background: var(--nexa-surface-card); color: var(--nexa-color-text-primary); font: inherit; }
+@media (max-width: 520px) { .language-control span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; } }

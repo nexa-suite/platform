@@ -1,0 +1,6 @@
+<section class="error-state" role="alert">
+  <span class="icon" aria-hidden="true">!</span>
+  <h2>{{ title() }}</h2>
+  @if (description()) { <p>{{ description() }}</p> }
+  @if (showRetry()) { <button type="button" (click)="onRetry()">{{ retryLabel() }}</button> }
+</section>

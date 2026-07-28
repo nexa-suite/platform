@@ -1,0 +1,10 @@
+:host { display: block; }
+.metric-card { display: grid; gap: var(--nexa-space-3); padding: var(--nexa-space-5); border: 1px solid var(--nexa-color-border-default); border-radius: var(--nexa-radius-lg); background: var(--nexa-surface-card); box-shadow: var(--nexa-shadow-xs); }
+.metric-heading { display: flex; align-items: center; justify-content: space-between; gap: var(--nexa-space-3); color: var(--nexa-color-text-secondary); font-size: var(--nexa-font-size-sm); font-weight: var(--nexa-font-weight-semibold); }
+.icon { color: var(--nexa-tone-color, var(--nexa-color-primary-600)); }
+strong { color: var(--nexa-color-text-primary); font-family: var(--nexa-font-family-display); font-size: var(--nexa-font-size-3xl); }
+p { margin: 0; color: var(--nexa-color-text-secondary); font-size: var(--nexa-font-size-sm); }
+:host.tone-info { --nexa-tone-color: var(--nexa-color-info-600); }
+:host.tone-success { --nexa-tone-color: var(--nexa-color-success-600); }
+:host.tone-warning { --nexa-tone-color: var(--nexa-color-warning-700); }
+:host.tone-danger { --nexa-tone-color: var(--nexa-color-danger-600); }

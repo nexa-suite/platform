@@ -1,0 +1,12 @@
+<section class="panel" [attr.aria-labelledby]="title() ? 'section-panel-title' : null">
+  @if (title() || description()) {
+    <header class="panel-header">
+      <div>
+        @if (title()) { <h2 id="section-panel-title">{{ title() }}</h2> }
+        @if (description()) { <p>{{ description() }}</p> }
+      </div>
+      <div class="actions"><ng-content select="[section-panel-actions]" /></div>
+    </header>
+  }
+  <div class="content"><ng-content /></div>
+</section>
