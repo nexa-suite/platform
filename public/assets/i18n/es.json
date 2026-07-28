@@ -2,31 +2,15 @@
   "shell": {
     "platformLabel": "Operación interna",
     "platformName": "Nexa Platform",
-    "internalWorkspace": "Espacio de operación interna",
-    "internalDescription": "Espacio operativo preparado para equipos internos de Nexa en la cadena de frío.",
-    "baseline": "Baseline arquitectónico",
-    "version": "v0.1.0",
+    "internalWorkspace": "Espacio de operaciones internas",
+    "internalDescription": "Coordina ventas, almacén, logística y administración desde un solo espacio de trabajo.",
     "language": "Idioma",
-    "preparedAreas": "Bounded contexts preparados",
-    "contextsTitle": "Modelo operativo interno",
-    "scopeNote": "Este baseline establece límites y dirección visual. Las capacidades de negocio aún no están implementadas.",
-    "navigation": {
-      "overview": "Resumen",
-      "sales": "Ventas",
-      "catalog": "Catálogo",
-      "warehouse": "Almacén",
-      "logistics": "Logística",
-      "invoicing": "Facturación",
-      "administration": "Administración"
-    },
-    "contexts": {
-      "iam": "Identidad y acceso",
-      "tenantManagement": "Gestión de tenant",
-      "catalogManagement": "Gestión de catálogo",
-      "sales": "Ventas",
-      "warehouse": "Almacén",
-      "logistics": "Logística",
-      "invoicing": "Facturación"
-    }
+    "skipToContent": "Saltar al contenido",
+    "navigation": { "overview": "Resumen" }
+  },
+  "overview": {
+    "title": "Espacio de operaciones",
+    "description": "Un solo lugar para coordinar el trabajo que mantiene en movimiento la cadena de frío.",
+    "body": "Usa este espacio para conectar equipos operativos y sus flujos en toda la cadena de frío."
   }
 }

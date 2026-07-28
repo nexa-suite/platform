@@ -1,0 +1,8 @@
+:host { display: block; }
+.loading-state { display: grid; gap: var(--nexa-space-3); padding: var(--nexa-space-6); border: 1px solid var(--nexa-color-border-default); border-radius: var(--nexa-radius-lg); background: var(--nexa-surface-card); }
+.loading-state.compact { padding: var(--nexa-space-4); }
+.loading-line { display: block; width: 100%; height: 1rem; border-radius: var(--nexa-radius-sm); background: linear-gradient(90deg, var(--nexa-color-neutral-100), var(--nexa-color-cold-frost), var(--nexa-color-neutral-100)); background-size: 200% 100%; animation: nexa-loading 1.4s linear infinite; }
+.loading-line:nth-child(3) { width: 72%; }
+.accessible-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+@keyframes nexa-loading { to { background-position: -200% 0; } }
+@media (prefers-reduced-motion: reduce) { .loading-line { animation: none; } }

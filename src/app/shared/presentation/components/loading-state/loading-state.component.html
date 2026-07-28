@@ -1,0 +1,4 @@
+<section class="loading-state" [class.compact]="compact()" aria-busy="true" aria-live="polite" [attr.aria-label]="label()">
+  <span class="accessible-label">{{ label() }}</span>
+  @for (placeholder of placeholders(); track placeholder) { <span class="loading-line" aria-hidden="true"></span> }
+</section>

@@ -1,0 +1,6 @@
+:host { display: inline-flex; }
+.cold-chain-badge { display: inline-flex; align-items: center; gap: var(--nexa-space-2); min-height: 1.75rem; padding: 0 var(--nexa-space-3); border-radius: var(--nexa-radius-full); background: var(--nexa-color-cold-ambient-soft); color: var(--nexa-color-cold-ambient); font-size: var(--nexa-font-size-xs); font-weight: var(--nexa-font-weight-bold); }
+.marker { width: .5rem; height: .5rem; border-radius: var(--nexa-radius-full); background: currentColor; }
+:host.variant-refrigerated .cold-chain-badge { background: var(--nexa-color-cold-refrigerated-soft); color: var(--nexa-color-cold-refrigerated); }
+:host.variant-frozen .cold-chain-badge { background: var(--nexa-color-cold-frozen-soft); color: var(--nexa-color-cold-frozen); }
+:host.variant-risk .cold-chain-badge { background: var(--nexa-color-cold-risk-soft); color: var(--nexa-color-cold-risk); }

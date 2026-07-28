@@ -1,0 +1,33 @@
+<a class="skip-link" href="#main-content">{{ 'shell.skipToContent' | translate }}</a>
+<mat-sidenav-container class="platform-shell">
+  <mat-sidenav class="platform-sidebar" mode="side" opened>
+    <div class="sidebar-brand">
+      <nexa-brand-logo variant="inverse" [width]="128" />
+      <span>{{ 'shell.platformLabel' | translate }}</span>
+    </div>
+
+    <nav aria-label="Internal operations navigation">
+      <mat-nav-list>
+        <a mat-list-item routerLink="/overview" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+          <mat-icon matListItemIcon aria-hidden="true">dashboard</mat-icon>
+          <span matListItemTitle>{{ 'shell.navigation.overview' | translate }}</span>
+        </a>
+      </mat-nav-list>
+    </nav>
+  </mat-sidenav>
+
+  <mat-sidenav-content>
+    <mat-toolbar class="platform-toolbar">
+      <div class="toolbar-title">
+        <span class="eyebrow">{{ 'shell.internalWorkspace' | translate }}</span>
+        <strong>{{ 'shell.platformName' | translate }}</strong>
+      </div>
+      <span class="toolbar-spacer"></span>
+      <nexa-language-switcher />
+    </mat-toolbar>
+
+    <main id="main-content" class="platform-content" tabindex="-1">
+      <router-outlet />
+    </main>
+  </mat-sidenav-content>
+</mat-sidenav-container>

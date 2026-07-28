@@ -1,0 +1,6 @@
+:host { display: block; }
+.error-state { display: grid; justify-items: center; gap: var(--nexa-space-3); padding: var(--nexa-space-8) var(--nexa-space-6); border: 1px solid var(--nexa-color-danger-200); border-radius: var(--nexa-radius-lg); background: var(--nexa-color-danger-50); text-align: center; }
+.icon { display: grid; place-items: center; width: 2rem; height: 2rem; border-radius: var(--nexa-radius-full); background: var(--nexa-color-danger-600); color: var(--nexa-color-text-inverse); font-weight: var(--nexa-font-weight-bold); }
+h2 { margin: 0; font-size: var(--nexa-font-size-xl); }
+p { max-width: 36rem; margin: 0; color: var(--nexa-color-text-secondary); line-height: var(--nexa-line-height-relaxed); }
+button { min-height: 2.5rem; padding: 0 var(--nexa-space-4); border: 0; border-radius: var(--nexa-radius-md); background: var(--nexa-color-primary-600); color: var(--nexa-color-text-inverse); font: inherit; font-weight: var(--nexa-font-weight-semibold); cursor: pointer; }
