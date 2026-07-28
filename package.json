@@ -5,6 +5,7 @@
     "ng": "ng",
     "start": "ng serve --port 4200",
     "build": "ng build",
+    "validate:catalog-assets": "node scripts/validate-catalog-assets.mjs",
     "watch": "ng build --watch --configuration development",
     "test": "ng test --watch=false"
   },
