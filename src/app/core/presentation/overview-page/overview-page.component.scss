@@ -1,0 +1,10 @@
+:host {
+  display: grid;
+  gap: var(--nexa-space-8);
+}
+
+nexa-section-panel p {
+  max-width: 64rem;
+  margin: 0;
+  color: var(--nexa-color-text-secondary);
+}

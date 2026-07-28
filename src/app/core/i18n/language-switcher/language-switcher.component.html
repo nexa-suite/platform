@@ -1,0 +1,7 @@
+<label class="language-control">
+  <span>{{ 'shell.language' | translate }}</span>
+  <select [value]="languageService.currentLanguage()" (change)="onSelect($event)" [attr.aria-label]="'shell.language' | translate">
+    <option value="en">EN</option>
+    <option value="es">ES</option>
+  </select>
+</label>

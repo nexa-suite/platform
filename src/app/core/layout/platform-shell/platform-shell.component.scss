@@ -1,0 +1,107 @@
+:host {
+  display: block;
+  min-height: 100dvh;
+}
+
+.platform-shell {
+  min-height: 100dvh;
+  background: var(--nexa-surface-page);
+}
+
+.platform-sidebar {
+  width: var(--nexa-layout-sidebar-width);
+  border-right: 1px solid rgb(255 255 255 / 12%);
+  background: var(--nexa-color-neutral-950);
+  color: var(--nexa-color-text-inverse);
+}
+
+.sidebar-brand {
+  display: grid;
+  gap: var(--nexa-space-2);
+  padding: var(--nexa-space-6) var(--nexa-space-5) var(--nexa-space-5);
+  border-bottom: 1px solid rgb(255 255 255 / 12%);
+}
+
+.sidebar-brand span {
+  color: var(--nexa-color-cold-frost);
+  font-size: var(--nexa-font-size-xs);
+  font-weight: var(--nexa-font-weight-semibold);
+  letter-spacing: var(--nexa-letter-spacing-wide);
+  text-transform: uppercase;
+}
+
+nav {
+  padding: var(--nexa-space-4) var(--nexa-space-2);
+}
+
+mat-nav-list a {
+  color: rgb(255 255 255 / 72%);
+  border-radius: var(--nexa-radius-md);
+}
+
+mat-nav-list a.active {
+  color: var(--nexa-color-text-inverse);
+  background: rgb(255 255 255 / 12%);
+}
+
+mat-nav-list a mat-icon {
+  color: var(--nexa-color-cold-refrigerated);
+}
+
+.platform-toolbar {
+  min-height: var(--nexa-layout-toolbar-height);
+  padding: 0 var(--nexa-space-6);
+  border-bottom: 1px solid var(--nexa-color-border-default);
+  background: var(--nexa-surface-card);
+  color: var(--nexa-color-text-primary);
+}
+
+.toolbar-title {
+  display: grid;
+  gap: 2px;
+}
+
+.toolbar-title strong {
+  font-family: var(--nexa-font-family-display);
+  font-size: var(--nexa-font-size-md);
+}
+
+.toolbar-spacer {
+  flex: 1;
+}
+
+.eyebrow {
+  margin: 0;
+  color: var(--nexa-color-cold-refrigerated);
+  font-size: var(--nexa-font-size-xs);
+  font-weight: var(--nexa-font-weight-bold);
+  letter-spacing: var(--nexa-letter-spacing-wider);
+  text-transform: uppercase;
+}
+
+.platform-content {
+  width: min(100%, var(--nexa-layout-content-max));
+  min-height: calc(100dvh - var(--nexa-layout-toolbar-height));
+  margin: 0 auto;
+  padding: var(--nexa-space-10) var(--nexa-space-8) var(--nexa-space-12);
+}
+
+@media (max-width: 760px) {
+  .platform-sidebar {
+    width: 196px;
+  }
+
+  .platform-content {
+    padding: var(--nexa-space-8) var(--nexa-space-4) var(--nexa-space-10);
+  }
+
+  .platform-toolbar {
+    padding: 0 var(--nexa-space-4);
+  }
+}
+
+@media (max-width: 520px) {
+  .platform-sidebar {
+    display: none;
+  }
+}
