@@ -1,0 +1,32 @@
+{
+  "shell": {
+    "platformLabel": "Internal operations",
+    "platformName": "Nexa Platform",
+    "internalWorkspace": "Internal operations workspace",
+    "internalDescription": "Operational workspace prepared for Nexa's internal teams across the cold-chain business.",
+    "baseline": "Architecture baseline",
+    "version": "v0.1.0",
+    "language": "Language",
+    "preparedAreas": "Prepared bounded contexts",
+    "contextsTitle": "Internal operating model",
+    "scopeNote": "This baseline establishes boundaries and visual direction. Business capabilities are not implemented yet.",
+    "navigation": {
+      "overview": "Overview",
+      "sales": "Sales",
+      "catalog": "Catalog",
+      "warehouse": "Warehouse",
+      "logistics": "Logistics",
+      "invoicing": "Invoicing",
+      "administration": "Administration"
+    },
+    "contexts": {
+      "iam": "Identity and access",
+      "tenantManagement": "Tenant management",
+      "catalogManagement": "Catalog management",
+      "sales": "Sales",
+      "warehouse": "Warehouse",
+      "logistics": "Logistics",
+      "invoicing": "Invoicing"
+    }
+  }
+}
