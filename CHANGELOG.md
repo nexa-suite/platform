@@ -5,6 +5,18 @@ The project uses Semantic Versioning.
 
 ## [Unreleased]
 
+## [0.2.1] - 2026-07-28
+
+### Changed
+
+- Redesigned the repository README around the five-product Nexa Suite.
+- Standardized repository governance and release documentation.
+- Corrected repository metadata and navigation.
+
+### Fixed
+
+- Removed verified duplicate local artifacts.
+
 ## [0.2.0] - 2026-07-28
 
 ### Added
@@ -24,6 +36,7 @@ The project uses Semantic Versioning.
 
 - Independent Angular 22 Platform application with bounded-context package structure, initial shell and EN/ES translation surface.
 
-[Unreleased]: https://github.com/nexa-suite/platform/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/nexa-suite/platform/compare/v0.2.1...HEAD
+[0.2.1]: https://github.com/nexa-suite/platform/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/nexa-suite/platform/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/nexa-suite/platform/releases/tag/v0.1.0
