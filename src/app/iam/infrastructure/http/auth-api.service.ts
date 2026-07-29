@@ -24,6 +24,14 @@ interface AuthApiSessionResponse {
   readonly session?: AuthApiUser;
 }
 
+interface AuthApiCurrentSessionResponse {
+  readonly user: AuthApiUser;
+  readonly tenant: { readonly tenantId: string; readonly tenantSlug: string };
+  readonly workspace: { readonly workspaceId: string; readonly workspaceSlug: string };
+  readonly membership: { readonly membershipId: string; readonly role: string; readonly permissions: readonly string[] };
+  readonly surface: string;
+}
+
 @Injectable({ providedIn: 'root' })
 export class AuthApiService {
   private readonly http = inject(HttpClient);
@@ -43,6 +51,19 @@ export class AuthApiService {
         setHeaders: { 'X-Nexa-Surface': this.config.surface }
       })
       .pipe(map((response) => this.toSession(response)));
+  }
+
+  currentSession(accessToken: string): Observable<AuthSession> {
+    return this.http.get<AuthApiCurrentSessionResponse>(platformApiUrl(this.config, '/api/v1/session'), {
+      setHeaders: { Authorization: `Bearer ${accessToken}` }
+    }).pipe(map((response) => this.toSession({
+      accessToken,
+      session: {
+        ...response.user,
+        workspaceSlug: response.workspace.workspaceSlug,
+        role: response.membership.role
+      }
+    })));
   }
 
   signOut(accessToken: string | null): Observable<void> {

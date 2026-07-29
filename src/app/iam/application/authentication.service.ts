@@ -1,5 +1,5 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
-import { Observable, catchError, map, of, tap, throwError } from 'rxjs';
+import { Observable, catchError, map, of, switchMap, tap, throwError } from 'rxjs';
 import { INITIAL_AUTH_STATE, AuthSession, AuthState, AuthStatus, AuthenticatedUser, SignInCommand } from '../domain/models/auth.models';
 import { AuthApiService } from '../infrastructure/http/auth-api.service';
 import { AccessTokenStore } from '../infrastructure/token/access-token.store';
@@ -19,6 +19,7 @@ export class AuthenticationService {
     this.stateSignal.set({ status: 'restoring', user: null, message: null });
     this.tokenStore.clear();
     return this.api.refresh().pipe(
+      switchMap((session) => this.api.currentSession(session.accessToken)),
       tap((session) => this.acceptSession(session)),
       map(() => undefined),
       catchError(() => {
