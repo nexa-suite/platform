@@ -8,9 +8,13 @@
 
     <nav aria-label="Internal operations navigation">
       <mat-nav-list>
-        <a mat-list-item routerLink="/overview" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+        <a mat-list-item routerLink="/ops/overview" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
           <mat-icon matListItemIcon aria-hidden="true">dashboard</mat-icon>
           <span matListItemTitle>{{ 'shell.navigation.overview' | translate }}</span>
+        </a>
+        <a mat-list-item routerLink="/ops/product-catalog" routerLinkActive="active">
+          <mat-icon matListItemIcon aria-hidden="true">inventory_2</mat-icon>
+          <span matListItemTitle>{{ 'shell.navigation.catalog' | translate }}</span>
         </a>
       </mat-nav-list>
     </nav>
@@ -23,7 +27,13 @@
         <strong>{{ 'shell.platformName' | translate }}</strong>
       </div>
       <span class="toolbar-spacer"></span>
+      @if (displayName()) {
+        <span class="user-name">{{ displayName() }}</span>
+      }
       <nexa-language-switcher />
+      <button mat-icon-button type="button" [attr.aria-label]="'auth.signOut' | translate" (click)="signOut()">
+        <mat-icon aria-hidden="true">logout</mat-icon>
+      </button>
     </mat-toolbar>
 
     <main id="main-content" class="platform-content" tabindex="-1">

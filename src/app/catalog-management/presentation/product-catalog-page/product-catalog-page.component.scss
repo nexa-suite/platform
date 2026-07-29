@@ -1,0 +1,14 @@
+:host { display: block; }
+.catalog-page { display: grid; gap: var(--nexa-space-8); }
+.filters { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: var(--nexa-space-3); }
+.query-filter { grid-column: span 2; }
+mat-form-field { min-width: 0; }
+.table-wrap { overflow-x: auto; }
+table { width: 100%; min-width: 62rem; }
+th { color: var(--nexa-color-text-secondary); font-size: var(--nexa-font-size-xs); text-transform: uppercase; }
+td, th { padding-right: var(--nexa-space-4); }
+td strong { color: var(--nexa-color-text-primary); }
+.retrying { margin-bottom: var(--nexa-space-3); }
+mat-paginator { margin-top: var(--nexa-space-4); }
+@media (max-width: 960px) { .filters { grid-template-columns: repeat(2, minmax(0, 1fr)); } .query-filter { grid-column: span 2; } }
+@media (max-width: 560px) { .filters { grid-template-columns: 1fr; } .query-filter { grid-column: auto; } }

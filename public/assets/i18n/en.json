@@ -6,11 +6,77 @@
     "internalDescription": "Coordinate sales, warehouse, logistics and administration workflows from one workspace.",
     "language": "Language",
     "skipToContent": "Skip to content",
-    "navigation": { "overview": "Overview" }
+    "navigation": { "overview": "Overview", "catalog": "Product catalog" }
   },
   "overview": {
     "title": "Operations workspace",
     "description": "One place to coordinate the work that keeps the cold-chain business moving.",
     "body": "Use this workspace to connect operational teams and their workflows across the cold-chain business."
+  },
+  "auth": {
+    "platformSurface": "Nexa Platform",
+    "signOut": "Sign out",
+    "signIn": {
+      "title": "Sign in to Platform",
+      "description": "Use your internal operations identity to continue.",
+      "identifier": "Identifier",
+      "password": "Password",
+      "workspace": "Workspace slug",
+      "workspaceHint": "Use the workspace assigned to your internal role.",
+      "submit": "Sign in",
+      "authenticating": "Signing in…",
+      "error": "We could not sign you in. Verify your access and try again."
+    },
+    "forbidden": {
+      "title": "Access restricted",
+      "description": "Your identity does not have an internal Platform role for this surface.",
+      "back": "Back to overview"
+    }
+  },
+  "catalog": {
+    "eyebrow": "Catalog management",
+    "title": "Product catalog",
+    "description": "Review the commercial product definition used by Nexa operations.",
+    "clearFilters": "Clear filters",
+    "retry": "Retry",
+    "results": "Catalog results",
+    "viewDetail": "View detail",
+    "backToCatalog": "Back to catalog",
+    "detailEyebrow": "Product detail",
+    "filters": {
+      "title": "Find a product",
+      "description": "Filter by the commercial attributes available to Platform.",
+      "query": "Search products",
+      "category": "Category",
+      "brand": "Brand",
+      "coldChain": "Cold chain",
+      "status": "Status",
+      "all": "All"
+    },
+    "columns": {
+      "name": "Product",
+      "brand": "Brand",
+      "category": "Category",
+      "presentation": "Presentation",
+      "coldChain": "Cold chain",
+      "price": "Unit price",
+      "actions": "Actions"
+    },
+    "coldChain": {
+      "none": "Ambient",
+      "refrigerated": "Refrigerated",
+      "frozen": "Frozen"
+    },
+    "status": { "active": "Active", "inactive": "Inactive" },
+    "states": {
+      "loading": "Loading catalog",
+      "loadingDetail": "Loading product detail",
+      "retrying": "Refreshing catalog",
+      "emptyTitle": "No products found",
+      "emptyDescription": "Try changing the filters to find another commercial product.",
+      "errorTitle": "Catalog unavailable",
+      "errorDescription": "The catalog could not be loaded. Try again when the service is available.",
+      "errorDetailDescription": "The product detail could not be loaded. Try again when the service is available."
+    }
   }
 }

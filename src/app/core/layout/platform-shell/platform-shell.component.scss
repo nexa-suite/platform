@@ -70,6 +70,16 @@ mat-nav-list a mat-icon {
   flex: 1;
 }
 
+.user-name {
+  max-width: 12rem;
+  margin-right: var(--nexa-space-3);
+  overflow: hidden;
+  color: var(--nexa-color-text-secondary);
+  font-size: var(--nexa-font-size-sm);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .eyebrow {
   margin: 0;
   color: var(--nexa-color-cold-refrigerated);

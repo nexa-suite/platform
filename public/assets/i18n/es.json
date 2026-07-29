@@ -6,11 +6,77 @@
     "internalDescription": "Coordina ventas, almacén, logística y administración desde un solo espacio de trabajo.",
     "language": "Idioma",
     "skipToContent": "Saltar al contenido",
-    "navigation": { "overview": "Resumen" }
+    "navigation": { "overview": "Resumen", "catalog": "Catálogo de productos" }
   },
   "overview": {
     "title": "Espacio de operaciones",
     "description": "Un solo lugar para coordinar el trabajo que mantiene en movimiento la cadena de frío.",
     "body": "Usa este espacio para conectar equipos operativos y sus flujos en toda la cadena de frío."
+  },
+  "auth": {
+    "platformSurface": "Nexa Platform",
+    "signOut": "Cerrar sesión",
+    "signIn": {
+      "title": "Ingresar a Platform",
+      "description": "Usa tu identidad de operaciones internas para continuar.",
+      "identifier": "Identificador",
+      "password": "Contraseña",
+      "workspace": "Slug del workspace",
+      "workspaceHint": "Usa el workspace asignado a tu rol interno.",
+      "submit": "Ingresar",
+      "authenticating": "Ingresando…",
+      "error": "No pudimos iniciar tu sesión. Verifica tu acceso e inténtalo nuevamente."
+    },
+    "forbidden": {
+      "title": "Acceso restringido",
+      "description": "Tu identidad no tiene un rol interno de Platform para esta superficie.",
+      "back": "Volver al resumen"
+    }
+  },
+  "catalog": {
+    "eyebrow": "Gestión de catálogo",
+    "title": "Catálogo de productos",
+    "description": "Revisa la definición comercial de productos usada por las operaciones de Nexa.",
+    "clearFilters": "Limpiar filtros",
+    "retry": "Reintentar",
+    "results": "Resultados del catálogo",
+    "viewDetail": "Ver detalle",
+    "backToCatalog": "Volver al catálogo",
+    "detailEyebrow": "Detalle del producto",
+    "filters": {
+      "title": "Buscar un producto",
+      "description": "Filtra por los atributos comerciales disponibles en Platform.",
+      "query": "Buscar productos",
+      "category": "Categoría",
+      "brand": "Marca",
+      "coldChain": "Cadena de frío",
+      "status": "Estado",
+      "all": "Todos"
+    },
+    "columns": {
+      "name": "Producto",
+      "brand": "Marca",
+      "category": "Categoría",
+      "presentation": "Presentación",
+      "coldChain": "Cadena de frío",
+      "price": "Precio unitario",
+      "actions": "Acciones"
+    },
+    "coldChain": {
+      "none": "Ambiente",
+      "refrigerated": "Refrigerado",
+      "frozen": "Congelado"
+    },
+    "status": { "active": "Activo", "inactive": "Inactivo" },
+    "states": {
+      "loading": "Cargando catálogo",
+      "loadingDetail": "Cargando detalle del producto",
+      "retrying": "Actualizando catálogo",
+      "emptyTitle": "No encontramos productos",
+      "emptyDescription": "Prueba cambiar los filtros para encontrar otro producto comercial.",
+      "errorTitle": "Catálogo no disponible",
+      "errorDescription": "No pudimos cargar el catálogo. Inténtalo nuevamente cuando el servicio esté disponible.",
+      "errorDetailDescription": "No pudimos cargar el detalle del producto. Inténtalo nuevamente cuando el servicio esté disponible."
+    }
   }
 }
