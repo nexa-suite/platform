@@ -4,9 +4,10 @@ Release notes are scoped to the Platform repository and distinguish the Angular 
 
 | Release | Summary |
 |---|---|
+| [v0.4.0](./v0.4.0.md) | Platform access and secured internal Catalog |
 | [v0.3.0](./v0.3.0.md) | Docker runtime, repository foundation and browser smoke |
 | [v0.2.1](./v0.2.1.md) | Repository experience and governance update |
 | [v0.2.0](./v0.2.0.md) | Responsive shell, shared UI foundations and catalog assets |
 | [v0.1.0](./v0.1.0.md) | Initial Angular repository baseline |
 
-The current release is `v0.3.0`. API integration remains outside this release until the approved client contract is implemented and validated.
+The current release is `v0.4.0`. Evidence is limited to the validated Platform access and Catalog slice; it does not claim full product migration or visual parity with Vue.
