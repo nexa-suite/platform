@@ -4,6 +4,7 @@ import { LanguageService } from './language.service';
 
 describe('LanguageService', () => {
   beforeEach(() => {
+    globalThis.localStorage?.removeItem('nexa.language');
     TestBed.configureTestingModule({ providers: [provideTranslateService()] });
   });
 

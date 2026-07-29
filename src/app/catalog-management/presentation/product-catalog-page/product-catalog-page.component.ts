@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, effect, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, untracked } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
@@ -68,7 +68,10 @@ export class ProductCatalogPageComponent {
   readonly displayedColumns = ['name', 'brand', 'category', 'presentation', 'coldChain', 'unitPrice', 'actions'];
 
   constructor() {
-    effect(() => this.catalog.load(this.filters()));
+    effect(() => {
+      const filters = this.filters();
+      untracked(() => this.catalog.load(filters));
+    });
   }
 
   onTextFilter(key: TextFilter, event: Event): void {

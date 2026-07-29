@@ -30,7 +30,7 @@ describe('CatalogApiService', () => {
       expect(page.items[0]?.id).toBe('CAT-1');
     });
 
-    const request = httpMock.expectOne('http://api.local/api/v1/catalog-items');
+    const request = httpMock.expectOne((candidate) => candidate.url === 'http://api.local/api/v1/catalog-items');
     expect(request.request.params.get('q')).toBe('queso');
     expect(request.request.params.get('status')).toBe('ACTIVE');
     expect(request.request.params.get('coldChain')).toBe('FROZEN');

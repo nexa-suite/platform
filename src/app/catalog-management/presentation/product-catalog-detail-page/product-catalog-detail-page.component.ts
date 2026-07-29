@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, effect, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, untracked } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -31,7 +31,7 @@ export class ProductCatalogDetailPageComponent {
   constructor() {
     effect(() => {
       const id = this.params().get('catalogItemId');
-      if (id) this.catalog.loadDetail(id);
+      if (id) untracked(() => this.catalog.loadDetail(id));
     });
   }
 

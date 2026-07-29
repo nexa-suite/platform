@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
-import { form, FormField, minLength, required, submit } from '@angular/forms/signals';
+import { form, FormField, minLength, required } from '@angular/forms/signals';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -35,11 +35,10 @@ export class SignInPageComponent {
 
   submit(event: Event): void {
     event.preventDefault();
-    submit(this.signInForm, () => {
-      this.authentication.signIn(this.model()).subscribe({
-        next: () => { void this.router.navigateByUrl(this.returnUrl()); },
-        error: () => undefined
-      });
+    if (this.signInForm().invalid()) return;
+    this.authentication.signIn(this.model()).subscribe({
+      next: () => { void this.router.navigateByUrl(this.returnUrl()); },
+      error: () => undefined
     });
   }
 }

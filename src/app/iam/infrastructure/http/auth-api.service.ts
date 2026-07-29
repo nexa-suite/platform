@@ -48,14 +48,14 @@ export class AuthApiService {
     return this.http
       .post<AuthApiSessionResponse>(platformApiUrl(this.config, '/api/v1/authentication/refresh'), null, {
         withCredentials: true,
-        setHeaders: { 'X-Nexa-Surface': this.config.surface }
+        headers: { 'X-Nexa-Surface': this.config.surface }
       })
       .pipe(map((response) => this.toSession(response)));
   }
 
   currentSession(accessToken: string): Observable<AuthSession> {
     return this.http.get<AuthApiCurrentSessionResponse>(platformApiUrl(this.config, '/api/v1/session'), {
-      setHeaders: { Authorization: `Bearer ${accessToken}` }
+      headers: { Authorization: `Bearer ${accessToken}` }
     }).pipe(map((response) => this.toSession({
       accessToken,
       session: {
@@ -68,10 +68,10 @@ export class AuthApiService {
 
   signOut(accessToken: string | null): Observable<void> {
     const headers: Record<string, string> = { 'X-Nexa-Surface': this.config.surface };
-    if (accessToken) headers.Authorization = `Bearer ${accessToken}`;
+    if (accessToken) headers['Authorization'] = `Bearer ${accessToken}`;
     return this.http.post<void>(platformApiUrl(this.config, '/api/v1/authentication/sign-out'), null, {
       withCredentials: true,
-      setHeaders: headers
+      headers
     });
   }
 
