@@ -34,6 +34,29 @@ export const routes: Routes = [
       },
       { path: 'ops/company-administration', pathMatch: 'full', redirectTo: 'ops/operations/company-administration' },
       { path: 'ops/settings', pathMatch: 'full', redirectTo: 'ops/operations/company-administration' },
+      {
+        path: 'ops/commercial/client-accounts',
+        loadComponent: () => import('./sales/client-accounts/presentation/client-accounts-page.component').then((module) => module.ClientAccountsPageComponent),
+        canActivate: [internalRoleGuard(catalogRoles)], data: { roles: catalogRoles }
+      },
+      {
+        path: 'ops/commercial/client-accounts/:clientAccountId',
+        loadComponent: () => import('./sales/client-accounts/presentation/client-account-detail-page.component').then((module) => module.ClientAccountDetailPageComponent),
+        canActivate: [internalRoleGuard(catalogRoles)], data: { roles: catalogRoles }
+      },
+      {
+        path: 'ops/commercial/purchase-requests',
+        loadComponent: () => import('./sales/purchase-requests/presentation/purchase-request-inbox-page.component').then((module) => module.PurchaseRequestInboxPageComponent),
+        canActivate: [internalRoleGuard(catalogRoles)], data: { roles: catalogRoles }
+      },
+      {
+        path: 'ops/commercial/purchase-requests/:purchaseRequestId',
+        loadComponent: () => import('./sales/purchase-requests/presentation/purchase-request-detail-page.component').then((module) => module.PurchaseRequestDetailPageComponent),
+        canActivate: [internalRoleGuard(catalogRoles)], data: { roles: catalogRoles }
+      },
+      { path: 'ops/clients', pathMatch: 'full', redirectTo: 'ops/commercial/client-accounts' },
+      { path: 'ops/commercial/requests', pathMatch: 'full', redirectTo: 'ops/commercial/purchase-requests' },
+      { path: 'ops/commercial/requests/:purchaseRequestId', pathMatch: 'full', redirectTo: 'ops/commercial/purchase-requests/:purchaseRequestId' },
       { path: 'overview', pathMatch: 'full', redirectTo: 'ops/overview' },
       { path: 'ops/catalog', pathMatch: 'full', redirectTo: 'ops/product-catalog' },
       { path: '**', redirectTo: 'ops/overview' }
