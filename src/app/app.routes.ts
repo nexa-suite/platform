@@ -11,6 +11,7 @@ import { ProductCatalogPageComponent } from './catalog-management/presentation/p
 import { ProductCatalogDetailPageComponent } from './catalog-management/presentation/product-catalog-detail-page/product-catalog-detail-page.component';
 
 const catalogRoles = INTERNAL_ROLES;
+const companyOwnerRoles = ['COMPANY_OWNER'] as const;
 
 export const routes: Routes = [
   { path: 'sign-in', component: SignInPageComponent, canActivate: [anonymousGuard] },
@@ -25,6 +26,14 @@ export const routes: Routes = [
       { path: 'ops/overview', component: OverviewPageComponent },
       { path: 'ops/product-catalog', component: ProductCatalogPageComponent, canActivate: [internalRoleGuard(catalogRoles)], data: { roles: catalogRoles } },
       { path: 'ops/product-catalog/:catalogItemId', component: ProductCatalogDetailPageComponent, canActivate: [internalRoleGuard(catalogRoles)], data: { roles: catalogRoles } },
+      {
+        path: 'ops/operations/company-administration',
+        loadComponent: () => import('./tenant-management/presentation/company-administration-page/company-administration-page.component').then((module) => module.CompanyAdministrationPageComponent),
+        canActivate: [internalRoleGuard(companyOwnerRoles)],
+        data: { roles: companyOwnerRoles }
+      },
+      { path: 'ops/company-administration', pathMatch: 'full', redirectTo: 'ops/operations/company-administration' },
+      { path: 'ops/settings', pathMatch: 'full', redirectTo: 'ops/operations/company-administration' },
       { path: 'overview', pathMatch: 'full', redirectTo: 'ops/overview' },
       { path: 'ops/catalog', pathMatch: 'full', redirectTo: 'ops/product-catalog' },
       { path: '**', redirectTo: 'ops/overview' }
