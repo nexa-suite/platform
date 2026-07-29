@@ -65,43 +65,28 @@
       <nexa-loading-state class="retrying" [compact]="true" [label]="'catalog.states.retrying' | translate" [lines]="1" />
     }
     <nexa-section-panel [title]="'catalog.results' | translate">
-      <div class="table-wrap">
-        <table mat-table [dataSource]="items()" matSort [matSortActive]="filters().sort" [matSortDirection]="filters().direction" (matSortChange)="onSort($event)">
-          <ng-container matColumnDef="name">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header="itemName">{{ 'catalog.columns.name' | translate }}</th>
-            <td mat-cell *matCellDef="let item"><strong>{{ item.name }}</strong></td>
-          </ng-container>
-          <ng-container matColumnDef="brand">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header="brandName">{{ 'catalog.columns.brand' | translate }}</th>
-            <td mat-cell *matCellDef="let item">{{ item.brand }}</td>
-          </ng-container>
-          <ng-container matColumnDef="category">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header="categoryName">{{ 'catalog.columns.category' | translate }}</th>
-            <td mat-cell *matCellDef="let item">{{ item.category }}</td>
-          </ng-container>
-          <ng-container matColumnDef="presentation">
-            <th mat-header-cell *matHeaderCellDef>{{ 'catalog.columns.presentation' | translate }}</th>
-            <td mat-cell *matCellDef="let item">{{ item.presentation }}</td>
-          </ng-container>
-          <ng-container matColumnDef="coldChain">
-            <th mat-header-cell *matHeaderCellDef>{{ 'catalog.columns.coldChain' | translate }}</th>
-            <td mat-cell *matCellDef="let item">
+      <div class="catalog-card-grid">
+        @for (item of items(); track item.id) {
+          <article class="catalog-card">
+            <a class="catalog-card-visual" [routerLink]="['/ops/product-catalog', item.id]" [queryParams]="detailQueryParams()">
+              @if (item.image.url) {
+                <img [src]="item.image.url" [alt]="item.name" loading="lazy" />
+              } @else {
+                <mat-icon aria-hidden="true">inventory_2</mat-icon>
+              }
+            </a>
+            <div class="catalog-card-body">
+              <p class="catalog-category">{{ item.category }}</p>
+              <h3>{{ item.name }}</h3>
+              <p class="catalog-brand">{{ item.brand }} · {{ item.presentation }}</p>
               <nexa-cold-chain-badge [label]="coldChainLabel(item.coldChain) | translate" [variant]="coldChainVariant(item.coldChain)" />
-            </td>
-          </ng-container>
-          <ng-container matColumnDef="unitPrice">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header="unitPrice">{{ 'catalog.columns.price' | translate }}</th>
-            <td mat-cell *matCellDef="let item">{{ formatPrice(item) }}</td>
-          </ng-container>
-          <ng-container matColumnDef="actions">
-            <th mat-header-cell *matHeaderCellDef>{{ 'catalog.columns.actions' | translate }}</th>
-            <td mat-cell *matCellDef="let item">
-              <a mat-button [routerLink]="['/ops/product-catalog', item.id]" [queryParams]="detailQueryParams()">{{ 'catalog.viewDetail' | translate }}</a>
-            </td>
-          </ng-container>
-          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-          <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
-        </table>
+              <div class="catalog-card-footer">
+                <strong>{{ formatPrice(item) }}</strong>
+                <a [routerLink]="['/ops/product-catalog', item.id]" [queryParams]="detailQueryParams()">{{ 'catalog.viewDetail' | translate }}</a>
+              </div>
+            </div>
+          </article>
+        }
       </div>
       <mat-paginator [length]="totalItems()" [pageIndex]="filters().page" [pageSize]="filters().size" [pageSizeOptions]="[10, 20, 50]" (page)="onPage($event)" />
     </nexa-section-panel>
