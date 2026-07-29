@@ -6,11 +6,11 @@
 
 Internal operations workspace for Sales, Warehouse, Logistics, Company Ownership and Administration.
 
-[![Angular 22](https://img.shields.io/badge/Angular-22-DD0031?style=flat-square&logo=angular&logoColor=white)](https://angular.dev/) [![TypeScript strict](https://img.shields.io/badge/TypeScript-strict-3178C6?style=flat-square&logo=typescript&logoColor=white)](https://www.typescriptlang.org/) [![Angular Material 22](https://img.shields.io/badge/Angular%20Material-22-757575?style=flat-square&logo=materialdesign&logoColor=white)](https://material.angular.dev/) [![Latest release](https://img.shields.io/github/v/release/nexa-suite/platform?style=flat-square&label=latest%20release)](https://github.com/nexa-suite/platform/releases/latest)
+[![Angular 22](https://img.shields.io/badge/Angular-22-DD0031?style=flat-square&logo=angular&logoColor=white)](https://angular.dev/) [![TypeScript strict](https://img.shields.io/badge/TypeScript-strict-3178C6?style=flat-square&logo=typescript&logoColor=white)](https://www.typescriptlang.org/) [![Angular Material 22](https://img.shields.io/badge/Angular%20Material-22-757575?style=flat-square&logo=materialdesign&logoColor=white)](https://material.angular.dev/) [![Release v0.3.0](https://img.shields.io/badge/release-v0.3.0-2563EB?style=flat-square)](https://github.com/nexa-suite/platform/releases/tag/v0.3.0)
 
-[Latest Release](https://github.com/nexa-suite/platform/releases/latest) · [Changelog](./CHANGELOG.md) · [Contributing](./.github/CONTRIBUTING.md) · [Security](./.github/SECURITY.md)
+[Changelog](./CHANGELOG.md) · [Release notes](./docs/releases/) · [Contributing](./.github/CONTRIBUTING.md) · [Security](./.github/SECURITY.md)
 
-**Current repository:** Platform
+**Current repository:** Platform · **Current release:** `v0.3.0`
 
 [Website](https://github.com/nexa-suite/website) · [Platform](https://github.com/nexa-suite/platform) · [Portal](https://github.com/nexa-suite/portal) · [API](https://github.com/nexa-suite/api) · [Mobile](https://github.com/nexa-suite/mobile)
 
@@ -18,82 +18,71 @@ Internal operations workspace for Sales, Warehouse, Logistics, Company Ownership
 
 ---
 
-## Overview
+## What is implemented
 
-Nexa Platform is the independent Angular application for internal sales, warehouse, logistics, company ownership and administration workflows. It is not the buyer-facing B2B product.
+`v0.3.0` packages the Angular 22 `/overview` shell with its repository governance, 50 canonical catalog assets, production Docker image and browser smoke evidence.
 
-## Role in the Nexa Ecosystem
+Platform is the internal experience, not the buyer-facing product and not the security authority. Business workflows, API integration, authentication, authorization, tenant management, persistence and production deployment are not implemented in this release.
 
-Platform owns internal operations experience. Portal owns buyer self-service. Both consume API through approved contracts; Platform is not security authority.
-
-## Nexa Suite Architecture
+## Product boundaries
 
 ```mermaid
 flowchart LR
-    Visitor["Public visitor"] --> Website["Website<br/>Public discovery"]
-    Website --> Platform["Platform<br/>Internal operations"]
-    Website --> Portal["Buyer Portal<br/>B2B self-service"]
-    InternalUsers["Sales · Warehouse · Logistics · Owner"] --> Platform
-    Buyer["B2B Buyer"] --> Portal
-    Platform --> API["API<br/>Business authority"]
-    Portal --> API
-    Mobile["Mobile<br/>Future native clients"] -. planned .-> API
+    Website["Website<br/>Static public site<br/>v1.0.0"]
+    Platform["Platform<br/>Angular shell /overview<br/>v0.3.0"]
+    Portal["Buyer Portal<br/>Angular shell /home<br/>v0.3.0"]
+    API["API<br/>Catalog query contract<br/>v0.4.0"]
+
+    Website -. "product navigation" .-> Platform
+    Website -. "product navigation" .-> Portal
+    Platform -. "future approved HTTP contract" .-> API
+    Portal -. "future approved HTTP contract" .-> API
 ```
 
-## Repository Map
+The dotted links are boundaries for future approved contracts, not evidence of current API integration. Mobile is not implemented and is intentionally absent from the runtime map. PostgreSQL, AI, IoT and cloud services are not implemented in this release.
 
-<table>
-  <tr>
-    <td width="50%"><h3>Website</h3><p>Public commercial discovery entry point.</p><p>Status: repository foundation target v0.1.0.</p><p><a href="https://github.com/nexa-suite/website">Repository</a></p></td>
-    <td width="50%"><h3><b>Platform</b></h3><p>Internal operations for Sales, Warehouse, Logistics, Company Ownership and Administration.</p><p>Angular · v0.2.1 target.</p><p><a href="https://github.com/nexa-suite/platform">Current repository</a></p></td>
-  </tr>
-  <tr>
-    <td width="50%"><h3>Buyer Portal</h3><p>Buyer-facing catalog, requests, orders and delivery visibility.</p><p>Angular · v0.2.1 target.</p><p><a href="https://github.com/nexa-suite/portal">Repository</a></p></td>
-    <td width="50%"><h3>API</h3><p>Business and integration authority.</p><p>Java 26 / Spring Boot 4.1 · v0.3.0 target.</p><p><a href="https://github.com/nexa-suite/api">Repository</a></p></td>
-  </tr>
-  <tr>
-    <td width="50%"><h3>Mobile</h3><p>Future native buyer and field-operation clients.</p><p>Status: planned · v0.1.0 target.</p><p><a href="https://github.com/nexa-suite/mobile">Repository</a></p></td>
-    <td width="50%"></td>
-  </tr>
-</table>
+![Nexa Suite repository map](./docs/assets/repository-map/nexa-suite-map.svg)
 
-## Scope
+## Repository map
 
-- Internal Angular application.
-- Approved API contracts only; no security authority.
-- Areas: IAM, Tenant Management, Catalog Management, Sales, Warehouse, Logistics and Invoicing.
-- Current maturity: Foundation. Planned areas remain not yet delivered until approved vertical slices exist.
+| Repository | Current release | Responsibility | Evidence status |
+|---|---:|---|---|
+| [Website](https://github.com/nexa-suite/website) | `v1.0.0` | Static public product discovery | Released static site |
+| **Platform** | **`v0.3.0`** | Internal operations shell | Angular `/overview` shell; Docker runtime |
+| [Portal](https://github.com/nexa-suite/portal) | `v0.3.0` | Buyer self-service shell | Angular `/home` shell; Docker runtime |
+| [API](https://github.com/nexa-suite/api) | `v0.4.0` | Business and integration authority | Catalog query contract |
+| [Mobile](https://github.com/nexa-suite/mobile) | `v0.1.1` | Future native clients | Documentation-only |
 
-## Architecture
+## Bounded contexts
 
-Presentation depends on Application. Application depends on Domain. Infrastructure remains outside Domain. Frontend domain models will be introduced with an approved vertical and mapped from explicit API contracts.
-
-## Bounded Contexts
-
-| Area | Maturity |
+| Area | Current maturity |
 |---|---|
-| IAM | Foundation / planned |
-| Tenant Management | Foundation / planned |
-| Catalog Management | Foundation / planned |
+| IAM | Foundation shell / implementation planned |
+| Tenant Management | Foundation shell / implementation planned |
+| Catalog Management | Foundation shell / API foundation exists |
 | Sales | Planned |
 | Warehouse | Planned |
 | Logistics | Planned |
 | Invoicing | Planned |
 
-## Tech Stack
+## Architecture
 
-Angular 22, TypeScript strict mode, Angular Material/CDK 22, Signals, RxJS, ngx-translate 18, SCSS and npm.
+Presentation depends on Application. Application depends on Domain. Infrastructure remains outside Domain. Frontend models and API adapters require an approved vertical slice and an explicit contract; the Platform shell does not own backend business rules.
 
-## Getting Started
+## Tech stack
+
+Angular 22, TypeScript strict mode, Angular Material/CDK 22, Signals, RxJS, `ngx-translate` 18, SCSS and npm 11.17.0 as declared by `package.json`.
+
+## Getting started
 
 ```bash
 npm ci
 npm start
 ```
 
-Open [http://localhost:4200](http://localhost:4200).
+Open [http://localhost:4200](http://localhost:4200) and navigate to `/overview`.
 
-## Available Commands
+## Available commands
 
 ```bash
 npm run validate:catalog-assets
@@ -101,26 +90,23 @@ npm test
 npm run build
 ```
 
-## Project Structure
+## Project structure
 
 ```text
-src/app/core/                         # Shell, routes and language service
-src/app/shared/presentation/components # Reusable visual components
-src/app/shared/application/utilities   # Pure address, date and number utilities
-public/catalog-items/                  # Manifest-validated canonical media subset
-src/styles/                            # Tokens, typography, motion, Material and a11y
-docs/releases/                        # Versioned release notes
+src/app/core/                                      # Shell, routes and language service
+src/app/shared/presentation/components/            # Reusable visual components
+src/app/shared/application/utilities/              # Pure address, date and number utilities
+public/catalog-items/                              # Manifest-validated canonical media subset
+src/styles/                                        # Tokens, typography, motion, Material and a11y
+docs/assets/repository-map/                         # Local architecture map
+docs/releases/                                      # Versioned release notes
 ```
 
 ## Documentation
 
-- [Release notes](./docs/releases/)
-- [Repository release policy](./.github/RELEASE_POLICY.md)
+- [Release notes index](./docs/releases/)
+- [Release policy](./.github/RELEASE_POLICY.md)
 
-## Current Release
+## Roadmap boundary
 
-v0.2.1 is the repository experience and governance update. It adds no functional capability.
-
-## Roadmap
-
-Future vertical slices require explicit contracts, identity, tenant rules and runtime/browser evidence.
+Future vertical slices require explicit contracts, identity, tenant rules and runtime/browser evidence. Planned database, AI, IoT, cloud and mobile capabilities must not be described as Platform implementation until those gates pass.

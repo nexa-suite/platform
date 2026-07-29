@@ -1,0 +1,14 @@
+.git/
+.github/
+node_modules/
+dist/
+.angular/
+coverage/
+tmp/
+out-tsc/
+.env
+.env.*
+!.env.example
+*.log
+.idea/
+.vscode/
