@@ -1,9 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { form, FormField, minLength, required } from '@angular/forms/signals';
 import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
@@ -13,7 +11,7 @@ import { safeReturnUrl } from '../../../core/routing/route-paths';
 
 @Component({
   selector: 'nexa-sign-in-page',
-  imports: [FormField, MatButtonModule, MatCardModule, MatFormFieldModule, MatIconModule, MatInputModule, TranslatePipe],
+  imports: [FormField, MatButtonModule, MatFormFieldModule, MatInputModule, TranslatePipe],
   templateUrl: './sign-in-page.component.html',
   styleUrl: './sign-in-page.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush

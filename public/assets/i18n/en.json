@@ -19,6 +19,10 @@
     "signIn": {
       "title": "Sign in to Platform",
       "description": "Use your internal operations identity to continue.",
+      "heroTitle": "Cold-chain operations, finally in order.",
+      "heroDescription": "Product catalog, stock, purchase orders, dispatch orders and delivery status in one cold-chain workspace.",
+      "heroFooter": "© 2026 Nexa · All rights reserved",
+      "heroPills": { "catalog": "Product catalog updated", "stock": "Stock visible", "orders": "Purchase order confirmed", "delivery": "Delivery documented" },
       "identifier": "Identifier",
       "password": "Password",
       "workspace": "Workspace slug",

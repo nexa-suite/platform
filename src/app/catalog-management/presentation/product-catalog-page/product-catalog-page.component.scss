@@ -3,11 +3,19 @@
 .filters { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: var(--nexa-space-3); }
 .query-filter { grid-column: span 2; }
 mat-form-field { min-width: 0; }
-.table-wrap { overflow-x: auto; }
-table { width: 100%; min-width: 62rem; }
-th { color: var(--nexa-color-text-secondary); font-size: var(--nexa-font-size-xs); text-transform: uppercase; }
-td, th { padding-right: var(--nexa-space-4); }
-td strong { color: var(--nexa-color-text-primary); }
+.catalog-card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr)); gap: var(--nexa-space-5); }
+.catalog-card { display: grid; overflow: hidden; border: 1px solid var(--nexa-color-border-default); border-radius: var(--nexa-radius-xl); background: var(--nexa-surface-card); box-shadow: var(--nexa-shadow-sm); }
+.catalog-card-visual { display: grid; min-height: 13rem; place-items: center; padding: var(--nexa-space-5); background: var(--nexa-surface-inset); text-decoration: none; }
+.catalog-card-visual img { width: 100%; height: 12rem; object-fit: contain; transition: transform 160ms ease; }
+.catalog-card-visual:hover img { transform: scale(1.03); }
+.catalog-card-visual mat-icon { width: 4rem; height: 4rem; color: var(--nexa-color-primary-600); font-size: 4rem; }
+.catalog-card-body { display: grid; align-content: start; gap: var(--nexa-space-3); padding: var(--nexa-space-5); }
+.catalog-category, .catalog-brand { margin: 0; color: var(--nexa-color-text-secondary); font-size: var(--nexa-font-size-sm); }
+.catalog-category { color: var(--nexa-color-cold-refrigerated); font-size: var(--nexa-font-size-xs); font-weight: var(--nexa-font-weight-bold); letter-spacing: var(--nexa-letter-spacing-wide); text-transform: uppercase; }
+.catalog-card h3 { min-height: 2.5rem; margin: 0; font-family: var(--nexa-font-family-display); font-size: var(--nexa-font-size-lg); line-height: var(--nexa-line-height-tight); }
+.catalog-card-footer { display: flex; align-items: center; justify-content: space-between; gap: var(--nexa-space-3); padding-top: var(--nexa-space-3); border-top: 1px solid var(--nexa-color-border-default); }
+.catalog-card-footer strong { color: var(--nexa-color-text-primary); }
+.catalog-card-footer a { color: var(--nexa-color-primary-700); font-weight: var(--nexa-font-weight-bold); text-decoration: none; }
 .retrying { margin-bottom: var(--nexa-space-3); }
 mat-paginator { margin-top: var(--nexa-space-4); }
 @media (max-width: 960px) { .filters { grid-template-columns: repeat(2, minmax(0, 1fr)); } .query-filter { grid-column: span 2; } }

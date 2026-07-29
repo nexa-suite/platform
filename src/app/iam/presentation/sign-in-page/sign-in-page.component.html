@@ -1,11 +1,37 @@
 <main class="sign-in-page" aria-labelledby="sign-in-title">
-  <mat-card class="sign-in-card">
-    <div class="brand-mark" aria-hidden="true"><mat-icon>ac_unit</mat-icon></div>
-    <p class="eyebrow">{{ 'auth.platformSurface' | translate }}</p>
-    <h1 id="sign-in-title">{{ 'auth.signIn.title' | translate }}</h1>
-    <p class="intro">{{ 'auth.signIn.description' | translate }}</p>
+  <section class="auth-hero">
+    <div class="auth-hero-content">
+      <img class="auth-logo" src="assets/branding/nexa-white.svg" alt="Nexa" />
+      <h2>{{ 'auth.signIn.heroTitle' | translate }}</h2>
+      <p>{{ 'auth.signIn.heroDescription' | translate }}</p>
+      <div class="hero-pills">
+        <span>{{ 'auth.signIn.heroPills.catalog' | translate }}</span>
+        <span>{{ 'auth.signIn.heroPills.stock' | translate }}</span>
+        <span>{{ 'auth.signIn.heroPills.orders' | translate }}</span>
+        <span>{{ 'auth.signIn.heroPills.delivery' | translate }}</span>
+      </div>
+    </div>
+    <footer>{{ 'auth.signIn.heroFooter' | translate }}</footer>
+  </section>
+
+  <section class="auth-form-panel">
+    <div class="language-switcher" aria-label="Language"><span>ES</span><span class="active">EN</span></div>
+    <div class="form-copy">
+      <p class="eyebrow">{{ 'auth.platformSurface' | translate }}</p>
+      <h1 id="sign-in-title">{{ 'auth.signIn.title' | translate }}</h1>
+      <p>{{ 'auth.signIn.description' | translate }}</p>
+    </div>
 
     <form (submit)="submit($event)" novalidate>
+      <mat-form-field appearance="outline">
+        <mat-label>{{ 'auth.signIn.workspace' | translate }}</mat-label>
+        <input matInput autocomplete="organization" [formField]="signInForm.workspaceSlug" />
+        <mat-hint>{{ 'auth.signIn.workspaceHint' | translate }}</mat-hint>
+        @if (signInForm.workspaceSlug().touched() && signInForm.workspaceSlug().invalid()) {
+          <mat-error>{{ signInForm.workspaceSlug().errors()[0]?.message }}</mat-error>
+        }
+      </mat-form-field>
+
       <mat-form-field appearance="outline">
         <mat-label>{{ 'auth.signIn.identifier' | translate }}</mat-label>
         <input matInput autocomplete="username" [formField]="signInForm.identifier" />
@@ -22,15 +48,6 @@
         }
       </mat-form-field>
 
-      <mat-form-field appearance="outline">
-        <mat-label>{{ 'auth.signIn.workspace' | translate }}</mat-label>
-        <input matInput autocomplete="organization" [formField]="signInForm.workspaceSlug" />
-        <mat-hint>{{ 'auth.signIn.workspaceHint' | translate }}</mat-hint>
-        @if (signInForm.workspaceSlug().touched() && signInForm.workspaceSlug().invalid()) {
-          <mat-error>{{ signInForm.workspaceSlug().errors()[0]?.message }}</mat-error>
-        }
-      </mat-form-field>
-
       @if (status() === 'error') {
         <p class="form-error" role="alert">{{ 'auth.signIn.error' | translate }}</p>
       }
@@ -43,5 +60,5 @@
         }
       </button>
     </form>
-  </mat-card>
+  </section>
 </main>

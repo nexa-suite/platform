@@ -19,6 +19,10 @@
     "signIn": {
       "title": "Ingresar a Platform",
       "description": "Usa tu identidad de operaciones internas para continuar.",
+      "heroTitle": "Operaciones de cadena de frío, por fin en orden.",
+      "heroDescription": "Catálogo, stock, pedidos, despachos y estado de entrega en un solo workspace de cadena de frío.",
+      "heroFooter": "© 2026 Nexa · Todos los derechos reservados",
+      "heroPills": { "catalog": "Catálogo actualizado", "stock": "Stock visible", "orders": "Pedido confirmado", "delivery": "Entrega documentada" },
       "identifier": "Identificador",
       "password": "Contraseña",
       "workspace": "Slug del workspace",
