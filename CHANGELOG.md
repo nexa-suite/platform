@@ -8,7 +8,7 @@ The project uses Semantic Versioning.
 ### Documentation
 
 - Aligned the README, suite map and runtime diagram with the tagged `v0.2.1` Angular shell.
-- Made non-implemented API integration, persistence, identity, tenant, AI, IoT, cloud and mobile scope explicit.
+- Kept broader persistence, AI, IoT, cloud and mobile scope explicit while documenting the secured IAM, workspace and Catalog read slice.
 - Added a local repository map and a release-notes index.
 
 ## [0.3.0] - 2026-07-28
@@ -21,7 +21,7 @@ The project uses Semantic Versioning.
 
 ### Changed
 
-- Versioned repository baseline as `v0.3.0` while keeping API integration explicitly pending an approved client contract.
+- Versioned repository baseline as `v0.3.0` before the approved secured API vertical slice.
 
 ## [0.2.1] - 2026-07-28
 
@@ -60,6 +60,7 @@ The project uses Semantic Versioning.
 
 - Platform sign-in, memory-only session restoration and internal-role route enforcement.
 - Secured Product Catalog routes with URL-synchronized query state and explicit error/retry states.
+- Integrated `/api/v1/authentication/*`, `/api/v1/session` and secured Catalog read requests.
 
 ### Security
 
