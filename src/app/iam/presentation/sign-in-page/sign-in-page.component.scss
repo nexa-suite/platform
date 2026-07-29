@@ -5,7 +5,7 @@
 .auth-hero-content, .auth-hero footer { position: relative; z-index: 1; }
 .auth-hero-content { width: min(100%, 560px); margin-top: 2vh; }
 .auth-logo { display: block; width: 136px; height: auto; margin-bottom: clamp(56px, 9vh, 112px); }
-.auth-hero h2 { max-width: 560px; margin: 0 0 var(--nexa-space-6); font-family: var(--nexa-font-family-display); font-size: clamp(2rem, 4vw, 2.8rem); line-height: 1.1; }
+.auth-hero h2 { max-width: 560px; margin: 0 0 var(--nexa-space-6); color: #fff; font-family: var(--nexa-font-family-display); font-size: clamp(2rem, 4vw, 2.8rem); line-height: 1.1; }
 .auth-hero p { max-width: 560px; margin: 0; color: rgb(255 255 255 / 75%); font-size: var(--nexa-font-size-md); line-height: var(--nexa-line-height-relaxed); }
 .hero-pills { display: grid; grid-template-columns: repeat(2, minmax(0, 215px)); gap: var(--nexa-space-3); margin-top: var(--nexa-space-8); }
 .hero-pills span { padding: var(--nexa-space-3); border: 1px solid rgb(255 255 255 / 22%); border-radius: var(--nexa-radius-full); color: rgb(255 255 255 / 82%); font-size: var(--nexa-font-size-xs); }
