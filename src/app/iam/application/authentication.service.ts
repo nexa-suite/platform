@@ -1,5 +1,5 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
-import { Observable, catchError, map, tap, throwError } from 'rxjs';
+import { Observable, catchError, map, of, tap, throwError } from 'rxjs';
 import { INITIAL_AUTH_STATE, AuthSession, AuthState, AuthStatus, AuthenticatedUser, SignInCommand } from '../domain/models/auth.models';
 import { AuthApiService } from '../infrastructure/http/auth-api.service';
 import { AccessTokenStore } from '../infrastructure/token/access-token.store';
@@ -15,10 +15,18 @@ export class AuthenticationService {
   readonly currentUser = computed<AuthenticatedUser | null>(() => this.stateSignal().user);
   readonly isAuthenticated = computed(() => this.stateSignal().status === 'authenticated');
 
-  restore(): void {
+  restore(): Observable<void> {
     this.stateSignal.set({ status: 'restoring', user: null, message: null });
     this.tokenStore.clear();
-    this.stateSignal.set({ status: 'anonymous', user: null, message: null });
+    return this.api.refresh().pipe(
+      tap((session) => this.acceptSession(session)),
+      map(() => undefined),
+      catchError(() => {
+        this.tokenStore.clear();
+        this.stateSignal.set({ status: 'anonymous', user: null, message: null });
+        return of(undefined);
+      })
+    );
   }
 
   signIn(command: SignInCommand): Observable<AuthenticatedUser> {
@@ -65,8 +73,12 @@ export class AuthenticationService {
 
   signOut(): void {
     this.stateSignal.update((current) => ({ ...current, status: 'signingOut', message: null }));
-    this.tokenStore.clear();
-    this.stateSignal.set({ status: 'anonymous', user: null, message: null });
+    this.api.signOut(this.tokenStore.read()).pipe(
+      catchError(() => of(void 0))
+    ).subscribe(() => {
+      this.tokenStore.clear();
+      this.stateSignal.set({ status: 'anonymous', user: null, message: null });
+    });
   }
 
   private acceptSession(session: AuthSession): void {

@@ -29,8 +29,8 @@ describe('bearerInterceptor', () => {
     expect(catalog.request.headers.get('Authorization')).toBe('Bearer access-token');
     catalog.flush({});
 
-    http.post('/api/v1/auth/login', {}).subscribe();
-    const login = httpMock.expectOne('/api/v1/auth/login');
+    http.post('/api/v1/authentication/sign-in', {}).subscribe();
+    const login = httpMock.expectOne('/api/v1/authentication/sign-in');
     expect(login.request.headers.has('Authorization')).toBe(false);
     login.flush({});
   });

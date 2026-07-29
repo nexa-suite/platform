@@ -15,7 +15,7 @@ interface RuntimeGlobal {
 
 export function platformRuntimeConfigFactory(): PlatformRuntimeConfig {
   const configured = (globalThis as typeof globalThis & RuntimeGlobal).__NEXA_RUNTIME_CONFIG__;
-  const apiBaseUrl = configured?.apiBaseUrl?.trim() || 'http://localhost:8081';
+  const apiBaseUrl = configured?.apiBaseUrl?.trim() || 'http://localhost:8080';
 
   return {
     apiBaseUrl: apiBaseUrl.replace(/\/$/, ''),

@@ -1,11 +1,8 @@
 export const INTERNAL_ROLES = [
-  'OWNER',
-  'ADMIN',
+  'COMPANY_OWNER',
   'SALES',
-  'INVENTORY',
   'WAREHOUSE',
-  'LOGISTICS',
-  'DISPATCH'
+  'LOGISTICS'
 ] as const;
 
 export type InternalRole = (typeof INTERNAL_ROLES)[number];

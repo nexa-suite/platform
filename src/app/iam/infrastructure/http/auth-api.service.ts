@@ -11,20 +11,17 @@ import {
 import { PLATFORM_RUNTIME_CONFIG, platformApiUrl } from '../../../core/security/runtime-config';
 
 interface AuthApiUser {
-  readonly id?: string;
-  readonly subject?: string;
-  readonly identifier?: string;
-  readonly email?: string;
+  readonly userId?: string;
   readonly displayName?: string;
-  readonly name?: string;
+  readonly email?: string;
+  readonly preferredLanguage?: string;
   readonly workspaceSlug?: string;
-  readonly roles?: readonly string[];
-  readonly authorities?: readonly string[];
+  readonly role?: string;
 }
 
 interface AuthApiSessionResponse {
   readonly accessToken: string;
-  readonly user?: AuthApiUser;
+  readonly session?: AuthApiUser;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -34,25 +31,38 @@ export class AuthApiService {
 
   login(command: SignInCommand): Observable<AuthSession> {
     return this.http
-      .post<AuthApiSessionResponse>(platformApiUrl(this.config, '/api/v1/auth/login'), command)
+      .post<AuthApiSessionResponse>(platformApiUrl(this.config, '/api/v1/authentication/sign-in'),
+        { ...command, surface: this.config.surface }, { withCredentials: true })
       .pipe(map((response) => this.toSession(response, command)));
   }
 
   refresh(): Observable<AuthSession> {
     return this.http
-      .post<AuthApiSessionResponse>(platformApiUrl(this.config, '/api/v1/auth/refresh'), null, { withCredentials: true })
+      .post<AuthApiSessionResponse>(platformApiUrl(this.config, '/api/v1/authentication/refresh'), null, {
+        withCredentials: true,
+        setHeaders: { 'X-Nexa-Surface': this.config.surface }
+      })
       .pipe(map((response) => this.toSession(response)));
   }
 
+  signOut(accessToken: string | null): Observable<void> {
+    const headers: Record<string, string> = { 'X-Nexa-Surface': this.config.surface };
+    if (accessToken) headers.Authorization = `Bearer ${accessToken}`;
+    return this.http.post<void>(platformApiUrl(this.config, '/api/v1/authentication/sign-out'), null, {
+      withCredentials: true,
+      setHeaders: headers
+    });
+  }
+
   private toSession(response: AuthApiSessionResponse, command?: SignInCommand): AuthSession {
-    const user = response.user ?? {};
-    const identifier = user.identifier ?? user.email ?? command?.identifier ?? '';
+    const user = response.session ?? {};
+    const identifier = user.email ?? command?.identifier ?? '';
     const workspaceSlug = user.workspaceSlug ?? command?.workspaceSlug ?? '';
-    const roles = normalizeInternalRoles([...(user.roles ?? []), ...(user.authorities ?? [])]);
+    const roles = normalizeInternalRoles(user.role ? [user.role] : []);
     const authenticatedUser: AuthenticatedUser = {
-      subject: user.subject ?? user.id ?? identifier,
+      subject: user.userId ?? identifier,
       identifier,
-      displayName: user.displayName ?? user.name ?? identifier,
+      displayName: user.displayName ?? identifier,
       workspaceSlug,
       roles: roles as readonly InternalRole[]
     };

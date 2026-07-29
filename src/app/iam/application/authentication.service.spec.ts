@@ -28,7 +28,8 @@ describe('AuthenticationService', () => {
 
   it('restores to anonymous without reading persistent storage', () => {
     expect(service.status()).toBe('unknown');
-    service.restore();
+    api.refresh.mockReturnValue(throwError(() => new Error('no refresh cookie')));
+    service.restore().subscribe();
     expect(service.status()).toBe('anonymous');
     expect(service.accessToken()).toBeNull();
   });
