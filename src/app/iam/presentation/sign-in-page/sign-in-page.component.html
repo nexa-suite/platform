@@ -1,0 +1,47 @@
+<main class="sign-in-page" aria-labelledby="sign-in-title">
+  <mat-card class="sign-in-card">
+    <div class="brand-mark" aria-hidden="true"><mat-icon>ac_unit</mat-icon></div>
+    <p class="eyebrow">{{ 'auth.platformSurface' | translate }}</p>
+    <h1 id="sign-in-title">{{ 'auth.signIn.title' | translate }}</h1>
+    <p class="intro">{{ 'auth.signIn.description' | translate }}</p>
+
+    <form (submit)="submit($event)" novalidate>
+      <mat-form-field appearance="outline">
+        <mat-label>{{ 'auth.signIn.identifier' | translate }}</mat-label>
+        <input matInput autocomplete="username" [formField]="signInForm.identifier" />
+        @if (signInForm.identifier().touched() && signInForm.identifier().invalid()) {
+          <mat-error>{{ signInForm.identifier().errors()[0]?.message }}</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>{{ 'auth.signIn.password' | translate }}</mat-label>
+        <input matInput type="password" autocomplete="current-password" [formField]="signInForm.password" />
+        @if (signInForm.password().touched() && signInForm.password().invalid()) {
+          <mat-error>{{ signInForm.password().errors()[0]?.message }}</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>{{ 'auth.signIn.workspace' | translate }}</mat-label>
+        <input matInput autocomplete="organization" [formField]="signInForm.workspaceSlug" />
+        <mat-hint>{{ 'auth.signIn.workspaceHint' | translate }}</mat-hint>
+        @if (signInForm.workspaceSlug().touched() && signInForm.workspaceSlug().invalid()) {
+          <mat-error>{{ signInForm.workspaceSlug().errors()[0]?.message }}</mat-error>
+        }
+      </mat-form-field>
+
+      @if (status() === 'error') {
+        <p class="form-error" role="alert">{{ 'auth.signIn.error' | translate }}</p>
+      }
+
+      <button mat-flat-button color="primary" type="submit" [disabled]="status() === 'authenticating'">
+        @if (status() === 'authenticating') {
+          {{ 'auth.signIn.authenticating' | translate }}
+        } @else {
+          {{ 'auth.signIn.submit' | translate }}
+        }
+      </button>
+    </form>
+  </mat-card>
+</main>

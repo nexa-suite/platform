@@ -1,0 +1,11 @@
+:host { display: block; min-height: 100dvh; }
+.sign-in-page { display: grid; min-height: 100dvh; place-items: center; padding: var(--nexa-space-6); background: radial-gradient(circle at top left, var(--nexa-color-primary-100), var(--nexa-surface-page) 44%); }
+.sign-in-card { width: min(100%, 28rem); padding: var(--nexa-space-8); border-radius: var(--nexa-radius-xl); box-shadow: var(--nexa-shadow-md); }
+.brand-mark { display: grid; place-items: center; width: 3rem; height: 3rem; margin-bottom: var(--nexa-space-5); border-radius: var(--nexa-radius-md); background: var(--nexa-color-neutral-950); color: var(--nexa-color-cold-refrigerated); }
+.eyebrow { margin: 0 0 var(--nexa-space-2); color: var(--nexa-color-cold-refrigerated); font-size: var(--nexa-font-size-xs); font-weight: var(--nexa-font-weight-bold); letter-spacing: var(--nexa-letter-spacing-wider); text-transform: uppercase; }
+h1 { margin: 0; font-size: var(--nexa-font-size-3xl); }
+.intro { margin: var(--nexa-space-3) 0 var(--nexa-space-6); color: var(--nexa-color-text-secondary); line-height: var(--nexa-line-height-relaxed); }
+form { display: grid; gap: var(--nexa-space-2); }
+mat-form-field { width: 100%; }
+button { min-height: 3rem; margin-top: var(--nexa-space-2); }
+.form-error { margin: var(--nexa-space-2) 0; color: var(--nexa-color-danger-700); font-size: var(--nexa-font-size-sm); }

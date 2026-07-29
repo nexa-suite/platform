@@ -1,0 +1,50 @@
+<div class="catalog-detail-page">
+  <a mat-button routerLink="/ops/product-catalog">
+    <mat-icon aria-hidden="true">arrow_back</mat-icon>
+    {{ 'catalog.backToCatalog' | translate }}
+  </a>
+
+  @if (state().status === 'loading') {
+    <nexa-loading-state [label]="'catalog.states.loadingDetail' | translate" [lines]="4" />
+  } @else if (state().status === 'error') {
+    <nexa-error-state
+      [title]="'catalog.states.errorTitle' | translate"
+      [description]="'catalog.states.errorDetailDescription' | translate"
+      [retryLabel]="'catalog.retry' | translate"
+      (retry)="retry()" />
+  } @else if (state().status === 'retrying') {
+    <nexa-loading-state [compact]="true" [label]="'catalog.states.retrying' | translate" [lines]="1" />
+    @if (item(); as product) {
+      <ng-container *ngTemplateOutlet="detailTemplate; context: { $implicit: product }" />
+    }
+  } @else if (item(); as product) {
+    <ng-container *ngTemplateOutlet="detailTemplate; context: { $implicit: product }" />
+  }
+</div>
+
+<ng-template #detailTemplate let-product>
+  <nexa-page-header
+    [eyebrow]="'catalog.detailEyebrow' | translate"
+    [title]="product.name"
+    [subtitle]="product.brand" />
+  <mat-card class="detail-card">
+    <div class="image-frame">
+      @if (product.image.url) {
+        <img [src]="product.image.url" [alt]="product.name" />
+      } @else {
+        <mat-icon aria-hidden="true">image</mat-icon>
+      }
+    </div>
+    <div class="detail-copy">
+      <div class="badges">
+        <nexa-cold-chain-badge [label]="coldChainLabel(product.coldChain) | translate" [variant]="coldChainVariant(product.coldChain)" />
+      </div>
+      <p class="category">{{ product.category }}</p>
+      <p class="description">{{ product.description }}</p>
+      <dl class="commercial-details">
+        <div><dt>{{ 'catalog.columns.presentation' | translate }}</dt><dd>{{ product.presentation }}</dd></div>
+        <div><dt>{{ 'catalog.columns.price' | translate }}</dt><dd>{{ formatPrice(product) }}</dd></div>
+      </dl>
+    </div>
+  </mat-card>
+</ng-template>
