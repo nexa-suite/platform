@@ -32,6 +32,7 @@ export class SignInPageComponent {
   });
   readonly status = this.authentication.status;
   readonly returnUrl = computed(() => safeReturnUrl(this.route.snapshot.queryParamMap.get('returnUrl')));
+  readonly passwordVisible = signal(false);
 
   submit(event: Event): void {
     event.preventDefault();
