@@ -30,5 +30,5 @@ export function platformApiUrl(config: PlatformRuntimeConfig, path: string): str
 export function platformMediaUrl(config: PlatformRuntimeConfig, path: string | null | undefined): string | null {
   if (!path) return null;
   if (/^https?:\/\//i.test(path)) return path;
-  return platformApiUrl(config, path);
+  return path.startsWith('/') ? path : `/${path}`;
 }
