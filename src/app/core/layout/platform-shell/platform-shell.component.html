@@ -16,6 +16,18 @@
           <mat-icon matListItemIcon aria-hidden="true">inventory_2</mat-icon>
           <span matListItemTitle>{{ 'shell.navigation.catalog' | translate }}</span>
         </a>
+        <a mat-list-item routerLink="/ops/operations/company-administration" routerLinkActive="active">
+          <mat-icon matListItemIcon aria-hidden="true">business</mat-icon>
+          <span matListItemTitle>Company administration</span>
+        </a>
+        <a mat-list-item routerLink="/ops/commercial/client-accounts" routerLinkActive="active">
+          <mat-icon matListItemIcon aria-hidden="true">handshake</mat-icon>
+          <span matListItemTitle>Client accounts</span>
+        </a>
+        <a mat-list-item routerLink="/ops/commercial/purchase-requests" routerLinkActive="active">
+          <mat-icon matListItemIcon aria-hidden="true">request_quote</mat-icon>
+          <span matListItemTitle>Purchase requests</span>
+        </a>
       </mat-nav-list>
     </nav>
   </mat-sidenav>
