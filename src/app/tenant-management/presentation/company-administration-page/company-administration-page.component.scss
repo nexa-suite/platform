@@ -1,0 +1,8 @@
+.page { padding: 32px; max-width: 1280px; margin: 0 auto; }
+.grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+.hero-card { background: var(--nexa-color-primary); color: white; }
+.muted, small { color: var(--nexa-color-text-secondary); }
+.hero-card .muted { color: rgba(255,255,255,.76); }
+ul { list-style: none; padding: 0; margin: 0; display: grid; gap: 12px; } li, .member { display: flex; align-items: center; justify-content: space-between; gap: 12px; } li span, small { display: block; font-size: 12px; }
+.members-card { grid-column: 1 / -1; }.members { display: grid; gap: 12px; }.member { justify-content: flex-start; border-bottom: 1px solid var(--nexa-color-border); padding: 8px 0; }.member mat-icon { color: var(--nexa-color-primary); }.member div:nth-child(2) { flex: 1; }
+@media (max-width: 760px) { .page { padding: 20px; }.grid { grid-template-columns: 1fr; }.members-card { grid-column: auto; } }
