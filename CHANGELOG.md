@@ -5,6 +5,12 @@ The project uses Semantic Versioning.
 
 ## [Unreleased]
 
+### Documentation
+
+- Aligned the README, suite map and runtime diagram with the tagged `v0.2.1` Angular shell.
+- Made non-implemented API integration, persistence, identity, tenant, AI, IoT, cloud and mobile scope explicit.
+- Added a local repository map and a release-notes index.
+
 ## [0.2.1] - 2026-07-28
 
 ### Changed
