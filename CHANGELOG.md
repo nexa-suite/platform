@@ -11,13 +11,13 @@ The project uses Semantic Versioning.
 - Kept broader persistence, AI, IoT, cloud and mobile scope explicit while documenting the secured IAM, workspace and Catalog read slice.
 - Added a local repository map and a release-notes index.
 
-## [0.4.0] - 2026-07-28
-
 ### Added
 
 - Platform sign-in, memory-only session restoration and internal-role route enforcement.
 - Secured Product Catalog routes with URL-synchronized query state and explicit error/retry states.
 - Integrated `/api/v1/authentication/*`, `/api/v1/session` and secured Catalog read requests.
+- Company administration for organization/workspace/membership operations.
+- Sales operations for client accounts and purchase request review.
 
 ### Security
 
@@ -67,8 +67,7 @@ The project uses Semantic Versioning.
 
 - Independent Angular 22 Platform application with bounded-context package structure, initial shell and EN/ES translation surface.
 
-[Unreleased]: https://github.com/nexa-suite/platform/compare/v0.4.0...HEAD
-[0.4.0]: https://github.com/nexa-suite/platform/compare/v0.3.0...v0.4.0
+[Unreleased]: https://github.com/nexa-suite/platform/compare/v0.3.0...HEAD
 [0.3.0]: https://github.com/nexa-suite/platform/compare/v0.2.1...v0.3.0
 [0.2.1]: https://github.com/nexa-suite/platform/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/nexa-suite/platform/compare/v0.1.0...v0.2.0
