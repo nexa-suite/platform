@@ -33,6 +33,9 @@ export class PlatformShellComponent {
   private readonly authentication = inject(AuthenticationService);
   readonly currentUser = this.authentication.currentUser;
   readonly displayName = computed(() => this.currentUser()?.displayName ?? '');
+  readonly canManageCompany = computed(() => this.currentUser()?.roles.includes('COMPANY_OWNER') ?? false);
+  readonly canSeeSales = computed(() => this.currentUser()?.roles.some((role) => role === 'COMPANY_OWNER' || role === 'SALES') ?? false);
+  readonly canSeeFulfillment = computed(() => this.currentUser()?.roles.some((role) => role === 'WAREHOUSE' || role === 'LOGISTICS') ?? false);
 
   signOut(): void {
     this.authentication.signOut();

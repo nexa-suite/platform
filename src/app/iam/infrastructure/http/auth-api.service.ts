@@ -6,6 +6,7 @@ import {
   AuthenticatedUser,
   InternalRole,
   normalizeInternalRoles,
+  normalizePermissions,
   SignInCommand
 } from '../../domain/models/auth.models';
 import { PLATFORM_RUNTIME_CONFIG, platformApiUrl } from '../../../core/security/runtime-config';
@@ -17,6 +18,7 @@ interface AuthApiUser {
   readonly preferredLanguage?: string;
   readonly workspaceSlug?: string;
   readonly role?: string;
+  readonly permissions?: readonly string[];
 }
 
 interface AuthApiSessionResponse {
@@ -61,7 +63,8 @@ export class AuthApiService {
       session: {
         ...response.user,
         workspaceSlug: response.workspace.workspaceSlug,
-        role: response.membership.role
+        role: response.membership.role,
+        permissions: response.membership.permissions
       }
     })));
   }
@@ -85,7 +88,8 @@ export class AuthApiService {
       identifier,
       displayName: user.displayName ?? identifier,
       workspaceSlug,
-      roles: roles as readonly InternalRole[]
+      roles: roles as readonly InternalRole[],
+      permissions: normalizePermissions(user.permissions)
     };
 
     return { accessToken: response.accessToken, user: authenticatedUser };

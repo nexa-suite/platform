@@ -14,6 +14,7 @@ export class AuthenticationService {
   readonly status = computed<AuthStatus>(() => this.stateSignal().status);
   readonly currentUser = computed<AuthenticatedUser | null>(() => this.stateSignal().user);
   readonly isAuthenticated = computed(() => this.stateSignal().status === 'authenticated');
+  readonly hasPermission = (permission: string): boolean => this.currentUser()?.permissions.includes(permission.trim().toLowerCase()) ?? false;
 
   restore(): Observable<void> {
     this.stateSignal.set({ status: 'restoring', user: null, message: null });
@@ -34,6 +35,7 @@ export class AuthenticationService {
     this.stateSignal.set({ status: 'authenticating', user: null, message: null });
 
     return this.api.login(command).pipe(
+      switchMap((session) => this.api.currentSession(session.accessToken)),
       tap((session) => this.acceptSession(session)),
       map((session) => session.user),
       catchError((error: unknown) => {

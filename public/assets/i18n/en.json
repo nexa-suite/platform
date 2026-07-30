@@ -6,7 +6,7 @@
     "internalDescription": "Coordinate sales, warehouse, logistics and administration workflows from one workspace.",
     "language": "Language",
     "skipToContent": "Skip to content",
-    "navigation": { "overview": "Overview", "catalog": "Product catalog" }
+    "navigation": { "overview": "Overview", "catalog": "Product catalog", "salesOrders": "Sales orders", "fulfillment": "Fulfillment readiness" }
   },
   "overview": {
     "title": "Operations workspace",
@@ -82,5 +82,35 @@
       "errorDescription": "The catalog could not be loaded. Try again when the service is available.",
       "errorDetailDescription": "The product detail could not be loaded. Try again when the service is available."
     }
+  },
+  "clientAccounts": {
+    "eyebrow": "Sales / Client accounts", "title": "Client accounts", "description": "Manage commercial accounts, state and buyer association.",
+    "filters": { "search": "Search accounts", "status": "Status", "all": "All", "apply": "Apply" },
+    "status": { "active": "Active", "suspended": "Suspended" },
+    "fields": { "businessName": "Business name", "commercialName": "Commercial name", "segment": "Segment", "contactPerson": "Contact person", "contactEmail": "Contact email", "phone": "Phone", "deliveryProfile": "Delivery profile", "paymentCondition": "Payment condition", "buyerMembershipId": "Buyer membership ID" },
+    "detail": { "profile": "Commercial profile", "noBuyer": "No buyer associated" },
+    "actions": { "open": "Open", "back": "Back to accounts", "save": "Save changes", "activate": "Activate", "suspend": "Suspend", "associateBuyer": "Associate buyer", "retry": "Retry" },
+    "states": { "loading": "Loading client accounts", "refreshing": "Refreshing client accounts", "detailLoading": "Loading account", "emptyTitle": "No client accounts", "emptyDescription": "No account matches the current filters.", "errorTitle": "Client accounts unavailable", "errorDescription": "The API could not load client accounts.", "detailError": "The account detail could not be loaded." }
+  },
+  "purchaseRequests": {
+    "eyebrow": "Sales / Purchase requests", "title": "Purchase requests", "description": "Review buyer requests and convert approved requests to sales orders.",
+    "filters": { "search": "Search requests", "status": "Status", "priority": "Priority", "all": "All", "apply": "Apply" },
+    "status": { "DRAFT": "Draft", "SUBMITTED": "Submitted", "IN_REVIEW": "In review", "NEEDS_ADJUSTMENT": "Needs adjustment", "APPROVED": "Approved", "REJECTED": "Rejected", "CANCELLED": "Cancelled", "CONVERTED_TO_ORDER": "Converted to order" },
+    "actions": { "review": "Review", "back": "Back to inbox", "retry": "Retry", "startReview": "Start review", "requestAdjustment": "Request adjustment", "approve": "Approve", "reject": "Reject", "convert": "Convert to sales order" },
+    "states": { "loading": "Loading purchase requests", "refreshing": "Refreshing purchase requests", "detailLoading": "Loading request", "emptyTitle": "Inbox is empty", "emptyDescription": "No purchase request matches this filter.", "errorTitle": "Purchase requests unavailable", "errorDescription": "The API could not load the sales inbox.", "detailError": "The request detail could not be loaded." },
+    "detail": { "deliveryPending": "Delivery date pending", "noComment": "No buyer comment", "lines": "Lines", "emptyDraft": "This draft has no lines yet.", "note": "Review note or rejection reason", "timeline": "Timeline", "system": "System", "noEvents": "No timeline events." }
+  },
+  "salesOrders": {
+    "eyebrow": "Sales / Sales orders", "title": "Sales orders", "description": "Inspect orders created only from approved purchase requests.",
+    "filters": { "search": "Search orders", "status": "Status", "all": "All", "apply": "Apply" },
+    "status": { "PENDING": "Pending", "CONFIRMED": "Confirmed", "REJECTED": "Rejected", "CANCELLED": "Cancelled" },
+    "actions": { "open": "Open", "back": "Back to sales orders", "retry": "Retry", "confirm": "Confirm", "reject": "Reject", "cancel": "Cancel" },
+    "states": { "loading": "Loading sales orders", "refreshing": "Refreshing sales orders", "detailLoading": "Loading order", "emptyTitle": "No sales orders", "emptyDescription": "No sales order matches this filter.", "errorTitle": "Sales orders unavailable", "errorDescription": "The API could not load sales orders.", "detailError": "The order detail could not be loaded." },
+    "detail": { "sourceRequest": "Source purchase request", "lines": "Lines", "reason": "Reason", "timeline": "Timeline", "system": "System", "noEvents": "No timeline events." }
+  },
+  "fulfillment": {
+    "eyebrow": "Warehouse / Logistics", "title": "Fulfillment readiness", "description": "Read-only candidates eligible for the next fulfillment projection.",
+    "fields": { "warehouse": "Warehouse" }, "actions": { "retry": "Retry" },
+    "states": { "loading": "Loading fulfillment candidates", "emptyTitle": "No fulfillment candidates", "emptyDescription": "There are no confirmed orders awaiting inventory reservation.", "errorTitle": "Fulfillment projection unavailable", "errorDescription": "The API could not load fulfillment candidates." }
   }
 }

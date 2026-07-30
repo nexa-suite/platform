@@ -1,0 +1,9 @@
+.page { padding: 32px; max-width: 1280px; margin: auto; display: grid; gap: 20px; }
+.filters { padding: 16px; display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+.filters mat-form-field { min-width: 220px; }
+.list { display: grid; }
+.row { display: flex; justify-content: space-between; align-items: center; gap: 20px; padding: 18px 20px; border-bottom: 1px solid var(--nexa-color-border); }
+.row:last-child { border-bottom: 0; }
+.row h3 { margin: 6px 0; }
+.row p, .code { color: var(--nexa-color-text-secondary); }
+.meta { display: flex; align-items: center; gap: 16px; }

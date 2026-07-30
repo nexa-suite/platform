@@ -29,6 +29,7 @@ export interface AuthenticatedUser {
   readonly displayName: string;
   readonly workspaceSlug: string;
   readonly roles: readonly InternalRole[];
+  readonly permissions: readonly string[];
 }
 
 export interface AuthSession {
@@ -58,4 +59,8 @@ export function normalizeInternalRoles(values: readonly string[] | undefined): r
     .filter(isInternalRole);
 
   return roles.filter((role, index) => roles.indexOf(role) === index);
+}
+
+export function normalizePermissions(values: readonly string[] | undefined): readonly string[] {
+  return [...new Set((values ?? []).map((value) => value.trim().toLowerCase()).filter(Boolean))];
 }
