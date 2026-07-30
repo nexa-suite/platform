@@ -16,11 +16,11 @@
           <mat-icon matListItemIcon aria-hidden="true">inventory_2</mat-icon>
           <span matListItemTitle>{{ 'shell.navigation.catalog' | translate }}</span>
         </a>
-        <a mat-list-item routerLink="/ops/operations/company-administration" routerLinkActive="active">
+        @if (canManageCompany()) { <a mat-list-item routerLink="/ops/operations/company-administration" routerLinkActive="active">
           <mat-icon matListItemIcon aria-hidden="true">business</mat-icon>
           <span matListItemTitle>Company administration</span>
-        </a>
-        <a mat-list-item routerLink="/ops/commercial/client-accounts" routerLinkActive="active">
+        </a> }
+        @if (canSeeSales()) { <a mat-list-item routerLink="/ops/commercial/client-accounts" routerLinkActive="active">
           <mat-icon matListItemIcon aria-hidden="true">handshake</mat-icon>
           <span matListItemTitle>Client accounts</span>
         </a>
@@ -28,6 +28,12 @@
           <mat-icon matListItemIcon aria-hidden="true">request_quote</mat-icon>
           <span matListItemTitle>Purchase requests</span>
         </a>
+        <a mat-list-item routerLink="/ops/commercial/sales-orders" routerLinkActive="active">
+          <mat-icon matListItemIcon aria-hidden="true">receipt_long</mat-icon><span matListItemTitle>{{ 'shell.navigation.salesOrders' | translate }}</span>
+        </a> }
+        @if (canSeeFulfillment()) { <a mat-list-item routerLink="/ops/fulfillment/readiness" routerLinkActive="active">
+          <mat-icon matListItemIcon aria-hidden="true">warehouse</mat-icon><span matListItemTitle>{{ 'shell.navigation.fulfillment' | translate }}</span>
+        </a> }
       </mat-nav-list>
     </nav>
   </mat-sidenav>
