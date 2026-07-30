@@ -3,6 +3,19 @@
 All notable changes to this project are documented in this file.
 The project uses Semantic Versioning.
 
+## [0.6.0] - 2026-07-30
+
+### Added
+
+- Internal Sales Order list/detail, status timeline and fulfillment-readiness surfaces.
+- Endpoint-specific commercial filters, event mapping and secure change-feed reconnect behavior.
+- Platform CI, CodeQL and Dependabot configuration.
+
+### Security
+
+- Buyer access remains rejected by Platform guards; Sales Order mutations are not exposed to Buyer UI.
+- Change-feed sessions disconnect on logout and retry only through the authenticated refresh path.
+
 ## [0.5.0] - 2026-07-30
 
 This release consolidates previously unreleased Identity, tenant, security and commercial vertical work. Intermediate planned versions were never published.
@@ -59,7 +72,8 @@ This release consolidates previously unreleased Identity, tenant, security and c
 
 - Independent Angular 22 Platform application with bounded-context package structure, initial shell and EN/ES translation surface.
 
-[Unreleased]: https://github.com/nexa-suite/platform/compare/v0.5.0...HEAD
+[Unreleased]: https://github.com/nexa-suite/platform/compare/v0.6.0...HEAD
+[0.6.0]: https://github.com/nexa-suite/platform/compare/v0.5.0...v0.6.0
 [0.5.0]: https://github.com/nexa-suite/platform/compare/v0.3.0...v0.5.0
 [0.3.0]: https://github.com/nexa-suite/platform/compare/v0.2.1...v0.3.0
 [0.2.1]: https://github.com/nexa-suite/platform/compare/v0.2.0...v0.2.1
