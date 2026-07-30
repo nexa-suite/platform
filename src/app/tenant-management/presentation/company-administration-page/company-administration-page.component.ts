@@ -18,4 +18,8 @@ import { CompanyAdministrationFacade } from '../../application/company-administr
 export class CompanyAdministrationPageComponent {
   readonly facade = inject(CompanyAdministrationFacade);
   constructor() { this.facade.load(); }
+  rename(workspaceId: string, version: number, name: string): void { this.facade.renameWorkspace(workspaceId, version, name); }
+  changeRole(membershipId: string, version: number, role: string): void { this.facade.changeRole(membershipId, version, role); }
+  suspend(membershipId: string, version: number): void { this.facade.suspend(membershipId, version); }
+  reactivate(membershipId: string, version: number): void { this.facade.reactivate(membershipId, version); }
 }

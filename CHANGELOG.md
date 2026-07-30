@@ -3,26 +3,18 @@
 All notable changes to this project are documented in this file.
 The project uses Semantic Versioning.
 
-## [Unreleased]
+## [0.5.0] - 2026-07-30
 
-### Documentation
-
-- Aligned the README, suite map and runtime diagram with the tagged `v0.2.1` Angular shell.
-- Kept broader persistence, AI, IoT, cloud and mobile scope explicit while documenting the secured IAM, workspace and Catalog read slice.
-- Added a local repository map and a release-notes index.
+This release consolidates previously unreleased Identity, tenant, security and commercial vertical work. Intermediate planned versions were never published.
 
 ### Added
 
-- Platform sign-in, memory-only session restoration and internal-role route enforcement.
-- Secured Product Catalog routes with URL-synchronized query state and explicit error/retry states.
-- Integrated `/api/v1/authentication/*`, `/api/v1/session` and secured Catalog read requests.
-- Company administration for organization/workspace/membership operations.
-- Sales operations for client accounts and purchase request review.
+- Authentication and protected internal access, Product Catalog, Company Administration, Client Accounts and Purchase Request operations.
+- Lazy feature loading, structural Vue parity improvements, bundle consolidation and focused tests.
 
 ### Security
 
-- Platform surface accepts internal roles only; Buyer membership is rejected.
-- Browser storage is not used for access or refresh tokens.
+- Platform accepts internal roles only; Buyer membership is rejected; browser storage is not used for access or refresh tokens.
 
 ## [0.3.0] - 2026-07-28
 
@@ -67,7 +59,8 @@ The project uses Semantic Versioning.
 
 - Independent Angular 22 Platform application with bounded-context package structure, initial shell and EN/ES translation surface.
 
-[Unreleased]: https://github.com/nexa-suite/platform/compare/v0.3.0...HEAD
+[Unreleased]: https://github.com/nexa-suite/platform/compare/v0.5.0...HEAD
+[0.5.0]: https://github.com/nexa-suite/platform/compare/v0.3.0...v0.5.0
 [0.3.0]: https://github.com/nexa-suite/platform/compare/v0.2.1...v0.3.0
 [0.2.1]: https://github.com/nexa-suite/platform/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/nexa-suite/platform/compare/v0.1.0...v0.2.0

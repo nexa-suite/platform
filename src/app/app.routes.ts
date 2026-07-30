@@ -1,4 +1,5 @@
-import { Routes } from '@angular/router';
+import { RedirectFunction, Router, Routes } from '@angular/router';
+import { inject } from '@angular/core';
 import { internalRoleGuard } from './core/security/internal-role.guard';
 import { anonymousGuard, authGuard } from './core/security/auth.guard';
 import { platformSurfaceGuard } from './core/security/platform-surface.guard';
@@ -7,11 +8,11 @@ import { OverviewPageComponent } from './core/presentation/overview-page/overvie
 import { ForbiddenPageComponent } from './iam/presentation/forbidden-page/forbidden-page.component';
 import { SignInPageComponent } from './iam/presentation/sign-in-page/sign-in-page.component';
 import { INTERNAL_ROLES } from './iam/domain/models/auth.models';
-import { ProductCatalogPageComponent } from './catalog-management/presentation/product-catalog-page/product-catalog-page.component';
-import { ProductCatalogDetailPageComponent } from './catalog-management/presentation/product-catalog-detail-page/product-catalog-detail-page.component';
 
 const catalogRoles = INTERNAL_ROLES;
 const companyOwnerRoles = ['COMPANY_OWNER'] as const;
+const dynamicRedirect = (target: string, parameter: string): RedirectFunction => (route) =>
+  inject(Router).createUrlTree([target, route.params[parameter]]);
 
 export const routes: Routes = [
   { path: 'sign-in', component: SignInPageComponent, canActivate: [anonymousGuard] },
@@ -24,8 +25,8 @@ export const routes: Routes = [
     children: [
       { path: '', pathMatch: 'full', redirectTo: 'ops/overview' },
       { path: 'ops/overview', component: OverviewPageComponent },
-      { path: 'ops/product-catalog', component: ProductCatalogPageComponent, canActivate: [internalRoleGuard(catalogRoles)], data: { roles: catalogRoles } },
-      { path: 'ops/product-catalog/:catalogItemId', component: ProductCatalogDetailPageComponent, canActivate: [internalRoleGuard(catalogRoles)], data: { roles: catalogRoles } },
+      { path: 'ops/product-catalog', loadComponent: () => import('./catalog-management/presentation/product-catalog-page/product-catalog-page.component').then((module) => module.ProductCatalogPageComponent), canActivate: [internalRoleGuard(catalogRoles)], data: { roles: catalogRoles } },
+      { path: 'ops/product-catalog/:catalogItemId', loadComponent: () => import('./catalog-management/presentation/product-catalog-detail-page/product-catalog-detail-page.component').then((module) => module.ProductCatalogDetailPageComponent), canActivate: [internalRoleGuard(catalogRoles)], data: { roles: catalogRoles } },
       {
         path: 'ops/operations/company-administration',
         loadComponent: () => import('./tenant-management/presentation/company-administration-page/company-administration-page.component').then((module) => module.CompanyAdministrationPageComponent),
@@ -56,7 +57,7 @@ export const routes: Routes = [
       },
       { path: 'ops/clients', pathMatch: 'full', redirectTo: 'ops/commercial/client-accounts' },
       { path: 'ops/commercial/requests', pathMatch: 'full', redirectTo: 'ops/commercial/purchase-requests' },
-      { path: 'ops/commercial/requests/:purchaseRequestId', pathMatch: 'full', redirectTo: 'ops/commercial/purchase-requests/:purchaseRequestId' },
+      { path: 'ops/commercial/requests/:purchaseRequestId', redirectTo: dynamicRedirect('/ops/commercial/purchase-requests', 'purchaseRequestId') },
       { path: 'overview', pathMatch: 'full', redirectTo: 'ops/overview' },
       { path: 'ops/catalog', pathMatch: 'full', redirectTo: 'ops/product-catalog' },
       { path: '**', redirectTo: 'ops/overview' }
