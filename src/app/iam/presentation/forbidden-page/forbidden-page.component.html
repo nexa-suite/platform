@@ -1,0 +1,9 @@
+<main class="forbidden-page" aria-labelledby="forbidden-title">
+  <mat-card>
+    <mat-icon aria-hidden="true">lock</mat-icon>
+    <p class="eyebrow">{{ 'auth.platformSurface' | translate }}</p>
+    <h1 id="forbidden-title">{{ 'auth.forbidden.title' | translate }}</h1>
+    <p>{{ 'auth.forbidden.description' | translate }}</p>
+    <a mat-flat-button color="primary" [routerLink]="overviewRoute">{{ 'auth.forbidden.back' | translate }}</a>
+  </mat-card>
+</main>

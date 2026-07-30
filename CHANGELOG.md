@@ -3,13 +3,18 @@
 All notable changes to this project are documented in this file.
 The project uses Semantic Versioning.
 
-## [Unreleased]
+## [0.5.0] - 2026-07-30
 
-### Documentation
+This release consolidates previously unreleased Identity, tenant, security and commercial vertical work. Intermediate planned versions were never published.
 
-- Aligned the README, suite map and runtime diagram with the tagged `v0.2.1` Angular shell.
-- Made non-implemented API integration, persistence, identity, tenant, AI, IoT, cloud and mobile scope explicit.
-- Added a local repository map and a release-notes index.
+### Added
+
+- Authentication and protected internal access, Product Catalog, Company Administration, Client Accounts and Purchase Request operations.
+- Lazy feature loading, structural Vue parity improvements, bundle consolidation and focused tests.
+
+### Security
+
+- Platform accepts internal roles only; Buyer membership is rejected; browser storage is not used for access or refresh tokens.
 
 ## [0.3.0] - 2026-07-28
 
@@ -21,7 +26,7 @@ The project uses Semantic Versioning.
 
 ### Changed
 
-- Versioned repository baseline as `v0.3.0` while keeping API integration explicitly pending an approved client contract.
+- Versioned repository baseline as `v0.3.0` before the approved secured API vertical slice.
 
 ## [0.2.1] - 2026-07-28
 
@@ -54,7 +59,8 @@ The project uses Semantic Versioning.
 
 - Independent Angular 22 Platform application with bounded-context package structure, initial shell and EN/ES translation surface.
 
-[Unreleased]: https://github.com/nexa-suite/platform/compare/v0.3.0...HEAD
+[Unreleased]: https://github.com/nexa-suite/platform/compare/v0.5.0...HEAD
+[0.5.0]: https://github.com/nexa-suite/platform/compare/v0.3.0...v0.5.0
 [0.3.0]: https://github.com/nexa-suite/platform/compare/v0.2.1...v0.3.0
 [0.2.1]: https://github.com/nexa-suite/platform/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/nexa-suite/platform/compare/v0.1.0...v0.2.0
