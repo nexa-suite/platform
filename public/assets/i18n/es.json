@@ -6,7 +6,7 @@
     "internalDescription": "Coordina ventas, almacén, logística y administración desde un solo espacio de trabajo.",
     "language": "Idioma",
     "skipToContent": "Saltar al contenido",
-    "navigation": { "overview": "Resumen", "catalog": "Catálogo de productos" }
+    "navigation": { "overview": "Resumen", "catalog": "Catálogo de productos", "salesOrders": "Órdenes de venta", "fulfillment": "Preparación de despacho" }
   },
   "overview": {
     "title": "Espacio de operaciones",
@@ -82,5 +82,31 @@
       "errorDescription": "No pudimos cargar el catálogo. Inténtalo nuevamente cuando el servicio esté disponible.",
       "errorDetailDescription": "No pudimos cargar el detalle del producto. Inténtalo nuevamente cuando el servicio esté disponible."
     }
+  },
+  "clientAccounts": {
+    "eyebrow": "Ventas / Cuentas cliente", "title": "Cuentas cliente", "description": "Gestiona cuentas comerciales, estado y asociación del comprador.",
+    "filters": { "search": "Buscar cuentas", "status": "Estado", "all": "Todas", "apply": "Aplicar" }, "status": { "active": "Activa", "suspended": "Suspendida" },
+    "fields": { "businessName": "Razón social", "commercialName": "Nombre comercial", "segment": "Segmento", "contactPerson": "Persona de contacto", "contactEmail": "Correo de contacto", "phone": "Teléfono", "deliveryProfile": "Perfil de entrega", "paymentCondition": "Condición de pago", "buyerMembershipId": "ID de membership comprador" },
+    "detail": { "profile": "Perfil comercial", "noBuyer": "Sin comprador asociado" }, "actions": { "open": "Abrir", "back": "Volver a cuentas", "save": "Guardar cambios", "activate": "Activar", "suspend": "Suspender", "associateBuyer": "Asociar comprador", "retry": "Reintentar" },
+    "states": { "loading": "Cargando cuentas cliente", "refreshing": "Actualizando cuentas cliente", "detailLoading": "Cargando cuenta", "emptyTitle": "No hay cuentas cliente", "emptyDescription": "Ninguna cuenta coincide con los filtros.", "errorTitle": "Cuentas cliente no disponibles", "errorDescription": "La API no pudo cargar las cuentas cliente.", "detailError": "No pudimos cargar el detalle de la cuenta." }
+  },
+  "purchaseRequests": {
+    "eyebrow": "Ventas / Solicitudes de compra", "title": "Solicitudes de compra", "description": "Revisa solicitudes de compradores y convierte las aprobadas en órdenes de venta.",
+    "filters": { "search": "Buscar solicitudes", "status": "Estado", "priority": "Prioridad", "all": "Todas", "apply": "Aplicar" },
+    "status": { "DRAFT": "Borrador", "SUBMITTED": "Enviada", "IN_REVIEW": "En revisión", "NEEDS_ADJUSTMENT": "Requiere ajuste", "APPROVED": "Aprobada", "REJECTED": "Rechazada", "CANCELLED": "Cancelada", "CONVERTED_TO_ORDER": "Convertida en orden" },
+    "actions": { "review": "Revisar", "back": "Volver a bandeja", "retry": "Reintentar", "startReview": "Iniciar revisión", "requestAdjustment": "Solicitar ajuste", "approve": "Aprobar", "reject": "Rechazar", "convert": "Convertir en orden de venta" },
+    "states": { "loading": "Cargando solicitudes", "refreshing": "Actualizando solicitudes", "detailLoading": "Cargando solicitud", "emptyTitle": "Bandeja vacía", "emptyDescription": "No hay solicitudes para este filtro.", "errorTitle": "Solicitudes no disponibles", "errorDescription": "La API no pudo cargar la bandeja de ventas.", "detailError": "No pudimos cargar el detalle de la solicitud." },
+    "detail": { "deliveryPending": "Fecha de entrega pendiente", "noComment": "Sin comentario del comprador", "lines": "Líneas", "emptyDraft": "Este borrador todavía no tiene líneas.", "note": "Nota de revisión o motivo de rechazo", "timeline": "Línea de tiempo", "system": "Sistema", "noEvents": "Sin eventos." }
+  },
+  "salesOrders": {
+    "eyebrow": "Ventas / Órdenes de venta", "title": "Órdenes de venta", "description": "Inspecciona órdenes creadas solo desde solicitudes aprobadas.",
+    "filters": { "search": "Buscar órdenes", "status": "Estado", "all": "Todas", "apply": "Aplicar" }, "status": { "PENDING": "Pendiente", "CONFIRMED": "Confirmada", "REJECTED": "Rechazada", "CANCELLED": "Cancelada" },
+    "actions": { "open": "Abrir", "back": "Volver a órdenes", "retry": "Reintentar", "confirm": "Confirmar", "reject": "Rechazar", "cancel": "Cancelar" },
+    "states": { "loading": "Cargando órdenes", "refreshing": "Actualizando órdenes", "detailLoading": "Cargando orden", "emptyTitle": "No hay órdenes de venta", "emptyDescription": "Ninguna orden coincide con el filtro.", "errorTitle": "Órdenes no disponibles", "errorDescription": "La API no pudo cargar las órdenes.", "detailError": "No pudimos cargar el detalle de la orden." },
+    "detail": { "sourceRequest": "Solicitud de compra de origen", "lines": "Líneas", "reason": "Motivo", "timeline": "Línea de tiempo", "system": "Sistema", "noEvents": "Sin eventos." }
+  },
+  "fulfillment": {
+    "eyebrow": "Almacén / Logística", "title": "Preparación de despacho", "description": "Candidatos de solo lectura elegibles para la siguiente proyección de fulfillment.", "fields": { "warehouse": "Almacén" }, "actions": { "retry": "Reintentar" },
+    "states": { "loading": "Cargando candidatos", "emptyTitle": "Sin candidatos", "emptyDescription": "No hay órdenes confirmadas esperando reserva de inventario.", "errorTitle": "Proyección no disponible", "errorDescription": "La API no pudo cargar los candidatos." }
   }
 }

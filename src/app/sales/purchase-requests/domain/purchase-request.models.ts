@@ -23,6 +23,7 @@ export interface PurchaseRequest {
   readonly status: PurchaseRequestStatus;
   readonly priority: PurchaseRequestPriority;
   readonly requestedDeliveryDate: string | null;
+  readonly lineCount: number;
   readonly deliveryProfileSnapshot: string | null;
   readonly paymentOption: PaymentOption | null;
   readonly comment: string | null;
@@ -47,7 +48,7 @@ export interface PurchaseRequestFilters {
   readonly q: string;
   readonly page: number;
   readonly size: number;
-  readonly sort: 'code' | 'status' | 'priority' | 'createdAt' | 'requestedDeliveryDate';
+  readonly sort: 'createdAt' | 'updatedAt';
   readonly direction: 'asc' | 'desc';
 }
 

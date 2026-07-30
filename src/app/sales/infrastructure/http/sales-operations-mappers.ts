@@ -77,7 +77,7 @@ function toPurchaseRequestLine(value: ApiRecord): PurchaseRequestLine {
     id: stringValue(value, 'purchaseRequestLineId', 'lineId', 'id'),
     catalogItemId: stringValue(value, 'catalogItemId'),
     itemName: stringValue(value, 'itemName', 'catalogItemName'),
-    presentation: stringValue(value, 'presentation'),
+    presentation: stringValue(value, 'presentation', 'presentationSnapshot'),
     quantity: numberValue(value, 'quantity'),
     unit: stringValue(value, 'unit'),
     unitPriceAmount: Object.keys(price).length ? numberValue(price, 'amount') : nullableNumber(value, 'unitPriceAmount'),
@@ -101,6 +101,7 @@ export function toPurchaseRequest(value: ApiRecord): PurchaseRequest {
     status,
     priority: stringValue(value, 'priority') as PurchaseRequest['priority'],
     requestedDeliveryDate: nullableString(value, 'requestedDeliveryDate'),
+    lineCount: numberValue(value, 'lineCount') || (Array.isArray(value['lines']) ? value['lines'].length : 0),
     deliveryProfileSnapshot: nullableString(value, 'deliveryProfileSnapshot'),
     paymentOption: (nullableString(value, 'paymentOption') as PaymentOption | null),
     comment: nullableString(value, 'comment'),
@@ -134,7 +135,7 @@ function toSalesOrderLine(value: ApiRecord): SalesOrderLine {
     unit: stringValue(value, 'unit'),
     unitPriceAmount: Object.keys(price).length ? numberValue(price, 'amount') : numberValue(value, 'unitPriceAmount'),
     unitPriceCurrency: Object.keys(price).length ? stringValue(price, 'currency') : stringValue(value, 'unitPriceCurrency'),
-    lineTotalAmount: numberValue(value, 'lineTotalAmount', 'totalAmount')
+    lineTotalAmount: numberValue(value, 'lineTotalAmount', 'lineSubtotal', 'totalAmount')
   };
 }
 
@@ -144,7 +145,14 @@ export function toSalesOrder(value: ApiRecord): SalesOrder {
     number: stringValue(value, 'salesOrderNumber', 'number'),
     purchaseRequestId: stringValue(value, 'purchaseRequestId', 'sourcePurchaseRequestId'),
     clientAccountId: stringValue(value, 'clientAccountId'),
+    createdByMembershipId: stringValue(value, 'createdByMembershipId'),
+    buyerMembershipId: stringValue(value, 'buyerMembershipId'),
     clientAccountName: nestedString(value, 'clientAccount', 'commercialName', 'businessName', 'name') || stringValue(value, 'clientAccountName'),
+    priority: stringValue(value, 'priority') as SalesOrder['priority'],
+    requestedDeliveryDate: nullableString(value, 'requestedDeliveryDate'),
+    deliverySnapshot: nullableString(value, 'deliverySnapshot'),
+    paymentOption: nullableString(value, 'paymentOption'),
+    notes: nullableString(value, 'notes'),
     currency: stringValue(value, 'currency'),
     total: numberValue(value, 'total', 'totalAmount'),
     status: stringValue(value, 'status') as SalesOrderStatus,
@@ -152,7 +160,11 @@ export function toSalesOrder(value: ApiRecord): SalesOrder {
     workspaceId: stringValue(value, 'workspaceId'),
     lines: Array.isArray(value['lines']) ? value['lines'].map((line) => toSalesOrderLine(record(line))) : [],
     version: numberValue(value, 'version'),
-    createdAt: stringValue(value, 'createdAt')
+    createdAt: stringValue(value, 'createdAt'),
+    updatedAt: stringValue(value, 'updatedAt'),
+    confirmedAt: nullableString(value, 'confirmedAt'),
+    rejectedAt: nullableString(value, 'rejectedAt'),
+    cancelledAt: nullableString(value, 'cancelledAt')
   };
 }
 

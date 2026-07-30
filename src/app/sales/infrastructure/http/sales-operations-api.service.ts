@@ -14,7 +14,9 @@ export class SalesOperationsApiService {
   private readonly api = (path: string) => platformApiUrl(this.config, `/api/v1${path}`);
 
   clientAccounts(filters: ClientAccountFilters = DEFAULT_CLIENT_ACCOUNT_FILTERS): Observable<ClientAccountPage> {
-    return this.http.get<ApiPageDto>(this.api('/client-accounts'), { params: this.toParams(filters) }).pipe(map(toClientAccountPage));
+    return this.http.get<ApiPageDto>(this.api('/client-accounts'), { params: this.params({
+      search: filters.q, status: filters.status, page: filters.page, size: filters.size
+    }) }).pipe(map(toClientAccountPage));
   }
 
   clientAccount(id: string): Observable<ClientAccount> {
@@ -38,7 +40,10 @@ export class SalesOperationsApiService {
   }
 
   purchaseRequests(filters: PurchaseRequestFilters = DEFAULT_PURCHASE_REQUEST_FILTERS): Observable<PurchaseRequestPage> {
-    return this.http.get<ApiPageDto>(this.api('/purchase-requests'), { params: this.toParams(filters) }).pipe(map(toPurchaseRequestPage));
+    return this.http.get<ApiPageDto>(this.api('/purchase-requests'), { params: this.params({
+      status: filters.status, priority: filters.priority, search: filters.q, page: filters.page, size: filters.size,
+      sort: filters.sort + ',' + filters.direction
+    }) }).pipe(map(toPurchaseRequestPage));
   }
 
   purchaseRequest(id: string): Observable<PurchaseRequest> {
@@ -65,7 +70,10 @@ export class SalesOperationsApiService {
   }
 
   salesOrders(filters: SalesOrderFilters = DEFAULT_SALES_ORDER_FILTERS): Observable<SalesOrderPage> {
-    return this.http.get<ApiPageDto>(this.api('/sales-orders'), { params: this.toParams(filters) }).pipe(map(toSalesOrderPage));
+    return this.http.get<ApiPageDto>(this.api('/sales-orders'), { params: this.params({
+      status: filters.status, clientAccountId: filters.clientAccountId, search: filters.q, page: filters.page, size: filters.size,
+      sort: filters.sort + ',' + filters.direction
+    }) }).pipe(map(toSalesOrderPage));
   }
 
   salesOrder(id: string): Observable<SalesOrder> {
@@ -90,12 +98,12 @@ export class SalesOperationsApiService {
   }
 
   fulfillmentCandidates(): Observable<readonly FulfillmentCandidate[]> {
-    return this.http.get<readonly ApiRecord[]>(this.api('/order-fulfillment-candidates')).pipe(map((items) => items.map(toFulfillmentCandidate)));
+    return this.http.get<ApiPageDto>(this.api('/order-fulfillment-candidates')).pipe(map((response) => (response.items ?? []).map(toFulfillmentCandidate)));
   }
 
-  private toParams(filters: object): HttpParams {
+  private params(values: Readonly<Record<string, string | number>>): HttpParams {
     let params = new HttpParams();
-    for (const [key, value] of Object.entries(filters)) {
+    for (const [key, value] of Object.entries(values)) {
       if ((typeof value === 'string' || typeof value === 'number') && value !== '') params = params.set(key, value);
     }
     return params;

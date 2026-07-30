@@ -18,7 +18,14 @@ export interface SalesOrder {
   readonly number: string;
   readonly purchaseRequestId: string;
   readonly clientAccountId: string;
+  readonly createdByMembershipId: string;
+  readonly buyerMembershipId: string;
   readonly clientAccountName: string;
+  readonly priority: 'NORMAL' | 'HIGH' | 'URGENT';
+  readonly requestedDeliveryDate: string | null;
+  readonly deliverySnapshot: string | null;
+  readonly paymentOption: string | null;
+  readonly notes: string | null;
   readonly currency: string;
   readonly total: number;
   readonly status: SalesOrderStatus;
@@ -27,6 +34,10 @@ export interface SalesOrder {
   readonly lines: readonly SalesOrderLine[];
   readonly version: number;
   readonly createdAt: string;
+  readonly updatedAt: string;
+  readonly confirmedAt: string | null;
+  readonly rejectedAt: string | null;
+  readonly cancelledAt: string | null;
 }
 
 export interface SalesOrderPage {
@@ -45,7 +56,7 @@ export interface SalesOrderFilters {
   readonly q: string;
   readonly page: number;
   readonly size: number;
-  readonly sort: 'number' | 'status' | 'createdAt' | 'total';
+  readonly sort: 'orderNumber' | 'createdAt' | 'updatedAt' | 'priority' | 'total' | 'requestedDeliveryDate';
   readonly direction: 'asc' | 'desc';
 }
 

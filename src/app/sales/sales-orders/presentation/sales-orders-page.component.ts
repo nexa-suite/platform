@@ -26,7 +26,7 @@ export class SalesOrdersPageComponent {
   constructor() { this.feed.connect(); this.facade.load(this.filters()); }
   filterStatus(status: string): void { this.update({ status: status as SalesOrderStatus | '', page: 0 }); }
   search(q: string): void { this.update({ q: q.trim(), page: 0 }); }
-  onSort(sort: Sort): void { const allowed = ['number', 'status', 'createdAt', 'total'] as const; if (allowed.includes(sort.active as typeof allowed[number])) this.update({ sort: sort.active as SalesOrderFilters['sort'], direction: sort.direction === 'asc' ? 'asc' : 'desc', page: 0 }); }
+  onSort(sort: Sort): void { const allowed = ['orderNumber', 'createdAt', 'updatedAt', 'priority', 'total', 'requestedDeliveryDate'] as const; if (allowed.includes(sort.active as typeof allowed[number])) this.update({ sort: sort.active as SalesOrderFilters['sort'], direction: sort.direction === 'asc' ? 'asc' : 'desc', page: 0 }); }
   onPage(page: PageEvent): void { this.update({ page: page.pageIndex, size: page.pageSize }); }
   retry(): void { this.facade.retry(); }
   private update(changes: Partial<SalesOrderFilters>): void { const next = { ...this.filters(), ...changes }; this.filters.set(next); this.facade.load(next); }

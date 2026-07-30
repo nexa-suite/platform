@@ -1,5 +1,5 @@
-import { Injectable, inject } from '@angular/core';
-import { Subject } from 'rxjs';
+import { effect, Injectable, inject } from '@angular/core';
+import { firstValueFrom, Subject } from 'rxjs';
 import { AuthenticationService } from '../../../iam/application/authentication.service';
 import { PLATFORM_RUNTIME_CONFIG, platformApiUrl } from '../../security/runtime-config';
 import { ChangeEvent } from '../domain/change-feed.models';
@@ -18,8 +18,17 @@ export class ChangeFeedService {
   private reconnectTimer: ReturnType<typeof setTimeout> | null = null;
   private running = false;
   private lastEventId: string | null = null;
+  private reconnectAttempt = 0;
+  private refreshAttempted = false;
 
   readonly events = this.subject.asObservable();
+
+  constructor() {
+    effect(() => {
+      if (!this.authentication.isAuthenticated()) this.disconnect();
+      else if (this.running === false && this.authentication.hasAccessToken()) this.connect();
+    });
+  }
 
   connect(): void {
     if (this.running || typeof fetch === 'undefined') return;
@@ -53,7 +62,14 @@ export class ChangeFeedService {
       };
       if (this.lastEventId) headers['Last-Event-ID'] = this.lastEventId;
       const response = await fetch(platformApiUrl(this.config, '/api/v1/change-feed/stream'), { headers, signal: controller.signal });
+      if (response.status === 401 && !this.refreshAttempted) {
+        this.refreshAttempted = true;
+        await firstValueFrom(this.authentication.refreshAccessToken());
+        throw new Error('change-feed-token-refreshed');
+      }
       if (!response.ok || !response.body) throw new Error(`change-feed-${response.status}`);
+      this.reconnectAttempt = 0;
+      this.refreshAttempted = false;
       await this.readStream(response.body, controller.signal);
     } catch {
       // The bounded stream is intentionally retryable; auth/session errors are rechecked before reconnect.
@@ -126,10 +142,11 @@ export class ChangeFeedService {
 
   private scheduleReconnect(): void {
     if (!this.running || this.reconnectTimer) return;
+    const delay = Math.min(30_000, RECONNECT_MS * 2 ** this.reconnectAttempt++);
     this.reconnectTimer = setTimeout(() => {
       this.reconnectTimer = null;
       void this.consume();
-    }, RECONNECT_MS);
+    }, delay);
   }
 
   private stringValue(value: Readonly<Record<string, unknown>>, ...keys: string[]): string {

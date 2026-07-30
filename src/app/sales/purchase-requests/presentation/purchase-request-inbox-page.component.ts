@@ -27,7 +27,7 @@ export class PurchaseRequestInboxPageComponent {
   filterStatus(status: string): void { this.update({ status: status as PurchaseRequestStatus | '', page: 0 }); }
   filterPriority(priority: string): void { this.update({ priority: priority as PurchaseRequestPriority | '', page: 0 }); }
   search(value: string): void { this.update({ q: value.trim(), page: 0 }); }
-  onSort(sort: Sort): void { const allowed = ['code', 'status', 'priority', 'createdAt', 'requestedDeliveryDate'] as const; if (allowed.includes(sort.active as typeof allowed[number])) this.update({ sort: sort.active as PurchaseRequestFilters['sort'], direction: sort.direction === 'asc' ? 'asc' : 'desc', page: 0 }); }
+  onSort(sort: Sort): void { const allowed = ['createdAt', 'updatedAt'] as const; if (allowed.includes(sort.active as typeof allowed[number])) this.update({ sort: sort.active as PurchaseRequestFilters['sort'], direction: sort.direction === 'asc' ? 'asc' : 'desc', page: 0 }); }
   onPage(page: PageEvent): void { this.update({ page: page.pageIndex, size: page.pageSize }); }
   retry(): void { this.facade.retry(); }
   private update(changes: Partial<PurchaseRequestFilters>): void { const next = { ...this.filters(), ...changes }; this.filters.set(next); this.facade.load(next); }
