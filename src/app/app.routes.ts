@@ -13,6 +13,8 @@ import { SalesOperationsApiService } from './sales/infrastructure/http/sales-ope
 import { ClientAccountsFacade } from './sales/client-accounts/application/client-accounts.facade';
 import { PurchaseRequestOperationsFacade } from './sales/purchase-requests/application/purchase-request-operations.facade';
 import { SalesOrdersFacade } from './sales/sales-orders/application/sales-orders.facade';
+import { WarehouseOperationsApiService } from './warehouse/infrastructure/warehouse-operations-api.service';
+import { WarehouseOperationsFacade } from './warehouse/application/warehouse-operations.facade';
 
 const roleLandingRedirect: RedirectFunction = () => {
   const auth = inject(AuthenticationService);
@@ -37,6 +39,56 @@ export const routes: Routes = [
       { path: '', pathMatch: 'full', redirectTo: roleLandingRedirect },
       { path: 'ops/overview', component: OverviewPageComponent, canActivate: [permissionGuard('fulfillment:read')] },
       { path: 'ops/commercial/dashboard', component: OverviewPageComponent, canActivate: [permissionGuard('sales:read')] },
+      {
+        path: 'ops/operations/dashboard', data: { mode: 'dashboard' },
+        loadComponent: () => import('./warehouse/presentation/warehouse-operations-page.component').then((module) => module.WarehouseOperationsPageComponent),
+        canActivate: [permissionGuard('warehouse:read')], providers: [WarehouseOperationsApiService, WarehouseOperationsFacade]
+      },
+      {
+        path: 'ops/operations/inventory', data: { mode: 'inventory' },
+        loadComponent: () => import('./warehouse/presentation/warehouse-operations-page.component').then((module) => module.WarehouseOperationsPageComponent),
+        canActivate: [permissionGuard('warehouse:read')], providers: [WarehouseOperationsApiService, WarehouseOperationsFacade]
+      },
+      {
+        path: 'ops/operations/warehouses', data: { mode: 'warehouses' },
+        loadComponent: () => import('./warehouse/presentation/warehouse-operations-page.component').then((module) => module.WarehouseOperationsPageComponent),
+        canActivate: [permissionGuard('warehouse:read')], providers: [WarehouseOperationsApiService, WarehouseOperationsFacade]
+      },
+      {
+        path: 'ops/operations/warehouses/:warehouseId', data: { mode: 'warehouses' },
+        loadComponent: () => import('./warehouse/presentation/warehouse-operations-page.component').then((module) => module.WarehouseOperationsPageComponent),
+        canActivate: [permissionGuard('warehouse:read')], providers: [WarehouseOperationsApiService, WarehouseOperationsFacade]
+      },
+      {
+        path: 'ops/operations/inventory/lots', data: { mode: 'lots' },
+        loadComponent: () => import('./warehouse/presentation/warehouse-operations-page.component').then((module) => module.WarehouseOperationsPageComponent),
+        canActivate: [permissionGuard('warehouse:read')], providers: [WarehouseOperationsApiService, WarehouseOperationsFacade]
+      },
+      {
+        path: 'ops/operations/inventory/lots/:lotId', data: { mode: 'lots' },
+        loadComponent: () => import('./warehouse/presentation/warehouse-operations-page.component').then((module) => module.WarehouseOperationsPageComponent),
+        canActivate: [permissionGuard('warehouse:read')], providers: [WarehouseOperationsApiService, WarehouseOperationsFacade]
+      },
+      {
+        path: 'ops/operations/inventory/movements', data: { mode: 'movements' },
+        loadComponent: () => import('./warehouse/presentation/warehouse-operations-page.component').then((module) => module.WarehouseOperationsPageComponent),
+        canActivate: [permissionGuard('warehouse:read')], providers: [WarehouseOperationsApiService, WarehouseOperationsFacade]
+      },
+      {
+        path: 'ops/operations/inventory/reservations', data: { mode: 'reservations' },
+        loadComponent: () => import('./warehouse/presentation/warehouse-operations-page.component').then((module) => module.WarehouseOperationsPageComponent),
+        canActivate: [permissionGuard('warehouse:read')], providers: [WarehouseOperationsApiService, WarehouseOperationsFacade]
+      },
+      {
+        path: 'ops/operations/inventory/reservations/:reservationId', data: { mode: 'reservations' },
+        loadComponent: () => import('./warehouse/presentation/warehouse-operations-page.component').then((module) => module.WarehouseOperationsPageComponent),
+        canActivate: [permissionGuard('warehouse:read')], providers: [WarehouseOperationsApiService, WarehouseOperationsFacade]
+      },
+      {
+        path: 'ops/operations/fulfillment-readiness', data: { mode: 'readiness' },
+        loadComponent: () => import('./warehouse/presentation/warehouse-operations-page.component').then((module) => module.WarehouseOperationsPageComponent),
+        canActivate: [permissionGuard('fulfillment:read')], providers: [WarehouseOperationsApiService, WarehouseOperationsFacade]
+      },
       { path: 'ops/product-catalog', loadComponent: () => import('./catalog-management/presentation/product-catalog-page/product-catalog-page.component').then((module) => module.ProductCatalogPageComponent), canActivate: [permissionGuard('catalog:read')] },
       { path: 'ops/product-catalog/:catalogItemId', loadComponent: () => import('./catalog-management/presentation/product-catalog-detail-page/product-catalog-detail-page.component').then((module) => module.ProductCatalogDetailPageComponent), canActivate: [permissionGuard('catalog:read')] },
       {

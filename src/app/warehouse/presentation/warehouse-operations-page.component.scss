@@ -1,0 +1,1 @@
+:host { display:block; } .metric-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:1rem; margin-bottom:1rem; } table { width:100%; border-collapse:collapse; } th,td { padding:.75rem; border-bottom:1px solid #e5e7eb; text-align:left; } @media (max-width:800px) { .metric-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } }
