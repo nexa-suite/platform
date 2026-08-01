@@ -1,4 +1,5 @@
 export const PLATFORM_ROUTES = {
+  landing: '/',
   signIn: '/sign-in',
   forbidden: '/forbidden',
   overview: '/ops/overview',
@@ -11,11 +12,11 @@ export const PLATFORM_ROUTES = {
 
 export function safeReturnUrl(returnUrl: string | null | undefined): string {
   if (!returnUrl || !returnUrl.startsWith('/') || returnUrl.startsWith('//')) {
-    return PLATFORM_ROUTES.overview;
+    return PLATFORM_ROUTES.landing;
   }
 
   if (/^\/(sign-in|forbidden)(?:\/|\?|$)/.test(returnUrl)) {
-    return PLATFORM_ROUTES.overview;
+    return PLATFORM_ROUTES.landing;
   }
 
   return returnUrl;

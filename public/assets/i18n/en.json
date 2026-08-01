@@ -13,6 +13,17 @@
     "description": "One place to coordinate the work that keeps the cold-chain business moving.",
     "body": "Use this workspace to connect operational teams and their workflows across the cold-chain business."
   },
+  "salesDashboard": {
+    "eyebrow": "Sales / Dashboard",
+    "title": "Sales Dashboard",
+    "description": "Server-backed sales metrics and recent resources.",
+    "metrics": { "submitted": "Submitted requests", "underReview": "Requests under review", "approved": "Approved requests", "pendingOrders": "Pending sales orders", "confirmedOrders": "Confirmed sales orders" },
+    "recentRequests": "Recent purchase requests",
+    "recentOrders": "Recent sales orders",
+    "links": { "title": "Sales links", "catalog": "Product Catalog", "requests": "Purchase Requests", "orders": "Sales Orders", "clients": "Client Accounts" },
+    "actions": { "retry": "Retry" },
+    "states": { "loading": "Loading sales dashboard", "emptyTitle": "No sales activity", "emptyDescription": "There are no recent requests or orders.", "errorTitle": "Dashboard unavailable", "errorDescription": "Sales metrics could not be loaded." }
+  },
   "auth": {
     "platformSurface": "Nexa Platform",
     "signOut": "Sign out",

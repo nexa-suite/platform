@@ -38,7 +38,7 @@ export const routes: Routes = [
     children: [
       { path: '', pathMatch: 'full', redirectTo: roleLandingRedirect },
       { path: 'ops/overview', component: OverviewPageComponent, canActivate: [permissionGuard('fulfillment:read')] },
-      { path: 'ops/commercial/dashboard', component: OverviewPageComponent, canActivate: [permissionGuard('sales:read')] },
+      { path: 'ops/commercial/dashboard', loadComponent: () => import('./sales/dashboard/presentation/sales-dashboard-page.component').then((module) => module.SalesDashboardPageComponent), canActivate: [permissionGuard('sales:read')], providers: [SalesOperationsApiService] },
       {
         path: 'ops/operations/dashboard', data: { mode: 'dashboard' },
         loadComponent: () => import('./core/presentation/role-operations-dashboard-page.component').then((module) => module.RoleOperationsDashboardPageComponent),
@@ -152,7 +152,7 @@ export const routes: Routes = [
       { path: 'ops/orders', pathMatch: 'full', redirectTo: 'ops/commercial/sales-orders' },
       { path: 'overview', pathMatch: 'full', redirectTo: 'ops/overview' },
       { path: 'ops/catalog', pathMatch: 'full', redirectTo: 'ops/product-catalog' },
-      { path: '**', redirectTo: 'ops/overview' }
+      { path: '**', redirectTo: '/' }
     ]
   }
 ];

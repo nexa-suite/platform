@@ -13,6 +13,17 @@
     "description": "Un solo lugar para coordinar el trabajo que mantiene en movimiento la cadena de frío.",
     "body": "Usa este espacio para conectar equipos operativos y sus flujos en toda la cadena de frío."
   },
+  "salesDashboard": {
+    "eyebrow": "Ventas / Dashboard",
+    "title": "Dashboard comercial",
+    "description": "Métricas y recursos recientes respaldados por las APIs de ventas.",
+    "metrics": { "submitted": "Solicitudes enviadas", "underReview": "Solicitudes en revisión", "approved": "Solicitudes aprobadas", "pendingOrders": "Órdenes pendientes", "confirmedOrders": "Órdenes confirmadas" },
+    "recentRequests": "Solicitudes recientes",
+    "recentOrders": "Órdenes recientes",
+    "links": { "title": "Accesos de ventas", "catalog": "Catálogo de productos", "requests": "Solicitudes de compra", "orders": "Órdenes de venta", "clients": "Cuentas cliente" },
+    "actions": { "retry": "Reintentar" },
+    "states": { "loading": "Cargando dashboard comercial", "emptyTitle": "Sin actividad comercial", "emptyDescription": "No hay solicitudes ni órdenes recientes.", "errorTitle": "Dashboard no disponible", "errorDescription": "No pudimos cargar las métricas comerciales." }
+  },
   "auth": {
     "platformSurface": "Nexa Platform",
     "signOut": "Cerrar sesión",
