@@ -1,0 +1,7 @@
+.page { padding: 32px; max-width: 1000px; margin: auto; display: grid; gap: 20px; }
+.summary { display: flex; justify-content: space-between; gap: 20px; align-items: center; }
+.lines { display: grid; gap: 10px; }
+.lines div { display: flex; justify-content: space-between; gap: 16px; padding: 10px 0; border-bottom: 1px solid var(--nexa-color-border); }
+.reason { width: 100%; margin-top: 20px; }
+.event { display: grid; gap: 4px; padding: 12px 0; border-bottom: 1px solid var(--nexa-color-border); }
+.event span { color: var(--nexa-color-text-secondary); }

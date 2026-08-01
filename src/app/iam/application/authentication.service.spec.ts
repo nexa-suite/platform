@@ -12,12 +12,13 @@ const session: AuthSession = {
     identifier: 'carlos@icisa.pe',
     displayName: 'Carlos',
     workspaceSlug: 'icisa',
-    roles: ['SALES']
+    roles: ['SALES'],
+    permissions: ['sales:write']
   }
 };
 
 describe('AuthenticationService', () => {
-  const api = { login: vi.fn(), refresh: vi.fn() };
+  const api = { login: vi.fn(), currentSession: vi.fn(), refresh: vi.fn() };
   let service: AuthenticationService;
 
   beforeEach(() => {
@@ -37,6 +38,7 @@ describe('AuthenticationService', () => {
   it('authenticates the internal user and stores only the access token', () => {
     const command: SignInCommand = { identifier: 'carlos@icisa.pe', password: 'password', workspaceSlug: 'icisa' };
     api.login.mockReturnValue(of(session));
+    api.currentSession.mockReturnValue(of(session));
 
     expect(service.status()).toBe('unknown');
     service.signIn(command).subscribe();

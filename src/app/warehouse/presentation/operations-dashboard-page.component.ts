@@ -1,0 +1,11 @@
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { RouterLink } from '@angular/router';
+import { MetricCardComponent } from '../../shared/presentation/components/metric-card/metric-card.component';
+import { PageHeaderComponent } from '../../shared/presentation/components/page-header/page-header.component';
+import { SectionPanelComponent } from '../../shared/presentation/components/section-panel/section-panel.component';
+import { LoadingStateComponent } from '../../shared/presentation/components/loading-state/loading-state.component';
+import { ErrorStateComponent } from '../../shared/presentation/components/error-state/error-state.component';
+import { WarehouseOperationsFacade } from '../application/warehouse-operations.facade';
+
+@Component({ selector: 'nexa-operations-dashboard-page', standalone: true, imports: [RouterLink, MetricCardComponent, PageHeaderComponent, SectionPanelComponent, LoadingStateComponent, ErrorStateComponent], template: `<section class="page"><nexa-page-header title="Operations Dashboard" subtitle="Server-backed inventory and fulfillment control" /> @if (facade.loading()) { <nexa-loading-state /> } @else if (facade.error(); as error) { <nexa-error-state title="Operations unavailable" [description]="error" (retry)="facade.retry()" /> } @else { <div class="metric-grid"><nexa-metric-card label="Warehouses" [value]="facade.metrics().warehouses" /><nexa-metric-card label="Available lots" [value]="facade.metrics().available" /><nexa-metric-card label="Reserved orders" [value]="facade.metrics().reserved" /><nexa-metric-card label="Shortages" [value]="facade.metrics().shortages" /></div><nexa-section-panel title="Quick actions"><p>Use the authoritative APIs to operate stock and reservations.</p><a routerLink="/ops/operations/warehouses">Warehouses and Zones</a> · <a routerLink="/ops/operations/inventory/lots">Inventory Lots</a> · <a routerLink="/ops/operations/inventory/reservations">Reservations</a></nexa-section-panel> }</section>`, styles: [`.page{display:block}.metric-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1rem;margin-bottom:1rem}a{color:inherit}`], changeDetection: ChangeDetectionStrategy.OnPush })
+export class OperationsDashboardPageComponent { readonly facade = inject(WarehouseOperationsFacade); constructor() { this.facade.load(); } }
