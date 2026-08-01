@@ -10,6 +10,7 @@ export class LogisticsApiService {
   private api(path:string):string{return platformApiUrl(this.config,`/api/v1${path}`);}
   private headers(version?:number):HttpHeaders{return new HttpHeaders({'If-Match':version === undefined ? '' : `"${version}"`,'Idempotency-Key':crypto.randomUUID()});}
   dispatches(status?:string):Observable<ApiPage<DispatchOrder>>{let params=new HttpParams().set('size',100).set('sort','updatedAt,desc');if(status)params=params.set('status',status);return this.http.get<ApiPage<DispatchOrder>>(this.api('/dispatch-orders'),{params});}
+  create(reservationId:string,version:number):Observable<DispatchOrder>{return this.http.post<DispatchOrder>(this.api(`/inventory-reservations/${encodeURIComponent(reservationId)}/dispatch-orders`),{}, {headers:this.headers(version)});}
   detail(id:string):Observable<DispatchOrder>{return this.http.get<DispatchOrder>(this.api(`/dispatch-orders/${encodeURIComponent(id)}`));}
   events(id:string):Observable<readonly DispatchEvent[]>{return this.http.get<readonly DispatchEvent[]>(this.api(`/dispatch-orders/${encodeURIComponent(id)}/events`));}
   dashboard():Observable<OperationsDashboard>{return this.http.get<OperationsDashboard>(this.api('/logistics/operations-dashboard'));}
