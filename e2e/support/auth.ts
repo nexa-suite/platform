@@ -1,6 +1,6 @@
 import { expect, Page } from 'playwright/test';
 
-export type InternalRole = 'OWNER' | 'SALES' | 'WAREHOUSE' | 'LOGISTICS';
+export type InternalRole = 'OWNER' | 'TENANT_ADMIN' | 'COMPANY_OWNER' | 'SALES' | 'WAREHOUSE' | 'LOGISTICS';
 
 export async function signIn(page: Page, role: InternalRole): Promise<void> {
   const prefix = `NEXA_E2E_${role}`;
