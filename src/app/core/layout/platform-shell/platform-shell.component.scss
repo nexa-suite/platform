@@ -10,42 +10,46 @@
 
 .platform-sidebar {
   width: var(--nexa-layout-sidebar-width);
-  border-right: 1px solid rgb(255 255 255 / 12%);
-  background: var(--nexa-color-neutral-950);
-  color: var(--nexa-color-text-inverse);
+  border-right: 1px solid var(--nexa-color-border-default);
+  background: var(--nexa-surface-card);
+  color: var(--nexa-color-text-primary);
 }
 
 .sidebar-brand {
   display: grid;
   gap: var(--nexa-space-2);
   padding: var(--nexa-space-6) var(--nexa-space-5) var(--nexa-space-5);
-  border-bottom: 1px solid rgb(255 255 255 / 12%);
+  border-bottom: 1px solid var(--nexa-color-border-default);
 }
 
 .sidebar-brand span {
-  color: var(--nexa-color-cold-frost);
+  color: var(--nexa-color-text-secondary);
   font-size: var(--nexa-font-size-xs);
   font-weight: var(--nexa-font-weight-semibold);
   letter-spacing: var(--nexa-letter-spacing-wide);
   text-transform: uppercase;
 }
 
+.workspace-card { display: grid; gap: var(--nexa-space-1); margin: var(--nexa-space-4); padding: var(--nexa-space-3); border: 1px solid var(--nexa-color-border-default); border-radius: var(--nexa-radius-md); background: var(--nexa-surface-page); }
+.workspace-card-label { color: var(--nexa-color-primary-700); font-size: var(--nexa-font-size-xs); font-weight: var(--nexa-font-weight-bold); letter-spacing: var(--nexa-letter-spacing-wide); text-transform: uppercase; }
+.workspace-card span:not(.workspace-card-label), .workspace-card small { color: var(--nexa-color-text-secondary); font-size: var(--nexa-font-size-xs); }
+
 nav {
   padding: var(--nexa-space-4) var(--nexa-space-2);
 }
 
 mat-nav-list a {
-  color: rgb(255 255 255 / 72%);
+  color: var(--nexa-color-text-secondary);
   border-radius: var(--nexa-radius-md);
 }
 
 mat-nav-list a.active {
-  color: var(--nexa-color-text-inverse);
-  background: rgb(255 255 255 / 12%);
+  color: var(--nexa-color-primary-700);
+  background: rgb(25 118 210 / 10%);
 }
 
 mat-nav-list a mat-icon {
-  color: var(--nexa-color-cold-refrigerated);
+  color: var(--nexa-color-primary-700);
 }
 
 .platform-toolbar {
