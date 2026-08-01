@@ -1,6 +1,7 @@
-import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { TranslatePipe } from '@ngx-translate/core';
 import { PageHeaderComponent } from '../../shared/presentation/components/page-header/page-header.component';
 import { SectionPanelComponent } from '../../shared/presentation/components/section-panel/section-panel.component';
 import { LoadingStateComponent } from '../../shared/presentation/components/loading-state/loading-state.component';
@@ -10,22 +11,22 @@ import { WarehouseOperationsFacade } from '../application/warehouse-operations.f
 @Component({
   selector: 'nexa-inventory-lot-detail-page',
   standalone: true,
-  imports: [ReactiveFormsModule, PageHeaderComponent, SectionPanelComponent, LoadingStateComponent, ErrorStateComponent],
+  imports: [ReactiveFormsModule, TranslatePipe, PageHeaderComponent, SectionPanelComponent, LoadingStateComponent, ErrorStateComponent],
   template: `
     <section class="page">
-      <nexa-page-header title="Inventory Lot Detail" subtitle="Transactions and explicit status commands preserve append-only history" />
-      @if (facade.loading()) { <nexa-loading-state /> }
-      @else if (facade.error(); as error) { <nexa-error-state title="Lot unavailable" [description]="error" (retry)="facade.retry()" /> }
+      <nexa-page-header [title]="'warehouse.lots' | translate" [subtitle]="'warehouse.inventory' | translate" />
+      @if (facade.loading()) { <nexa-loading-state [label]="'warehouse.loading' | translate" /> }
+      @else if (facade.error(); as error) { <nexa-error-state [title]="'warehouse.lots' | translate" [description]="error" (retry)="facade.retry()" /> }
       @else if (lot(); as item) {
-        <nexa-section-panel title="Lot">
-          <dl><dt>Catalog</dt><dd>{{ item.catalogItemId }}</dd><dt>Batch</dt><dd>{{ item.batchNumber }}</dd><dt>Available</dt><dd>{{ item.available }} {{ item.unit }}</dd><dt>Status</dt><dd>{{ item.status }}</dd></dl>
-          <button type="button" (click)="command('blocks')" [disabled]="item.status === 'BLOCKED'">Block</button><button type="button" (click)="command('quarantines')" [disabled]="item.status === 'QUARANTINED'">Quarantine</button><button type="button" (click)="command('availability-restorations')" [disabled]="item.status === 'EXPIRED'">Restore availability</button>
+        <nexa-section-panel [title]="'warehouse.lots' | translate">
+          <dl><dt>{{ 'warehouse.fields.catalog' | translate }}</dt><dd>{{ item.catalogItemId }}</dd><dt>{{ 'warehouse.fields.batch' | translate }}</dt><dd>{{ item.batchNumber }}</dd><dt>{{ 'warehouse.fields.available' | translate }}</dt><dd>{{ item.available }} {{ item.unit }}</dd><dt>{{ 'warehouse.fields.status' | translate }}</dt><dd>{{ ('warehouse.status.' + item.status) | translate }}</dd></dl>
+          <button type="button" (click)="command('blocks')" [disabled]="item.status === 'BLOCKED' || !adjustment.controls.reason.value">{{ 'warehouse.actions.block' | translate }}</button><button type="button" (click)="command('quarantines')" [disabled]="item.status === 'QUARANTINED' || !adjustment.controls.reason.value">{{ 'warehouse.actions.quarantine' | translate }}</button><button type="button" (click)="command('availability-restorations')" [disabled]="item.status === 'EXPIRED' || !adjustment.controls.reason.value">{{ 'warehouse.actions.restore' | translate }}</button>
         </nexa-section-panel>
-        <nexa-section-panel title="Adjustment">
-          <form [formGroup]="adjustment" (ngSubmit)="adjust(item.version)"><select formControlName="direction"><option value="IN">Increase</option><option value="OUT">Decrease</option></select><input type="number" min="0.0001" formControlName="quantity" placeholder="Quantity"><input formControlName="reason" placeholder="Reason"><button type="submit" [disabled]="adjustment.invalid">Apply adjustment</button></form>
+        <nexa-section-panel [title]="'warehouse.actions.adjust' | translate">
+          <form [formGroup]="adjustment" (ngSubmit)="adjust(item.version)"><select formControlName="direction"><option value="IN">{{ 'warehouse.forms.increase' | translate }}</option><option value="OUT">{{ 'warehouse.forms.decrease' | translate }}</option></select><input type="number" min="0.0001" formControlName="quantity" [placeholder]="'warehouse.fields.quantity' | translate"><input formControlName="reason" [placeholder]="'warehouse.fields.reason' | translate"><button type="submit" [disabled]="adjustment.invalid">{{ 'warehouse.actions.adjust' | translate }}</button></form>
         </nexa-section-panel>
-        <nexa-section-panel title="Waste">
-          <form [formGroup]="wasteForm" (ngSubmit)="waste(item.version)"><input type="number" min="0.0001" formControlName="quantity" placeholder="Quantity"><input formControlName="reason" placeholder="Reason"><button type="submit" [disabled]="wasteForm.invalid">Record waste</button></form>
+        <nexa-section-panel [title]="'warehouse.actions.waste' | translate">
+          <form [formGroup]="wasteForm" (ngSubmit)="waste(item.version)"><input type="number" min="0.0001" formControlName="quantity" [placeholder]="'warehouse.fields.quantity' | translate"><input formControlName="reason" [placeholder]="'warehouse.fields.reason' | translate"><button type="submit" [disabled]="wasteForm.invalid">{{ 'warehouse.actions.waste' | translate }}</button></form>
         </nexa-section-panel>
       } @else { <p>Lot not found in the current page.</p> }
     </section>
@@ -39,9 +40,9 @@ export class InventoryLotDetailPageComponent {
   private readonly fb = inject(FormBuilder);
   readonly adjustment = this.fb.nonNullable.group({ direction: ['IN' as 'IN' | 'OUT', Validators.required], quantity: [1, [Validators.required, Validators.min(0.0001)]], reason: ['', Validators.required] });
   readonly wasteForm = this.fb.nonNullable.group({ quantity: [1, [Validators.required, Validators.min(0.0001)]], reason: ['', Validators.required] });
-  readonly lot = computed(() => this.facade.lots().find((item) => item.id === this.id));
-  constructor() { this.facade.load(); }
-  command(command: 'blocks' | 'quarantines' | 'availability-restorations'): void { const item = this.lot(); if (item) this.facade.changeLotStatus(item, command, 'Warehouse operator action'); }
+  readonly lot = this.facade.selectedLot;
+  constructor() { this.facade.loadLot(this.id); }
+  command(command: 'blocks' | 'quarantines' | 'availability-restorations'): void { const item = this.lot(); const reason = this.adjustment.controls.reason.value.trim(); if (item && reason) this.facade.changeLotStatus(item, command, reason); }
   adjust(version: number): void { if (this.adjustment.invalid) return; this.facade.adjust({ lotId: this.id, ...this.adjustment.getRawValue() }, version); }
   waste(version: number): void { if (this.wasteForm.invalid) return; this.facade.waste({ lotId: this.id, ...this.wasteForm.getRawValue() }, version); }
 }

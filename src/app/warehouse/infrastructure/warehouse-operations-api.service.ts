@@ -11,8 +11,10 @@ export class WarehouseOperationsApiService {
   warehouses(): Observable<ApiPage<WarehouseSummary>> { return this.http.get<ApiPage<WarehouseSummary>>(this.api('/warehouses'), { params: new HttpParams().set('size', 100) }); }
   zones(warehouseId: string): Observable<ApiPage<StorageZone>> { return this.http.get<ApiPage<StorageZone>>(this.api(`/warehouses/${encodeURIComponent(warehouseId)}/zones`)); }
   lots(): Observable<ApiPage<InventoryLot>> { return this.http.get<ApiPage<InventoryLot>>(this.api('/inventory/lots'), { params: new HttpParams().set('size', 100).set('sort', 'expirationDate,asc') }); }
+  lot(id: string): Observable<InventoryLot> { return this.http.get<InventoryLot>(this.api(`/inventory/lots/${encodeURIComponent(id)}`)); }
   movements(): Observable<ApiPage<StockMovement>> { return this.http.get<ApiPage<StockMovement>>(this.api('/inventory/movements'), { params: new HttpParams().set('size', 100) }); }
   reservations(): Observable<ApiPage<Reservation>> { return this.http.get<ApiPage<Reservation>>(this.api('/inventory-reservations'), { params: new HttpParams().set('size', 100) }); }
+  reservation(id: string): Observable<Reservation> { return this.http.get<Reservation>(this.api(`/inventory-reservations/${encodeURIComponent(id)}`)); }
   availability(ids: readonly string[]): Observable<readonly InventoryAvailability[]> { let params = new HttpParams(); ids.forEach((id) => params = params.append('catalogItemIds', id)); return this.http.get<readonly InventoryAvailability[]>(this.api('/inventory-availability'), { params }); }
   release(id: string, version: number, reason: string): Observable<Reservation> { const headers = new HttpHeaders({ 'If-Match': `"${version}"`, 'Idempotency-Key': crypto.randomUUID() }); return this.http.post<Reservation>(this.api(`/inventory-reservations/${encodeURIComponent(id)}/releases`), { reason }, { headers }); }
   createWarehouse(payload: { code: string; name: string; address?: string }): Observable<WarehouseSummary> { return this.http.post<WarehouseSummary>(this.api('/warehouses'), payload); }
