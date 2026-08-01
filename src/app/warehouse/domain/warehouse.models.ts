@@ -4,4 +4,6 @@ export interface InventoryLot { id: string; warehouseId: string; zoneId: string;
 export interface StockMovement { id: string; lotId: string; catalogItemId: string; type: string; quantity: number; unit: string; quantityBefore: number; quantityAfter: number; reservedBefore: number; reservedAfter: number; reason?: string; occurredAt: string; }
 export interface Reservation { id: string; salesOrderId: string; orderNumber: string; status: string; createdAt: string; reservedAt?: string; expiresAt: string; version: number; }
 export interface InventoryAvailability { catalogItemId: string; status: 'AVAILABLE' | 'UNAVAILABLE' | 'UNKNOWN'; asOf: string; }
+export interface ReservationPreview { salesOrderId: string; status: string; lines: readonly { catalogItemId: string; requested: number; unit: string; available: number; shortage: number; }[]; }
+export interface ReadinessCandidate { reservationId: string; salesOrderId: string; orderNumber: string; clientAccountId: string; lineCount: number; totalReservedQuantity: number; reservedAt: string; expiresAt: string; status: string; }
 export interface ApiPage<T> { items: readonly T[]; page: number; size: number; total: number; }

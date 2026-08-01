@@ -8,6 +8,13 @@
 
 # Node
 /node_modules
+node_modules/
+dist/
+.angular/
+coverage/
+target/
+.env.local
+.local-keys/
 npm-debug.log
 yarn-error.log
 

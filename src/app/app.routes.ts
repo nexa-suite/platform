@@ -21,7 +21,7 @@ const roleLandingRedirect: RedirectFunction = () => {
   const user = auth.currentUser();
   if (user?.roles.includes('COMPANY_OWNER') && auth.hasPermission('tenant:read')) return inject(Router).createUrlTree(['/ops/operations/company-administration']);
   if (user?.roles.includes('SALES') && auth.hasPermission('sales:read')) return inject(Router).createUrlTree(['/ops/commercial/dashboard']);
-  if ((user?.roles.includes('WAREHOUSE') || user?.roles.includes('LOGISTICS')) && auth.hasPermission('fulfillment:read')) return inject(Router).createUrlTree(['/ops/overview']);
+  if ((user?.roles.includes('WAREHOUSE') || user?.roles.includes('LOGISTICS')) && auth.hasPermission('fulfillment:read')) return inject(Router).createUrlTree(['/ops/operations/dashboard']);
   return inject(Router).createUrlTree(['/forbidden']);
 };
 const dynamicRedirect = (target: string, parameter: string): RedirectFunction => (route) =>
@@ -41,54 +41,60 @@ export const routes: Routes = [
       { path: 'ops/commercial/dashboard', component: OverviewPageComponent, canActivate: [permissionGuard('sales:read')] },
       {
         path: 'ops/operations/dashboard', data: { mode: 'dashboard' },
-        loadComponent: () => import('./warehouse/presentation/warehouse-operations-page.component').then((module) => module.WarehouseOperationsPageComponent),
+        loadComponent: () => import('./core/presentation/role-operations-dashboard-page.component').then((module) => module.RoleOperationsDashboardPageComponent),
         canActivate: [permissionGuard('warehouse:read')], providers: [WarehouseOperationsApiService, WarehouseOperationsFacade]
       },
       {
         path: 'ops/operations/inventory', data: { mode: 'inventory' },
-        loadComponent: () => import('./warehouse/presentation/warehouse-operations-page.component').then((module) => module.WarehouseOperationsPageComponent),
+        loadComponent: () => import('./warehouse/presentation/inventory-overview-page.component').then((module) => module.InventoryOverviewPageComponent),
         canActivate: [permissionGuard('warehouse:read')], providers: [WarehouseOperationsApiService, WarehouseOperationsFacade]
       },
       {
         path: 'ops/operations/warehouses', data: { mode: 'warehouses' },
-        loadComponent: () => import('./warehouse/presentation/warehouse-operations-page.component').then((module) => module.WarehouseOperationsPageComponent),
+        loadComponent: () => import('./warehouse/presentation/warehouses-page.component').then((module) => module.WarehousesPageComponent),
         canActivate: [permissionGuard('warehouse:read')], providers: [WarehouseOperationsApiService, WarehouseOperationsFacade]
       },
       {
         path: 'ops/operations/warehouses/:warehouseId', data: { mode: 'warehouses' },
-        loadComponent: () => import('./warehouse/presentation/warehouse-operations-page.component').then((module) => module.WarehouseOperationsPageComponent),
+        loadComponent: () => import('./warehouse/presentation/warehouse-detail-page.component').then((module) => module.WarehouseDetailPageComponent),
         canActivate: [permissionGuard('warehouse:read')], providers: [WarehouseOperationsApiService, WarehouseOperationsFacade]
       },
       {
         path: 'ops/operations/inventory/lots', data: { mode: 'lots' },
-        loadComponent: () => import('./warehouse/presentation/warehouse-operations-page.component').then((module) => module.WarehouseOperationsPageComponent),
+        loadComponent: () => import('./warehouse/presentation/inventory-lots-page.component').then((module) => module.InventoryLotsPageComponent),
         canActivate: [permissionGuard('warehouse:read')], providers: [WarehouseOperationsApiService, WarehouseOperationsFacade]
       },
       {
         path: 'ops/operations/inventory/lots/:lotId', data: { mode: 'lots' },
-        loadComponent: () => import('./warehouse/presentation/warehouse-operations-page.component').then((module) => module.WarehouseOperationsPageComponent),
+        loadComponent: () => import('./warehouse/presentation/inventory-lot-detail-page.component').then((module) => module.InventoryLotDetailPageComponent),
         canActivate: [permissionGuard('warehouse:read')], providers: [WarehouseOperationsApiService, WarehouseOperationsFacade]
       },
       {
         path: 'ops/operations/inventory/movements', data: { mode: 'movements' },
-        loadComponent: () => import('./warehouse/presentation/warehouse-operations-page.component').then((module) => module.WarehouseOperationsPageComponent),
+        loadComponent: () => import('./warehouse/presentation/stock-movements-page.component').then((module) => module.StockMovementsPageComponent),
         canActivate: [permissionGuard('warehouse:read')], providers: [WarehouseOperationsApiService, WarehouseOperationsFacade]
       },
       {
         path: 'ops/operations/inventory/reservations', data: { mode: 'reservations' },
-        loadComponent: () => import('./warehouse/presentation/warehouse-operations-page.component').then((module) => module.WarehouseOperationsPageComponent),
+        loadComponent: () => import('./warehouse/presentation/inventory-reservations-page.component').then((module) => module.InventoryReservationsPageComponent),
         canActivate: [permissionGuard('warehouse:read')], providers: [WarehouseOperationsApiService, WarehouseOperationsFacade]
       },
       {
         path: 'ops/operations/inventory/reservations/:reservationId', data: { mode: 'reservations' },
-        loadComponent: () => import('./warehouse/presentation/warehouse-operations-page.component').then((module) => module.WarehouseOperationsPageComponent),
+        loadComponent: () => import('./warehouse/presentation/inventory-reservation-detail-page.component').then((module) => module.InventoryReservationDetailPageComponent),
         canActivate: [permissionGuard('warehouse:read')], providers: [WarehouseOperationsApiService, WarehouseOperationsFacade]
       },
       {
         path: 'ops/operations/fulfillment-readiness', data: { mode: 'readiness' },
-        loadComponent: () => import('./warehouse/presentation/warehouse-operations-page.component').then((module) => module.WarehouseOperationsPageComponent),
+        loadComponent: () => import('./warehouse/presentation/fulfillment-readiness-page.component').then((module) => module.FulfillmentReadinessPageComponent),
         canActivate: [permissionGuard('fulfillment:read')], providers: [WarehouseOperationsApiService, WarehouseOperationsFacade]
       },
+      { path: 'ops/operations/inventory-overview', loadComponent: () => import('./warehouse/presentation/inventory-overview-page.component').then((module) => module.InventoryOverviewPageComponent), canActivate: [permissionGuard('warehouse:read')], providers: [WarehouseOperationsApiService, WarehouseOperationsFacade] },
+      { path: 'ops/operations/dispatch-orders', loadComponent: () => import('./logistics/presentation/dispatch-board-page.component').then((module) => module.DispatchBoardPageComponent), canActivate: [permissionGuard('logistics:read')] },
+      { path: 'ops/operations/dispatch-orders/:dispatchOrderId', loadComponent: () => import('./logistics/presentation/dispatch-detail-page.component').then((module) => module.DispatchDetailPageComponent), canActivate: [permissionGuard('logistics:read')] },
+      { path: 'ops/operations/proof-of-delivery', loadComponent: () => import('./logistics/presentation/proof-of-delivery-page.component').then((module) => module.ProofOfDeliveryPageComponent), canActivate: [permissionGuard('logistics:read')] },
+      { path: 'ops/operations/temperature-incidents', loadComponent: () => import('./logistics/presentation/temperature-incidents-page.component').then((module) => module.TemperatureIncidentsPageComponent), canActivate: [permissionGuard('logistics:read')] },
+      { path: 'ops/operations/operational-analytics', loadComponent: () => import('./logistics/presentation/operational-analytics-page.component').then((module) => module.OperationalAnalyticsPageComponent), canActivate: [permissionGuard('logistics:read')] },
       { path: 'ops/product-catalog', loadComponent: () => import('./catalog-management/presentation/product-catalog-page/product-catalog-page.component').then((module) => module.ProductCatalogPageComponent), canActivate: [permissionGuard('catalog:read')] },
       { path: 'ops/product-catalog/:catalogItemId', loadComponent: () => import('./catalog-management/presentation/product-catalog-detail-page/product-catalog-detail-page.component').then((module) => module.ProductCatalogDetailPageComponent), canActivate: [permissionGuard('catalog:read')] },
       {

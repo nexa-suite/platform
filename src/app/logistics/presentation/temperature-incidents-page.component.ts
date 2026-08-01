@@ -1,0 +1,7 @@
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { PageHeaderComponent } from '../../shared/presentation/components/page-header/page-header.component';
+import { SectionPanelComponent } from '../../shared/presentation/components/section-panel/section-panel.component';
+import { LogisticsFacade } from '../application/logistics.facade';
+
+@Component({selector:'nexa-temperature-incidents-page',standalone:true,imports:[PageHeaderComponent,SectionPanelComponent],template:`<section class="page"><nexa-page-header title="Temperature and Incidents" subtitle="Manual evidence commands and buyer visibility are explicit"/><nexa-section-panel title="Active alerts"><table><thead><tr><th>Dispatch</th><th>Status</th><th>Temperature status</th><th>Alerts</th></tr></thead><tbody>@for(item of facade.dispatches();track item.id){@if(item.temperatureStatus === 'OUT_OF_RANGE' || item.status === 'INCIDENT'){<tr><td>{{item.dispatchNumber}}</td><td>{{item.status}}</td><td>{{item.temperatureStatus}}</td><td>{{item.alerts.join(', ')}}</td></tr>}}</tbody></table></nexa-section-panel></section>`,styles:[`table{width:100%;border-collapse:collapse}th,td{padding:.65rem;text-align:left;border-bottom:1px solid #ddd}`],changeDetection:ChangeDetectionStrategy.OnPush})
+export class TemperatureIncidentsPageComponent{readonly facade=inject(LogisticsFacade);constructor(){this.facade.load();}}
