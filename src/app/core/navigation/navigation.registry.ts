@@ -7,8 +7,9 @@ export interface PlatformNavigationItem {
 }
 
 export const PLATFORM_NAVIGATION: readonly PlatformNavigationItem[] = [
-  { label: 'Company Administration', path: '/ops/operations/company-administration', icon: 'business', permission: 'tenant:read', roles: ['COMPANY_OWNER'] },
+  { label: 'Company Administration', path: '/ops/operations/company-administration', icon: 'business', permission: 'tenant:read', roles: ['TENANT_ADMIN', 'COMPANY_OWNER'] },
   { label: 'Overview', path: '/ops/overview', icon: 'dashboard', roles: ['COMPANY_OWNER'] },
+  { label: 'Sales Dashboard', path: '/ops/commercial/dashboard', icon: 'monitoring', permission: 'sales:read', roles: ['SALES'] },
   { label: 'Operations Dashboard', path: '/ops/operations/dashboard', icon: 'dashboard', permission: 'warehouse:read', roles: ['WAREHOUSE', 'LOGISTICS'] },
   { label: 'Product Catalog', path: '/ops/product-catalog', icon: 'inventory_2', permission: 'catalog:read', roles: ['SALES', 'WAREHOUSE'] },
   { label: 'Client Accounts', path: '/ops/commercial/client-accounts', icon: 'handshake', permission: 'sales:read', roles: ['SALES'] },

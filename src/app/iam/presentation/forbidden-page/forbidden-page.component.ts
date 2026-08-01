@@ -14,5 +14,5 @@ import { PLATFORM_ROUTES } from '../../../core/routing/route-paths';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ForbiddenPageComponent {
-  protected readonly overviewRoute = PLATFORM_ROUTES.overview;
+  protected readonly overviewRoute = PLATFORM_ROUTES.landing;
 }

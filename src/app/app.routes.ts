@@ -19,7 +19,7 @@ import { WarehouseOperationsFacade } from './warehouse/application/warehouse-ope
 const roleLandingRedirect: RedirectFunction = () => {
   const auth = inject(AuthenticationService);
   const user = auth.currentUser();
-  if (user?.roles.includes('COMPANY_OWNER') && auth.hasPermission('tenant:read')) return inject(Router).createUrlTree(['/ops/operations/company-administration']);
+  if (user?.roles.some((role) => role === 'TENANT_ADMIN' || role === 'COMPANY_OWNER') && auth.hasPermission('tenant:read')) return inject(Router).createUrlTree(['/ops/operations/company-administration']);
   if (user?.roles.includes('SALES') && auth.hasPermission('sales:read')) return inject(Router).createUrlTree(['/ops/commercial/dashboard']);
   if ((user?.roles.includes('WAREHOUSE') || user?.roles.includes('LOGISTICS')) && auth.hasPermission('fulfillment:read')) return inject(Router).createUrlTree(['/ops/operations/dashboard']);
   return inject(Router).createUrlTree(['/forbidden']);
@@ -29,6 +29,10 @@ const dynamicRedirect = (target: string, parameter: string): RedirectFunction =>
 
 export const routes: Routes = [
   { path: 'sign-in', component: SignInPageComponent, canActivate: [anonymousGuard] },
+  { path: 'forgot-password', loadComponent: () => import('./iam/presentation/security-page/security-page.component').then((module) => module.SecurityPageComponent), data: { mode: 'forgot' } },
+  { path: 'reset-password', loadComponent: () => import('./iam/presentation/security-page/security-page.component').then((module) => module.SecurityPageComponent), data: { mode: 'reset' } },
+  { path: 'tenant-management/register-organization', loadComponent: () => import('./iam/presentation/security-page/security-page.component').then((module) => module.SecurityPageComponent), data: { mode: 'onboarding' } },
+  { path: 'tenant-management/registration-pending/:registrationId', loadComponent: () => import('./iam/presentation/security-page/security-page.component').then((module) => module.SecurityPageComponent), data: { mode: 'pending' } },
   { path: 'forbidden', component: ForbiddenPageComponent },
   {
     path: '',
@@ -37,8 +41,11 @@ export const routes: Routes = [
     data: { surface: 'PLATFORM' },
     children: [
       { path: '', pathMatch: 'full', redirectTo: roleLandingRedirect },
+      { path: 'iam/profile', loadComponent: () => import('./iam/presentation/security-page/security-page.component').then((module) => module.SecurityPageComponent), data: { mode: 'profile' } },
+      { path: 'iam/security/password', loadComponent: () => import('./iam/presentation/security-page/security-page.component').then((module) => module.SecurityPageComponent), data: { mode: 'password' } },
+      { path: 'iam/security/sessions', loadComponent: () => import('./iam/presentation/security-page/security-page.component').then((module) => module.SecurityPageComponent), data: { mode: 'sessions' } },
       { path: 'ops/overview', component: OverviewPageComponent, canActivate: [permissionGuard('fulfillment:read')] },
-      { path: 'ops/commercial/dashboard', component: OverviewPageComponent, canActivate: [permissionGuard('sales:read')] },
+      { path: 'ops/commercial/dashboard', loadComponent: () => import('./sales/dashboard/presentation/sales-dashboard-page.component').then((module) => module.SalesDashboardPageComponent), canActivate: [permissionGuard('sales:read')], providers: [SalesOperationsApiService] },
       {
         path: 'ops/operations/dashboard', data: { mode: 'dashboard' },
         loadComponent: () => import('./core/presentation/role-operations-dashboard-page.component').then((module) => module.RoleOperationsDashboardPageComponent),
@@ -152,7 +159,7 @@ export const routes: Routes = [
       { path: 'ops/orders', pathMatch: 'full', redirectTo: 'ops/commercial/sales-orders' },
       { path: 'overview', pathMatch: 'full', redirectTo: 'ops/overview' },
       { path: 'ops/catalog', pathMatch: 'full', redirectTo: 'ops/product-catalog' },
-      { path: '**', redirectTo: 'ops/overview' }
+      { path: '**', redirectTo: '/' }
     ]
   }
 ];

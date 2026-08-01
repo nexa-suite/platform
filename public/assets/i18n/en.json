@@ -13,6 +13,17 @@
     "description": "One place to coordinate the work that keeps the cold-chain business moving.",
     "body": "Use this workspace to connect operational teams and their workflows across the cold-chain business."
   },
+  "salesDashboard": {
+    "eyebrow": "Sales / Dashboard",
+    "title": "Sales Dashboard",
+    "description": "Server-backed sales metrics and recent resources.",
+    "metrics": { "submitted": "Submitted requests", "underReview": "Requests under review", "approved": "Approved requests", "pendingOrders": "Pending sales orders", "confirmedOrders": "Confirmed sales orders" },
+    "recentRequests": "Recent purchase requests",
+    "recentOrders": "Recent sales orders",
+    "links": { "title": "Sales links", "catalog": "Product Catalog", "requests": "Purchase Requests", "orders": "Sales Orders", "clients": "Client Accounts" },
+    "actions": { "retry": "Retry" },
+    "states": { "loading": "Loading sales dashboard", "emptyTitle": "No sales activity", "emptyDescription": "There are no recent requests or orders.", "errorTitle": "Dashboard unavailable", "errorDescription": "Sales metrics could not be loaded." }
+  },
   "auth": {
     "platformSurface": "Nexa Platform",
     "signOut": "Sign out",
@@ -133,5 +144,9 @@
     "actions": { "startPreparation": "Start preparation", "startRoute": "Start route", "ready": "Mark ready for route", "record": "Record reading", "complete": "Complete delivery", "reprogram": "Reprogram" },
     "states": { "photoDeclared": "Photo declared", "photoNotDeclared": "Photo not declared", "signatureDeclared": "Signature declared", "signatureNotDeclared": "Signature not declared", "metadataOnly": "Metadata only. Secure evidence-file storage is not included in this release.", "noEvents": "No events yet.", "pending": "Pending" },
     "forms": { "assignment": "Assignment", "membership": "Logistics membership", "vehicle": "Vehicle", "route": "Route", "assign": "Assign", "schedule": "Schedule", "reading": "Temperature reading", "value": "Value", "source": "Source", "incident": "Incident", "description": "Description", "buyerVisible": "Buyer-visible review", "recordIncident": "Record incident", "podMetadata": "Proof of Delivery metadata", "receiver": "Receiver name", "notes": "Notes", "photo": "Photo evidence declared", "signature": "Signature evidence declared", "completeDelivery": "Complete delivery", "reprogramRoute": "Reprogram route", "reason": "Reason", "celsius": "Celsius", "fahrenheit": "Fahrenheit", "delay": "Delay", "vehicleIssue": "Vehicle issue", "deliveryRefused": "Delivery refused", "addressIssue": "Address issue", "other": "Other", "low": "Low", "medium": "Medium", "high": "High", "critical": "Critical", "createDispatch": "Create dispatch", "reservationId": "Reservation ID", "reservationVersion": "Reservation version" }
+  },
+  "iamSecurityOperationOptions": { "distributor": "B2B distributor", "warehouse": "Refrigerated warehouse", "foodService": "Food service supplier", "thirdPartyStorage": "Third-party cold storage" },
+  "iamSecurity": {
+    "back": "Back to sign in", "forgotTitle": "Recover your password", "forgotDescription": "Enter your email. If the account can receive a reset, instructions will be delivered.", "resetTitle": "Set a new password", "resetDescription": "Use the secure link from your email.", "profileTitle": "Personal profile", "passwordTitle": "Change password", "sessionsTitle": "Active sessions", "onboardingTitle": "Register your organization", "onboardingDescription": "Submit the organization, cold-chain operation and workspace details for review.", "pendingTitle": "Activation pending", "pendingDescription": "Your organization is pending operational review. Access is enabled only after activation.", "email": "Login email", "displayName": "Display name", "phone": "Phone", "language": "Preferred language", "timezone": "IANA timezone", "currentPassword": "Current password", "newPassword": "New password", "token": "Reset token", "legalName": "Legal name", "operation": "Operation", "storageSite": "Storage site", "address": "Storage address", "founder": "Founder / administrator", "workspace": "Workspace name", "slug": "Workspace slug", "plan": "Reference plan", "terms": "I accept the organization registration terms", "send": "Send instructions", "save": "Save", "submit": "Submit registration", "revoke": "Revoke", "revokeOthers": "Revoke other sessions", "retry": "Retry", "current": "Current session", "emptySessions": "No active sessions", "loading": "Loading", "profileSaved": "Profile saved", "passwordChanged": "Password changed and other sessions revoked", "resetRequested": "If the account can receive a reset, instructions will be delivered.", "resetCompleted": "Password reset completed", "registrationSubmitted": "Registration submitted and pending activation", "error": "The security operation could not be completed. Retry."
   }
 }

@@ -1,4 +1,5 @@
 export const INTERNAL_ROLES = [
+  'TENANT_ADMIN',
   'COMPANY_OWNER',
   'SALES',
   'WAREHOUSE',

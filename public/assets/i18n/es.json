@@ -13,6 +13,17 @@
     "description": "Un solo lugar para coordinar el trabajo que mantiene en movimiento la cadena de frío.",
     "body": "Usa este espacio para conectar equipos operativos y sus flujos en toda la cadena de frío."
   },
+  "salesDashboard": {
+    "eyebrow": "Ventas / Dashboard",
+    "title": "Dashboard comercial",
+    "description": "Métricas y recursos recientes respaldados por las APIs de ventas.",
+    "metrics": { "submitted": "Solicitudes enviadas", "underReview": "Solicitudes en revisión", "approved": "Solicitudes aprobadas", "pendingOrders": "Órdenes pendientes", "confirmedOrders": "Órdenes confirmadas" },
+    "recentRequests": "Solicitudes recientes",
+    "recentOrders": "Órdenes recientes",
+    "links": { "title": "Accesos de ventas", "catalog": "Catálogo de productos", "requests": "Solicitudes de compra", "orders": "Órdenes de venta", "clients": "Cuentas cliente" },
+    "actions": { "retry": "Reintentar" },
+    "states": { "loading": "Cargando dashboard comercial", "emptyTitle": "Sin actividad comercial", "emptyDescription": "No hay solicitudes ni órdenes recientes.", "errorTitle": "Dashboard no disponible", "errorDescription": "No pudimos cargar las métricas comerciales." }
+  },
   "auth": {
     "platformSurface": "Nexa Platform",
     "signOut": "Cerrar sesión",
@@ -129,5 +140,9 @@
     "actions": { "startPreparation": "Iniciar preparación", "startRoute": "Iniciar ruta", "ready": "Marcar listo para ruta", "record": "Registrar lectura", "complete": "Completar entrega", "reprogram": "Reprogramar" },
     "states": { "photoDeclared": "Foto declarada", "photoNotDeclared": "Foto no declarada", "signatureDeclared": "Firma declarada", "signatureNotDeclared": "Firma no declarada", "metadataOnly": "Solo metadatos. El almacenamiento seguro de archivos de evidencia no está incluido en esta versión.", "noEvents": "Aún no hay eventos.", "pending": "Pendiente" },
     "forms": { "assignment": "Asignación", "membership": "Membership de logística", "vehicle": "Vehículo", "route": "Ruta", "assign": "Asignar", "schedule": "Programar", "reading": "Lectura de temperatura", "value": "Valor", "source": "Fuente", "incident": "Incidente", "description": "Descripción", "buyerVisible": "Revisión visible al comprador", "recordIncident": "Registrar incidente", "podMetadata": "Metadatos de prueba de entrega", "receiver": "Nombre del receptor", "notes": "Notas", "photo": "Evidencia fotográfica declarada", "signature": "Evidencia de firma declarada", "completeDelivery": "Completar entrega", "reprogramRoute": "Reprogramar ruta", "reason": "Motivo", "celsius": "Celsius", "fahrenheit": "Fahrenheit", "delay": "Retraso", "vehicleIssue": "Problema de vehículo", "deliveryRefused": "Entrega rechazada", "addressIssue": "Problema de dirección", "other": "Otro", "low": "Baja", "medium": "Media", "high": "Alta", "critical": "Crítica", "createDispatch": "Crear despacho", "reservationId": "ID de reserva", "reservationVersion": "Versión de reserva" }
+  },
+  "iamSecurityOperationOptions": { "distributor": "Distribuidor B2B", "warehouse": "Almacén refrigerado", "foodService": "Proveedor de servicios de alimentación", "thirdPartyStorage": "Almacenamiento en frío de terceros" },
+  "iamSecurity": {
+    "back": "Volver al acceso", "forgotTitle": "Recupera tu contraseña", "forgotDescription": "Ingresa tu correo. Si la cuenta puede recibir un restablecimiento, enviaremos instrucciones.", "resetTitle": "Define una nueva contraseña", "resetDescription": "Usa el enlace seguro recibido por correo.", "profileTitle": "Perfil personal", "passwordTitle": "Cambiar contraseña", "sessionsTitle": "Sesiones activas", "onboardingTitle": "Registra tu organización", "onboardingDescription": "Envía los datos de organización, operación de cadena de frío y workspace para revisión.", "pendingTitle": "Activación pendiente", "pendingDescription": "Tu organización está pendiente de revisión operativa. El acceso se habilita después de la activación.", "email": "Correo de acceso", "displayName": "Nombre visible", "phone": "Teléfono", "language": "Idioma preferido", "timezone": "Zona horaria IANA", "currentPassword": "Contraseña actual", "newPassword": "Nueva contraseña", "token": "Token de restablecimiento", "legalName": "Razón social", "operation": "Operación", "storageSite": "Sede de almacenamiento", "address": "Dirección de la sede", "founder": "Fundador / administrador", "workspace": "Nombre del workspace", "slug": "Slug del workspace", "plan": "Plan referencial", "terms": "Acepto los términos de registro de la organización", "send": "Enviar instrucciones", "save": "Guardar", "submit": "Enviar registro", "revoke": "Revocar", "revokeOthers": "Revocar otras sesiones", "retry": "Reintentar", "current": "Sesión actual", "emptySessions": "No hay sesiones activas", "loading": "Cargando", "profileSaved": "Perfil guardado", "passwordChanged": "Contraseña cambiada y otras sesiones revocadas", "resetRequested": "Si la cuenta puede recibir un restablecimiento, enviaremos instrucciones.", "resetCompleted": "Restablecimiento completado", "registrationSubmitted": "Registro enviado y pendiente de activación", "error": "No se pudo completar la operación de seguridad. Reintenta."
   }
 }

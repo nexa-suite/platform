@@ -51,4 +51,6 @@ __screenshots__/
 ._*
 __MACOSX/
 .worktrees/
+playwright-report/
+test-results/
 Thumbs.db
