@@ -67,7 +67,12 @@
       <label>{{ 'iamSecurity.email' | translate }}<input type="email" formControlName="founderEmail" autocomplete="email"></label>
       <label>{{ 'iamSecurity.workspace' | translate }}<input formControlName="workspaceName"></label>
       <label>{{ 'iamSecurity.slug' | translate }}<input formControlName="workspaceSlug" autocomplete="off"></label>
-      <label>{{ 'iamSecurity.plan' | translate }}<select formControlName="referencePlan"><option>Starter</option><option>Standard</option><option>Professional</option><option>Enterprise</option></select></label>
+      <label>{{ 'iamSecurity.plan' | translate }}<select formControlName="referencePlan">
+        <option value="Starter">{{ 'iamSecurityPlanOptions.starter' | translate }}</option>
+        <option value="Standard">{{ 'iamSecurityPlanOptions.standard' | translate }}</option>
+        <option value="Professional">{{ 'iamSecurityPlanOptions.professional' | translate }}</option>
+        <option value="Enterprise">{{ 'iamSecurityPlanOptions.enterprise' | translate }}</option>
+      </select></label>
       <label class="terms"><input type="checkbox" formControlName="termsAccepted"> {{ 'iamSecurity.terms' | translate }}</label>
       <button type="submit" [disabled]="registrationForm.invalid || facade.busy()">{{ 'iamSecurity.submit' | translate }}</button>
     </form>
