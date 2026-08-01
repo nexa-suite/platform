@@ -3,6 +3,33 @@
 All notable changes to this project are documented in this file.
 The project uses Semantic Versioning.
 
+## [0.7.0] - 2026-07-31
+
+This release consolidates the previously unpublished TASK-NEXA-008, TASK-NEXA-008.6, TASK-NEXA-009, TASK-NEXA-010 and TASK-NEXA-010.5 work.
+
+### Added
+
+- Role-specific operations shell with Warehouse and Logistics workflows.
+- Warehouse, Zone, Inbound, Lot, Adjustment, Waste, FEFO, Reservation and shortage/release interfaces.
+- Dispatch Board, assignment, scheduling, route readiness, temperature/incidents, reprogramming, POD metadata and analytics.
+
+### Security
+
+- Owner, Sales, Warehouse and Logistics navigation and permissions are separated; Buyer access remains rejected by Platform guards.
+
+## [0.6.0] - 2026-07-30
+
+### Added
+
+- Internal Sales Order list/detail, status timeline and fulfillment-readiness surfaces.
+- Endpoint-specific commercial filters, event mapping and secure change-feed reconnect behavior.
+- Platform CI, CodeQL and Dependabot configuration.
+
+### Security
+
+- Buyer access remains rejected by Platform guards; Sales Order mutations are not exposed to Buyer UI.
+- Change-feed sessions disconnect on logout and retry only through the authenticated refresh path.
+
 ## [0.5.0] - 2026-07-30
 
 This release consolidates previously unreleased Identity, tenant, security and commercial vertical work. Intermediate planned versions were never published.
@@ -59,7 +86,9 @@ This release consolidates previously unreleased Identity, tenant, security and c
 
 - Independent Angular 22 Platform application with bounded-context package structure, initial shell and EN/ES translation surface.
 
-[Unreleased]: https://github.com/nexa-suite/platform/compare/v0.5.0...HEAD
+[Unreleased]: https://github.com/nexa-suite/platform/compare/v0.7.0...HEAD
+[0.7.0]: https://github.com/nexa-suite/platform/compare/v0.5.0...v0.7.0
+[0.6.0]: https://github.com/nexa-suite/platform/compare/v0.5.0...v0.6.0
 [0.5.0]: https://github.com/nexa-suite/platform/compare/v0.3.0...v0.5.0
 [0.3.0]: https://github.com/nexa-suite/platform/compare/v0.2.1...v0.3.0
 [0.2.1]: https://github.com/nexa-suite/platform/compare/v0.2.0...v0.2.1

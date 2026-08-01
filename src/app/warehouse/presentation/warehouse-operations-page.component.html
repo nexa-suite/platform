@@ -1,0 +1,20 @@
+<nexa-page-header [title]="title()" [subtitle]="'Server-backed warehouse operations and FEFO readiness'" />
+@if (facade.loading()) { <nexa-loading-state /> }
+@else if (facade.error(); as error) { <nexa-error-state title="Warehouse operation unavailable" [description]="error" (retry)="facade.retry()" /> }
+@else {
+  <section class="metric-grid" aria-label="Warehouse metrics">
+    <nexa-metric-card label="Warehouses" [value]="facade.metrics().warehouses" />
+    <nexa-metric-card label="Available lots" [value]="facade.metrics().available" />
+    <nexa-metric-card label="Reserved orders" [value]="facade.metrics().reserved" />
+    <nexa-metric-card label="Shortages" [value]="facade.metrics().shortages" />
+  </section>
+  <nexa-section-panel [title]="title()">
+    @switch (mode) {
+      @case ('warehouses') { <table><thead><tr><th>Code</th><th>Name</th><th>Status</th></tr></thead><tbody>@for (item of facade.warehouses(); track item.id) { <tr><td>{{ item.code }}</td><td>{{ item.name }}</td><td>{{ item.status }}</td></tr> }</tbody></table> }
+      @case ('lots') { <table><thead><tr><th>Catalog item</th><th>Batch</th><th>Expiration</th><th>Available</th><th>Status</th></tr></thead><tbody>@for (item of facade.lots(); track item.id) { <tr><td>{{ item.catalogItemId }}</td><td>{{ item.batchNumber }}</td><td>{{ item.expirationDate }}</td><td>{{ item.available }} {{ item.unit }}</td><td>{{ item.status }}</td></tr> }</tbody></table> }
+      @case ('movements') { <table><thead><tr><th>Type</th><th>Lot</th><th>Quantity</th><th>Occurred</th></tr></thead><tbody>@for (item of facade.movements(); track item.id) { <tr><td>{{ item.type }}</td><td>{{ item.lotId }}</td><td>{{ item.quantity }} {{ item.unit }}</td><td>{{ item.occurredAt | date:'short' }}</td></tr> }</tbody></table> }
+      @case ('reservations') { <table><thead><tr><th>Order</th><th>Status</th><th>Expires</th></tr></thead><tbody>@for (item of facade.reservations(); track item.id) { <tr><td>{{ item.orderNumber }}</td><td>{{ item.status }}</td><td>{{ item.expiresAt | date:'short' }}</td></tr> }</tbody></table> }
+      @default { <p>Warehouse data is loaded from the API. Availability may change until inventory is reserved.</p> }
+    }
+  </nexa-section-panel>
+}

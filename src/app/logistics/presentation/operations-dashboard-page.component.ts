@@ -1,0 +1,11 @@
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { RouterLink } from '@angular/router';
+import { MetricCardComponent } from '../../shared/presentation/components/metric-card/metric-card.component';
+import { PageHeaderComponent } from '../../shared/presentation/components/page-header/page-header.component';
+import { SectionPanelComponent } from '../../shared/presentation/components/section-panel/section-panel.component';
+import { LoadingStateComponent } from '../../shared/presentation/components/loading-state/loading-state.component';
+import { ErrorStateComponent } from '../../shared/presentation/components/error-state/error-state.component';
+import { LogisticsFacade } from '../application/logistics.facade';
+
+@Component({selector:'nexa-logistics-dashboard-page',standalone:true,imports:[RouterLink,MetricCardComponent,PageHeaderComponent,SectionPanelComponent,LoadingStateComponent,ErrorStateComponent],template:`<section class="page"><nexa-page-header title="Operations Dashboard" subtitle="Live dispatch metrics from the logistics API"/>@if(facade.loading()){<nexa-loading-state/>}@else if(facade.error();as error){<nexa-error-state title="Dashboard unavailable" [description]="error" (retry)="facade.loadDashboard()"/>}@else if(facade.dashboard();as data){<div class="metric-grid"><nexa-metric-card label="Ready" [value]="data.readyForOperations"/><nexa-metric-card label="In route" [value]="data.inRoute"/><nexa-metric-card label="Incidents" [value]="data.incidents"/><nexa-metric-card label="Delivered today" [value]="data.deliveredToday"/><nexa-metric-card label="POD pending" [value]="data.podPending"/></div><nexa-section-panel title="Quick actions"><a routerLink="/ops/operations/dispatch-orders">Dispatch Board</a> · <a routerLink="/ops/operations/proof-of-delivery">POD queue</a> · <a routerLink="/ops/operations/temperature-incidents">Temperature and Incidents</a></nexa-section-panel>}</section>`,styles:[`.metric-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:1rem;margin-bottom:1rem}a{color:inherit}`],changeDetection:ChangeDetectionStrategy.OnPush})
+export class LogisticsOperationsDashboardPageComponent{readonly facade=inject(LogisticsFacade);constructor(){this.facade.loadDashboard();}}
