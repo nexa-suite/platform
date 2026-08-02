@@ -1,4 +1,4 @@
-import { test, expect } from 'playwright/test';
+import { test, expect } from '@playwright/test';
 import { requiresCredentials, signIn } from './support/auth';
 
 test('responsive shell keeps navigation usable at mobile width', async ({ page }) => {

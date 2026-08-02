@@ -1,4 +1,4 @@
-import { defineConfig, devices } from 'playwright/test';
+import { defineConfig, devices } from '@playwright/test';
 
 const chromiumPath = process.env.NEXA_E2E_CHROMIUM_PATH;
 
@@ -11,10 +11,14 @@ export default defineConfig({
   outputDir: 'test-results',
   use: {
     baseURL: process.env.NEXA_PLATFORM_URL ?? 'http://localhost:4200',
-    trace: 'retain-on-failure',
+    trace: 'on-first-retry',
     screenshot: 'only-on-failure',
-    video: 'retain-on-failure',
+    video: 'on-first-retry',
     ...(chromiumPath ? { launchOptions: { executablePath: chromiumPath } } : {}),
     ...devices['Desktop Chrome']
-  }
+  },
+  projects: [
+    { name: 'desktop', use: { ...devices['Desktop Chrome'] } },
+    { name: 'mobile', use: { ...devices['Pixel 7'] } }
+  ]
 });
