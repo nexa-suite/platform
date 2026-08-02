@@ -21,4 +21,23 @@ jobs:
       - run: npm ci
       - run: npm test
       - run: npm run build
-      - run: npm audit --omit=dev
+      - run: npx playwright install --with-deps chromium
+      - name: Browser E2E
+        if: ${{ vars.NEXA_PLATFORM_URL != '' }}
+        run: npm run test:e2e
+        env:
+          NEXA_PLATFORM_URL: ${{ vars.NEXA_PLATFORM_URL }}
+          NEXA_E2E_WORKSPACE: ${{ vars.NEXA_E2E_WORKSPACE }}
+          NEXA_E2E_OWNER_EMAIL: ${{ secrets.NEXA_E2E_OWNER_EMAIL }}
+          NEXA_E2E_OWNER_PASSWORD: ${{ secrets.NEXA_E2E_OWNER_PASSWORD }}
+          NEXA_E2E_TENANT_ADMIN_EMAIL: ${{ secrets.NEXA_E2E_TENANT_ADMIN_EMAIL }}
+          NEXA_E2E_TENANT_ADMIN_PASSWORD: ${{ secrets.NEXA_E2E_TENANT_ADMIN_PASSWORD }}
+          NEXA_E2E_COMPANY_OWNER_EMAIL: ${{ secrets.NEXA_E2E_COMPANY_OWNER_EMAIL }}
+          NEXA_E2E_COMPANY_OWNER_PASSWORD: ${{ secrets.NEXA_E2E_COMPANY_OWNER_PASSWORD }}
+          NEXA_E2E_SALES_EMAIL: ${{ secrets.NEXA_E2E_SALES_EMAIL }}
+          NEXA_E2E_SALES_PASSWORD: ${{ secrets.NEXA_E2E_SALES_PASSWORD }}
+          NEXA_E2E_WAREHOUSE_EMAIL: ${{ secrets.NEXA_E2E_WAREHOUSE_EMAIL }}
+          NEXA_E2E_WAREHOUSE_PASSWORD: ${{ secrets.NEXA_E2E_WAREHOUSE_PASSWORD }}
+          NEXA_E2E_LOGISTICS_EMAIL: ${{ secrets.NEXA_E2E_LOGISTICS_EMAIL }}
+          NEXA_E2E_LOGISTICS_PASSWORD: ${{ secrets.NEXA_E2E_LOGISTICS_PASSWORD }}
+      - run: npm audit --audit-level=high
