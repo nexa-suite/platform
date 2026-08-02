@@ -61,6 +61,7 @@ jobs:
             echo "NEXA_E2E_WAREHOUSE_PASSWORD=CI-Warehouse-Password-2026!"
             echo "NEXA_E2E_LOGISTICS_EMAIL=logistics@icisa.test"
             echo "NEXA_E2E_LOGISTICS_PASSWORD=CI-Logistics-Password-2026!"
+            echo "NEXA_E2E_SYSTEM_OPERATOR=ci-system-operator-token-0123456789-abcdefghijklmnopqrstuvwxyz"
           } >> "$GITHUB_ENV"
       - name: Start isolated API runtime
         working-directory: api
@@ -78,6 +79,7 @@ jobs:
           NEXA_SMTP_HOST: 127.0.0.1
           NEXA_SMTP_PORT: "1025"
           NEXA_SMTP_REQUIRED: "false"
+          NEXA_SYSTEM_OPERATOR_TOKEN: ci-system-operator-token-0123456789-abcdefghijklmnopqrstuvwxyz
           NEXA_NOTIFICATION_OUTBOX_KEY: ci-notification-outbox-key-012345678901234567890123456789
           NEXA_PASSWORD_RESET_THROTTLE_KEY: ci-reset-throttle-key-012345678901234567890123456789
           NEXA_DEV_BOOTSTRAP_ENABLED: "true"
