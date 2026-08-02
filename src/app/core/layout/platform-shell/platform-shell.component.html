@@ -6,11 +6,13 @@
       <span>{{ 'shell.platformLabel' | translate }}</span>
     </div>
 
-    <section class="workspace-card" aria-label="Workspace">
-      <span class="workspace-card-label">Workspace</span>
+    <section class="workspace-card">
       <strong>{{ currentUser()?.workspaceSlug }}</strong>
-      <span>{{ currentUser()?.workspaceSlug }}.nexa.com.pe</span>
-      <small>{{ roleLabel() }}</small>
+      @if ((currentUser()?.roles?.length ?? 0) > 1) {
+        <select (change)="switchArea($any($event.target).value)">
+          @for (area of currentUser()?.roles ?? []; track area) { <option>{{ area }}</option> }
+        </select>
+      }
     </section>
 
     <nav aria-label="Internal operations navigation">

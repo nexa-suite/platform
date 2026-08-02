@@ -12,6 +12,7 @@ describe('Platform routes', () => {
     expect(children.find((route) => route.path === 'overview')?.redirectTo).toBe('ops/overview');
     expect(children.find((route) => route.path === 'ops/catalog')?.redirectTo).toBe('ops/product-catalog');
     expect(children.some((route) => route.path === 'ops/product-catalog')).toBe(true);
+    expect(children.find((route) => route.path === 'ops/executive-overview')?.canActivate).toBeTruthy();
     expect(shellRoute?.data?.['surface']).toBe('PLATFORM');
   });
 
