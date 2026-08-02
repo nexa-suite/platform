@@ -1,7 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, effect, inject, untracked } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatSelectModule } from '@angular/material/select';
@@ -10,6 +9,7 @@ import { MatTableModule } from '@angular/material/table';
 import { ActivatedRoute, ParamMap, Router, RouterLink } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { TranslatePipe } from '@ngx-translate/core';
+import { NexaIconComponent } from '../../../shared/presentation/components/nexa-icon/nexa-icon.component';
 import { ColdChainBadgeComponent, ColdChainVariant } from '../../../shared/presentation/components/cold-chain-badge/cold-chain-badge.component';
 import { EmptyStateComponent } from '../../../shared/presentation/components/empty-state/empty-state.component';
 import { ErrorStateComponent } from '../../../shared/presentation/components/error-state/error-state.component';
@@ -40,7 +40,7 @@ type SelectFilter = 'coldChain' | 'status';
     LoadingStateComponent,
     MatButtonModule,
     MatFormFieldModule,
-    MatIconModule,
+    NexaIconComponent,
     MatInputModule,
     MatPaginatorModule,
     MatSelectModule,

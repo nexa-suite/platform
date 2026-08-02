@@ -2,10 +2,10 @@ import { ChangeDetectionStrategy, Component, computed, effect, inject, untracked
 import { NgTemplateOutlet } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
-import { MatIconModule } from '@angular/material/icon';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { TranslatePipe } from '@ngx-translate/core';
+import { NexaIconComponent } from '../../../shared/presentation/components/nexa-icon/nexa-icon.component';
 import { ColdChainBadgeComponent, ColdChainVariant } from '../../../shared/presentation/components/cold-chain-badge/cold-chain-badge.component';
 import { ErrorStateComponent } from '../../../shared/presentation/components/error-state/error-state.component';
 import { LoadingStateComponent } from '../../../shared/presentation/components/loading-state/loading-state.component';
@@ -15,7 +15,7 @@ import { ProductCatalogDetail } from '../../domain/models/catalog.models';
 
 @Component({
   selector: 'nexa-product-catalog-detail-page',
-  imports: [ColdChainBadgeComponent, ErrorStateComponent, LoadingStateComponent, MatButtonModule, MatCardModule, MatIconModule, NgTemplateOutlet, PageHeaderComponent, RouterLink, TranslatePipe],
+  imports: [ColdChainBadgeComponent, ErrorStateComponent, LoadingStateComponent, MatButtonModule, MatCardModule, NexaIconComponent, NgTemplateOutlet, PageHeaderComponent, RouterLink, TranslatePipe],
   templateUrl: './product-catalog-detail-page.component.html',
   styleUrl: './product-catalog-detail-page.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush

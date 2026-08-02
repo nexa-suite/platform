@@ -3,6 +3,7 @@ import { requiresCredentials, signIn } from './support/auth';
 import { assertNoBrowserSecrets } from './support/mailpit';
 
 test('public organization onboarding reaches the pending-review state', async ({ page }) => {
+  await page.goto('/sign-in');
   await page.goto('/tenant-management/register-organization');
   await expect(page.getByRole('heading', { name: /register your organization|registrar organización/i })).toBeVisible();
   await page.getByRole('textbox', { name: /legal name|razón social/i }).fill(`E2E Cold Chain ${Date.now()}`);
@@ -25,6 +26,12 @@ test('public organization onboarding reaches the pending-review state', async ({
   expect(page.url()).not.toContain(registration.statusToken!);
   await assertNoBrowserSecrets(page);
   await expect(page.locator('main')).toContainText(/pending|review|pendiente|revisión/i);
+
+  await page.goBack();
+  await expect(page).toHaveURL(/tenant-management\/register-organization/);
+  await page.goForward();
+  await expect(page).toHaveURL(/tenant-management\/registration-pending/);
+  await expect(page).not.toHaveURL(/statusToken=/);
 });
 
 test('Tenant Admin lands on company administration and stays inside Platform', async ({ page }) => {

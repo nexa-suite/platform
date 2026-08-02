@@ -18,7 +18,7 @@ export function internalRoleGuard(requiredRoles: readonly InternalRole[]): CanAc
 
     authentication.markForbidden();
     return router.createUrlTree([PLATFORM_ROUTES.forbidden], {
-      queryParams: { returnUrl: routerState.url }
+      queryParams: { returnUrl: routerState.url, reason: 'ROLE_NOT_ASSIGNED' }
     });
   };
 }

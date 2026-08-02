@@ -9,7 +9,7 @@ export function permissionGuard(requiredPermission: string): CanActivateFn {
     const router = inject(Router);
     if (authentication.status() === 'authenticated' && authentication.hasPermission(requiredPermission)) return true;
     authentication.markForbidden();
-    return router.createUrlTree([PLATFORM_ROUTES.forbidden], { queryParams: { returnUrl: routerState.url } });
+    return router.createUrlTree([PLATFORM_ROUTES.forbidden], { queryParams: { returnUrl: routerState.url, reason: 'PERMISSION_NOT_GRANTED' } });
   };
 }
 
@@ -19,6 +19,6 @@ export function anyPermissionGuard(requiredPermissions: readonly string[]): CanA
     const router = inject(Router);
     if (authentication.status() === 'authenticated' && requiredPermissions.some((permission) => authentication.hasPermission(permission))) return true;
     authentication.markForbidden();
-    return router.createUrlTree([PLATFORM_ROUTES.forbidden], { queryParams: { returnUrl: routerState.url } });
+    return router.createUrlTree([PLATFORM_ROUTES.forbidden], { queryParams: { returnUrl: routerState.url, reason: 'PERMISSION_NOT_GRANTED' } });
   };
 }
