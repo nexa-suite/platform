@@ -9,6 +9,7 @@ import { TranslatePipe } from '@ngx-translate/core';
 import { BrandLogoComponent } from '../../../shared/presentation/components/brand-logo/brand-logo.component';
 import { LanguageSwitcherComponent } from '../../i18n/language-switcher/language-switcher.component';
 import { AuthenticationService } from '../../../iam/application/authentication.service';
+import { INTERNAL_ROLES } from '../../../iam/domain/models/auth.models';
 import { PLATFORM_NAVIGATION } from '../../navigation/navigation.registry';
 
 @Component({
@@ -42,7 +43,11 @@ export class PlatformShellComponent {
     if (!user) return false;
     return (!item.permission || user.permissions.includes(item.permission)) && (!item.roles || item.roles.some((role) => user.roles.includes(role as never)));
   }));
-  readonly roleLabel = computed(() => this.currentUser()?.roles[0]?.replaceAll('_', ' ') ?? '');
+  readonly roleLabel = computed(() => {
+    const roles = this.currentUser()?.roles ?? [];
+    const selected = [...roles].sort((left, right) => INTERNAL_ROLES.indexOf(left) - INTERNAL_ROLES.indexOf(right))[0];
+    return selected?.replaceAll('_', ' ') ?? '';
+  });
 
   signOut(): void {
     this.authentication.signOut();

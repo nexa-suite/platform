@@ -20,5 +20,5 @@ export class SecurityApiService {
   requestReset(email: string): Observable<{ message: string }> { return this.http.post<{ message: string }>(this.url('/api/v1/auth/password-reset-requests'), { email, surface: 'PLATFORM' }); }
   resetPassword(token: string, newPassword: string): Observable<void> { return this.http.post<void>(this.url('/api/v1/auth/password-resets'), { token, newPassword }); }
   registerOrganization(value: unknown): Observable<Registration> { return this.http.post<Registration>(this.url('/api/v1/tenant-management/organization-registrations'), value); }
-  registration(id: string): Observable<Registration> { return this.http.get<Registration>(this.url(`/api/v1/tenant-management/organization-registrations/${id}`)); }
+  registration(id: string, statusToken: string): Observable<Registration> { return this.http.get<Registration>(this.url(`/api/v1/tenant-management/organization-registrations/${id}`), { params: { statusToken } }); }
 }

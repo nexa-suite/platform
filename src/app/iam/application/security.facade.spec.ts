@@ -64,8 +64,8 @@ describe('SecurityFacade', () => {
     const facade = TestBed.inject(SecurityFacade);
     facade.register({ workspaceSlug: 'icisa' }).subscribe();
     expect(facade.registration()?.status).toBe('PENDING_ACTIVATION');
-    facade.loadRegistration('registration-1').subscribe();
-    expect(api.registration).toHaveBeenCalledWith('registration-1');
+    facade.loadRegistration('registration-1', 'status-token').subscribe();
+    expect(api.registration).toHaveBeenCalledWith('registration-1', 'status-token');
   });
 
   it('exposes a recoverable translated error without backend details', () => {

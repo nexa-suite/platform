@@ -59,7 +59,8 @@ export function normalizeInternalRoles(values: readonly string[] | undefined): r
     .map((value) => value.trim().toUpperCase().replace(/^ROLE_/, ''))
     .filter(isInternalRole);
 
-  return roles.filter((role, index) => roles.indexOf(role) === index);
+  const unique = roles.filter((role, index) => roles.indexOf(role) === index);
+  return [...unique].sort((left, right) => INTERNAL_ROLES.indexOf(left) - INTERNAL_ROLES.indexOf(right));
 }
 
 export function normalizePermissions(values: readonly string[] | undefined): readonly string[] {

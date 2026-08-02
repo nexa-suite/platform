@@ -6,6 +6,8 @@ input, select { min-height: 44px; border: 1px solid #cbd5e1; border-radius: 8px;
 button { min-height: 44px; width: fit-content; padding: 0 18px; border: 0; border-radius: 8px; background: #1551a8; color: #fff; cursor: pointer; }
 button:disabled { opacity: .55; cursor: not-allowed; }
 .back-link { color: #1551a8; }
-.success { color: #166534; } .error { color: #b91c1c; }
-ul { display: grid; gap: 10px; padding: 0; list-style: none; } li { padding: 14px; border: 1px solid #dbe3ef; border-radius: 10px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.success { color: #166534; }
+.error { color: #b91c1c; }
+ul { display: grid; gap: 10px; padding: 0; list-style: none; }
+li { padding: 14px; border: 1px solid #dbe3ef; border-radius: 10px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
 .terms { display: flex; align-items: center; }

@@ -116,6 +116,9 @@ mat-nav-list a mat-icon {
 
 @media (max-width: 520px) {
   .platform-sidebar {
-    display: none;
+    display: block;
+    width: 168px;
   }
+
+  .platform-content { min-width: 0; }
 }
