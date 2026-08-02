@@ -1,0 +1,40 @@
+<div class="section-grid">
+  <mat-card>
+    <mat-card-header><mat-card-subtitle>Team Members</mat-card-subtitle><mat-card-title>{{ facade.state().memberships.length }} memberships</mat-card-title></mat-card-header>
+    <mat-card-content>
+      @if (facade.state().memberships.length === 0) { <p class="empty">No internal memberships are configured.</p> }
+      @else {
+        <div class="members-list">
+          @for (member of facade.state().memberships; track member.id) {
+            <article class="member-row">
+              <div class="member-copy"><strong>{{ member.displayName }}</strong><span>{{ member.email }} · {{ member.status }}</span></div>
+              <mat-form-field appearance="outline" class="roles-field"><mat-label>Fixed roles</mat-label><mat-select multiple [value]="member.roles" (selectionChange)="changeRoles(member, $event.value)" [disabled]="!facade.canManage()">@for (role of fixedRoles; track role) { <mat-option [value]="role">{{ role }}</mat-option> }</mat-select></mat-form-field>
+              <button mat-button type="button" (click)="toggleMembership(member)" [disabled]="!facade.canManage()">{{ member.status === 'ACTIVE' ? 'Suspend' : 'Reactivate' }}</button>
+            </article>
+          }
+        </div>
+      }
+      <p class="hint">Removing the final active Tenant Admin is rejected by the API.</p>
+    </mat-card-content>
+  </mat-card>
+
+  <mat-card>
+    <mat-card-header><mat-card-subtitle>Invitations</mat-card-subtitle><mat-card-title>Internal access only</mat-card-title></mat-card-header>
+    <mat-card-content>
+      <form [formGroup]="invitationForm" (ngSubmit)="invite()" class="form-grid" aria-label="Invite internal member">
+        <mat-form-field appearance="outline"><mat-label>Email</mat-label><input matInput type="email" formControlName="email"><mat-error>Enter a valid email.</mat-error></mat-form-field>
+        <mat-form-field appearance="outline"><mat-label>Display name</mat-label><input matInput formControlName="displayName"><mat-error>Display name is required.</mat-error></mat-form-field>
+        <mat-form-field appearance="outline" class="roles-field"><mat-label>Fixed roles</mat-label><mat-select multiple formControlName="roles">@for (role of fixedRoles; track role) { <mat-option [value]="role">{{ role }}</mat-option> }</mat-select></mat-form-field>
+        <button mat-flat-button color="primary" type="submit" [disabled]="!facade.canManage() || facade.busy()">Send invitation</button>
+      </form>
+      @if (facade.state().invitations.items.length === 0) { <p class="empty">No invitations have been created.</p> }
+      @else {
+        <div class="invitation-list">
+          @for (invitation of facade.state().invitations.items; track invitation.id) {
+            <article class="invitation-row"><div><strong>{{ invitation.displayName }}</strong><span>{{ invitation.email }} · {{ invitation.roles.join(', ') }}</span><small>{{ invitation.status }} · expires {{ invitation.expiresAt | date:'mediumDate' }}</small></div><div class="row-actions"><button mat-button type="button" (click)="facade.resendInvitation(invitation)" [disabled]="!facade.canManage() || invitation.status !== 'PENDING'">Resend</button><button mat-button type="button" (click)="facade.revokeInvitation(invitation)" [disabled]="!facade.canManage() || invitation.status !== 'PENDING'">Revoke</button></div></article>
+          }
+        </div>
+      }
+    </mat-card-content>
+  </mat-card>
+</div>

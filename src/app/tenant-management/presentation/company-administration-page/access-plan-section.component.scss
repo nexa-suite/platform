@@ -1,0 +1,13 @@
+:host { display: block; }
+.section-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+.matrix { display: grid; gap: 12px; }
+.matrix article { border-bottom: 1px solid var(--nexa-color-border); padding-bottom: 10px; }
+.role-heading, .metrics, .comparison { display: flex; gap: 10px; flex-wrap: wrap; }
+.role-heading { align-items: center; justify-content: space-between; }
+.matrix p, .empty { color: var(--nexa-color-text-secondary); font-size: .85rem; line-height: 1.5; }
+.metrics > div, .plan { border: 1px solid var(--nexa-color-border); border-radius: 10px; padding: 12px; min-width: 130px; }
+.metrics strong, .metrics span, .plan span, .plan small { display: block; }
+.metrics span, .plan span, .plan small { color: var(--nexa-color-text-secondary); font-size: .8rem; margin-top: 4px; }
+.comparison { margin-top: 16px; }
+.plan.current { border-color: var(--nexa-color-primary); }
+@media (max-width: 900px) { .section-grid { grid-template-columns: 1fr; } }
