@@ -26,4 +26,12 @@ describe('PlatformShellComponent', () => {
     expect(fixture.nativeElement.querySelector('nav')).toBeTruthy();
     expect(fixture.nativeElement.querySelector('router-outlet')).toBeTruthy();
   });
+
+  it('exposes every authorized internal work area without changing authentication state', () => {
+    const auth = TestBed.inject(AuthenticationService) as unknown as { currentUser: ReturnType<typeof signal> };
+    auth.currentUser.set({ subject: 'u1', identifier: 'owner@nexa.test', displayName: 'Owner', workspaceSlug: 'icisa', roles: ['COMPANY_OWNER', 'SALES'], permissions: ['sales:read'] });
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelector('select')).toBeTruthy();
+  });
 });

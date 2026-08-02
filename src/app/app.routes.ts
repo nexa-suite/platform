@@ -19,7 +19,8 @@ import { WarehouseOperationsFacade } from './warehouse/application/warehouse-ope
 const roleLandingRedirect: RedirectFunction = () => {
   const auth = inject(AuthenticationService);
   const user = auth.currentUser();
-  if (user?.roles.some((role) => role === 'TENANT_ADMIN' || role === 'COMPANY_OWNER') && auth.hasPermission('tenant:read')) return inject(Router).createUrlTree(['/ops/operations/company-administration']);
+  if (user?.roles.includes('TENANT_ADMIN') && auth.hasPermission('tenant:read')) return inject(Router).createUrlTree(['/ops/operations/company-administration']);
+  if (user?.roles.includes('COMPANY_OWNER') && auth.hasPermission('sales:read')) return inject(Router).createUrlTree(['/ops/executive-overview']);
   if (user?.roles.includes('SALES') && auth.hasPermission('sales:read')) return inject(Router).createUrlTree(['/ops/commercial/dashboard']);
   if ((user?.roles.includes('WAREHOUSE') || user?.roles.includes('LOGISTICS')) && auth.hasPermission('fulfillment:read')) return inject(Router).createUrlTree(['/ops/operations/dashboard']);
   return inject(Router).createUrlTree(['/forbidden']);
@@ -45,6 +46,7 @@ export const routes: Routes = [
       { path: 'iam/security/password', loadComponent: () => import('./iam/presentation/change-password-page/change-password-page.component').then((module) => module.ChangePasswordPageComponent) },
       { path: 'iam/security/sessions', loadComponent: () => import('./iam/presentation/sessions-page/sessions-page.component').then((module) => module.SessionsPageComponent) },
       { path: 'ops/overview', component: OverviewPageComponent, canActivate: [permissionGuard('fulfillment:read')] },
+      { path: 'ops/executive-overview', loadComponent: () => import('./core/presentation/company-owner-executive-overview-page.component').then((module) => module.CompanyOwnerExecutiveOverviewPageComponent), canActivate: [permissionGuard('sales:read')] },
       { path: 'ops/commercial/dashboard', loadComponent: () => import('./sales/dashboard/presentation/sales-dashboard-page.component').then((module) => module.SalesDashboardPageComponent), canActivate: [permissionGuard('sales:read')], providers: [SalesOperationsApiService] },
       {
         path: 'ops/operations/dashboard', data: { mode: 'dashboard' },
