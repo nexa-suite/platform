@@ -17,7 +17,6 @@ interface AuthApiUser {
   readonly email?: string;
   readonly preferredLanguage?: string;
   readonly workspaceSlug?: string;
-  readonly role?: string;
   readonly roles?: readonly string[];
   readonly permissions?: readonly string[];
 }
@@ -31,7 +30,7 @@ interface AuthApiCurrentSessionResponse {
   readonly user: AuthApiUser;
   readonly tenant: { readonly tenantId: string; readonly tenantSlug: string };
   readonly workspace: { readonly workspaceId: string; readonly workspaceSlug: string };
-  readonly membership: { readonly membershipId: string; readonly role: string; readonly roles?: readonly string[]; readonly permissions: readonly string[] };
+  readonly membership: { readonly membershipId: string; readonly roles: readonly string[]; readonly permissions: readonly string[] };
   readonly surface: string;
 }
 
@@ -64,7 +63,6 @@ export class AuthApiService {
       session: {
         ...response.user,
         workspaceSlug: response.workspace.workspaceSlug,
-        role: response.membership.role,
         roles: response.membership.roles,
         permissions: response.membership.permissions
       }
@@ -84,7 +82,7 @@ export class AuthApiService {
     const user = response.session ?? {};
     const identifier = user.email ?? command?.identifier ?? '';
     const workspaceSlug = user.workspaceSlug ?? command?.workspaceSlug ?? '';
-    const roles = normalizeInternalRoles(user.roles?.length ? user.roles : (user.role ? [user.role] : []));
+    const roles = normalizeInternalRoles(user.roles);
     const authenticatedUser: AuthenticatedUser = {
       subject: user.userId ?? identifier,
       identifier,

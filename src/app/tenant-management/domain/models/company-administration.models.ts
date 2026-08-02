@@ -21,7 +21,7 @@ export interface WorkspaceMembershipSummary {
   readonly userId: string;
   readonly email: string;
   readonly displayName: string;
-  readonly role: string;
+  readonly roles: readonly string[];
   readonly status: string;
   readonly version: number;
 }
