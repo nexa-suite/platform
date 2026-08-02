@@ -127,6 +127,19 @@ export interface InvitationList {
   readonly hasNext: boolean;
 }
 
+export interface InvitationAcceptanceCommand {
+  readonly token: string;
+  readonly password: string;
+  readonly displayName: string | null;
+}
+
+export interface InvitationAcceptanceResult {
+  readonly invitationId: string;
+  readonly userId: string;
+  readonly workspaceId: string;
+  readonly roles: readonly string[];
+}
+
 export interface AccessMatrixEntry {
   readonly role: string;
   readonly permissions: readonly string[];
@@ -159,6 +172,7 @@ export interface TenantAdministrationState {
   readonly profile: OrganizationProfile | null;
   readonly workspaces: readonly WorkspaceSummary[];
   readonly memberships: readonly WorkspaceMembershipSummary[];
+  readonly membershipDetail: WorkspaceMembershipSummary | null;
   readonly workspaceSettings: WorkspaceSettings | null;
   readonly regional: RegionalSettings | null;
   readonly units: UnitPreferences | null;
@@ -183,6 +197,7 @@ export const INITIAL_TENANT_ADMINISTRATION_STATE: TenantAdministrationState = {
   profile: null,
   workspaces: [],
   memberships: [],
+  membershipDetail: null,
   workspaceSettings: null,
   regional: null,
   units: null,

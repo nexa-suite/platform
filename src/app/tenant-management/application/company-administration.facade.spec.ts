@@ -1,3 +1,4 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
 import { of, throwError } from 'rxjs';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -21,7 +22,7 @@ function apiMock() {
     organization: vi.fn(() => of(organization)), organizationProfile: vi.fn(() => of(profile)), workspaces: vi.fn(() => of([workspace])), memberships: vi.fn(() => of([membership])),
     regionalSettings: vi.fn(() => of(regional)), unitPreferences: vi.fn(() => of(units)), securitySettings: vi.fn(() => of(security)), customFields: vi.fn(() => of([])), accessMatrix: vi.fn(() => of([])), planUsage: vi.fn(() => of(usage)), planComparison: vi.fn(() => of([])), invitations: vi.fn(() => of({ items: [], page: 0, pageSize: 25, hasNext: false })),
     workspaceSettings: vi.fn(() => of({ workspaceId: 'workspace', defaultWorkspaceBehavior: 'STANDARD', warehousePreferenceStrategy: 'MANUAL', version: 0 })), operationalSettings: vi.fn(() => of(operational)), notificationSettings: vi.fn(() => of(notifications)),
-    updateWorkspace: vi.fn(() => of({ ...workspace, name: 'ICISA 2', version: 3 })), changeRoles: vi.fn(() => of(membership)), suspend: vi.fn(() => of({ ...membership, status: 'DISABLED', version: 2 })), reactivate: vi.fn(() => of(membership))
+    updateWorkspace: vi.fn(() => of({ ...workspace, name: 'ICISA 2', version: 3 })), membership: vi.fn(() => of(membership)), changeRoles: vi.fn(() => of(membership)), suspend: vi.fn(() => of({ ...membership, status: 'DISABLED', version: 2 })), reactivate: vi.fn(() => of(membership))
   };
 }
 
@@ -55,5 +56,25 @@ describe('CompanyAdministrationFacade', () => {
     expect(api.updateWorkspace).toHaveBeenCalledWith('workspace', 2, { name: 'ICISA 2', slug: 'icisa-2' });
     expect(api.changeRoles).toHaveBeenCalledWith('member', 1, ['SALES', 'WAREHOUSE']);
     expect(api.suspend).toHaveBeenCalledWith('member', 1);
+  });
+
+  it('reloads the tenant read model after an ETag conflict', () => {
+    const api = apiMock();
+    api.changeRoles.mockReturnValue(throwError(() => new HttpErrorResponse({ status: 412, error: { code: 'CONCURRENCY_CONFLICT' } })));
+    TestBed.configureTestingModule({ providers: [CompanyAdministrationFacade, { provide: CompanyAdministrationApiService, useValue: api }, { provide: AuthenticationService, useValue: { hasPermission: () => true } }] });
+    const facade = TestBed.inject(CompanyAdministrationFacade); facade.load();
+    facade.changeRoles('member', 1, ['WAREHOUSE']);
+    expect(api.changeRoles).toHaveBeenCalledWith('member', 1, ['WAREHOUSE']);
+    expect(api.memberships).toHaveBeenCalledTimes(2);
+    expect(facade.state().message).toBe('STALE_VERSION');
+    expect(facade.state().notice).toBe('STALE_RELOADED');
+  });
+
+  it('does not issue mutations for a Company Owner read-only session', () => {
+    const api = apiMock();
+    TestBed.configureTestingModule({ providers: [CompanyAdministrationFacade, { provide: CompanyAdministrationApiService, useValue: api }, { provide: AuthenticationService, useValue: { hasPermission: () => false } }] });
+    const facade = TestBed.inject(CompanyAdministrationFacade);
+    facade.changeRoles('member', 1, ['WAREHOUSE']);
+    expect(api.changeRoles).not.toHaveBeenCalled();
   });
 });

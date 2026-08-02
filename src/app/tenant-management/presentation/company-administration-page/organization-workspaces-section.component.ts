@@ -5,6 +5,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { CompanyAdministrationFacade } from '../../application/company-administration.facade';
+import { TenantAdministrationI18n } from '../i18n/tenant-administration-i18n.service';
 
 @Component({
   selector: 'nexa-organization-workspaces-section',
@@ -15,6 +16,7 @@ import { CompanyAdministrationFacade } from '../../application/company-administr
 })
 export class OrganizationWorkspacesSectionComponent {
   readonly facade = inject(CompanyAdministrationFacade);
+  readonly i18n = inject(TenantAdministrationI18n);
   private readonly fb = inject(FormBuilder).nonNullable;
   readonly profileForm = this.fb.group({
     legalName: ['', [Validators.required, Validators.maxLength(160)]],

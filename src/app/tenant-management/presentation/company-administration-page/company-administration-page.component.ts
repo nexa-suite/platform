@@ -9,6 +9,7 @@ import { AccessPlanSectionComponent } from './access-plan-section.component';
 import { OrganizationWorkspacesSectionComponent } from './organization-workspaces-section.component';
 import { SettingsSectionComponent } from './settings-section.component';
 import { TeamInvitationsSectionComponent } from './team-invitations-section.component';
+import { TenantAdministrationI18n } from '../i18n/tenant-administration-i18n.service';
 
 type AdministrationTab = 'overview' | 'organization' | 'team' | 'settings' | 'access';
 
@@ -21,17 +22,19 @@ type AdministrationTab = 'overview' | 'organization' | 'team' | 'settings' | 'ac
 })
 export class CompanyAdministrationPageComponent {
   readonly facade = inject(CompanyAdministrationFacade);
+  readonly i18n = inject(TenantAdministrationI18n);
   readonly tab = signal<AdministrationTab>('overview');
-  readonly tabs: readonly { readonly id: AdministrationTab; readonly label: string }[] = [
-    { id: 'overview', label: 'Overview' },
-    { id: 'organization', label: 'Organization & workspaces' },
-    { id: 'team', label: 'Team & invitations' },
-    { id: 'settings', label: 'Settings' },
-    { id: 'access', label: 'Access & plan' }
+  readonly tabs: readonly { readonly id: AdministrationTab; readonly labelKey: string }[] = [
+    { id: 'overview', labelKey: 'overview' },
+    { id: 'organization', labelKey: 'organizationTab' },
+    { id: 'team', labelKey: 'teamTab' },
+    { id: 'settings', labelKey: 'settingsTab' },
+    { id: 'access', labelKey: 'accessTab' }
   ];
   readonly readOnly = computed(() => !this.facade.canManage());
 
   constructor() { this.facade.load(); }
   selectTab(tab: AdministrationTab): void { this.tab.set(tab); }
-  friendlyMessage(value: string | null): string { return value ? value.replaceAll('_', ' ') : ''; }
+  friendlyMessage(value: string | null): string { return this.i18n.error(value); }
+  localizedNotice(value: string | null): string { return value ? this.i18n.notice(value) : ''; }
 }

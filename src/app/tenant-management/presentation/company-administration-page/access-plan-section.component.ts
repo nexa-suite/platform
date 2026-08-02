@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
 import { MatChipsModule } from '@angular/material/chips';
 import { CompanyAdministrationFacade } from '../../application/company-administration.facade';
+import { TenantAdministrationI18n } from '../i18n/tenant-administration-i18n.service';
 
 @Component({
   selector: 'nexa-access-plan-section',
@@ -12,4 +13,5 @@ import { CompanyAdministrationFacade } from '../../application/company-administr
 })
 export class AccessPlanSectionComponent {
   readonly facade = inject(CompanyAdministrationFacade);
+  readonly i18n = inject(TenantAdministrationI18n);
 }

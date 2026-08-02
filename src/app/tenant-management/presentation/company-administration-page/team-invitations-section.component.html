@@ -1,37 +1,55 @@
 <div class="section-grid">
   <mat-card>
-    <mat-card-header><mat-card-subtitle>Team Members</mat-card-subtitle><mat-card-title>{{ facade.state().memberships.length }} memberships</mat-card-title></mat-card-header>
+    <mat-card-header><mat-card-subtitle>{{ i18n.t('teamMembers') }}</mat-card-subtitle><mat-card-title>{{ i18n.t('memberships', { count: facade.state().memberships.length }) }}</mat-card-title></mat-card-header>
     <mat-card-content>
-      @if (facade.state().memberships.length === 0) { <p class="empty">No internal memberships are configured.</p> }
+      @if (facade.state().memberships.length === 0) { <p class="empty">{{ i18n.t('noMemberships') }}</p> }
       @else {
         <div class="members-list">
           @for (member of facade.state().memberships; track member.id) {
             <article class="member-row">
-              <div class="member-copy"><strong>{{ member.displayName }}</strong><span>{{ member.email }} · {{ member.status }}</span></div>
-              <mat-form-field appearance="outline" class="roles-field"><mat-label>Fixed roles</mat-label><mat-select multiple [value]="member.roles" (selectionChange)="changeRoles(member, $event.value)" [disabled]="!facade.canManage()">@for (role of fixedRoles; track role) { <mat-option [value]="role">{{ role }}</mat-option> }</mat-select></mat-form-field>
-              <button mat-button type="button" (click)="toggleMembership(member)" [disabled]="!facade.canManage()">{{ member.status === 'ACTIVE' ? 'Suspend' : 'Reactivate' }}</button>
+              <div class="member-copy"><strong>{{ member.displayName }}</strong><span>{{ member.email }} · {{ i18n.status(member.status) }}</span><small>{{ roleNames(member.roles) }}</small></div>
+              <mat-form-field appearance="outline" class="roles-field"><mat-label>{{ i18n.t('fixedRoles') }}</mat-label><mat-select multiple [value]="selectedRoles(member)" (selectionChange)="requestRoleChange(member, $event.value)" [disabled]="!facade.canManage() || facade.busy()">@for (role of fixedRoles; track role) { <mat-option [value]="role">{{ i18n.role(role) }}</mat-option> }</mat-select></mat-form-field>
+              <button mat-button type="button" (click)="openMemberDetail(member)">{{ i18n.t('details') }}</button>
+              <button mat-button type="button" (click)="toggleMembership(member)" [disabled]="!facade.canManage() || facade.busy()">{{ member.status === 'ACTIVE' ? i18n.t('suspend') : i18n.t('reactivate') }}</button>
             </article>
           }
         </div>
       }
-      <p class="hint">Removing the final active Tenant Admin is rejected by the API.</p>
+      @if (pendingRoleChange(); as pending) {
+        <aside class="role-confirmation" role="alertdialog" aria-live="polite">
+          <strong>{{ i18n.t('roleConfirmation') }}</strong>
+          <span>{{ pending.member.displayName }}</span>
+          <small>{{ i18n.t('currentRoles') }}: {{ roleNames(pending.member.roles) || '—' }}</small>
+          <small>{{ i18n.t('nextRoles') }}: {{ roleNames(pending.roles) }}</small>
+          <div class="row-actions"><button mat-flat-button color="primary" type="button" (click)="confirmRoleChange()" [disabled]="facade.busy()">{{ i18n.t('confirm') }}</button><button mat-button type="button" (click)="cancelRoleChange()">{{ i18n.t('cancel') }}</button></div>
+        </aside>
+      }
+      @if (facade.state().membershipDetail; as detail) {
+        <aside class="member-detail" aria-live="polite">
+          <div class="detail-heading"><strong>{{ i18n.t('memberDetail') }}</strong><button mat-button type="button" (click)="closeMemberDetail()">{{ i18n.t('close') }}</button></div>
+          <dl><div><dt>{{ i18n.t('displayName') }}</dt><dd>{{ detail.displayName }}</dd></div><div><dt>{{ i18n.t('email') }}</dt><dd>{{ detail.email }}</dd></div><div><dt>{{ i18n.t('status') }}</dt><dd>{{ i18n.status(detail.status) }}</dd></div><div><dt>{{ i18n.t('userId') }}</dt><dd>{{ detail.userId }}</dd></div><div><dt>{{ i18n.t('membershipId') }}</dt><dd>{{ detail.id }}</dd></div><div><dt>{{ i18n.t('fixedRoles') }}</dt><dd>{{ roleNames(detail.roles) }}</dd></div></dl>
+        </aside>
+      }
+      <p class="hint">{{ i18n.t('finalAdminHint') }}</p>
     </mat-card-content>
   </mat-card>
 
   <mat-card>
-    <mat-card-header><mat-card-subtitle>Invitations</mat-card-subtitle><mat-card-title>Internal access only</mat-card-title></mat-card-header>
+    <mat-card-header><mat-card-subtitle>{{ i18n.t('invitations') }}</mat-card-subtitle><mat-card-title>{{ i18n.t('internalAccessOnly') }}</mat-card-title></mat-card-header>
     <mat-card-content>
-      <form [formGroup]="invitationForm" (ngSubmit)="invite()" class="form-grid" aria-label="Invite internal member">
-        <mat-form-field appearance="outline"><mat-label>Email</mat-label><input matInput type="email" formControlName="email"><mat-error>Enter a valid email.</mat-error></mat-form-field>
-        <mat-form-field appearance="outline"><mat-label>Display name</mat-label><input matInput formControlName="displayName"><mat-error>Display name is required.</mat-error></mat-form-field>
-        <mat-form-field appearance="outline" class="roles-field"><mat-label>Fixed roles</mat-label><mat-select multiple formControlName="roles">@for (role of fixedRoles; track role) { <mat-option [value]="role">{{ role }}</mat-option> }</mat-select></mat-form-field>
-        <button mat-flat-button color="primary" type="submit" [disabled]="!facade.canManage() || facade.busy()">Send invitation</button>
+      <form [formGroup]="invitationForm" (ngSubmit)="invite()" class="form-grid" [attr.aria-label]="i18n.t('inviteInternalMember')">
+        <fieldset [disabled]="!facade.canManage() || facade.busy()">
+          <mat-form-field appearance="outline"><mat-label>{{ i18n.t('email') }}</mat-label><input matInput type="email" formControlName="email"><mat-error>{{ i18n.t('required') }}</mat-error></mat-form-field>
+          <mat-form-field appearance="outline"><mat-label>{{ i18n.t('displayName') }}</mat-label><input matInput formControlName="displayName"><mat-error>{{ i18n.t('required') }}</mat-error></mat-form-field>
+          <mat-form-field appearance="outline" class="roles-field"><mat-label>{{ i18n.t('fixedRoles') }}</mat-label><mat-select multiple formControlName="roles">@for (role of fixedRoles; track role) { <mat-option [value]="role">{{ i18n.role(role) }}</mat-option> }</mat-select></mat-form-field>
+          <button mat-flat-button color="primary" type="submit">{{ i18n.t('sendInvitation') }}</button>
+        </fieldset>
       </form>
-      @if (facade.state().invitations.items.length === 0) { <p class="empty">No invitations have been created.</p> }
+      @if (facade.state().invitations.items.length === 0) { <p class="empty">{{ i18n.t('noInvitations') }}</p> }
       @else {
         <div class="invitation-list">
           @for (invitation of facade.state().invitations.items; track invitation.id) {
-            <article class="invitation-row"><div><strong>{{ invitation.displayName }}</strong><span>{{ invitation.email }} · {{ invitation.roles.join(', ') }}</span><small>{{ invitation.status }} · expires {{ invitation.expiresAt | date:'mediumDate' }}</small></div><div class="row-actions"><button mat-button type="button" (click)="facade.resendInvitation(invitation)" [disabled]="!facade.canManage() || invitation.status !== 'PENDING'">Resend</button><button mat-button type="button" (click)="facade.revokeInvitation(invitation)" [disabled]="!facade.canManage() || invitation.status !== 'PENDING'">Revoke</button></div></article>
+            <article class="invitation-row"><div><strong>{{ invitation.displayName }}</strong><span>{{ invitation.email }} · {{ roleNames(invitation.roles) }}</span><small>{{ i18n.status(invitation.status) }} · {{ i18n.t('expires') }} {{ invitation.expiresAt | date:'mediumDate' }}</small></div><div class="row-actions"><button mat-button type="button" (click)="facade.resendInvitation(invitation)" [disabled]="!facade.canManage() || facade.busy() || invitation.status !== 'PENDING'">{{ i18n.t('resend') }}</button><button mat-button type="button" (click)="facade.revokeInvitation(invitation)" [disabled]="!facade.canManage() || facade.busy() || invitation.status !== 'PENDING'">{{ i18n.t('revoke') }}</button></div></article>
           }
         </div>
       }

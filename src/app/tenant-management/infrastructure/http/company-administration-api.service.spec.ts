@@ -60,4 +60,17 @@ describe('CompanyAdministrationApiService', () => {
     expect(invitationRequest.request.body).not.toHaveProperty('token');
     invitationRequest.flush({});
   });
+
+  it('supports membership detail and public invitation acceptance without leaking a token into another payload', () => {
+    service.membership('member/one').subscribe();
+    const detailRequest = http.expectOne('http://api.local/api/v1/workspace-memberships/member%2Fone');
+    expect(detailRequest.request.method).toBe('GET');
+    detailRequest.flush({});
+
+    service.acceptInvitation({ token: 'opaque-token', password: 'long-enough-password', displayName: 'New member' }).subscribe();
+    const acceptanceRequest = http.expectOne('http://api.local/api/v1/organization-invitation-acceptances');
+    expect(acceptanceRequest.request.method).toBe('POST');
+    expect(acceptanceRequest.request.body).toEqual({ token: 'opaque-token', password: 'long-enough-password', displayName: 'New member' });
+    acceptanceRequest.flush({ invitationId: 'invitation', userId: 'user', workspaceId: 'workspace', roles: ['SALES'] });
+  });
 });

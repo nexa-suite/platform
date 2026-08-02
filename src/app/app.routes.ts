@@ -4,9 +4,6 @@ import { AuthenticationService } from './iam/application/authentication.service'
 import { anonymousGuard, authGuard } from './core/security/auth.guard';
 import { platformSurfaceGuard } from './core/security/platform-surface.guard';
 import { PlatformShellComponent } from './core/layout/platform-shell/platform-shell.component';
-import { OverviewPageComponent } from './core/presentation/overview-page/overview-page.component';
-import { ForbiddenPageComponent } from './iam/presentation/forbidden-page/forbidden-page.component';
-import { SignInPageComponent } from './iam/presentation/sign-in-page/sign-in-page.component';
 import { permissionGuard } from './core/security/permission.guard';
 import { ChangeFeedService } from './core/change-feed/infrastructure/change-feed.service';
 import { SalesOperationsApiService } from './sales/infrastructure/http/sales-operations-api.service';
@@ -16,6 +13,7 @@ import { SalesOrdersFacade } from './sales/sales-orders/application/sales-orders
 import { WarehouseOperationsApiService } from './warehouse/infrastructure/warehouse-operations-api.service';
 import { WarehouseOperationsFacade } from './warehouse/application/warehouse-operations.facade';
 import { catalogReadGuard, catalogManageGuard, promotionReadGuard, promotionManageGuard } from './core/security/catalog-access.guard';
+import { tenantManagementRoutes } from './tenant-management/tenant-management.routes';
 
 const roleLandingRedirect: RedirectFunction = () => {
   const auth = inject(AuthenticationService);
@@ -30,12 +28,13 @@ const dynamicRedirect = (target: string, parameter: string): RedirectFunction =>
   inject(Router).createUrlTree([target, route.params[parameter]]);
 
 export const routes: Routes = [
-  { path: 'sign-in', component: SignInPageComponent, canActivate: [anonymousGuard] },
+  ...tenantManagementRoutes,
+  { path: 'sign-in', loadComponent: () => import('./iam/presentation/sign-in-page/sign-in-page.component').then((module) => module.SignInPageComponent), canActivate: [anonymousGuard] },
   { path: 'forgot-password', loadComponent: () => import('./iam/presentation/forgot-password-page/forgot-password-page.component').then((module) => module.ForgotPasswordPageComponent) },
   { path: 'reset-password', loadComponent: () => import('./iam/presentation/reset-password-page/reset-password-page.component').then((module) => module.ResetPasswordPageComponent) },
   { path: 'tenant-management/register-organization', loadComponent: () => import('./iam/presentation/organization-onboarding-page/organization-onboarding-page.component').then((module) => module.OrganizationOnboardingPageComponent) },
   { path: 'tenant-management/registration-pending/:registrationId', loadComponent: () => import('./iam/presentation/pending-activation-page/pending-activation-page.component').then((module) => module.PendingActivationPageComponent) },
-  { path: 'forbidden', component: ForbiddenPageComponent },
+  { path: 'forbidden', loadComponent: () => import('./iam/presentation/forbidden-page/forbidden-page.component').then((module) => module.ForbiddenPageComponent) },
   {
     path: '',
     component: PlatformShellComponent,
@@ -46,7 +45,7 @@ export const routes: Routes = [
       { path: 'iam/profile', loadComponent: () => import('./iam/presentation/profile-page/profile-page.component').then((module) => module.ProfilePageComponent) },
       { path: 'iam/security/password', loadComponent: () => import('./iam/presentation/change-password-page/change-password-page.component').then((module) => module.ChangePasswordPageComponent) },
       { path: 'iam/security/sessions', loadComponent: () => import('./iam/presentation/sessions-page/sessions-page.component').then((module) => module.SessionsPageComponent) },
-      { path: 'ops/overview', component: OverviewPageComponent, canActivate: [permissionGuard('fulfillment:read')] },
+      { path: 'ops/overview', loadComponent: () => import('./core/presentation/overview-page/overview-page.component').then((module) => module.OverviewPageComponent), canActivate: [permissionGuard('fulfillment:read')] },
       { path: 'ops/executive-overview', loadComponent: () => import('./core/presentation/company-owner-executive-overview-page.component').then((module) => module.CompanyOwnerExecutiveOverviewPageComponent), canActivate: [permissionGuard('sales:read')] },
       { path: 'ops/commercial/dashboard', loadComponent: () => import('./sales/dashboard/presentation/sales-dashboard-page.component').then((module) => module.SalesDashboardPageComponent), canActivate: [permissionGuard('sales:read')], providers: [SalesOperationsApiService] },
       {

@@ -1,0 +1,45 @@
+<main class="acceptance-page" aria-labelledby="invitation-title">
+  <a routerLink="/sign-in" class="back-link">{{ i18n.t('backToSignIn') }}</a>
+  <h1 id="invitation-title">{{ i18n.t('invitationAcceptance') }}</h1>
+  <p>{{ i18n.t('invitationAcceptanceDescription') }}</p>
+
+  <div class="mode-switch" role="group" [attr.aria-label]="i18n.t('invitationAcceptance')">
+    <button type="button" [class.active]="mode() === 'new'" [attr.aria-pressed]="mode() === 'new'" (click)="setMode('new')">{{ i18n.t('newUser') }}</button>
+    <button type="button" [class.active]="mode() === 'existing'" [attr.aria-pressed]="mode() === 'existing'" (click)="setMode('existing')">{{ i18n.t('existingUser') }}</button>
+  </div>
+  <p class="mode-description">{{ i18n.t(mode() === 'new' ? 'newUserDescription' : 'existingUserDescription') }}</p>
+  @if (mode() === 'existing') { <p class="contract-hint">{{ i18n.t('existingUserContractHint') }}</p> }
+
+  @if (facade.result(); as result) {
+    <section class="success" role="status">
+      <strong>{{ i18n.t('invitationAccepted') }}</strong>
+      <span>{{ i18n.t('invitationAcceptedRoles', { roles: roleNames(result.roles) }) }}</span>
+      <a routerLink="/sign-in">{{ i18n.t('backToSignIn') }}</a>
+    </section>
+  } @else {
+    <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+      <label for="invitation-token">{{ i18n.t('invitationToken') }}</label>
+      <input id="invitation-token" formControlName="token" autocomplete="off">
+      @if (form.controls.token.touched && form.controls.token.invalid) { <small class="error">{{ i18n.t('tokenRequired') }}</small> }
+
+      @if (mode() === 'new') {
+        <label for="invitation-display-name">{{ i18n.t('displayName') }}</label>
+        <input id="invitation-display-name" formControlName="displayName" autocomplete="name">
+        @if (form.controls.displayName.touched && form.controls.displayName.invalid) { <small class="error">{{ i18n.t('displayNameRequired') }}</small> }
+      }
+
+      <label for="invitation-password">{{ i18n.t('password') }}</label>
+      <input id="invitation-password" type="password" formControlName="password" autocomplete="new-password">
+      @if (form.controls.password.touched && form.controls.password.invalid) { <small class="error">{{ i18n.t('passwordPolicy') }}</small> }
+
+      @if (mode() === 'new') {
+        <label for="invitation-confirm-password">{{ i18n.t('confirmPassword') }}</label>
+        <input id="invitation-confirm-password" type="password" formControlName="confirmPassword" autocomplete="new-password">
+        @if (passwordMismatch()) { <small class="error">{{ i18n.t('passwordMismatch') }}</small> }
+      }
+
+      <button type="submit" [disabled]="facade.busy()">{{ i18n.t('acceptInvitation') }}</button>
+    </form>
+    @if (facade.error(); as error) { <p class="error" role="alert">{{ i18n.error(error) }}</p> }
+  }
+</main>

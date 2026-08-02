@@ -1,48 +1,54 @@
 <div class="section-grid">
   <mat-card>
-    <mat-card-header><mat-card-subtitle>Organization</mat-card-subtitle><mat-card-title>Identity and legal profile</mat-card-title></mat-card-header>
+    <mat-card-header><mat-card-subtitle>{{ i18n.t('organization') }}</mat-card-subtitle><mat-card-title>{{ i18n.t('identityProfile') }}</mat-card-title></mat-card-header>
     <mat-card-content>
       @if (facade.state().profile; as profile) {
-        <form [formGroup]="profileForm" (ngSubmit)="saveProfile()" class="form-grid" aria-label="Organization profile">
-          <mat-form-field appearance="outline"><mat-label>Legal name</mat-label><input matInput formControlName="legalName"><mat-error>Legal name is required.</mat-error></mat-form-field>
-          <mat-form-field appearance="outline"><mat-label>Display name</mat-label><input matInput formControlName="displayName"><mat-error>Display name is required.</mat-error></mat-form-field>
-          <mat-form-field appearance="outline"><mat-label>Business identifier</mat-label><input matInput formControlName="businessIdentifier"></mat-form-field>
-          <mat-form-field appearance="outline"><mat-label>Operation category</mat-label><input matInput formControlName="operationCategory"><mat-error>Operation category is required.</mat-error></mat-form-field>
-          <div class="form-actions"><span class="version">Version {{ profile.version }}</span><button mat-flat-button color="primary" type="submit" [disabled]="!facade.canManage() || facade.busy()">Save organization</button></div>
+        <form [formGroup]="profileForm" (ngSubmit)="saveProfile()" class="form-grid" [attr.aria-label]="i18n.t('identityProfile')">
+          <fieldset [disabled]="!facade.canManage() || facade.busy()">
+            <mat-form-field appearance="outline"><mat-label>{{ i18n.t('legalName') }}</mat-label><input matInput formControlName="legalName"><mat-error>{{ i18n.t('required') }}</mat-error></mat-form-field>
+            <mat-form-field appearance="outline"><mat-label>{{ i18n.t('displayName') }}</mat-label><input matInput formControlName="displayName"><mat-error>{{ i18n.t('required') }}</mat-error></mat-form-field>
+            <mat-form-field appearance="outline"><mat-label>{{ i18n.t('businessIdentifier') }}</mat-label><input matInput formControlName="businessIdentifier"></mat-form-field>
+            <mat-form-field appearance="outline"><mat-label>{{ i18n.t('operationCategory') }}</mat-label><input matInput formControlName="operationCategory"><mat-error>{{ i18n.t('required') }}</mat-error></mat-form-field>
+            <div class="form-actions"><span class="version">{{ profile.version }}</span><button mat-flat-button color="primary" type="submit">{{ i18n.t('saveOrganization') }}</button></div>
+          </fieldset>
         </form>
-      } @else { <p class="empty">Organization profile is empty.</p> }
+      } @else { <p class="empty">{{ i18n.t('organizationProfileEmpty') }}</p> }
     </mat-card-content>
   </mat-card>
 
   <mat-card>
-    <mat-card-header><mat-card-subtitle>Workspaces</mat-card-subtitle><mat-card-title>{{ facade.state().workspaces.length }} configured</mat-card-title></mat-card-header>
+    <mat-card-header><mat-card-subtitle>{{ i18n.t('workspaces') }}</mat-card-subtitle><mat-card-title>{{ i18n.t('configured', { count: facade.state().workspaces.length }) }}</mat-card-title></mat-card-header>
     <mat-card-content>
-      @if (facade.state().workspaces.length === 0) { <p class="empty">No workspaces are available.</p> }
+      @if (facade.state().workspaces.length === 0) { <p class="empty">{{ i18n.t('noWorkspaces') }}</p> }
       @else {
         <div class="workspace-list">
           @for (workspace of facade.state().workspaces; track workspace.id) {
             <article class="workspace-row" [class.selected]="facade.state().selectedWorkspaceId === workspace.id">
-              <div><strong>{{ workspace.name }}</strong><span>{{ workspace.slug }} · {{ workspace.status }}</span></div>
+              <div><strong>{{ workspace.name }}</strong><span>{{ workspace.slug }} · {{ i18n.status(workspace.status) }}</span></div>
               <div class="row-actions">
-                <button mat-button type="button" (click)="selectWorkspace(workspace.id)" [attr.aria-pressed]="facade.state().selectedWorkspaceId === workspace.id">Configure</button>
-                <button mat-button type="button" (click)="editWorkspace(workspace.id)" [disabled]="!facade.canManage()">Edit</button>
-                <button mat-button type="button" (click)="toggleWorkspace(workspace)" [disabled]="!facade.canManage()">{{ workspace.status === 'ACTIVE' ? 'Suspend' : 'Reactivate' }}</button>
+                <button mat-button type="button" (click)="selectWorkspace(workspace.id)" [attr.aria-pressed]="facade.state().selectedWorkspaceId === workspace.id">{{ i18n.t('configure') }}</button>
+                <button mat-button type="button" (click)="editWorkspace(workspace.id)" [disabled]="!facade.canManage() || facade.busy()">{{ i18n.t('edit') }}</button>
+                <button mat-button type="button" (click)="toggleWorkspace(workspace)" [disabled]="!facade.canManage() || facade.busy()">{{ workspace.status === 'ACTIVE' ? i18n.t('suspend') : i18n.t('reactivate') }}</button>
               </div>
             </article>
             @if (editingWorkspaceId === workspace.id) {
-              <form [formGroup]="workspaceEditForm" (ngSubmit)="saveWorkspace()" class="inline-form" aria-label="Edit workspace">
-                <mat-form-field appearance="outline"><mat-label>Name</mat-label><input matInput formControlName="name"></mat-form-field>
-                <mat-form-field appearance="outline"><mat-label>Slug</mat-label><input matInput formControlName="slug"></mat-form-field>
-                <button mat-flat-button color="primary" type="submit">Save</button><button mat-button type="button" (click)="cancelEdit()">Cancel</button>
+              <form [formGroup]="workspaceEditForm" (ngSubmit)="saveWorkspace()" class="inline-form" [attr.aria-label]="i18n.t('editWorkspace')">
+                <fieldset [disabled]="!facade.canManage() || facade.busy()">
+                  <mat-form-field appearance="outline"><mat-label>{{ i18n.t('displayName') }}</mat-label><input matInput formControlName="name"></mat-form-field>
+                  <mat-form-field appearance="outline"><mat-label>{{ i18n.t('slug') }}</mat-label><input matInput formControlName="slug"></mat-form-field>
+                  <button mat-flat-button color="primary" type="submit">{{ i18n.t('save') }}</button><button mat-button type="button" (click)="cancelEdit()">{{ i18n.t('cancel') }}</button>
+                </fieldset>
               </form>
             }
           }
         </div>
       }
-      <form [formGroup]="workspaceCreateForm" (ngSubmit)="createWorkspace()" class="inline-form create-form" aria-label="Create workspace">
-        <mat-form-field appearance="outline"><mat-label>New workspace name</mat-label><input matInput formControlName="name"></mat-form-field>
-        <mat-form-field appearance="outline"><mat-label>Slug</mat-label><input matInput formControlName="slug"></mat-form-field>
-        <button mat-flat-button color="primary" type="submit" [disabled]="!facade.canManage() || facade.busy()">Create workspace</button>
+      <form [formGroup]="workspaceCreateForm" (ngSubmit)="createWorkspace()" class="inline-form create-form" [attr.aria-label]="i18n.t('createWorkspace')">
+        <fieldset [disabled]="!facade.canManage() || facade.busy()">
+          <mat-form-field appearance="outline"><mat-label>{{ i18n.t('newWorkspaceName') }}</mat-label><input matInput formControlName="name"></mat-form-field>
+          <mat-form-field appearance="outline"><mat-label>{{ i18n.t('slug') }}</mat-label><input matInput formControlName="slug"></mat-form-field>
+          <button mat-flat-button color="primary" type="submit">{{ i18n.t('createWorkspace') }}</button>
+        </fieldset>
       </form>
     </mat-card-content>
   </mat-card>
