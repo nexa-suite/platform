@@ -29,10 +29,10 @@ const dynamicRedirect = (target: string, parameter: string): RedirectFunction =>
 
 export const routes: Routes = [
   { path: 'sign-in', component: SignInPageComponent, canActivate: [anonymousGuard] },
-  { path: 'forgot-password', loadComponent: () => import('./iam/presentation/security-page/security-page.component').then((module) => module.SecurityPageComponent), data: { mode: 'forgot' } },
-  { path: 'reset-password', loadComponent: () => import('./iam/presentation/security-page/security-page.component').then((module) => module.SecurityPageComponent), data: { mode: 'reset' } },
-  { path: 'tenant-management/register-organization', loadComponent: () => import('./iam/presentation/security-page/security-page.component').then((module) => module.SecurityPageComponent), data: { mode: 'onboarding' } },
-  { path: 'tenant-management/registration-pending/:registrationId', loadComponent: () => import('./iam/presentation/security-page/security-page.component').then((module) => module.SecurityPageComponent), data: { mode: 'pending' } },
+  { path: 'forgot-password', loadComponent: () => import('./iam/presentation/forgot-password-page/forgot-password-page.component').then((module) => module.ForgotPasswordPageComponent) },
+  { path: 'reset-password', loadComponent: () => import('./iam/presentation/reset-password-page/reset-password-page.component').then((module) => module.ResetPasswordPageComponent) },
+  { path: 'tenant-management/register-organization', loadComponent: () => import('./iam/presentation/organization-onboarding-page/organization-onboarding-page.component').then((module) => module.OrganizationOnboardingPageComponent) },
+  { path: 'tenant-management/registration-pending/:registrationId', loadComponent: () => import('./iam/presentation/pending-activation-page/pending-activation-page.component').then((module) => module.PendingActivationPageComponent) },
   { path: 'forbidden', component: ForbiddenPageComponent },
   {
     path: '',
@@ -41,9 +41,9 @@ export const routes: Routes = [
     data: { surface: 'PLATFORM' },
     children: [
       { path: '', pathMatch: 'full', redirectTo: roleLandingRedirect },
-      { path: 'iam/profile', loadComponent: () => import('./iam/presentation/security-page/security-page.component').then((module) => module.SecurityPageComponent), data: { mode: 'profile' } },
-      { path: 'iam/security/password', loadComponent: () => import('./iam/presentation/security-page/security-page.component').then((module) => module.SecurityPageComponent), data: { mode: 'password' } },
-      { path: 'iam/security/sessions', loadComponent: () => import('./iam/presentation/security-page/security-page.component').then((module) => module.SecurityPageComponent), data: { mode: 'sessions' } },
+      { path: 'iam/profile', loadComponent: () => import('./iam/presentation/profile-page/profile-page.component').then((module) => module.ProfilePageComponent) },
+      { path: 'iam/security/password', loadComponent: () => import('./iam/presentation/change-password-page/change-password-page.component').then((module) => module.ChangePasswordPageComponent) },
+      { path: 'iam/security/sessions', loadComponent: () => import('./iam/presentation/sessions-page/sessions-page.component').then((module) => module.SessionsPageComponent) },
       { path: 'ops/overview', component: OverviewPageComponent, canActivate: [permissionGuard('fulfillment:read')] },
       { path: 'ops/commercial/dashboard', loadComponent: () => import('./sales/dashboard/presentation/sales-dashboard-page.component').then((module) => module.SalesDashboardPageComponent), canActivate: [permissionGuard('sales:read')], providers: [SalesOperationsApiService] },
       {

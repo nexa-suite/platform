@@ -1,4 +1,4 @@
-import { test, expect } from 'playwright/test';
+import { test, expect } from '@playwright/test';
 import { requiresCredentials, signIn } from './support/auth';
 
 test('Warehouse reaches authoritative inventory and reservation views', async ({ page }) => {

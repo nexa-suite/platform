@@ -1,4 +1,4 @@
-import { test, expect } from 'playwright/test';
+import { test, expect } from '@playwright/test';
 import { requiresCredentials, signIn } from './support/auth';
 
 for (const role of ['OWNER', 'SALES', 'WAREHOUSE', 'LOGISTICS'] as const) {

@@ -1,4 +1,4 @@
-import { expect, Page } from 'playwright/test';
+import { expect, Page } from '@playwright/test';
 
 export type InternalRole = 'OWNER' | 'TENANT_ADMIN' | 'COMPANY_OWNER' | 'SALES' | 'WAREHOUSE' | 'LOGISTICS';
 

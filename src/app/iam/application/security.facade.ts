@@ -26,6 +26,6 @@ export class SecurityFacade {
   requestReset(email: string) { return this.run(() => this.api.requestReset(email)).pipe(tap(() => this.message.set('iamSecurity.resetRequested'))); }
   resetPassword(token: string, next: string) { return this.run(() => this.api.resetPassword(token, next)).pipe(tap(() => this.message.set('iamSecurity.resetCompleted'))); }
   register(value: unknown) { return this.run(() => this.api.registerOrganization(value)).pipe(tap((result) => { this.registration.set(result); this.message.set('iamSecurity.registrationSubmitted'); })); }
-  loadRegistration(id: string) { return this.run(() => this.api.registration(id)).pipe(tap((value) => this.registration.set(value))); }
+  loadRegistration(id: string, statusToken: string) { return this.run(() => this.api.registration(id, statusToken)).pipe(tap((value) => this.registration.set(value))); }
   clearMessages() { this.message.set(null); this.error.set(null); }
 }
