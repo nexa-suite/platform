@@ -6,7 +6,10 @@
     "internalDescription": "Coordina ventas, almacén, logística y administración desde un solo espacio de trabajo.",
     "language": "Idioma",
     "skipToContent": "Saltar al contenido",
-    "navigation": { "overview": "Resumen", "catalog": "Catálogo de productos", "salesOrders": "Órdenes de venta", "fulfillment": "Preparación de despacho" }
+    "navigationLabel": "Navegación de operaciones internas",
+    "areaSelector": "Cambiar área de trabajo interna",
+    "roles": { "TENANT_ADMIN": "Administración del tenant", "COMPANY_OWNER": "Propietario de la compañía", "SALES": "Ventas", "WAREHOUSE": "Almacén", "LOGISTICS": "Logística" },
+    "navigation": { "overview": "Resumen", "catalog": "Catálogo de productos", "salesOrders": "Órdenes de venta", "fulfillment": "Preparación de despacho", "companyAdministration": "Administración de compañía", "salesDashboard": "Dashboard comercial", "operationsDashboard": "Dashboard de operaciones", "clientAccounts": "Cuentas cliente", "purchaseRequests": "Solicitudes de compra", "inventoryControl": "Control de inventario", "warehouses": "Almacenes y zonas", "inventoryLots": "Lotes de inventario", "stockMovements": "Movimientos de stock", "reservations": "Reservas", "fulfillmentReadiness": "Preparación de despacho", "inventoryOverview": "Resumen de inventario", "dispatchOrders": "Órdenes de despacho", "proofOfDelivery": "Prueba de entrega", "temperatureIncidents": "Temperatura e incidentes", "operationalAnalytics": "Analítica operativa" }
   },
   "overview": {
     "title": "Espacio de operaciones",
@@ -45,7 +48,8 @@
     "forbidden": {
       "title": "Acceso restringido",
       "description": "Tu identidad no tiene un rol interno de Platform para esta superficie.",
-      "back": "Volver al resumen"
+      "back": "Volver a tu área de trabajo",
+      "reasons": { "SURFACE_NOT_ALLOWED": "Esta superficie de la aplicación no está disponible para la sesión actual.", "ROLE_NOT_ASSIGNED": "Tus roles actuales no incluyen acceso a esta operación.", "PERMISSION_NOT_GRANTED": "Tu rol no tiene el permiso requerido para esta operación.", "SESSION_ACCESS_CHANGED": "El acceso de tu sesión cambió. Vuelve a tu área de trabajo e inténtalo nuevamente." }
     }
   },
   "catalog": {
@@ -57,7 +61,18 @@
     "results": "Resultados del catálogo",
     "viewDetail": "Ver detalle",
     "backToCatalog": "Volver al catálogo",
+    "backToCatalogHome": "Volver al inicio del catálogo",
+    "backToProducts": "Volver a productos",
+    "backToPromotions": "Volver a promociones",
     "detailEyebrow": "Detalle del producto",
+    "navigation": { "catalog": "Catálogo", "products": "Productos", "productDetail": "Detalle del producto", "categories": "Categorías", "brands": "Marcas", "pricing": "Precios", "promotions": "Promociones", "promotionDetail": "Detalle de promoción" },
+    "hub": { "title": "Gestión de catálogo", "description": "Mantén el catálogo comercial, precios y promociones de las operaciones de cadena de frío.", "sectionsTitle": "Áreas del catálogo", "productsDescription": "Crea productos, gestiona su ciclo de vida y visibilidad para compradores.", "categoriesDescription": "Mantén la jerarquía de clasificación de productos.", "brandsDescription": "Mantén las marcas comerciales de los productos.", "pricingDescription": "Revisa precios actuales, futuros e históricos.", "promotionsDescription": "Gestiona elegibilidad, ciclo de vida y precio efectivo de promociones." },
+    "modules": { "products": { "description": "Productos persistidos y aislados por tenant y workspace." }, "categories": { "description": "Jerarquía de categorías persistida y aislada por tenant y workspace." }, "brands": { "description": "Taxonomía de marcas persistida y aislada por tenant y workspace." }, "pricing": { "description": "Historial de precios append-only con ventanas de vigencia acotadas." }, "promotions": { "description": "Ciclo de vida y segmentación de promociones del catálogo comercial." } },
+    "fields": { "parentId": "ID de categoría padre", "optional": "Opcional", "slug": "Slug", "name": "Nombre", "description": "Descripción", "status": "Estado", "version": "Versión", "actions": "Acciones", "code": "Código de producto", "price": "Precio actual", "products": "Productos", "catalogItemId": "ID de ítem de catálogo", "category": "Categoría", "brand": "Marca", "selectCategory": "Selecciona una categoría", "selectBrand": "Selecciona una marca", "storageTemperature": "Temperatura de almacenamiento", "presentation": "Presentación", "unitOfMeasure": "Unidad de medida", "imagePath": "Ruta de media del repositorio", "buyerVisible": "Visible para compradores", "commercialDefinition": "Definición comercial", "lifecycle": "Ciclo de vida", "priceHistory": "Historial de precios", "amount": "Importe", "currency": "Moneda", "validFrom": "Válido desde", "validUntil": "Válido hasta", "sourceCode": "Código de origen", "sourceDescription": "Descripción de origen", "priceState": "Estado del precio", "promotionBoard": "Tablero de promociones", "discount": "Descuento", "validity": "Vigencia", "targets": "Objetivos", "discountType": "Tipo de descuento", "discountValue": "Valor del descuento", "minimumQuantity": "Cantidad mínima", "startsAt": "Comienza", "endsAt": "Termina", "stackingPolicy": "Política de acumulación", "productTargets": "IDs de productos", "categoryTargets": "IDs de categorías", "idsPlaceholder": "IDs separados por comas", "preview": "Vista previa de precio efectivo" },
+    "actions": { "save": "Guardar", "cancel": "Cancelar", "edit": "Editar", "open": "Abrir", "search": "Buscar", "refresh": "Actualizar", "activate": "Activar", "deactivate": "Desactivar", "newCategory": "Nueva categoría", "newBrand": "Nueva marca", "newProduct": "Nuevo producto", "managePricing": "Gestionar precios", "createPrice": "Crear precio", "cancelPrice": "Cancelar precio", "newPromotion": "Nueva promoción", "schedule": "Programar", "pause": "Pausar", "resume": "Reanudar", "expire": "Expirar" },
+    "discountType": { "percentage": "Porcentaje", "fixedAmount": "Importe fijo" },
+    "stacking": { "exclusive": "Exclusiva", "stackable": "Acumulable" },
+    "priceState": { "current": "Actual", "future": "Programado", "historical": "Histórico", "cancelled": "Cancelado" },
     "filters": {
       "title": "Buscar un producto",
       "description": "Filtra por los atributos comerciales disponibles en Platform.",
@@ -82,7 +97,7 @@
       "refrigerated": "Refrigerado",
       "frozen": "Congelado"
     },
-    "status": { "active": "Activo", "inactive": "Inactivo" },
+    "status": { "active": "Activo", "inactive": "Inactivo", "DRAFT": "Borrador", "ACTIVE": "Activo", "INACTIVE": "Inactivo", "DISCONTINUED": "Descontinuado", "ARCHIVED": "Archivado", "PAUSED": "Pausada", "SCHEDULED": "Programada", "CANCELLED": "Cancelada", "EXPIRED": "Expirada" },
     "states": {
       "loading": "Cargando catálogo",
       "loadingDetail": "Cargando detalle del producto",
@@ -91,7 +106,13 @@
       "emptyDescription": "Prueba cambiar los filtros para encontrar otro producto comercial.",
       "errorTitle": "Catálogo no disponible",
       "errorDescription": "No pudimos cargar el catálogo. Inténtalo nuevamente cuando el servicio esté disponible.",
-      "errorDetailDescription": "No pudimos cargar el detalle del producto. Inténtalo nuevamente cuando el servicio esté disponible."
+      "errorDetailDescription": "No pudimos cargar el detalle del producto. Inténtalo nuevamente cuando el servicio esté disponible.",
+      "saving": "Guardando",
+      "saved": "Guardado",
+      "saveError": "No se pudo guardar el cambio. Verifica la versión e inténtalo nuevamente.",
+      "selectProduct": "Selecciona un producto para revisar su historial de precios.",
+      "noPrices": "No hay historial de precios para este producto.",
+      "emptyPromotions": "No hay promociones para el filtro seleccionado."
     }
   },
   "clientAccounts": {

@@ -14,20 +14,28 @@ export class PendingActivationPageComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly registrationId = this.route.snapshot.paramMap.get('registrationId');
+  private readonly statusToken = this.route.snapshot.queryParamMap.get('statusToken');
 
   constructor() {
-    const registrationId = this.route.snapshot.paramMap.get('registrationId');
-    const statusToken = this.route.snapshot.queryParamMap.get('statusToken');
+    this.removeStatusTokenFromUrl();
+    this.startPolling();
+  }
 
-    if (statusToken) {
-      void this.router.navigate([], {
-        relativeTo: this.route,
-        queryParams: { statusToken: null },
-        queryParamsHandling: 'merge',
-        replaceUrl: true
-      });
-    }
+  private removeStatusTokenFromUrl(): void {
+    if (!this.statusToken) return;
 
+    void this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { statusToken: null },
+      queryParamsHandling: 'merge',
+      replaceUrl: true
+    });
+  }
+
+  private startPolling(): void {
+    const registrationId = this.registrationId;
+    const statusToken = this.statusToken;
     if (!registrationId || !statusToken) return;
 
     concat(of(undefined), interval(PENDING_STATUS_POLL_INTERVAL_MS)).pipe(

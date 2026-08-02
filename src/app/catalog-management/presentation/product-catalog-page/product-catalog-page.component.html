@@ -5,7 +5,7 @@
     [subtitle]="'catalog.description' | translate">
     <div page-header-actions>
       <button mat-stroked-button type="button" (click)="clearFilters()">
-        <mat-icon aria-hidden="true">filter_alt_off</mat-icon>
+        <nexa-icon name="filter_alt_off" />
         {{ 'catalog.clearFilters' | translate }}
       </button>
     </div>
@@ -72,7 +72,7 @@
               @if (item.image.url) {
                 <img [src]="item.image.url" [alt]="item.name" loading="lazy" />
               } @else {
-                <mat-icon aria-hidden="true">inventory_2</mat-icon>
+                <nexa-icon name="inventory_2" />
               }
             </a>
             <div class="catalog-card-body">

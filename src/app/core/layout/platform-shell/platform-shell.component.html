@@ -9,18 +9,18 @@
     <section class="workspace-card">
       <strong>{{ currentUser()?.workspaceSlug }}</strong>
       @if ((currentUser()?.roles?.length ?? 0) > 1) {
-        <select (change)="switchArea($any($event.target).value)">
-          @for (area of currentUser()?.roles ?? []; track area) { <option>{{ area }}</option> }
+        <select [attr.aria-label]="'shell.areaSelector' | translate" (change)="switchArea($any($event.target).value)">
+          @for (area of currentUser()?.roles ?? []; track area) { <option [value]="area">{{ ('shell.roles.' + area) | translate }}</option> }
         </select>
       }
     </section>
 
-    <nav aria-label="Internal operations navigation">
+    <nav [attr.aria-label]="'shell.navigationLabel' | translate">
       <mat-nav-list>
         @for (item of navigation(); track item.path) {
           <a mat-list-item [routerLink]="item.path" routerLinkActive="active">
-            <mat-icon matListItemIcon aria-hidden="true">{{ item.icon }}</mat-icon>
-            <span matListItemTitle>{{ item.label }}</span>
+            <nexa-icon matListItemIcon [name]="item.icon" />
+            <span matListItemTitle>{{ item.labelKey | translate }}</span>
           </a>
         }
       </mat-nav-list>
@@ -39,7 +39,7 @@
       }
       <nexa-language-switcher />
       <button mat-icon-button type="button" [attr.aria-label]="'auth.signOut' | translate" (click)="signOut()">
-        <mat-icon aria-hidden="true">logout</mat-icon>
+        <nexa-icon name="logout" />
       </button>
     </mat-toolbar>
 

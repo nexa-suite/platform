@@ -67,7 +67,10 @@ test('organization onboarding reaches ACTIVE only through the operator boundary 
     await expect(page).not.toHaveURL(/\/sign-in/);
     const switcher = page.locator('.workspace-card select');
     await expect(switcher).toBeVisible();
-    await expect(switcher.locator('option')).toHaveText(['TENANT_ADMIN', 'COMPANY_OWNER']);
+    await expect(switcher.locator('option')).toHaveText([
+      /tenant administration|administración del tenant/i,
+      /company owner|propietario de la compañía/i,
+    ]);
     await page.goto('/ops/operations/company-administration');
     await expect(page.getByRole('heading', { name: /company administration/i })).toBeVisible();
     await page.goto('/ops/executive-overview');

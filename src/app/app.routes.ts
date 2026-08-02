@@ -15,6 +15,7 @@ import { PurchaseRequestOperationsFacade } from './sales/purchase-requests/appli
 import { SalesOrdersFacade } from './sales/sales-orders/application/sales-orders.facade';
 import { WarehouseOperationsApiService } from './warehouse/infrastructure/warehouse-operations-api.service';
 import { WarehouseOperationsFacade } from './warehouse/application/warehouse-operations.facade';
+import { catalogReadGuard, catalogManageGuard, promotionReadGuard, promotionManageGuard } from './core/security/catalog-access.guard';
 
 const roleLandingRedirect: RedirectFunction = () => {
   const auth = inject(AuthenticationService);
@@ -104,8 +105,18 @@ export const routes: Routes = [
       { path: 'ops/operations/proof-of-delivery', loadComponent: () => import('./logistics/presentation/proof-of-delivery-page.component').then((module) => module.ProofOfDeliveryPageComponent), canActivate: [permissionGuard('logistics:read')] },
       { path: 'ops/operations/temperature-incidents', loadComponent: () => import('./logistics/presentation/temperature-incidents-page.component').then((module) => module.TemperatureIncidentsPageComponent), canActivate: [permissionGuard('logistics:read')] },
       { path: 'ops/operations/operational-analytics', loadComponent: () => import('./logistics/presentation/operational-analytics-page.component').then((module) => module.OperationalAnalyticsPageComponent), canActivate: [permissionGuard('logistics:read')] },
-      { path: 'ops/product-catalog', loadComponent: () => import('./catalog-management/presentation/product-catalog-page/product-catalog-page.component').then((module) => module.ProductCatalogPageComponent), canActivate: [permissionGuard('catalog:read')] },
-      { path: 'ops/product-catalog/:catalogItemId', loadComponent: () => import('./catalog-management/presentation/product-catalog-detail-page/product-catalog-detail-page.component').then((module) => module.ProductCatalogDetailPageComponent), canActivate: [permissionGuard('catalog:read')] },
+      { path: 'ops/catalog', pathMatch: 'full', loadComponent: () => import('./catalog-management/presentation/catalog-home-page/catalog-home-page.component').then((module) => module.CatalogHomePageComponent), canActivate: [catalogReadGuard] },
+      { path: 'ops/catalog/products', pathMatch: 'full', loadComponent: () => import('./catalog-management/presentation/catalog-products-page/catalog-products-page.component').then((module) => module.CatalogProductsPageComponent), canActivate: [catalogReadGuard] },
+      { path: 'ops/catalog/products/new', loadComponent: () => import('./catalog-management/presentation/catalog-product-form-page/catalog-product-form-page.component').then((module) => module.CatalogProductFormPageComponent), canActivate: [catalogManageGuard] },
+      { path: 'ops/catalog/products/:productId', loadComponent: () => import('./catalog-management/presentation/catalog-product-form-page/catalog-product-form-page.component').then((module) => module.CatalogProductFormPageComponent), canActivate: [catalogReadGuard] },
+      { path: 'ops/catalog/categories', data: { kind: 'categories' }, loadComponent: () => import('./catalog-management/presentation/catalog-taxonomy-page/catalog-taxonomy-page.component').then((module) => module.CatalogTaxonomyPageComponent), canActivate: [catalogManageGuard] },
+      { path: 'ops/catalog/brands', data: { kind: 'brands' }, loadComponent: () => import('./catalog-management/presentation/catalog-taxonomy-page/catalog-taxonomy-page.component').then((module) => module.CatalogTaxonomyPageComponent), canActivate: [catalogManageGuard] },
+      { path: 'ops/catalog/pricing', loadComponent: () => import('./catalog-management/presentation/catalog-pricing-page/catalog-pricing-page.component').then((module) => module.CatalogPricingPageComponent), canActivate: [catalogReadGuard] },
+      { path: 'ops/catalog/promotions', loadComponent: () => import('./catalog-management/presentation/catalog-promotions-page/catalog-promotions-page.component').then((module) => module.CatalogPromotionsPageComponent), canActivate: [promotionReadGuard] },
+      { path: 'ops/catalog/promotions/new', loadComponent: () => import('./catalog-management/presentation/catalog-promotion-form-page/catalog-promotion-form-page.component').then((module) => module.CatalogPromotionFormPageComponent), canActivate: [promotionManageGuard] },
+      { path: 'ops/catalog/promotions/:promotionId', loadComponent: () => import('./catalog-management/presentation/catalog-promotion-form-page/catalog-promotion-form-page.component').then((module) => module.CatalogPromotionFormPageComponent), canActivate: [promotionReadGuard] },
+      { path: 'ops/product-catalog', pathMatch: 'full', redirectTo: 'ops/catalog/products' },
+      { path: 'ops/product-catalog/:catalogItemId', loadComponent: () => import('./catalog-management/presentation/product-catalog-detail-page/product-catalog-detail-page.component').then((module) => module.ProductCatalogDetailPageComponent), canActivate: [catalogReadGuard] },
       {
         path: 'ops/operations/company-administration',
         loadComponent: () => import('./tenant-management/presentation/company-administration-page/company-administration-page.component').then((module) => module.CompanyAdministrationPageComponent),
@@ -160,7 +171,6 @@ export const routes: Routes = [
       { path: 'ops/commercial/orders/:salesOrderId', redirectTo: dynamicRedirect('/ops/commercial/sales-orders', 'salesOrderId') },
       { path: 'ops/orders', pathMatch: 'full', redirectTo: 'ops/commercial/sales-orders' },
       { path: 'overview', pathMatch: 'full', redirectTo: 'ops/overview' },
-      { path: 'ops/catalog', pathMatch: 'full', redirectTo: 'ops/product-catalog' },
       { path: '**', redirectTo: '/' }
     ]
   }

@@ -1,7 +1,7 @@
 :host { display: block; min-height: 100dvh; }
 .forbidden-page { display: grid; min-height: 100dvh; place-items: center; padding: var(--nexa-space-6); background: var(--nexa-surface-page); }
 mat-card { display: grid; justify-items: center; width: min(100%, 32rem); padding: var(--nexa-space-10) var(--nexa-space-8); text-align: center; }
-mat-icon { width: 3rem; height: 3rem; margin-bottom: var(--nexa-space-4); font-size: 3rem; color: var(--nexa-color-danger-600); }
+nexa-icon { width: 3rem; height: 3rem; margin-bottom: var(--nexa-space-4); color: var(--nexa-color-danger-600); }
 .eyebrow { margin: 0 0 var(--nexa-space-2); color: var(--nexa-color-cold-refrigerated); font-size: var(--nexa-font-size-xs); font-weight: var(--nexa-font-weight-bold); letter-spacing: var(--nexa-letter-spacing-wider); text-transform: uppercase; }
 h1 { margin: 0; font-size: var(--nexa-font-size-3xl); }
 p:not(.eyebrow) { max-width: 28rem; margin: var(--nexa-space-3) 0 var(--nexa-space-6); color: var(--nexa-color-text-secondary); line-height: var(--nexa-line-height-relaxed); }

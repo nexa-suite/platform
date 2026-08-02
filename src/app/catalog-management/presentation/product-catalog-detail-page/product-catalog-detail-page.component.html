@@ -1,6 +1,6 @@
 <div class="catalog-detail-page">
   <a mat-button routerLink="/ops/product-catalog">
-    <mat-icon aria-hidden="true">arrow_back</mat-icon>
+    <nexa-icon name="arrow_back" />
     {{ 'catalog.backToCatalog' | translate }}
   </a>
 
@@ -32,7 +32,7 @@
       @if (product.image.url) {
         <img [src]="product.image.url" [alt]="product.name" />
       } @else {
-        <mat-icon aria-hidden="true">image</mat-icon>
+        <nexa-icon name="image" />
       }
     </div>
     <div class="detail-copy">

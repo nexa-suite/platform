@@ -1,6 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -11,6 +10,7 @@ import { LanguageSwitcherComponent } from '../../i18n/language-switcher/language
 import { AuthenticationService } from '../../../iam/application/authentication.service';
 import { INTERNAL_ROLES, InternalRole } from '../../../iam/domain/models/auth.models';
 import { PLATFORM_NAVIGATION } from '../../navigation/navigation.registry';
+import { NexaIconComponent } from '../../../shared/presentation/components/nexa-icon/nexa-icon.component';
 
 @Component({
   selector: 'nexa-platform-shell',
@@ -18,13 +18,13 @@ import { PLATFORM_NAVIGATION } from '../../navigation/navigation.registry';
     BrandLogoComponent,
     LanguageSwitcherComponent,
     MatButtonModule,
-    MatIconModule,
     MatListModule,
     MatSidenavModule,
     MatToolbarModule,
     RouterLink,
     RouterLinkActive,
     RouterOutlet,
+    NexaIconComponent,
     TranslatePipe
   ],
   templateUrl: './platform-shell.component.html',

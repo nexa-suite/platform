@@ -10,6 +10,6 @@ export const platformSurfaceGuard: CanActivateFn = (_route, routerState) => {
   if (config.surface === PLATFORM_SURFACE) return true;
 
   return router.createUrlTree([PLATFORM_ROUTES.forbidden], {
-    queryParams: { returnUrl: routerState.url }
+    queryParams: { returnUrl: routerState.url, reason: 'SURFACE_NOT_ALLOWED' }
   });
 };
