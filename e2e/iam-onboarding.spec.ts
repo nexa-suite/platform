@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { requiresCredentials, signIn } from './support/auth';
+import { assertNoBrowserSecrets } from './support/mailpit';
 
 test('public organization onboarding reaches the pending-review state', async ({ page }) => {
   await page.goto('/tenant-management/register-organization');
@@ -13,8 +14,16 @@ test('public organization onboarding reaches the pending-review state', async ({
   await page.getByRole('textbox', { name: /workspace name|nombre del espacio/i }).fill('E2E Workspace');
   await page.getByRole('textbox', { name: /workspace slug|slug/i }).fill(`e2e-${Date.now()}`);
   await page.getByRole('checkbox').check();
+  const registrationResponsePromise = page.waitForResponse((response) => response.request().method() === 'POST' && response.url().includes('/api/v1/tenant-management/organization-registrations'));
   await page.getByRole('button', { name: /submit registration|enviar registro/i }).click();
+  const registrationResponse = await registrationResponsePromise;
+  expect(registrationResponse.ok()).toBeTruthy();
+  const registration = await registrationResponse.json() as { statusToken?: string };
+  expect(registration.statusToken).toBeTruthy();
   await expect(page).toHaveURL(/registration-pending/);
+  await expect(page).not.toHaveURL(/statusToken=/);
+  expect(page.url()).not.toContain(registration.statusToken!);
+  await assertNoBrowserSecrets(page);
   await expect(page.locator('main')).toContainText(/pending|review|pendiente|revisión/i);
 });
 

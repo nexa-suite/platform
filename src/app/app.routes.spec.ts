@@ -8,6 +8,9 @@ describe('Platform routes', () => {
     const children = shellRoute?.children ?? [];
     expect(routes.find((route) => route.path === 'sign-in')?.path).toBe('sign-in');
     expect(routes.find((route) => route.path === 'forbidden')?.path).toBe('forbidden');
+    const pendingRoute = routes.find((route) => route.path === 'tenant-management/registration-pending/:registrationId');
+    expect(pendingRoute?.path).toBe('tenant-management/registration-pending/:registrationId');
+    expect(pendingRoute?.canActivate).toBeUndefined();
     expect(typeof children.find((route) => route.path === '')?.redirectTo).toBe('function');
     expect(children.find((route) => route.path === 'overview')?.redirectTo).toBe('ops/overview');
     expect(children.find((route) => route.path === 'ops/catalog')?.redirectTo).toBe('ops/product-catalog');

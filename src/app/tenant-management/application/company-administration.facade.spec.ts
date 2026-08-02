@@ -1,27 +1,59 @@
 import { TestBed } from '@angular/core/testing';
 import { of, throwError } from 'rxjs';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { AuthenticationService } from '../../iam/application/authentication.service';
 import { CompanyAdministrationApiService } from '../infrastructure/http/company-administration-api.service';
 import { CompanyAdministrationFacade } from './company-administration.facade';
 
+const organization = { id: 'org', name: 'Nexa', slug: 'nexa', status: 'ACTIVE', currentWorkspaceId: 'workspace', currentWorkspaceName: 'ICISA', version: 0 };
+const profile = { legalName: 'Nexa', displayName: 'Nexa', businessIdentifier: null, operationCategory: 'B2B_COLD_CHAIN_DISTRIBUTOR', version: 0 };
+const workspace = { id: 'workspace', tenantId: 'org', name: 'ICISA', slug: 'icisa', status: 'ACTIVE', version: 2 };
+const membership = { id: 'member', workspaceId: 'workspace', userId: 'user', email: 'user@example.com', displayName: 'User', roles: ['SALES'], status: 'ACTIVE', version: 1 };
+const regional = { timezone: 'UTC', language: 'en', currency: 'USD', countryRegion: 'PE', dateTimePolicy: 'LOCALE', locale: 'en-US', version: 0 };
+const units = { massUnit: 'KG', temperatureUnit: 'CELSIUS', distanceUnit: 'KM', volumeUnit: 'M3', version: 0 };
+const operational = { workspaceId: 'workspace', defaultWarehouseSelectionPolicy: 'MANUAL', orderCutoffPolicy: 'WORKSPACE_HOURS', fulfillmentDefaults: 'STANDARD', inventoryVisibilityPolicy: 'COARSE', buyerAvailabilityPolicy: 'AVAILABLE_ONLY', operatingHoursStart: '08:00:00', operatingHoursEnd: '18:00:00', orderCutoffMinutes: 120, thermalLogRequired: false, version: 0 };
+const notifications = { preferences: [], version: 0 };
+const security = { passwordMinLength: 12, sessionDurationMinutes: 480, invitationExpirationHours: 72, requiredEmailDomain: null, version: 0 };
+const usage = { planCode: 'STANDARD', monthlyPrice: 0, seatLimit: 10, workspaceLimit: 3, transactionLimit: 1000, activeUsers: 1, workspaceCount: 1, transactionCount: 0, version: 0 };
+
+function apiMock() {
+  return {
+    organization: vi.fn(() => of(organization)), organizationProfile: vi.fn(() => of(profile)), workspaces: vi.fn(() => of([workspace])), memberships: vi.fn(() => of([membership])),
+    regionalSettings: vi.fn(() => of(regional)), unitPreferences: vi.fn(() => of(units)), securitySettings: vi.fn(() => of(security)), customFields: vi.fn(() => of([])), accessMatrix: vi.fn(() => of([])), planUsage: vi.fn(() => of(usage)), planComparison: vi.fn(() => of([])), invitations: vi.fn(() => of({ items: [], page: 0, pageSize: 25, hasNext: false })),
+    workspaceSettings: vi.fn(() => of({ workspaceId: 'workspace', defaultWorkspaceBehavior: 'STANDARD', warehousePreferenceStrategy: 'MANUAL', version: 0 })), operationalSettings: vi.fn(() => of(operational)), notificationSettings: vi.fn(() => of(notifications)),
+    updateWorkspace: vi.fn(() => of({ ...workspace, name: 'ICISA 2', version: 3 })), changeRoles: vi.fn(() => of(membership)), suspend: vi.fn(() => of({ ...membership, status: 'DISABLED', version: 2 })), reactivate: vi.fn(() => of(membership))
+  };
+}
+
 describe('CompanyAdministrationFacade', () => {
-  const organization = { id: 'org', name: 'Nexa', slug: 'nexa', status: 'ACTIVE', currentWorkspaceId: 'workspace', currentWorkspaceName: 'ICISA', version: 0 };
-  const api = () => ({ organization: vi.fn(() => of(organization)), workspaces: vi.fn(() => of([])), memberships: vi.fn(() => of([])) });
   beforeEach(() => TestBed.resetTestingModule());
-  it('loads organization, workspaces and teammates into success state', () => {
-    const mock = api(); TestBed.configureTestingModule({ providers: [CompanyAdministrationFacade, { provide: CompanyAdministrationApiService, useValue: mock }] });
+
+  it('loads the complete tenant administration read model', () => {
+    const api = apiMock();
+    TestBed.configureTestingModule({ providers: [CompanyAdministrationFacade, { provide: CompanyAdministrationApiService, useValue: api }, { provide: AuthenticationService, useValue: { hasPermission: () => true } }] });
     const facade = TestBed.inject(CompanyAdministrationFacade); facade.load();
-    expect(facade.state().status).toBe('success'); expect(facade.state().organization).toEqual(organization); expect(facade.state().workspaces).toEqual([]); expect(facade.state().memberships).toEqual([]);
+    expect(facade.state().status).toBe('success');
+    expect(facade.state().organization).toEqual(organization);
+    expect(facade.state().profile).toEqual(profile);
+    expect(facade.state().operational).toEqual(operational);
+    expect(facade.state().workspaces).toEqual([workspace]);
   });
-  it('exposes retryable error state', () => {
-    const mock = { organization: vi.fn(() => throwError(() => new Error('offline'))), workspaces: vi.fn(() => of([])), memberships: vi.fn(() => of([])) };
-    TestBed.configureTestingModule({ providers: [CompanyAdministrationFacade, { provide: CompanyAdministrationApiService, useValue: mock }] });
-    const facade = TestBed.inject(CompanyAdministrationFacade); facade.load(); expect(facade.state().status).toBe('error'); facade.retry(); expect(mock.organization).toHaveBeenCalledTimes(2);
+
+  it('keeps a retryable error state when a read fails', () => {
+    const api = apiMock(); api.organization.mockReturnValue(throwError(() => new Error('offline')));
+    TestBed.configureTestingModule({ providers: [CompanyAdministrationFacade, { provide: CompanyAdministrationApiService, useValue: api }, { provide: AuthenticationService, useValue: { hasPermission: () => true } }] });
+    const facade = TestBed.inject(CompanyAdministrationFacade); facade.load();
+    expect(facade.state().status).toBe('error'); expect(facade.state().message).toBe('offline');
+    facade.retry(); expect(api.organization).toHaveBeenCalledTimes(2);
   });
-  it('sends workspace and membership mutations with current versions', () => {
-    const membership = { id: 'member', userId: 'user', email: 'user@example.com', displayName: 'User', roles: ['SALES'], status: 'SUSPENDED', version: 1 };
-    const mock = { organization: vi.fn(() => of(organization)), workspaces: vi.fn(() => of([{ id: 'workspace', name: 'ICISA', slug: 'icisa', status: 'ACTIVE', version: 2 }])), memberships: vi.fn(() => of([membership])), updateWorkspace: vi.fn(() => of({ id: 'workspace', name: 'ICISA 2', slug: 'icisa-2', status: 'ACTIVE', version: 3 })), changeRoles: vi.fn(() => of(membership)), suspend: vi.fn(() => of(membership)), reactivate: vi.fn(() => of({ ...membership, status: 'ACTIVE' })) };
-    TestBed.configureTestingModule({ providers: [CompanyAdministrationFacade, { provide: CompanyAdministrationApiService, useValue: mock }] }); const facade = TestBed.inject(CompanyAdministrationFacade); facade.load(); facade.renameWorkspace('workspace', 2, 'ICISA 2'); facade.changeRoles('member', 1, ['SALES']); facade.suspend('member', 1); facade.reactivate('member', 1);
-    expect(mock.updateWorkspace).toHaveBeenCalledWith('workspace', 2, { name: 'ICISA 2' }); expect(mock.changeRoles).toHaveBeenCalledWith('member', 1, ['SALES']); expect(mock.suspend).toHaveBeenCalledWith('member', 1); expect(mock.reactivate).toHaveBeenCalledWith('member', 1);
+
+  it('sends current versions and fixed roles to real mutation methods', () => {
+    const api = apiMock();
+    TestBed.configureTestingModule({ providers: [CompanyAdministrationFacade, { provide: CompanyAdministrationApiService, useValue: api }, { provide: AuthenticationService, useValue: { hasPermission: () => true } }] });
+    const facade = TestBed.inject(CompanyAdministrationFacade); facade.load();
+    facade.renameWorkspace('workspace', 2, 'ICISA 2', 'icisa-2'); facade.changeRoles('member', 1, ['SALES', 'WAREHOUSE']); facade.suspend('member', 1);
+    expect(api.updateWorkspace).toHaveBeenCalledWith('workspace', 2, { name: 'ICISA 2', slug: 'icisa-2' });
+    expect(api.changeRoles).toHaveBeenCalledWith('member', 1, ['SALES', 'WAREHOUSE']);
+    expect(api.suspend).toHaveBeenCalledWith('member', 1);
   });
 });

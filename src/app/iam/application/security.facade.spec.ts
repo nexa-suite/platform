@@ -26,8 +26,8 @@ describe('SecurityFacade', () => {
     api.revokeOtherSessions.mockReturnValue(of(undefined));
     api.requestReset.mockReturnValue(of({ message: 'generic' }));
     api.resetPassword.mockReturnValue(of(undefined));
-    api.registerOrganization.mockReturnValue(of({ registrationId: 'registration-1', status: 'PENDING_ACTIVATION', submittedAt: '2026-08-01T00:00:00Z' }));
-    api.registration.mockReturnValue(of({ registrationId: 'registration-1', status: 'PENDING_ACTIVATION', submittedAt: '2026-08-01T00:00:00Z' }));
+    api.registerOrganization.mockReturnValue(of({ registrationId: 'registration-1', status: 'PENDING_ACTIVATION', submittedAt: '2026-08-01T00:00:00Z', statusToken: 'opaque-status-token' }));
+    api.registration.mockReturnValue(of({ registrationId: 'registration-1', status: 'PENDING_ACTIVATION', submittedAt: '2026-08-01T00:00:00Z', statusToken: 'opaque-status-token' }));
     TestBed.configureTestingModule({ providers: [SecurityFacade, { provide: SecurityApiService, useValue: api }] });
   });
 
@@ -64,8 +64,10 @@ describe('SecurityFacade', () => {
     const facade = TestBed.inject(SecurityFacade);
     facade.register({ workspaceSlug: 'icisa' }).subscribe();
     expect(facade.registration()?.status).toBe('PENDING_ACTIVATION');
+    expect(facade.registration()).not.toHaveProperty('statusToken');
     facade.loadRegistration('registration-1', 'status-token').subscribe();
     expect(api.registration).toHaveBeenCalledWith('registration-1', 'status-token');
+    expect(facade.registration()).not.toHaveProperty('statusToken');
   });
 
   it('exposes a recoverable translated error without backend details', () => {
