@@ -22,6 +22,8 @@ test('SALES creates and submits a real request from the Request Builder', async 
   await page.getByRole('spinbutton', { name: /quantity|cantidad/i }).fill('1');
   await page.getByRole('button', { name: /add line|agregar línea/i }).click();
 
+  const requestedDeliveryDate = new Date(Date.now() + 86_400_000).toISOString().slice(0, 10);
+  await page.locator('[formcontrolname="requestedDeliveryDate"]').fill(requestedDeliveryDate);
   const deliveryProfile = page.locator('[formcontrolname="deliveryProfileSnapshot"]');
   if (!(await deliveryProfile.inputValue())) await deliveryProfile.fill('E2E business delivery address');
 

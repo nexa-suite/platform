@@ -11,9 +11,14 @@
 .contract-note { padding: .75rem 1rem; border-left: 4px solid var(--nexa-accent, #0f766e); background: color-mix(in srgb, var(--nexa-accent, #0f766e) 8%, white); }
 .error-message { color: #b91c1c; }
 .saved-message { color: #166534; }
+.manual-address-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .75rem; padding: .75rem; border: 1px solid var(--nexa-border, #e2e8f0); border-radius: .5rem; background: var(--nexa-surface-page, #f8fafc); }
+.manual-address-grid .wide-field { grid-column: span 2; }
+.manual-address-grid label { display: grid; gap: .3rem; color: var(--nexa-muted, #64748b); font-size: .85rem; }
+.manual-address-grid select { min-height: 2.35rem; padding: .4rem; border: 1px solid var(--nexa-border, #e2e8f0); border-radius: .35rem; background: white; font: inherit; }
 @media (max-width: 760px) {
-  .form-grid, .line-form { grid-template-columns: 1fr; }
+  .form-grid, .line-form, .manual-address-grid { grid-template-columns: 1fr; }
   .wide { grid-column: auto; }
+  .manual-address-grid .wide-field { grid-column: auto; }
   .catalog-search { align-items: stretch; flex-direction: column; }
   .line-form button { justify-self: start; }
 }

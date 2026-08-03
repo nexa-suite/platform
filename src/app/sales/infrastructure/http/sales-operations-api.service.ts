@@ -2,7 +2,7 @@ import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable, map } from 'rxjs';
 import { platformApiUrl, PLATFORM_RUNTIME_CONFIG } from '../../../core/security/runtime-config';
-import { ClientAccount, ClientAccountCreateCommand, ClientAccountFilters, ClientAccountPage, ClientAccountUpdateCommand, DEFAULT_CLIENT_ACCOUNT_FILTERS } from '../../client-accounts/domain/client-account.models';
+import { ClientAccount, ClientAccountAddress, ClientAccountCreateCommand, ClientAccountFilters, ClientAccountPage, ClientAccountUpdateCommand, DEFAULT_CLIENT_ACCOUNT_FILTERS, PeruReferenceOption } from '../../client-accounts/domain/client-account.models';
 import { DEFAULT_PURCHASE_REQUEST_FILTERS, PurchaseRequest, PurchaseRequestAction, PurchaseRequestEvent, PurchaseRequestFilters, PurchaseRequestPage } from '../../purchase-requests/domain/purchase-request.models';
 import { DEFAULT_SALES_ORDER_FILTERS, FulfillmentCandidate, SalesOrder, SalesOrderEvent, SalesOrderFilters, SalesOrderPage } from '../../sales-orders/domain/sales-order.models';
 import { ApiPageDto, ApiRecord, toClientAccount, toClientAccountPage, toFulfillmentCandidate, toPurchaseRequest, toPurchaseRequestEvent, toPurchaseRequestPage, toSalesOrder, toSalesOrderEvent, toSalesOrderPage } from './sales-operations-mappers';
@@ -37,6 +37,38 @@ export class SalesOperationsApiService {
 
   associateBuyer(id: string, version: number, membershipId: string | null): Observable<ClientAccount> {
     return this.http.put<ApiRecord>(this.api(`/client-accounts/${encodeURIComponent(id)}/buyer-membership`), { membershipId }, { headers: this.ifMatch(version) }).pipe(map(toClientAccount));
+  }
+
+  clientAccountAddresses(id: string): Observable<readonly ClientAccountAddress[]> {
+    return this.http.get<readonly ApiRecord[]>(this.api(`/client-accounts/${encodeURIComponent(id)}/addresses`)).pipe(map((items) => items.map((item) => this.toAddress(item))));
+  }
+
+  createClientAccountAddress(id: string, command: ClientAccountAddressCommand): Observable<ClientAccountAddress> {
+    return this.http.post<ApiRecord>(this.api(`/client-accounts/${encodeURIComponent(id)}/addresses`), command, { observe: 'response' }).pipe(map((response) => this.toAddress(response.body ?? {}, response.headers.get('ETag'))));
+  }
+
+  updateClientAccountAddress(id: string, addressId: string, version: number, command: ClientAccountAddressUpdateCommand): Observable<ClientAccountAddress> {
+    return this.http.patch<ApiRecord>(this.api(`/client-accounts/${encodeURIComponent(id)}/addresses/${encodeURIComponent(addressId)}`), command, { observe: 'response', headers: this.ifMatch(version) }).pipe(map((response) => this.toAddress(response.body ?? {}, response.headers.get('ETag'))));
+  }
+
+  setDefaultClientAccountAddress(id: string, addressId: string, version: number): Observable<ClientAccountAddress> {
+    return this.http.put<ApiRecord>(this.api(`/client-accounts/${encodeURIComponent(id)}/addresses/${encodeURIComponent(addressId)}/default`), null, { observe: 'response', headers: this.ifMatch(version) }).pipe(map((response) => this.toAddress(response.body ?? {}, response.headers.get('ETag'))));
+  }
+
+  deactivateClientAccountAddress(id: string, addressId: string, version: number): Observable<ClientAccountAddress> {
+    return this.http.delete<ApiRecord>(this.api(`/client-accounts/${encodeURIComponent(id)}/addresses/${encodeURIComponent(addressId)}`), { observe: 'response', headers: this.ifMatch(version) }).pipe(map((response) => this.toAddress(response.body ?? {}, response.headers.get('ETag'))));
+  }
+
+  reference(resource: 'departments' | 'provinces' | 'districts' | 'road-types', parentCode?: string): Observable<readonly PeruReferenceOption[]> {
+    let params = new HttpParams();
+    if (parentCode) params = params.set('parentCode', parentCode);
+    return this.http.get<readonly ApiRecord[]>(this.api(`/reference/${resource}`), { params }).pipe(map((items) => items.map((item) => ({
+      id: Number(item['id']) || 0, code: String(item['code'] ?? ''), label: String(item['label'] ?? ''), parentCode: item['parentCode'] ? String(item['parentCode']) : null, active: item['active'] !== false
+    }))));
+  }
+
+  createManualSalesOrder(command: CreateManualSalesOrderCommand): Observable<SalesOrder> {
+    return this.http.post<ApiRecord>(this.api('/sales-orders/manual'), command, { headers: this.idempotencyHeader() }).pipe(map(toSalesOrder));
   }
 
   createPurchaseRequest(command: CreatePurchaseRequestCommand): Observable<PurchaseRequest> {
@@ -136,6 +168,22 @@ export class SalesOperationsApiService {
   private ifMatch(version: number): HttpHeaders { return new HttpHeaders({ 'If-Match': `"${version}"` }); }
   private idempotencyHeader(): HttpHeaders { return new HttpHeaders({ 'Idempotency-Key': this.idempotencyKey() }); }
   private idempotencyKey(): string { return globalThis.crypto?.randomUUID?.() ?? `platform-${Date.now()}-${Math.random().toString(36).slice(2)}`; }
+
+  private toAddress(value: ApiRecord, etag?: string | null): ClientAccountAddress {
+    return {
+      id: String(value['id'] ?? ''), clientAccountId: String(value['clientAccountId'] ?? ''), label: String(value['label'] ?? ''),
+      addressType: String(value['addressType'] ?? 'STREET'), line: String(value['line'] ?? ''), reference: String(value['reference'] ?? ''),
+      countryCode: String(value['countryCode'] ?? 'PE'), departmentCode: String(value['departmentCode'] ?? ''),
+      provinceCode: String(value['provinceCode'] ?? ''), districtCode: String(value['districtCode'] ?? ''),
+      defaultAddress: value['defaultAddress'] === true, active: value['active'] !== false, version: Number(value['version']) || 0,
+      recipientName: value['recipientName'] ? String(value['recipientName']) : null, recipientPhone: value['recipientPhone'] ? String(value['recipientPhone']) : null,
+      roadType: value['roadType'] ? String(value['roadType']) : null, streetName: value['streetName'] ? String(value['streetName']) : null,
+      streetNumber: value['streetNumber'] ? String(value['streetNumber']) : null, interior: value['interior'] ? String(value['interior']) : null,
+      postalCode: value['postalCode'] ? String(value['postalCode']) : null, receivingInstructions: value['receivingInstructions'] ? String(value['receivingInstructions']) : null,
+      receivingHours: value['receivingHours'] ? String(value['receivingHours']) : null, latitude: value['latitude'] == null ? null : Number(value['latitude']), longitude: value['longitude'] == null ? null : Number(value['longitude']),
+      placeId: value['placeId'] ? String(value['placeId']) : null, source: value['source'] ? String(value['source']) : null,
+    };
+  }
 }
 
 export interface CreatePurchaseRequestCommand {
@@ -154,6 +202,52 @@ export interface UpdatePurchaseRequestCommand {
   readonly deliveryProfileSnapshot?: string | null;
   readonly paymentOption?: string | null;
   readonly comment?: string | null;
+}
+
+export interface ClientAccountAddressCommand {
+  readonly label: string;
+  readonly address: DeliveryAddressCommand;
+  readonly defaultAddress?: boolean;
+}
+
+export type ClientAccountAddressUpdateCommand = Omit<ClientAccountAddressCommand, 'defaultAddress'>;
+
+export interface DeliveryAddressCommand {
+  readonly addressType: string;
+  readonly line: string;
+  readonly reference: string;
+  readonly countryCode: 'PE';
+  readonly departmentCode: string;
+  readonly provinceCode: string;
+  readonly districtCode: string;
+  readonly recipientName?: string | null;
+  readonly recipientPhone?: string | null;
+  readonly roadType?: string | null;
+  readonly streetName?: string | null;
+  readonly streetNumber?: string | null;
+  readonly interior?: string | null;
+  readonly postalCode?: string | null;
+  readonly receivingInstructions?: string | null;
+  readonly receivingHours?: string | null;
+  readonly latitude?: number | null;
+  readonly longitude?: number | null;
+  readonly placeId?: string | null;
+  readonly source?: string | null;
+}
+
+export interface CreateManualSalesOrderCommand {
+  readonly clientAccountId: string;
+  readonly addressId: string | null;
+  readonly manualAddress: DeliveryAddressCommand | null;
+  readonly requestedDeliveryDate: string;
+  readonly deliveryNotes: string;
+  readonly warehouseId: string | null;
+  readonly routeProvider: string | null;
+  readonly paymentOption: string;
+  readonly priority: string;
+  readonly currency: string;
+  readonly notes: string;
+  readonly lines: readonly PurchaseRequestLineCommand[];
 }
 
 export interface PurchaseRequestLineCommand {
