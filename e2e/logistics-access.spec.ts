@@ -194,16 +194,16 @@ async function createLifecycleDispatch(request: APIRequestContext): Promise<ApiR
 }
 
 async function signInLogistics(page: Page, request: APIRequestContext): Promise<AuthenticatedRole> {
-  const sessionResponsePromise = page.waitForResponse(
+  const sessionPromise = page.waitForResponse(
     (response) =>
       response.request().method() === 'GET' &&
       response.url().includes('/api/v1/session'),
-  );
+  ).then(async (response) => await response.json() as {
+    readonly membership?: { readonly membershipId?: string };
+  });
   await signIn(page, 'LOGISTICS');
   const apiSession = await loginApi(request, 'LOGISTICS', 'PLATFORM');
-  const session = (await (await sessionResponsePromise).json()) as {
-    readonly membership?: { readonly membershipId?: string };
-  };
+  const session = await sessionPromise;
   expect(session.membership?.membershipId).toBeTruthy();
   expect(session.membership!.membershipId).toBe(apiSession.membershipId);
   return apiSession;
@@ -215,7 +215,8 @@ async function assertNoForbiddenSidebarLink(page: Page): Promise<void> {
   });
   if (!(await sidebar.isVisible())) {
     const menuButton = page.getByRole('button', { name: /open operations navigation|abrir navegación de operaciones|abrir navegacion de operaciones/i });
-    if (await menuButton.isVisible()) await menuButton.click();
+    await expect(menuButton).toBeVisible();
+    await menuButton.click();
   }
   await expect(sidebar).toBeVisible();
   await expect(sidebar.locator('a[href*="/forbidden"]')).toHaveCount(0);
