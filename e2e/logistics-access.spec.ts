@@ -194,18 +194,20 @@ async function createLifecycleDispatch(request: APIRequestContext): Promise<ApiR
 }
 
 async function signInLogistics(page: Page, request: APIRequestContext): Promise<AuthenticatedRole> {
-  const sessionPromise = page.waitForResponse(
-    (response) =>
-      response.request().method() === 'GET' &&
-      response.url().includes('/api/v1/session'),
-  ).then(async (response) => await response.json() as {
-    readonly membership?: { readonly membershipId?: string };
+  let sessionBody: { readonly membership?: { readonly membershipId?: string } } | undefined;
+  const sessionPromise = page.waitForResponse(async (response) => {
+    if (response.request().method() !== 'GET' || !response.url().includes('/api/v1/session')) return false;
+    sessionBody = JSON.parse((await response.body()).toString('utf8')) as {
+      readonly membership?: { readonly membershipId?: string };
+    };
+    return true;
   });
   await signIn(page, 'LOGISTICS');
   const apiSession = await loginApi(request, 'LOGISTICS', 'PLATFORM');
-  const session = await sessionPromise;
-  expect(session.membership?.membershipId).toBeTruthy();
-  expect(session.membership!.membershipId).toBe(apiSession.membershipId);
+  await sessionPromise;
+  if (!sessionBody) throw new Error('E2E browser session response body was not captured');
+  expect(sessionBody.membership?.membershipId).toBeTruthy();
+  expect(sessionBody.membership!.membershipId).toBe(apiSession.membershipId);
   return apiSession;
 }
 

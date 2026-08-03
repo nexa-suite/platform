@@ -6,11 +6,16 @@ test('Logistics reaches dispatch and operations views', async ({ page }) => {
   await signIn(page, 'LOGISTICS');
   await page.goto('/ops/operations/dispatch-orders');
   await expect(page.locator('body')).toContainText(/dispatch|despacho/i);
-  const proofLink = page.getByRole('link', { name: /proof of delivery|prueba de entrega/i });
-  if (!(await proofLink.isVisible())) {
-    const menuButton = page.getByRole('button', { name: /open operations navigation|abrir navegación de operaciones|abrir navegacion de operaciones/i });
-    await expect(menuButton).toBeVisible();
-    await menuButton.click();
+  const sidebar = page.locator('mat-sidenav.platform-sidebar nav[aria-label]').first();
+  await expect(sidebar).toBeAttached();
+  if (!(await sidebar.isVisible())) {
+    if ((page.viewportSize()?.width ?? 1280) <= 760) {
+      const menuButton = page.locator('button.mobile-menu-button');
+      await expect(menuButton).toBeVisible();
+      await menuButton.click();
+    }
   }
+  await expect(sidebar).toBeVisible();
+  const proofLink = sidebar.getByRole('link', { name: /proof of delivery|prueba de entrega/i });
   await expect(proofLink).toBeVisible();
 });
