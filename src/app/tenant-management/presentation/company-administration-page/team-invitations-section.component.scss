@@ -4,9 +4,17 @@
 .member-row, .invitation-row { display: flex; align-items: center; gap: 12px; border-bottom: 1px solid var(--nexa-color-border); padding: 10px 0; }
 .member-copy, .invitation-row > div:first-child { flex: 1; min-width: 0; }
 .member-copy span, .invitation-row span, .invitation-row small { display: block; color: var(--nexa-color-text-secondary); font-size: .82rem; }
+.member-copy small { display: block; color: var(--nexa-color-text-secondary); font-size: .78rem; margin-top: 4px; }
 .roles-field { min-width: 180px; }
 .row-actions { display: flex; gap: 4px; flex-wrap: wrap; }
 .form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; align-items: center; }
 .form-grid .roles-field { grid-column: 1 / 2; }
 .hint, .empty { color: var(--nexa-color-text-secondary); font-size: .85rem; }
+.role-confirmation, .member-detail { display: grid; gap: 6px; border: 1px solid var(--nexa-color-primary); border-radius: 10px; padding: 12px; margin-top: 14px; }
+.role-confirmation small, .member-detail dd { color: var(--nexa-color-text-secondary); }
+.detail-heading { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.member-detail dl { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px 16px; margin: 0; }
+.member-detail dt { font-size: .75rem; color: var(--nexa-color-text-secondary); }
+.member-detail dd { margin: 2px 0 0; word-break: break-word; }
+fieldset { border: 0; padding: 0; margin: 0; min-width: 0; display: contents; }
 @media (max-width: 900px) { .section-grid, .form-grid { grid-template-columns: 1fr; } .member-row, .invitation-row { align-items: flex-start; flex-direction: column; } .roles-field { width: 100%; } .form-grid .roles-field { grid-column: auto; } }

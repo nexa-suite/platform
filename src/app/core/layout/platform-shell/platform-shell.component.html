@@ -8,9 +8,9 @@
 
     <section class="workspace-card">
       <strong>{{ currentUser()?.workspaceSlug }}</strong>
-      @if ((currentUser()?.roles?.length ?? 0) > 1) {
+      @if (availableAreas().length > 1) {
         <select [attr.aria-label]="'shell.areaSelector' | translate" (change)="switchArea($any($event.target).value)">
-          @for (area of currentUser()?.roles ?? []; track area) { <option [value]="area">{{ ('shell.roles.' + area) | translate }}</option> }
+          @for (area of availableAreas(); track area) { <option [value]="area">{{ ('shell.roles.' + area) | translate }}</option> }
         </select>
       }
     </section>

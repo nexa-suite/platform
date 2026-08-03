@@ -32,41 +32,37 @@ describe('catalog access guards', () => {
     });
   });
 
-  it('allows catalog read only to the approved internal roles with catalog:read', () => {
-    for (const role of ['COMPANY_OWNER', 'SALES', 'WAREHOUSE', 'LOGISTICS']) {
-      authentication.currentUser.mockReturnValue({ roles: [role], permissions: ['catalog:read'] });
-      authentication.hasPermission.mockReturnValue(true);
+  it('allows catalog read when the backend session contains catalog:read', () => {
+    authentication.currentUser.mockReturnValue({ roles: ['TENANT_ADMIN'], permissions: ['catalog:read'] });
+    authentication.hasPermission.mockReturnValue(true);
 
-      const result = TestBed.runInInjectionContext(() => catalogReadGuard(route, routerState));
+    const result = TestBed.runInInjectionContext(() => catalogReadGuard(route, routerState));
 
-      expect(result).toBe(true);
-    }
+    expect(result).toBe(true);
   });
 
-  it('blocks tenant admin even when a catalog permission is present', () => {
-    for (const role of ['TENANT_ADMIN']) {
-      authentication.currentUser.mockReturnValue({ roles: [role], permissions: ['catalog:read'] });
-      authentication.hasPermission.mockReturnValue(true);
+  it('blocks a session that lacks the required backend permission', () => {
+    authentication.currentUser.mockReturnValue({ roles: ['SALES'], permissions: [] });
+    authentication.hasPermission.mockReturnValue(false);
 
-      const result = TestBed.runInInjectionContext(() => catalogReadGuard(route, routerState));
+    const result = TestBed.runInInjectionContext(() => catalogReadGuard(route, routerState));
 
-      expect(result).not.toBe(true);
-      expect(authentication.markForbidden).toHaveBeenCalled();
-    }
+    expect(result).not.toBe(true);
+    expect(authentication.markForbidden).toHaveBeenCalled();
   });
 
-  it('allows product management to owner and sales with catalog:manage', () => {
-    authentication.currentUser.mockReturnValue({ roles: ['SALES'], permissions: ['catalog:manage'] });
+  it('allows product management when the backend session contains catalog:manage', () => {
+    authentication.currentUser.mockReturnValue({ roles: ['WAREHOUSE'], permissions: ['catalog:manage'] });
     authentication.hasPermission.mockReturnValue(true);
     expect(TestBed.runInInjectionContext(() => catalogManageGuard(route, routerState))).toBe(true);
 
-    authentication.currentUser.mockReturnValue({ roles: ['WAREHOUSE'], permissions: ['catalog:manage'] });
+    authentication.hasPermission.mockReturnValue(false);
     expect(TestBed.runInInjectionContext(() => catalogManageGuard(route, routerState))).not.toBe(true);
   });
 
   it('allows promotion management to logistics without granting product management', () => {
     authentication.currentUser.mockReturnValue({ roles: ['LOGISTICS'], permissions: ['promotion:manage'] });
-    authentication.hasPermission.mockReturnValue(true);
+    authentication.hasPermission.mockImplementation((permission: string) => permission === 'promotion:manage');
     expect(TestBed.runInInjectionContext(() => promotionManageGuard(route, routerState))).toBe(true);
     expect(TestBed.runInInjectionContext(() => catalogManageGuard(route, routerState))).not.toBe(true);
   });

@@ -5,6 +5,8 @@ import { platformApiUrl, PLATFORM_RUNTIME_CONFIG } from '../../../core/security/
 import {
   AccessMatrixEntry,
   CustomFieldDefinition,
+  InvitationAcceptanceCommand,
+  InvitationAcceptanceResult,
   InvitationList,
   InvitationView,
   NotificationSettings,
@@ -37,6 +39,7 @@ export class CompanyAdministrationApiService {
   workspaces(): Observable<readonly WorkspaceSummary[]> { return this.get<readonly WorkspaceSummary[]>('/workspaces'); }
   workspace(id: string): Observable<WorkspaceDetails> { return this.get<WorkspaceDetails>(`/workspaces/${encodeURIComponent(id)}`); }
   memberships(): Observable<readonly WorkspaceMembershipSummary[]> { return this.get<readonly WorkspaceMembershipSummary[]>('/workspace-memberships'); }
+  membership(id: string): Observable<WorkspaceMembershipSummary> { return this.get<WorkspaceMembershipSummary>(`/workspace-memberships/${encodeURIComponent(id)}`); }
   workspaceSettings(id: string): Observable<WorkspaceSettings> { return this.get<WorkspaceSettings>(`/workspaces/${encodeURIComponent(id)}/settings`); }
   regionalSettings(): Observable<RegionalSettings> { return this.get<RegionalSettings>('/settings/regional'); }
   unitPreferences(): Observable<UnitPreferences> { return this.get<UnitPreferences>('/settings/units'); }
@@ -78,6 +81,7 @@ export class CompanyAdministrationApiService {
   }
   revokeInvitation(id: string, version: number): Observable<InvitationView> { return this.command<InvitationView>(`/organization-invitations/${encodeURIComponent(id)}/revocations`, version); }
   resendInvitation(id: string, version: number): Observable<InvitationView> { return this.command<InvitationView>(`/organization-invitations/${encodeURIComponent(id)}/resends`, version); }
+  acceptInvitation(body: InvitationAcceptanceCommand): Observable<InvitationAcceptanceResult> { return this.http.post<InvitationAcceptanceResult>(this.url('/organization-invitation-acceptances'), body); }
 
   private get<T>(path: string): Observable<T> { return this.http.get<T>(this.url(path)); }
   private patch<T>(path: string, body: unknown, version: number): Observable<T> { return this.http.patch<T>(this.url(path), body, { headers: this.ifMatch(version) }); }

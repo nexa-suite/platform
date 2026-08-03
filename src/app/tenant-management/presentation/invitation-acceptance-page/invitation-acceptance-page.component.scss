@@ -1,0 +1,19 @@
+:host { display: block; min-height: 100%; }
+.acceptance-page { width: min(100% - 40px, 520px); margin: 48px auto; padding: 32px; border: 1px solid var(--nexa-color-border); border-radius: 16px; background: var(--nexa-color-surface, white); box-shadow: 0 18px 50px color-mix(in srgb, #000 10%, transparent); }
+.back-link { color: var(--nexa-color-primary); }
+h1 { margin: 24px 0 8px; }
+.mode-switch { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 24px 0 12px; }
+.mode-switch button { border: 1px solid var(--nexa-color-border); border-radius: 8px; background: transparent; color: inherit; padding: 10px; cursor: pointer; }
+.mode-switch button.active { border-color: var(--nexa-color-primary); color: var(--nexa-color-primary); font-weight: 650; }
+.mode-description, .contract-hint { color: var(--nexa-color-text-secondary); font-size: .9rem; }
+.contract-hint { border-left: 3px solid var(--nexa-color-primary); padding-left: 10px; }
+form { display: grid; gap: 8px; margin-top: 24px; }
+label { font-weight: 600; margin-top: 8px; }
+input { border: 1px solid var(--nexa-color-border); border-radius: 8px; padding: 11px 12px; font: inherit; }
+input:focus-visible, button:focus-visible, a:focus-visible { outline: 3px solid var(--nexa-color-primary); outline-offset: 2px; }
+form > button { border: 0; border-radius: 8px; background: var(--nexa-color-primary); color: white; padding: 12px 16px; margin-top: 12px; cursor: pointer; }
+button:disabled { opacity: .55; cursor: not-allowed; }
+.error { color: #8f1d14; }
+.success { display: grid; gap: 8px; border: 1px solid #4b9b6b; border-radius: 10px; padding: 16px; margin-top: 24px; }
+.success a { color: var(--nexa-color-primary); }
+@media (max-width: 600px) { .acceptance-page { width: min(100% - 24px, 520px); margin: 24px auto; padding: 22px; } }

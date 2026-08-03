@@ -3,6 +3,7 @@ import { signal } from '@angular/core';
 import { CompanyAdministrationPageComponent } from './company-administration-page.component';
 import { CompanyAdministrationFacade } from '../../application/company-administration.facade';
 import { INITIAL_TENANT_ADMINISTRATION_STATE } from '../../domain/models/company-administration.models';
+import { provideTranslateService } from '@ngx-translate/core';
 
 describe('CompanyAdministrationPageComponent', () => {
   let fixture: ComponentFixture<CompanyAdministrationPageComponent>;
@@ -10,7 +11,7 @@ describe('CompanyAdministrationPageComponent', () => {
   const facade = { state: state.asReadonly(), canManage: signal(true).asReadonly(), busy: signal(false).asReadonly(), load: () => undefined, retry: () => undefined };
 
   beforeEach(async () => {
-    await TestBed.configureTestingModule({ imports: [CompanyAdministrationPageComponent], providers: [{ provide: CompanyAdministrationFacade, useValue: facade }] }).compileComponents();
+    await TestBed.configureTestingModule({ imports: [CompanyAdministrationPageComponent], providers: [provideTranslateService(), { provide: CompanyAdministrationFacade, useValue: facade }] }).compileComponents();
     fixture = TestBed.createComponent(CompanyAdministrationPageComponent); fixture.detectChanges();
   });
 

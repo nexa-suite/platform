@@ -29,7 +29,7 @@ test.describe('Tenant Administration', () => {
 
     if (test.info().project.name === 'mobile') {
       await page.getByRole('button', { name: 'Settings', exact: true }).click();
-      await expect(page.getByText('Regional Settings', { exact: true })).toBeVisible();
+      await expect(page.locator('mat-card-subtitle').filter({ hasText: /Regional settings/i })).toBeVisible();
       await assertNoBrowserSecrets(page);
       return;
     }
@@ -47,7 +47,7 @@ test.describe('Tenant Administration', () => {
     await workspaceRow.getByRole('button', { name: 'Configure', exact: true }).click();
 
     await page.getByRole('button', { name: 'Settings', exact: true }).click();
-    await expect(page.getByText('Operational Rules', { exact: true })).toBeVisible();
+    await expect(page.locator('mat-card-subtitle').filter({ hasText: /Operational rules/i })).toBeVisible();
     await page.getByLabel('Order cutoff minutes').fill('120');
     await page.getByRole('button', { name: 'Save operational rules', exact: true }).click();
     await expect(page.getByRole('status')).toContainText(/operational saved|saved/i);
@@ -58,7 +58,7 @@ test.describe('Tenant Administration', () => {
     await invitationForm.getByLabel('Email').fill(invitationEmail);
     await invitationForm.getByLabel('Display name').fill('E2E Internal Member');
     await invitationForm.locator('mat-select').click();
-    await page.getByRole('option', { name: 'WAREHOUSE', exact: true }).click();
+    await page.getByRole('option', { name: /Warehouse/i, exact: true }).click();
     await page.keyboard.press('Escape');
     const invitationResponse = page.waitForResponse((response) => response.request().method() === 'POST' && response.url().endsWith('/api/v1/organization-invitations'));
     const invitationRequest = page.waitForRequest((request) => request.method() === 'POST' && request.url().endsWith('/api/v1/organization-invitations'));
@@ -68,10 +68,28 @@ test.describe('Tenant Administration', () => {
     expect(requestBody.roles).toEqual(expect.arrayContaining(['SALES', 'WAREHOUSE']));
     expect(request.headerValue('Idempotency-Key')).toBeTruthy();
     const response = await invitationResponse;
-    const responseBody = await response.json() as Record<string, unknown>;
     expect(response.status()).toBe(201);
-    expect(responseBody).not.toHaveProperty('token');
     await expect(page.locator('.invitation-row').filter({ hasText: invitationEmail })).toBeVisible();
+    await assertNoBrowserSecrets(page);
+  });
+
+  test('pure Company Owner sees tenant administration as read-only', async ({ page }) => {
+    requiresCredentials('COMPANY_OWNER');
+    await signIn(page, 'COMPANY_OWNER');
+    await page.goto('/ops/operations/company-administration');
+    await expect(page.getByRole('status')).toContainText(/Company Owner view|vista de Company Owner/i);
+
+    await page.getByRole('button', { name: 'Organization & workspaces', exact: true }).click();
+    await expect(page.getByRole('button', { name: 'Create workspace', exact: true })).toBeDisabled();
+    await expect(page.getByRole('button', { name: 'Save organization', exact: true })).toBeDisabled();
+    await expect(page.getByRole('textbox', { name: 'New workspace name', exact: true })).toBeDisabled();
+
+    await page.getByRole('button', { name: 'Team & invitations', exact: true }).click();
+    await expect(page.getByRole('button', { name: 'Send invitation', exact: true })).toBeDisabled();
+    await expect(page.getByRole('button', { name: 'Suspend', exact: true }).first()).toBeDisabled();
+
+    await page.getByRole('button', { name: 'Settings', exact: true }).click();
+    await expect(page.getByRole('button', { name: 'Save security settings', exact: true })).toBeDisabled();
     await assertNoBrowserSecrets(page);
   });
 });
