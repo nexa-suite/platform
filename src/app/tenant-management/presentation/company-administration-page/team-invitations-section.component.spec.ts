@@ -48,4 +48,13 @@ describe('TeamInvitationsSectionComponent', () => {
     expect(facade.loadMembershipDetail).toHaveBeenCalledWith('member');
     expect(facade.clearMembershipDetail).toHaveBeenCalledTimes(1);
   });
+
+  it('requires deliberate confirmation before changing membership status with the member version', () => {
+    const component = fixture.componentInstance;
+    component.toggleMembership(member);
+    expect(facade.suspend).not.toHaveBeenCalled();
+    expect(component.pendingMembershipLifecycle()?.action).toBe('suspend');
+    component.confirmMembershipLifecycle();
+    expect(facade.suspend).toHaveBeenCalledWith('member', 4);
+  });
 });

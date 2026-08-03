@@ -69,15 +69,20 @@ export interface CatalogPromotion {
   readonly status: CatalogLifecycleStatus;
   readonly discountType: 'PERCENTAGE' | 'FIXED_AMOUNT';
   readonly discountValue: number;
-  readonly currency: string;
+  readonly currency: string | null;
   readonly startsAt: string;
   readonly endsAt: string | null;
   readonly minimumQuantity: number;
   readonly stackingPolicy: string;
+  readonly priority: number;
   readonly productIds: readonly string[];
   readonly categoryIds: readonly string[];
+  readonly clientAccountIds: readonly string[];
+  readonly rules: readonly CatalogPromotionRule[];
   readonly version: number;
 }
+
+export interface CatalogPromotionRule { readonly type: string; readonly value: string; }
 
 export interface CatalogCategoryCommand { readonly parentId: string | null; readonly slug: string; readonly name: string; readonly description: string; }
 export interface CatalogBrandCommand { readonly slug: string; readonly name: string; readonly description: string; }
@@ -102,11 +107,14 @@ export interface CatalogPromotionCommand {
   readonly description: string;
   readonly discountType: 'PERCENTAGE' | 'FIXED_AMOUNT';
   readonly discountValue: number;
-  readonly currency: string;
+  readonly currency: string | null;
   readonly startsAt: string;
   readonly endsAt: string | null;
   readonly minimumQuantity: number;
   readonly stackingPolicy: string;
+  readonly priority: number;
   readonly productIds: readonly string[];
   readonly categoryIds: readonly string[];
+  readonly clientAccountIds: readonly string[];
+  readonly rules: readonly CatalogPromotionRule[];
 }

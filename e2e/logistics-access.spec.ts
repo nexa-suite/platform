@@ -1,5 +1,8 @@
-import { expect, test, type Page } from '@playwright/test';
+import { expect, test, type APIRequestContext, type Page } from '@playwright/test';
 import { requiresCredentials, signIn } from './support/auth';
+import { credentialEnvironment, type CredentialRole } from './support/role-fixtures';
+
+const API_URL = process.env.NEXA_API_URL ?? 'http://localhost:8080';
 
 type ForbiddenReason = 'ROLE_NOT_ASSIGNED' | 'PERMISSION_NOT_GRANTED';
 
@@ -16,32 +19,194 @@ const REASON_COPY: Record<ForbiddenReason, RegExp> = {
 const DISPATCH_DETAIL_ROUTE =
   '/ops/operations/dispatch-orders/00000000-0000-0000-0000-000000000000';
 
-const EXPECTED_DISPATCH_CONTROLS = [
-  'assignment',
-  'scheduling',
-  'readiness',
-  'start route',
-  'temperature',
-  'incident',
-  'reprogram',
-  'pod',
-  'delivery',
-] as const;
+interface DispatchFixture {
+  readonly id: string;
+  readonly dispatchNumber: string;
+  readonly status: string;
+  readonly temperatureMin: number | null;
+  readonly temperatureMax: number | null;
+  readonly version: number;
+}
 
-async function signInLogistics(page: Page): Promise<void> {
-  const loginResponsePromise = page.waitForResponse(
+interface DispatchMutation {
+  readonly id: string;
+  readonly status: string;
+  readonly version: number;
+}
+
+interface AuthenticatedRole {
+  readonly accessToken: string;
+  readonly membershipId: string;
+}
+
+interface ApiResource {
+  readonly id: string;
+  readonly etag: string;
+}
+
+async function loginApi(
+  request: APIRequestContext,
+  role: CredentialRole,
+  surface: 'PLATFORM' | 'PORTAL',
+): Promise<AuthenticatedRole> {
+  const { email, password, workspace } = credentialEnvironment(role);
+  if (!email || !password) throw new Error(`Missing ${role} credential fixture`);
+  const response = await request.post(`${API_URL}/api/v1/authentication/sign-in`, {
+    headers: { Origin: 'http://localhost:4200' },
+    data: { identifier: email, password, workspaceSlug: workspace, surface },
+  });
+  expect(response.ok()).toBeTruthy();
+  const body = await response.json() as {
+    readonly accessToken?: string;
+    readonly session?: { readonly membershipId?: string; readonly roles?: readonly string[]; readonly surface?: string };
+  };
+  if (!body.accessToken || !body.session?.membershipId) {
+    throw new Error(`Authentication response for ${role} did not contain a usable session`);
+  }
+  return { accessToken: body.accessToken, membershipId: body.session.membershipId };
+}
+
+async function postApi<T>(
+  request: APIRequestContext,
+  path: string,
+  accessToken: string,
+  expectedStatus: number,
+  options: { readonly data?: unknown; readonly headers?: Record<string, string> } = {},
+): Promise<{ readonly body: T; readonly etag: string }> {
+  const response = await request.post(`${API_URL}${path}`, {
+    headers: {
+      Origin: 'http://localhost:4200',
+      Authorization: `Bearer ${accessToken}`,
+      ...options.headers,
+    },
+    ...(options.data === undefined ? {} : { data: options.data }),
+  });
+  expect(response.status()).toBe(expectedStatus);
+  const body = await response.json() as T;
+  return { body, etag: response.headers()['etag'] ?? '' };
+}
+
+async function createLifecycleDispatch(request: APIRequestContext): Promise<ApiResource> {
+  requiresCredentials('SALES');
+  requiresCredentials('WAREHOUSE');
+  requiresCredentials('LOGISTICS');
+  const buyer = credentialEnvironment('BUYER');
+  if (!buyer.email || !buyer.password) throw new Error('Missing BUYER credential fixture');
+
+  const buyerSession = await loginApi(request, 'BUYER', 'PORTAL');
+  const purchaseRequest = await postApi<{ readonly id: string }>(
+    request,
+    '/api/v1/purchase-requests',
+    buyerSession.accessToken,
+    201,
+    { data: { lines: [{ catalogItemId: 'CAT-0002', quantity: 1, unit: 'UNIT' }] } },
+  );
+  const submitted = await postApi<{ readonly id: string }>(
+    request,
+    `/api/v1/purchase-requests/${purchaseRequest.body.id}/submissions`,
+    buyerSession.accessToken,
+    200,
+    { headers: { 'If-Match': purchaseRequest.etag, 'Idempotency-Key': `e2e-submit-${Date.now()}` } },
+  );
+
+  const salesSession = await loginApi(request, 'SALES', 'PLATFORM');
+  const reviewed = await postApi<{ readonly id: string }>(
+    request,
+    `/api/v1/purchase-requests/${purchaseRequest.body.id}/reviews`,
+    salesSession.accessToken,
+    200,
+    { headers: { 'If-Match': submitted.etag } },
+  );
+  const approved = await postApi<{ readonly id: string }>(
+    request,
+    `/api/v1/purchase-requests/${purchaseRequest.body.id}/approvals`,
+    salesSession.accessToken,
+    200,
+    { headers: { 'If-Match': reviewed.etag } },
+  );
+  const salesOrder = await postApi<{ readonly id: string }>(
+    request,
+    `/api/v1/purchase-requests/${purchaseRequest.body.id}/order-conversions`,
+    salesSession.accessToken,
+    201,
+    { headers: { 'If-Match': approved.etag, 'Idempotency-Key': `e2e-convert-${Date.now()}` }, data: {} },
+  );
+  const confirmed = await postApi<{ readonly id: string }>(
+    request,
+    `/api/v1/sales-orders/${salesOrder.body.id}/confirmations`,
+    salesSession.accessToken,
+    200,
+    { headers: { 'If-Match': salesOrder.etag } },
+  );
+
+  const warehouseSession = await loginApi(request, 'WAREHOUSE', 'PLATFORM');
+  const suffix = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`.toUpperCase();
+  const warehouse = await postApi<{ readonly id: string }>(
+    request,
+    '/api/v1/warehouses',
+    warehouseSession.accessToken,
+    201,
+    { data: { code: `E2E-${suffix.slice(-20)}`, name: 'E2E lifecycle warehouse', address: 'Lima' } },
+  );
+  const zone = await postApi<{ readonly id: string }>(
+    request,
+    `/api/v1/warehouses/${warehouse.body.id}/zones`,
+    warehouseSession.accessToken,
+    201,
+    { data: { code: `Z-${suffix.slice(-20)}`, name: 'E2E frozen zone', type: 'FROZEN', temperatureMin: -25, temperatureMax: -15 } },
+  );
+  await postApi<{ readonly id: string }>(
+    request,
+    '/api/v1/inventory/inbound-receipts',
+    warehouseSession.accessToken,
+    201,
+    {
+      headers: { 'Idempotency-Key': `e2e-inbound-${suffix}` },
+      data: {
+        warehouseId: warehouse.body.id,
+        zoneId: zone.body.id,
+        catalogItemId: 'CAT-0002',
+        batchNumber: `E2E-${suffix}`,
+        expirationDate: '2099-01-01',
+        quantity: 20,
+        unit: 'UNIT',
+        temperatureReading: -18,
+      },
+    },
+  );
+  const reservation = await postApi<{ readonly id: string }>(
+    request,
+    `/api/v1/fulfillment-candidates/${salesOrder.body.id}/inventory-reservations`,
+    warehouseSession.accessToken,
+    201,
+    { headers: { 'If-Match': confirmed.etag, 'Idempotency-Key': `e2e-reserve-${suffix}` } },
+  );
+  const logisticsSession = await loginApi(request, 'LOGISTICS', 'PLATFORM');
+  const dispatch = await postApi<{ readonly id: string }>(
+    request,
+    `/api/v1/inventory-reservations/${reservation.body.id}/dispatch-orders`,
+    logisticsSession.accessToken,
+    201,
+    { headers: { 'If-Match': reservation.etag, 'Idempotency-Key': `e2e-dispatch-${suffix}` } },
+  );
+  if (!dispatch.body.id || !reservation.etag) throw new Error('E2E dispatch fixture did not return id and reservation version');
+  return { id: dispatch.body.id, etag: logisticsSession.accessToken };
+}
+
+async function signInLogistics(page: Page, request: APIRequestContext): Promise<AuthenticatedRole> {
+  const sessionResponsePromise = page.waitForResponse(
     (response) =>
-      response.request().method() === 'POST' &&
-      response.url().includes('/api/v1/authentication/sign-in'),
+      response.request().method() === 'GET' &&
+      response.url().includes('/api/v1/session'),
   );
   await signIn(page, 'LOGISTICS');
-  const loginResponse = await loginResponsePromise;
-  expect(loginResponse.ok()).toBeTruthy();
-  const body = (await loginResponse.json()) as {
-    readonly session?: { readonly roles?: readonly string[]; readonly surface?: string };
+  const apiSession = await loginApi(request, 'LOGISTICS', 'PLATFORM');
+  const session = (await (await sessionResponsePromise).json()) as {
+    readonly membership?: { readonly membershipId?: string };
   };
-  expect(body.session?.surface).toBe('PLATFORM');
-  expect(body.session?.roles).toEqual(['LOGISTICS']);
+  expect(session.membership?.membershipId).toBeTruthy();
+  expect(session.membership!.membershipId).toBe(apiSession.membershipId);
+  return apiSession;
 }
 
 async function assertNoForbiddenSidebarLink(page: Page): Promise<void> {
@@ -82,9 +247,10 @@ async function assertDeniedSurface(page: Page, denied: DeniedRoute): Promise<voi
 
 test('pure LOGISTICS reaches operational reads, dispatch detail and promotion management', async ({
   page,
+  request,
 }) => {
   requiresCredentials('LOGISTICS');
-  await signInLogistics(page);
+  await signInLogistics(page, request);
   await expect.poll(() => new URL(page.url()).pathname).toBe('/ops/operations/dashboard');
   await assertNoForbiddenSidebarLink(page);
 
@@ -137,65 +303,122 @@ test('pure LOGISTICS reaches operational reads, dispatch detail and promotion ma
 
   await assertDeniedSurface(page, {
     path: '/ops/catalog/products/new',
-    reason: 'ROLE_NOT_ASSIGNED',
+    reason: 'PERMISSION_NOT_GRANTED',
   });
 });
 
-function controlCount(page: Page, name: RegExp): Promise<number> {
-  return page.getByRole('heading', { name }).count();
+async function mutateDispatch(
+  page: Page,
+  accessToken: string,
+  dispatchId: string,
+  suffix: string,
+  action: () => Promise<void>,
+  expectedStatus: string,
+  previousVersion: number,
+): Promise<DispatchMutation> {
+  const responsePromise = page.waitForResponse(
+    (response) =>
+      response.request().method() === 'POST' &&
+      response.url().includes(`/api/v1/dispatch-orders/${dispatchId}/${suffix}`),
+  );
+  await action();
+  const response = await responsePromise;
+  expect(response.ok(), `dispatch mutation returned HTTP ${response.status()} for ${suffix}`).toBeTruthy();
+  const detailResponse = await page.request.get(`${API_URL}/api/v1/dispatch-orders/${dispatchId}`, {
+    headers: { Origin: 'http://localhost:4200', Authorization: `Bearer ${accessToken}` },
+  });
+  expect(detailResponse.ok()).toBeTruthy();
+  const detail = await detailResponse.json() as { readonly id: string; readonly status: string; readonly version: number };
+  expect(detail.status).toBe(expectedStatus);
+  expect(detail.version).toBeGreaterThan(previousVersion);
+  return { id: detail.id, status: detail.status, version: detail.version };
 }
 
-async function collectDispatchControlEvidence(page: Page): Promise<Set<string>> {
-  const observed = new Set<string>();
-  const headings: readonly [string, RegExp][] = [
-    ['assignment', /assignment|asignación/i],
-    ['scheduling', /schedule|programar/i],
-    ['temperature', /temperature reading|lectura de temperatura/i],
-    ['incident', /^incident$|^incidente$/i],
-    ['reprogram', /reprogram route|reprogramar ruta/i],
-    ['pod', /proof of delivery metadata|metadatos de prueba de entrega/i],
-  ];
-  for (const [key, name] of headings) {
-    if (await controlCount(page, name)) observed.add(key);
-  }
-  if (
-    await page.getByRole('button', { name: /mark ready for route|marcar listo para ruta/i }).count()
-  )
-    observed.add('readiness');
-  if (await page.getByRole('button', { name: /start route|iniciar ruta/i }).count())
-    observed.add('start route');
-  if (await page.getByRole('button', { name: /complete delivery|completar entrega/i }).count())
-    observed.add('delivery');
-  return observed;
+function futureLocal(minutes: number): string {
+  const value = new Date(Date.now() + minutes * 60_000);
+  value.setSeconds(0, 0);
+  const pad = (part: number) => String(part).padStart(2, '0');
+  return `${value.getFullYear()}-${pad(value.getMonth() + 1)}-${pad(value.getDate())}T${pad(value.getHours())}:${pad(value.getMinutes())}`;
 }
 
-test('LOGISTICS exposes assignment, lifecycle, temperature, incident, reprogramming and POD controls for available dispatch states', async ({
+test('LOGISTICS performs supported dispatch lifecycle actions against the server state', async ({
   page,
+  request,
 }) => {
   requiresCredentials('LOGISTICS');
-  await signInLogistics(page);
+  const fixture = await createLifecycleDispatch(request);
+  const logisticsSession = await signInLogistics(page, request);
+  const membershipId = logisticsSession.membershipId;
   await page.goto('/ops/operations/dispatch-orders');
   await expect(page.locator('h1')).toContainText(/dispatch board|tablero de despachos/i);
   await expect(page.locator('nexa-loading-state')).toHaveCount(0, { timeout: 10_000 });
 
-  const dispatchCount = await page.locator('a[href^="/ops/operations/dispatch-orders/"]').count();
-  test.skip(
-    dispatchCount === 0,
-    'BLOCKED: logistics API returned no dispatch order; status-dependent detail controls cannot be evidenced without a real dispatch fixture.',
-  );
+  const dispatchListResponse = await page.request.get(`${API_URL}/api/v1/dispatch-orders?page=0&size=100`, {
+    headers: { Origin: 'http://localhost:4200', Authorization: `Bearer ${logisticsSession.accessToken}` },
+  });
+  expect(dispatchListResponse.ok()).toBeTruthy();
+  const dispatchList = (await dispatchListResponse.json()) as {
+    readonly items?: readonly DispatchFixture[];
+  };
+  const dispatch = dispatchList.items?.find((item) => item.id === fixture.id);
+  if (!dispatch) throw new Error(`E2E fixture ${fixture.id} was not returned by the server-backed dispatch list`);
 
-  const observed = new Set<string>();
-  for (let index = 0; index < dispatchCount; index += 1) {
-    await page.goto('/ops/operations/dispatch-orders');
-    await page.locator('a[href^="/ops/operations/dispatch-orders/"]').nth(index).click();
-    await expect(page.locator('h1')).toContainText(/dispatch detail|detalle del despacho/i);
-    await expect(page.locator('nexa-loading-state')).toHaveCount(0, { timeout: 10_000 });
-    for (const control of await collectDispatchControlEvidence(page)) observed.add(control);
+  const dispatchId = dispatch.id;
+  let status = dispatch.status;
+  let version = dispatch.version;
+  let actions = 0;
+
+  while (actions < 8 && status !== 'DELIVERED' && status !== 'CANCELLED') {
+    let mutation: DispatchMutation;
+    if (status === 'READY_FOR_OPERATIONS') {
+      await page.goto('/ops/operations/dispatch-orders');
+      const row = page.locator(`a[href="/ops/operations/dispatch-orders/${dispatchId}"]`).locator('xpath=ancestor::tr');
+      mutation = await mutateDispatch(page, logisticsSession.accessToken, dispatchId, 'preparation-starts', () => row.getByRole('button', { name: /start preparation|iniciar preparación/i }).click(), 'PREPARING', version);
+    } else {
+      await page.goto(`/ops/operations/dispatch-orders/${dispatchId}`);
+      await expect(page.locator('h1')).toContainText(/dispatch detail|detalle del despacho/i);
+      await expect(page.locator('nexa-loading-state')).toHaveCount(0, { timeout: 10_000 });
+
+      if (status === 'PREPARING') {
+        await page.locator('[formcontrolname="responsibleMembershipId"]').fill(membershipId);
+        await page.locator('[formcontrolname="vehicleReference"]').fill('E2E-TRUCK-01');
+        await page.locator('[formcontrolname="routeName"]').fill('E2E route');
+        mutation = await mutateDispatch(page, logisticsSession.accessToken, dispatchId, 'assignments', () => page.getByRole('button', { name: /^assign$|^asignar$/i }).click(), 'ASSIGNED', version);
+      } else if (status === 'ASSIGNED' || status === 'REPROGRAMMED') {
+        await page.locator('[formcontrolname="deliveryWindowStart"]').first().fill(futureLocal(60));
+        await page.locator('[formcontrolname="deliveryWindowEnd"]').first().fill(futureLocal(180));
+        await page.locator('[formcontrolname="eta"]').first().fill(futureLocal(120));
+        mutation = await mutateDispatch(page, logisticsSession.accessToken, dispatchId, 'schedules', () => page.getByRole('button', { name: /^schedule$|^programar$/i }).click(), 'SCHEDULED', version);
+      } else if (status === 'SCHEDULED') {
+        mutation = await mutateDispatch(page, logisticsSession.accessToken, dispatchId, 'route-readiness', () => page.getByRole('button', { name: /mark ready for route|marcar listo para ruta/i }).click(), 'READY_FOR_ROUTE', version);
+      } else if (status === 'READY_FOR_ROUTE') {
+        mutation = await mutateDispatch(page, logisticsSession.accessToken, dispatchId, 'route-starts', () => page.getByRole('button', { name: /start route|iniciar ruta/i }).click(), 'IN_ROUTE', version);
+      } else if (status === 'IN_ROUTE') {
+        const safeTemperature = dispatch!.temperatureMin !== null && dispatch!.temperatureMax !== null
+          ? (dispatch!.temperatureMin + dispatch!.temperatureMax) / 2
+          : -18;
+        await page.locator('[formcontrolname="value"]').fill(String(safeTemperature));
+        await page.locator('[formcontrolname="source"]').fill('E2E');
+        const temperatureMutation = await mutateDispatch(page, logisticsSession.accessToken, dispatchId, 'temperature-readings', () => page.getByRole('button', { name: /record reading|registrar lectura/i }).click(), 'IN_ROUTE', version);
+        version = temperatureMutation.version;
+        actions += 1;
+        await page.locator('[formcontrolname="receiverName"]').fill('E2E receiver');
+        mutation = await mutateDispatch(page, logisticsSession.accessToken, dispatchId, 'delivery-completions', () => page.getByRole('button', { name: /complete delivery|completar entrega/i }).click(), 'DELIVERED', version);
+      } else if (status === 'INCIDENT') {
+        await page.locator('[formcontrolname="deliveryWindowStart"]').last().fill(futureLocal(240));
+        await page.locator('[formcontrolname="deliveryWindowEnd"]').last().fill(futureLocal(360));
+        await page.locator('[formcontrolname="eta"]').last().fill(futureLocal(300));
+        await page.locator('[formcontrolname="reason"]').fill('E2E route reprogramming');
+        mutation = await mutateDispatch(page, logisticsSession.accessToken, dispatchId, 'reprogrammings', () => page.getByRole('button', { name: /reprogram|reprogramar/i }).click(), 'REPROGRAMMED', version);
+      } else {
+        throw new Error(`E2E fixture ${dispatch.dispatchNumber} reached unsupported lifecycle status ${status}`);
+      }
+    }
+    status = mutation.status;
+    version = mutation.version;
+    actions += 1;
   }
 
-  const missing = EXPECTED_DISPATCH_CONTROLS.filter((control) => !observed.has(control));
-  test.skip(
-    missing.length > 0,
-    `BLOCKED: available dispatch statuses did not expose every required control; missing ${missing.join(', ')}. Seeded status coverage is required for real lifecycle evidence.`,
-  );
+  expect(actions).toBeGreaterThanOrEqual(7);
+  expect(status).toBe('DELIVERED');
 });

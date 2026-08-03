@@ -1,6 +1,7 @@
 import { request as playwrightRequest, test, expect, type APIRequestContext, type Page } from '@playwright/test';
 import { assertNoBrowserSecrets, messageIds, waitForResetLink } from './support/mailpit';
 import { requiresCredentials, signIn } from './support/auth';
+import { credentialEnvironment } from './support/role-fixtures';
 
 const API_URL = process.env.NEXA_API_URL ?? 'http://localhost:8080';
 const ORIGIN = 'http://localhost:4200';
@@ -24,8 +25,8 @@ function collectBrowserErrors(page: Page): string[] {
 test('Platform password recovery proves old-password rejection, session invalidation and generic unknown-account response', async ({ page }) => {
   requiresCredentials('OWNER');
   const errors = collectBrowserErrors(page);
-  const email = process.env.NEXA_E2E_OWNER_EMAIL!;
-  const password = process.env.NEXA_E2E_OWNER_PASSWORD!;
+  const { email, password } = credentialEnvironment('OWNER');
+  if (!email || !password) throw new Error('Missing OWNER credential fixture');
   const nextPassword = `NexaReset!${Date.now()}`;
   const api = await playwrightRequest.newContext({ baseURL: API_URL, extraHTTPHeaders: { Origin: ORIGIN } });
   try {
@@ -71,8 +72,8 @@ test('Platform password recovery proves old-password rejection, session invalida
 
 test('Platform session page proves A/B isolation, other-session revocation and current-session revocation', async ({ page }) => {
   requiresCredentials('OWNER');
-  const email = process.env.NEXA_E2E_OWNER_EMAIL!;
-  const password = process.env.NEXA_E2E_OWNER_PASSWORD!;
+  const { email, password } = credentialEnvironment('OWNER');
+  if (!email || !password) throw new Error('Missing OWNER credential fixture');
   const api = await playwrightRequest.newContext({ baseURL: API_URL, extraHTTPHeaders: { Origin: ORIGIN } });
   try {
     await signIn(page, 'OWNER');

@@ -1,5 +1,8 @@
 import { expect, test, type Page } from '@playwright/test';
-import { requiresCredentials, signIn, type InternalRole } from './support/auth';
+import { buyerCredentials, requiresCredentials, signIn, ROLE_FIXTURES, type InternalRole } from './support/auth';
+import { credentialEnvironment } from './support/role-fixtures';
+
+const API_URL = process.env.NEXA_API_URL ?? 'http://localhost:8080';
 
 type CredentialRole = InternalRole;
 type ForbiddenReason = 'ROLE_NOT_ASSIGNED' | 'PERMISSION_NOT_GRANTED';
@@ -31,7 +34,7 @@ const ROLE_ACCESS_MATRIX: readonly RoleAccessCase[] = [
     landing: '/ops/operations/company-administration',
     allowed: ['/ops/operations/company-administration'],
     denied: [
-      { path: '/ops/catalog', reason: 'ROLE_NOT_ASSIGNED' },
+      { path: '/ops/catalog', reason: 'PERMISSION_NOT_GRANTED' },
       { path: '/ops/commercial/dashboard', reason: 'PERMISSION_NOT_GRANTED' },
       { path: '/ops/operations/inventory', reason: 'PERMISSION_NOT_GRANTED' },
       { path: '/ops/operations/dispatch-orders', reason: 'PERMISSION_NOT_GRANTED' },
@@ -48,6 +51,10 @@ const ROLE_ACCESS_MATRIX: readonly RoleAccessCase[] = [
       '/ops/catalog',
       '/ops/operations/dashboard',
       '/ops/operations/dispatch-orders',
+      '/ops/operations/inventory',
+      '/ops/operations/proof-of-delivery',
+      '/ops/operations/temperature-incidents',
+      '/ops/operations/operational-analytics',
     ],
     denied: [{ path: '/ops/operations/fulfillment-readiness', reason: 'PERMISSION_NOT_GRANTED' }],
   },
@@ -64,8 +71,9 @@ const ROLE_ACCESS_MATRIX: readonly RoleAccessCase[] = [
     ],
     denied: [
       { path: '/ops/operations/company-administration', reason: 'PERMISSION_NOT_GRANTED' },
+      { path: '/ops/executive-overview', reason: 'PERMISSION_NOT_GRANTED' },
       { path: '/ops/operations/dispatch-orders', reason: 'PERMISSION_NOT_GRANTED' },
-      { path: '/ops/catalog/promotions/new', reason: 'ROLE_NOT_ASSIGNED' },
+      { path: '/ops/catalog/promotions/new', reason: 'PERMISSION_NOT_GRANTED' },
     ],
   },
   {
@@ -81,9 +89,10 @@ const ROLE_ACCESS_MATRIX: readonly RoleAccessCase[] = [
     ],
     denied: [
       { path: '/ops/commercial/dashboard', reason: 'PERMISSION_NOT_GRANTED' },
+      { path: '/ops/executive-overview', reason: 'PERMISSION_NOT_GRANTED' },
       { path: '/ops/operations/dispatch-orders', reason: 'PERMISSION_NOT_GRANTED' },
-      { path: '/ops/catalog/products/new', reason: 'ROLE_NOT_ASSIGNED' },
-      { path: '/ops/catalog/promotions', reason: 'ROLE_NOT_ASSIGNED' },
+      { path: '/ops/catalog/products/new', reason: 'PERMISSION_NOT_GRANTED' },
+      { path: '/ops/catalog/promotions', reason: 'PERMISSION_NOT_GRANTED' },
     ],
   },
   {
@@ -105,9 +114,10 @@ const ROLE_ACCESS_MATRIX: readonly RoleAccessCase[] = [
     ],
     denied: [
       { path: '/ops/commercial/dashboard', reason: 'PERMISSION_NOT_GRANTED' },
-      { path: '/ops/catalog/products/new', reason: 'ROLE_NOT_ASSIGNED' },
-      { path: '/ops/catalog/categories', reason: 'ROLE_NOT_ASSIGNED' },
-      { path: '/ops/catalog/brands', reason: 'ROLE_NOT_ASSIGNED' },
+      { path: '/ops/executive-overview', reason: 'PERMISSION_NOT_GRANTED' },
+      { path: '/ops/catalog/products/new', reason: 'PERMISSION_NOT_GRANTED' },
+      { path: '/ops/catalog/categories', reason: 'PERMISSION_NOT_GRANTED' },
+      { path: '/ops/catalog/brands', reason: 'PERMISSION_NOT_GRANTED' },
     ],
   },
   {
@@ -133,21 +143,24 @@ async function signInAndAssertRoles(
   credentialRole: CredentialRole,
   expectedRoles: readonly string[],
 ): Promise<void> {
-  const loginResponsePromise = page.waitForResponse(
-    (response) =>
-      response.request().method() === 'POST' &&
-      response.url().includes('/api/v1/authentication/sign-in'),
-  );
   await signIn(page, credentialRole);
-  const loginResponse = await loginResponsePromise;
+  const { email, password, workspace } = credentialEnvironment(credentialRole);
+  if (!email || !password) throw new Error(`Missing ${credentialRole} credential fixture`);
+  const loginResponse = await page.request.post(`${API_URL}/api/v1/authentication/sign-in`, {
+    headers: { Origin: 'http://localhost:4200' },
+    data: { identifier: email, password, workspaceSlug: workspace, surface: 'PLATFORM' },
+  });
   expect(loginResponse.ok()).toBeTruthy();
-  const body = (await loginResponse.json()) as {
-    readonly session?: { readonly roles?: readonly string[]; readonly surface?: string };
+  const body = await loginResponse.json() as {
+    readonly session?: { readonly roles?: readonly string[]; readonly permissions?: readonly string[]; readonly surface?: string };
   };
+  const fixture = ROLE_FIXTURES[credentialRole];
   const roles = [...(body.session?.roles ?? [])];
-  expect(body.session?.surface).toBe('PLATFORM');
+  expect(body.session?.surface).toBe(fixture.surface);
   expect(roles).toHaveLength(expectedRoles.length);
   expect(roles).toEqual(expect.arrayContaining([...expectedRoles]));
+  expect(body.session?.permissions).toHaveLength(fixture.expectedPermissions.length);
+  expect(body.session?.permissions).toEqual(expect.arrayContaining([...fixture.expectedPermissions]));
 }
 
 async function assertNoForbiddenSidebarLink(page: Page): Promise<void> {
@@ -211,30 +224,26 @@ test('founder multi-role exposes both assigned areas without a Forbidden sidebar
   await assertNoForbiddenSidebarLink(page);
 });
 
-const runtimeEnv =
-  (
-    globalThis as typeof globalThis & {
-      readonly process?: { readonly env: Record<string, string | undefined> };
-    }
-  ).process?.env ?? {};
-const buyerEmail = runtimeEnv.NEXA_E2E_BUYER_EMAIL ?? runtimeEnv.NEXA_DEV_BUYER_EMAIL;
-const buyerPassword = runtimeEnv.NEXA_E2E_BUYER_PASSWORD ?? runtimeEnv.NEXA_DEV_BUYER_PASSWORD;
-
 test('pure BUYER is denied before Platform landing because BUYER belongs to Portal', async ({
   page,
 }) => {
-  test.skip(
-    !buyerEmail || !buyerPassword,
-    'BLOCKED: no existing BUYER E2E credential is exposed; Platform source excludes BUYER from InternalRole and the API allows BUYER only on PORTAL.',
-  );
+  const { email: buyerEmail, password: buyerPassword, workspace } = buyerCredentials();
+  if (!buyerEmail || !buyerPassword) throw new Error('Missing BUYER credential fixture; BUYER Platform denial is mandatory');
 
+  const loginResponsePromise = page.waitForResponse(
+    (response) =>
+      response.request().method() === 'POST' &&
+      response.url().includes('/api/v1/authentication/sign-in'),
+  );
   await page.goto('/sign-in');
   await page
     .locator('input[autocomplete="organization"]')
-    .fill(runtimeEnv.NEXA_E2E_WORKSPACE ?? runtimeEnv.NEXA_DEV_WORKSPACE_SLUG ?? 'icisa');
+    .fill(workspace);
   await page.locator('input[autocomplete="username"]').fill(buyerEmail!);
   await page.locator('input[autocomplete="current-password"]').fill(buyerPassword!);
   await page.getByRole('button', { name: /sign in|ingresar/i }).click();
+  const loginResponse = await loginResponsePromise;
+  expect(loginResponse.ok()).toBeFalsy();
   await expect(page).toHaveURL(/\/sign-in(?:\?.*)?$/);
   await expect(page.getByRole('alert')).toContainText(/could not sign you in|no pudimos iniciar/i);
 });

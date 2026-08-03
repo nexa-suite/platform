@@ -25,6 +25,7 @@ export class TeamInvitationsSectionComponent {
   readonly i18n = inject(TenantAdministrationI18n);
   readonly fixedRoles = FIXED_ROLES;
   readonly pendingRoleChange = signal<{ readonly member: WorkspaceMembershipSummary; readonly roles: readonly string[] } | null>(null);
+  readonly pendingMembershipLifecycle = signal<{ readonly member: WorkspaceMembershipSummary; readonly action: 'suspend' | 'reactivate' } | null>(null);
   private readonly fb = inject(FormBuilder).nonNullable;
   readonly invitationForm = this.fb.group({
     email: ['', [Validators.required, Validators.email, Validators.maxLength(254)]],
@@ -70,8 +71,24 @@ export class TeamInvitationsSectionComponent {
   }
 
   toggleMembership(member: WorkspaceMembershipSummary): void {
+	this.requestMembershipLifecycle(member);
+  }
+
+  requestMembershipLifecycle(member: WorkspaceMembershipSummary): void {
     if (!this.facade.canManage()) return;
-    if (member.status === 'ACTIVE') this.facade.suspend(member.id, member.version); else this.facade.reactivate(member.id, member.version);
+    this.pendingMembershipLifecycle.set({ member, action: member.status === 'ACTIVE' ? 'suspend' : 'reactivate' });
+  }
+
+  confirmMembershipLifecycle(): void {
+    const pending = this.pendingMembershipLifecycle();
+    if (!pending || !this.facade.canManage()) return;
+    this.pendingMembershipLifecycle.set(null);
+    if (pending.action === 'suspend') this.facade.suspend(pending.member.id, pending.member.version);
+    else this.facade.reactivate(pending.member.id, pending.member.version);
+  }
+
+  cancelMembershipLifecycle(): void {
+    this.pendingMembershipLifecycle.set(null);
   }
 
   private sameRoles(left: readonly string[], right: readonly string[]): boolean {

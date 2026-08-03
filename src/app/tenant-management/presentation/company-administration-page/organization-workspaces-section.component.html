@@ -28,7 +28,7 @@
               <div class="row-actions">
                 <button mat-button type="button" (click)="selectWorkspace(workspace.id)" [attr.aria-pressed]="facade.state().selectedWorkspaceId === workspace.id">{{ i18n.t('configure') }}</button>
                 <button mat-button type="button" (click)="editWorkspace(workspace.id)" [disabled]="!facade.canManage() || facade.busy()">{{ i18n.t('edit') }}</button>
-                <button mat-button type="button" (click)="toggleWorkspace(workspace)" [disabled]="!facade.canManage() || facade.busy()">{{ workspace.status === 'ACTIVE' ? i18n.t('suspend') : i18n.t('reactivate') }}</button>
+                <button mat-button type="button" (click)="requestWorkspaceLifecycle(workspace)" [disabled]="!facade.canManage() || facade.busy()">{{ workspace.status === 'ACTIVE' ? i18n.t('suspend') : i18n.t('reactivate') }}</button>
               </div>
             </article>
             @if (editingWorkspaceId === workspace.id) {
@@ -42,6 +42,13 @@
             }
           }
         </div>
+      }
+      @if (pendingWorkspaceLifecycle(); as pending) {
+        <aside class="role-confirmation" role="alertdialog" aria-live="polite">
+          <strong>{{ i18n.t('workspaceLifecycleConfirmation') }}</strong>
+          <span>{{ pending.workspace.name }} · {{ pending.action === 'suspend' ? i18n.t('suspend') : i18n.t('reactivate') }}</span>
+          <div class="row-actions"><button mat-flat-button color="primary" type="button" (click)="confirmWorkspaceLifecycle()" [disabled]="facade.busy()">{{ i18n.t('confirm') }}</button><button mat-button type="button" (click)="cancelWorkspaceLifecycle()">{{ i18n.t('cancel') }}</button></div>
+        </aside>
       }
       <form [formGroup]="workspaceCreateForm" (ngSubmit)="createWorkspace()" class="inline-form create-form" [attr.aria-label]="i18n.t('createWorkspace')">
         <fieldset [disabled]="!facade.canManage() || facade.busy()">

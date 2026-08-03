@@ -8,8 +8,9 @@ import { TranslatePipe } from '@ngx-translate/core';
 import { BrandLogoComponent } from '../../../shared/presentation/components/brand-logo/brand-logo.component';
 import { LanguageSwitcherComponent } from '../../i18n/language-switcher/language-switcher.component';
 import { AuthenticationService } from '../../../iam/application/authentication.service';
-import { INTERNAL_ROLES, InternalRole } from '../../../iam/domain/models/auth.models';
+import { InternalRole } from '../../../iam/domain/models/auth.models';
 import { PLATFORM_NAVIGATION } from '../../navigation/navigation.registry';
+import { PLATFORM_AREAS } from '../../security/platform-permissions';
 import { NexaIconComponent } from '../../../shared/presentation/components/nexa-icon/nexa-icon.component';
 
 @Component({
@@ -36,19 +37,15 @@ export class PlatformShellComponent {
   private readonly router = inject(Router);
   readonly currentUser = this.authentication.currentUser;
   readonly displayName = computed(() => this.currentUser()?.displayName ?? '');
-  readonly navigation = computed(() => PLATFORM_NAVIGATION.filter((item) => {
-    const user = this.currentUser();
-    if (!user) return false;
-    return (!item.permission || user.permissions.includes(item.permission)) && (!item.roles || item.roles.some((role) => user.roles.includes(role as never)));
-  }));
+  readonly navigation = computed(() => this.currentUser() ? PLATFORM_NAVIGATION.filter((item) => this.authentication.hasPermission(item.permission)) : []);
+  readonly availableAreas = computed(() => (this.currentUser()?.roles ?? []).filter((role) => this.authentication.hasPermission(PLATFORM_AREAS[role].permission)));
   switchArea(role: InternalRole): void {
-    if (!this.currentUser()?.roles.includes(role)) return;
-    void this.router.navigateByUrl(AREA_PATHS[INTERNAL_ROLES.indexOf(role)]);
+    const area = PLATFORM_AREAS[role];
+    if (!this.currentUser()?.roles.includes(role) || !this.authentication.hasPermission(area.permission)) return;
+    void this.router.navigateByUrl(area.path);
   }
 
   signOut(): void {
     this.authentication.signOut();
   }
 }
-
-const AREA_PATHS = ['/ops/operations/company-administration', '/ops/executive-overview', '/ops/commercial/dashboard', '/ops/operations/dashboard', '/ops/operations/dispatch-orders'];

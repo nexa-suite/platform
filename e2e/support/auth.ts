@@ -1,13 +1,14 @@
 import { expect, Page } from '@playwright/test';
+import { credentialEnvironment, type CredentialRole } from './role-fixtures';
 
-export type InternalRole = 'OWNER' | 'TENANT_ADMIN' | 'COMPANY_OWNER' | 'SALES' | 'WAREHOUSE' | 'LOGISTICS';
+export { ROLE_FIXTURES } from './role-fixtures';
+export type { CredentialRole } from './role-fixtures';
+
+export type InternalRole = Exclude<CredentialRole, 'BUYER'>;
 
 export async function signIn(page: Page, role: InternalRole): Promise<void> {
-  const prefix = `NEXA_E2E_${role}`;
-  const email = process.env[`${prefix}_EMAIL`];
-  const password = process.env[`${prefix}_PASSWORD`];
-  const workspace = process.env.NEXA_E2E_WORKSPACE ?? 'icisa';
-  if (!email || !password) throw new Error(`Missing ${prefix}_EMAIL/${prefix}_PASSWORD for authenticated browser evidence`);
+  const { email, password, workspace } = credentialEnvironment(role);
+  if (!email || !password) throw new Error(`Missing credentials for ${role} authenticated browser evidence`);
   await page.goto('/sign-in');
   await page.locator('input[autocomplete="organization"]').fill(workspace);
   await page.locator('input[autocomplete="username"]').fill(email);
@@ -18,7 +19,12 @@ export async function signIn(page: Page, role: InternalRole): Promise<void> {
 }
 
 export function requiresCredentials(role: InternalRole): void {
-  if (!process.env[`NEXA_E2E_${role}_EMAIL`] || !process.env[`NEXA_E2E_${role}_PASSWORD`]) {
-    throw new Error(`Set NEXA_E2E_${role}_EMAIL and NEXA_E2E_${role}_PASSWORD before authenticated browser validation`);
+  const { email, password } = credentialEnvironment(role);
+  if (!email || !password) {
+    throw new Error(`Set NEXA_E2E_${role}_EMAIL/NEXA_E2E_${role}_PASSWORD or matching NEXA_DEV variables before authenticated browser validation`);
   }
+}
+
+export function buyerCredentials(): { readonly email?: string; readonly password?: string; readonly workspace: string } {
+  return credentialEnvironment('BUYER');
 }

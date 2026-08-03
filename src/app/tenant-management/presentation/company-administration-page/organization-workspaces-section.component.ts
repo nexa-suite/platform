@@ -1,10 +1,11 @@
-import { ChangeDetectionStrategy, Component, effect, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, effect, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { CompanyAdministrationFacade } from '../../application/company-administration.facade';
+import { WorkspaceSummary } from '../../domain/models/company-administration.models';
 import { TenantAdministrationI18n } from '../i18n/tenant-administration-i18n.service';
 
 @Component({
@@ -33,6 +34,7 @@ export class OrganizationWorkspacesSectionComponent {
     slug: ['', [Validators.required, Validators.pattern(/^[a-z0-9]+(?:-[a-z0-9]+)*$/), Validators.maxLength(64)]]
   });
   editingWorkspaceId: string | null = null;
+  readonly pendingWorkspaceLifecycle = signal<{ readonly workspace: WorkspaceSummary; readonly action: 'suspend' | 'reactivate' } | null>(null);
   private profileVersion = -1;
   private workspaceVersion = -1;
 
@@ -76,8 +78,24 @@ export class OrganizationWorkspacesSectionComponent {
   }
 
   toggleWorkspace(workspace: { readonly id: string; readonly version: number; readonly status: string }): void {
+	this.requestWorkspaceLifecycle(workspace as WorkspaceSummary);
+  }
+
+  requestWorkspaceLifecycle(workspace: WorkspaceSummary): void {
     if (!this.facade.canManage()) return;
-    if (workspace.status === 'ACTIVE') this.facade.suspendWorkspace(workspace.id, workspace.version); else this.facade.reactivateWorkspace(workspace.id, workspace.version);
+    this.pendingWorkspaceLifecycle.set({ workspace, action: workspace.status === 'ACTIVE' ? 'suspend' : 'reactivate' });
+  }
+
+  confirmWorkspaceLifecycle(): void {
+    const pending = this.pendingWorkspaceLifecycle();
+    if (!pending || !this.facade.canManage()) return;
+    this.pendingWorkspaceLifecycle.set(null);
+    if (pending.action === 'suspend') this.facade.suspendWorkspace(pending.workspace.id, pending.workspace.version);
+    else this.facade.reactivateWorkspace(pending.workspace.id, pending.workspace.version);
+  }
+
+  cancelWorkspaceLifecycle(): void {
+    this.pendingWorkspaceLifecycle.set(null);
   }
 
   selectWorkspace(id: string): void { this.facade.selectWorkspace(id); }

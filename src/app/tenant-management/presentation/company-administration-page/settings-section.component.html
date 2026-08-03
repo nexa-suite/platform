@@ -38,7 +38,7 @@
         <form [formGroup]="workspaceSettingsForm" (ngSubmit)="saveWorkspaceSettings()" class="form-grid" [attr.aria-label]="i18n.t('workspaceSettings')">
           <fieldset [disabled]="!facade.canManage() || facade.busy()">
             <mat-form-field appearance="outline"><mat-label>{{ i18n.t('defaultWorkspaceBehavior') }}</mat-label><mat-select formControlName="defaultWorkspaceBehavior"><mat-option value="STANDARD">{{ i18n.t('standard') }}</mat-option><mat-option value="COMPACT">{{ i18n.t('compact') }}</mat-option></mat-select></mat-form-field>
-            <mat-form-field appearance="outline"><mat-label>{{ i18n.t('warehousePreferenceStrategy') }}</mat-label><mat-select formControlName="warehousePreferenceStrategy"><mat-option value="MANUAL">{{ i18n.t('manual') }}</mat-option><mat-option value="PREFERRED">{{ i18n.t('preferred') }}</mat-option></mat-select></mat-form-field>
+            <p class="hint">{{ i18n.t('warehousePreferenceAuthority') }}: {{ workspaceSettings.warehousePreferenceStrategy }}</p>
             <button mat-flat-button color="primary" type="submit">{{ i18n.t('saveWorkspaceSettings') }}</button>
           </fieldset>
         </form>

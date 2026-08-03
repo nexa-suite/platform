@@ -4,7 +4,7 @@ import { assertNoBrowserSecrets, messageIds, waitForResetLink } from './support/
 const API_URL = process.env.NEXA_API_URL ?? 'http://localhost:8080';
 
 test('organization onboarding reaches ACTIVE only through the operator boundary and founder can enter both assigned work areas', async ({ page }) => {
-  const operator = process.env.NEXA_E2E_SYSTEM_OPERATOR;
+  const operator = process.env.NEXA_E2E_SYSTEM_OPERATOR ?? process.env.NEXA_SYSTEM_OPERATOR_TOKEN;
   if (!operator) throw new Error('Missing NEXA_E2E_SYSTEM_OPERATOR for activation evidence');
   const api = await playwrightRequest.newContext({ baseURL: API_URL, extraHTTPHeaders: { Origin: 'http://localhost:4200' } });
   const operatorApi = await playwrightRequest.newContext({ baseURL: API_URL });

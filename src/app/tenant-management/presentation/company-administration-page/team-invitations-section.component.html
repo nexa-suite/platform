@@ -10,7 +10,7 @@
               <div class="member-copy"><strong>{{ member.displayName }}</strong><span>{{ member.email }} · {{ i18n.status(member.status) }}</span><small>{{ roleNames(member.roles) }}</small></div>
               <mat-form-field appearance="outline" class="roles-field"><mat-label>{{ i18n.t('fixedRoles') }}</mat-label><mat-select multiple [value]="selectedRoles(member)" (selectionChange)="requestRoleChange(member, $event.value)" [disabled]="!facade.canManage() || facade.busy()">@for (role of fixedRoles; track role) { <mat-option [value]="role">{{ i18n.role(role) }}</mat-option> }</mat-select></mat-form-field>
               <button mat-button type="button" (click)="openMemberDetail(member)">{{ i18n.t('details') }}</button>
-              <button mat-button type="button" (click)="toggleMembership(member)" [disabled]="!facade.canManage() || facade.busy()">{{ member.status === 'ACTIVE' ? i18n.t('suspend') : i18n.t('reactivate') }}</button>
+              <button mat-button type="button" (click)="requestMembershipLifecycle(member)" [disabled]="!facade.canManage() || facade.busy()">{{ member.status === 'ACTIVE' ? i18n.t('suspend') : i18n.t('reactivate') }}</button>
             </article>
           }
         </div>
@@ -22,6 +22,13 @@
           <small>{{ i18n.t('currentRoles') }}: {{ roleNames(pending.member.roles) || '—' }}</small>
           <small>{{ i18n.t('nextRoles') }}: {{ roleNames(pending.roles) }}</small>
           <div class="row-actions"><button mat-flat-button color="primary" type="button" (click)="confirmRoleChange()" [disabled]="facade.busy()">{{ i18n.t('confirm') }}</button><button mat-button type="button" (click)="cancelRoleChange()">{{ i18n.t('cancel') }}</button></div>
+        </aside>
+      }
+      @if (pendingMembershipLifecycle(); as pending) {
+        <aside class="role-confirmation" role="alertdialog" aria-live="polite">
+          <strong>{{ i18n.t('membershipLifecycleConfirmation') }}</strong>
+          <span>{{ pending.member.displayName }} · {{ pending.action === 'suspend' ? i18n.t('suspend') : i18n.t('reactivate') }}</span>
+          <div class="row-actions"><button mat-flat-button color="primary" type="button" (click)="confirmMembershipLifecycle()" [disabled]="facade.busy()">{{ i18n.t('confirm') }}</button><button mat-button type="button" (click)="cancelMembershipLifecycle()">{{ i18n.t('cancel') }}</button></div>
         </aside>
       }
       @if (facade.state().membershipDetail; as detail) {
