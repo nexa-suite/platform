@@ -163,13 +163,14 @@ async function signInAndAssertRoles(
 }
 
 async function assertNoForbiddenSidebarLink(page: Page): Promise<void> {
-  const sidebar = page.getByRole('navigation', {
-    name: /internal operations navigation|navegación de operaciones internas/i,
-  });
+  const sidebar = page.locator('mat-sidenav.platform-sidebar nav[aria-label]').first();
+  await expect(sidebar).toBeAttached();
   if (!(await sidebar.isVisible())) {
-    const menuButton = page.getByRole('button', { name: /open operations navigation|abrir navegación de operaciones|abrir navegacion de operaciones/i });
-    await expect(menuButton).toBeVisible();
-    await menuButton.click();
+    if ((page.viewportSize()?.width ?? 1280) <= 760) {
+      const menuButton = page.locator('button.mobile-menu-button');
+      await expect(menuButton).toBeVisible();
+      await menuButton.click();
+    }
   }
   await expect(sidebar).toBeVisible();
   await expect(sidebar.locator('a[href*="/forbidden"]')).toHaveCount(0);
