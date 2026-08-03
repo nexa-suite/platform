@@ -51,16 +51,18 @@ jobs:
             echo "NEXA_E2E_WORKSPACE=icisa"
             echo "NEXA_E2E_OWNER_EMAIL=owner@icisa.test"
             echo "NEXA_E2E_OWNER_PASSWORD=CI-Owner-Password-2026!"
-            echo "NEXA_E2E_TENANT_ADMIN_EMAIL=owner@icisa.test"
-            echo "NEXA_E2E_TENANT_ADMIN_PASSWORD=CI-Owner-Password-2026!"
-            echo "NEXA_E2E_COMPANY_OWNER_EMAIL=owner@icisa.test"
-            echo "NEXA_E2E_COMPANY_OWNER_PASSWORD=CI-Owner-Password-2026!"
+            echo "NEXA_E2E_TENANT_ADMIN_EMAIL=tenant-admin@icisa.test"
+            echo "NEXA_E2E_TENANT_ADMIN_PASSWORD=CI-Tenant-Admin-Password-2026!"
+            echo "NEXA_E2E_COMPANY_OWNER_EMAIL=company-owner@icisa.test"
+            echo "NEXA_E2E_COMPANY_OWNER_PASSWORD=CI-Company-Owner-Password-2026!"
             echo "NEXA_E2E_SALES_EMAIL=sales@icisa.test"
             echo "NEXA_E2E_SALES_PASSWORD=CI-Sales-Password-2026!"
             echo "NEXA_E2E_WAREHOUSE_EMAIL=warehouse@icisa.test"
             echo "NEXA_E2E_WAREHOUSE_PASSWORD=CI-Warehouse-Password-2026!"
             echo "NEXA_E2E_LOGISTICS_EMAIL=logistics@icisa.test"
             echo "NEXA_E2E_LOGISTICS_PASSWORD=CI-Logistics-Password-2026!"
+            echo "NEXA_E2E_BUYER_EMAIL=buyer@icisa.test"
+            echo "NEXA_E2E_BUYER_PASSWORD=CI-Buyer-Password-2026!"
             echo "NEXA_E2E_SYSTEM_OPERATOR=ci-system-operator-token-0123456789-abcdefghijklmnopqrstuvwxyz"
           } >> "$GITHUB_ENV"
       - name: Start isolated API runtime
@@ -89,6 +91,10 @@ jobs:
           NEXA_DEV_WORKSPACE_NAME: ICISA
           NEXA_DEV_OWNER_EMAIL: owner@icisa.test
           NEXA_DEV_OWNER_PASSWORD: CI-Owner-Password-2026!
+          NEXA_DEV_TENANT_ADMIN_EMAIL: tenant-admin@icisa.test
+          NEXA_DEV_TENANT_ADMIN_PASSWORD: CI-Tenant-Admin-Password-2026!
+          NEXA_DEV_COMPANY_OWNER_EMAIL: company-owner@icisa.test
+          NEXA_DEV_COMPANY_OWNER_PASSWORD: CI-Company-Owner-Password-2026!
           NEXA_DEV_SALES_EMAIL: sales@icisa.test
           NEXA_DEV_SALES_PASSWORD: CI-Sales-Password-2026!
           NEXA_DEV_WAREHOUSE_EMAIL: warehouse@icisa.test
