@@ -195,16 +195,19 @@ async function createLifecycleDispatch(request: APIRequestContext): Promise<ApiR
 
 async function signInLogistics(page: Page, request: APIRequestContext): Promise<AuthenticatedRole> {
   let sessionBody: { readonly membership?: { readonly membershipId?: string } } | undefined;
-  const sessionPromise = page.waitForResponse(async (response) => {
-    if (response.request().method() !== 'GET' || !response.url().includes('/api/v1/session')) return false;
+  await page.route('**/api/v1/session', async (route) => {
+    const response = await route.fetch();
     sessionBody = JSON.parse((await response.body()).toString('utf8')) as {
       readonly membership?: { readonly membershipId?: string };
     };
-    return true;
+    await route.fulfill({ response });
   });
-  await signIn(page, 'LOGISTICS');
+  try {
+    await signIn(page, 'LOGISTICS');
+  } finally {
+    await page.unroute('**/api/v1/session');
+  }
   const apiSession = await loginApi(request, 'LOGISTICS', 'PLATFORM');
-  await sessionPromise;
   if (!sessionBody) throw new Error('E2E browser session response body was not captured');
   expect(sessionBody.membership?.membershipId).toBeTruthy();
   expect(sessionBody.membership!.membershipId).toBe(apiSession.membershipId);
