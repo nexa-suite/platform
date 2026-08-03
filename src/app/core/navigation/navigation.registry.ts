@@ -18,6 +18,7 @@ export interface PlatformNavigationGroup {
 
 const ADMINISTRATION_ITEMS: readonly PlatformNavigationItem[] = [
   { labelKey: 'shell.navigation.companyAdministration', path: '/ops/operations/company-administration', icon: 'business', permission: PLATFORM_PERMISSIONS.tenantRead },
+  { labelKey: 'shell.navigation.auditViewer', path: '/ops/operations/audit', icon: 'fact_check', permission: PLATFORM_PERMISSIONS.tenantRead },
   { labelKey: 'shell.navigation.executiveOverview', path: '/ops/executive-overview', icon: 'insights', permission: PLATFORM_PERMISSIONS.ownerDashboardRead }
 ];
 

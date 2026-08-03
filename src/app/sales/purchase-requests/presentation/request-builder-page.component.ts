@@ -6,19 +6,23 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 import { Observable, of, switchMap } from 'rxjs';
 import { AuthenticationService } from '../../../iam/application/authentication.service';
 import { PageHeaderComponent } from '../../../shared/presentation/components/page-header/page-header.component';
 import { downloadCsv, printCurrentView } from '../../../shared/application/utilities/export.util';
 import { ClientAccount } from '../../client-accounts/domain/client-account.models';
+import { ClientAccountAddress, PeruReferenceOption } from '../../client-accounts/domain/client-account.models';
 import { ProductCatalogItem } from '../../../catalog-management/domain/models/catalog.models';
 import {
   CreatePurchaseRequestCommand,
+  CreateManualSalesOrderCommand,
+  DeliveryAddressCommand,
   PurchaseRequestLineCommand,
   UpdatePurchaseRequestCommand,
-  UpdatePurchaseRequestLineCommand
+  UpdatePurchaseRequestLineCommand,
+  SalesOperationsApiService,
 } from '../../infrastructure/http/sales-operations-api.service';
 import { PaymentOption, PurchaseRequest, PurchaseRequestPriority } from '../domain/purchase-request.models';
 import { RequestBuilderFacade } from '../application/request-builder.facade';
@@ -45,6 +49,8 @@ export class RequestBuilderPageComponent {
   readonly facade = inject(RequestBuilderFacade);
   private readonly authentication = inject(AuthenticationService);
   private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
+  private readonly operations = inject(SalesOperationsApiService);
   readonly isManual = this.route.snapshot.data['mode'] === 'manual-sales-order';
   readonly requestId = this.route.snapshot.paramMap.get('purchaseRequestId');
   readonly canWrite = computed(() => this.authentication.hasPermission('sales:write'));
@@ -52,6 +58,11 @@ export class RequestBuilderPageComponent {
   readonly canEdit = computed(() => this.canWrite() && (!this.currentRequest() || this.currentRequest()?.status === 'DRAFT'));
   readonly lines = signal<readonly BuilderLine[]>([]);
   readonly savedRequestId = signal<string | null>(null);
+  readonly savedManualOrderId = signal<string | null>(null);
+  readonly addresses = signal<readonly ClientAccountAddress[]>([]);
+  readonly departments = signal<readonly PeruReferenceOption[]>([]);
+  readonly provinces = signal<readonly PeruReferenceOption[]>([]);
+  readonly districts = signal<readonly PeruReferenceOption[]>([]);
   readonly lineError = signal<string | null>(null);
   private readonly seededRequestId = signal<string | null>(null);
   private newLineSequence = 0;
@@ -59,8 +70,26 @@ export class RequestBuilderPageComponent {
   readonly detailsForm = new FormGroup({
     clientAccountId: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
     priority: new FormControl<PurchaseRequestPriority>('NORMAL', { nonNullable: true, validators: [Validators.required] }),
-    requestedDeliveryDate: new FormControl('', { nonNullable: true }),
+    requestedDeliveryDate: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
     deliveryProfileSnapshot: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
+    addressId: new FormControl('', { nonNullable: true }),
+    addressType: new FormControl('STREET', { nonNullable: true }),
+    recipientName: new FormControl('', { nonNullable: true }),
+    recipientPhone: new FormControl('', { nonNullable: true }),
+    streetName: new FormControl('', { nonNullable: true }),
+    streetNumber: new FormControl('', { nonNullable: true }),
+    interior: new FormControl('', { nonNullable: true }),
+    postalCode: new FormControl('', { nonNullable: true }),
+    addressLine: new FormControl('', { nonNullable: true }),
+    reference: new FormControl('', { nonNullable: true }),
+    receivingHours: new FormControl('', { nonNullable: true }),
+    receivingInstructions: new FormControl('', { nonNullable: true }),
+    latitude: new FormControl<number | null>(null),
+    longitude: new FormControl<number | null>(null),
+    source: new FormControl('MANUAL', { nonNullable: true }),
+    departmentCode: new FormControl('', { nonNullable: true }),
+    provinceCode: new FormControl('', { nonNullable: true }),
+    districtCode: new FormControl('', { nonNullable: true }),
     paymentOption: new FormControl<PaymentOption>('CREDIT_LINE', { nonNullable: true, validators: [Validators.required] }),
     comment: new FormControl('', { nonNullable: true })
   });
@@ -74,6 +103,7 @@ export class RequestBuilderPageComponent {
 
   constructor() {
     this.facade.loadReferences();
+    this.operations.reference('departments').subscribe({ next: (items) => this.departments.set(items) });
     if (this.requestId) this.facade.loadRequest(this.requestId);
     effect(() => {
       const request = this.facade.state().request;
@@ -105,8 +135,20 @@ export class RequestBuilderPageComponent {
 
   selectClient(clientId: string): void {
     const client = this.clients().find((item) => item.id === clientId);
-    if (client) this.detailsForm.controls.deliveryProfileSnapshot.setValue(client.deliveryProfile);
+    if (client) {
+      this.detailsForm.controls.deliveryProfileSnapshot.setValue(client.deliveryProfile);
+      this.operations.clientAccountAddresses(client.id).subscribe({ next: (items) => { this.addresses.set(items); const address = items.find((item) => item.defaultAddress) ?? items.find((item) => item.active); if (address) this.selectAddress(address.id); } });
+    }
   }
+
+  selectAddress(addressId: string): void {
+    const address = this.addresses().find((item) => item.id === addressId);
+    this.detailsForm.patchValue({ addressId, addressType: address?.addressType ?? 'STREET', recipientName: address?.recipientName ?? '', recipientPhone: address?.recipientPhone ?? '', streetName: address?.streetName ?? '', streetNumber: address?.streetNumber ?? '', interior: address?.interior ?? '', postalCode: address?.postalCode ?? '', addressLine: address?.line ?? '', reference: address?.reference ?? '', receivingHours: address?.receivingHours ?? '', receivingInstructions: address?.receivingInstructions ?? '', latitude: address?.latitude ?? null, longitude: address?.longitude ?? null, source: address?.source ?? 'MANUAL', departmentCode: address?.departmentCode ?? '', provinceCode: address?.provinceCode ?? '', districtCode: address?.districtCode ?? '', deliveryProfileSnapshot: address ? this.addressDisplay(address) : this.detailsForm.controls.deliveryProfileSnapshot.value });
+    if (address?.departmentCode) this.operations.reference('provinces', address.departmentCode).subscribe({ next: (items) => this.provinces.set(items) });
+    if (address?.provinceCode) this.operations.reference('districts', address.provinceCode).subscribe({ next: (items) => this.districts.set(items) });
+  }
+  departmentChanged(): void { this.detailsForm.patchValue({ provinceCode: '', districtCode: '' }); const code = this.detailsForm.controls.departmentCode.value; if (code) this.operations.reference('provinces', code).subscribe({ next: (items) => this.provinces.set(items) }); }
+  provinceChanged(): void { this.detailsForm.patchValue({ districtCode: '' }); const code = this.detailsForm.controls.provinceCode.value; if (code) this.operations.reference('districts', code).subscribe({ next: (items) => this.districts.set(items) }); }
 
   selectCatalogItem(catalogItemId: string): void {
     const item = this.catalogItems().find((candidate) => candidate.id === catalogItemId);
@@ -149,6 +191,25 @@ export class RequestBuilderPageComponent {
     }
     this.lineError.set(null);
     const details = this.detailsForm.getRawValue();
+    if (this.isManual) {
+      if (!this.manualAddressValid(details)) { this.lineError.set('requestBuilder.states.addressRequired'); return; }
+      const command: CreateManualSalesOrderCommand = {
+        clientAccountId: details.clientAccountId,
+        addressId: details.addressId || null,
+        manualAddress: details.addressId ? null : this.manualAddress(details),
+        requestedDeliveryDate: details.requestedDeliveryDate,
+        deliveryNotes: details.deliveryProfileSnapshot,
+        warehouseId: null,
+        routeProvider: null,
+        paymentOption: details.paymentOption,
+        priority: details.priority,
+        currency: 'PEN',
+        notes: details.comment.trim(),
+        lines: this.lines().map((line): PurchaseRequestLineCommand => ({ catalogItemId: line.catalogItemId, quantity: line.quantity, unit: line.unit, notes: line.notes || null })),
+      };
+      this.facade.createManualOrder(command).subscribe({ next: (order) => { this.savedManualOrderId.set(order.id); void this.router.navigate(['/ops/commercial/sales-orders', order.id]); } });
+      return;
+    }
     const existing = this.currentRequest();
     if (!existing) {
       const command: CreatePurchaseRequestCommand = {
@@ -194,6 +255,11 @@ export class RequestBuilderPageComponent {
     const normalized = address.trim();
     return normalized ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(normalized)}` : null;
   }
+
+  addressDisplay(address: Pick<ClientAccountAddress, 'addressType' | 'line' | 'reference' | 'departmentCode' | 'provinceCode' | 'districtCode'>): string { return [address.addressType, address.line, address.reference, address.districtCode, address.provinceCode, address.departmentCode].filter(Boolean).join(', '); }
+
+  private manualAddressValid(value: ReturnType<typeof this.detailsForm.getRawValue>): boolean { return Boolean(value.addressId || (value.addressLine.trim() && value.departmentCode && value.provinceCode && value.districtCode)); }
+  private manualAddress(value: ReturnType<typeof this.detailsForm.getRawValue>): DeliveryAddressCommand { return { addressType: value.addressType, line: value.addressLine, reference: value.reference, countryCode: 'PE', departmentCode: value.departmentCode, provinceCode: value.provinceCode, districtCode: value.districtCode, recipientName: value.recipientName || null, recipientPhone: value.recipientPhone || null, roadType: value.addressType, streetName: value.streetName || null, streetNumber: value.streetNumber || null, interior: value.interior || null, postalCode: value.postalCode || null, receivingHours: value.receivingHours || null, receivingInstructions: value.receivingInstructions || null, latitude: value.latitude, longitude: value.longitude, source: value.source }; }
 
   private persistLineChanges(original: PurchaseRequest, current: PurchaseRequest): Observable<PurchaseRequest> {
     const operations: Array<(request: PurchaseRequest) => Observable<PurchaseRequest>> = [];

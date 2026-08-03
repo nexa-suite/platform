@@ -42,6 +42,7 @@ import { DispatchOrder } from '../domain/logistics.models';
           @if (item.status === 'INCIDENT') {
             <form [formGroup]="reprogram" (ngSubmit)="reprogramDispatch(item)"><h3>{{ 'logistics.forms.reprogramRoute' | translate }}</h3><input type="datetime-local" formControlName="deliveryWindowStart"><input type="datetime-local" formControlName="deliveryWindowEnd"><input type="datetime-local" formControlName="eta"><label>{{ 'logistics.forms.reason' | translate }}<input formControlName="reason"></label><button type="submit" [disabled]="reprogram.invalid">{{ 'logistics.actions.reprogram' | translate }}</button></form>
           }
+            <form [formGroup]="handoff" (ngSubmit)="appendHandoff(item)"><h3>{{ 'logistics.forms.handoff' | translate }}</h3><label>{{ 'logistics.forms.handoffNote' | translate }}<textarea rows="3" formControlName="note"></textarea></label><button type="submit" [disabled]="handoff.invalid">{{ 'logistics.forms.recordHandoff' | translate }}</button></form>
           </fieldset>
         </nexa-section-panel>
         <nexa-section-panel [title]="'logistics.fields.timeline' | translate"><ol>@for (event of facade.events(); track event.id) { <li>@if (event.fromStatus) { {{ ('logistics.status.' + event.fromStatus) | translate }} → }{{ ('logistics.status.' + (event.toStatus || 'UNKNOWN')) | translate }} · {{ event.occurredAt }}<span>@if (event.buyerVisible) { · {{ 'logistics.fields.buyerVisibleHandoff' | translate }} }@if (event.summary) { · {{ event.summary }} }</span></li> } @empty { <li>{{ 'logistics.states.noEvents' | translate }}</li> }</ol></nexa-section-panel>
@@ -62,6 +63,7 @@ export class DispatchDetailPageComponent {
   readonly incident = this.fb.nonNullable.group({ type: ['DELAY', Validators.required], severity: ['MEDIUM', Validators.required], description: ['', Validators.required], buyerVisible: [false] });
   readonly reprogram = this.fb.nonNullable.group({ deliveryWindowStart: ['', Validators.required], deliveryWindowEnd: ['', Validators.required], eta: [''], reason: ['', Validators.required] });
   readonly pod = this.fb.nonNullable.group({ receiverName: ['', Validators.required], completedAt: [this.localNow(), Validators.required], notes: [''], photoEvidenceDeclared: [false], signatureEvidenceDeclared: [false] });
+  readonly handoff = this.fb.nonNullable.group({ note: ['', [Validators.required, Validators.maxLength(2000)]] });
 
   constructor() { this.facade.loadDetail(this.id); }
   retry(): void { this.facade.loadDetail(this.id); }
@@ -71,6 +73,7 @@ export class DispatchDetailPageComponent {
   recordIncident(item: DispatchOrder): void { if (this.incident.invalid) return; this.facade.incident(item, this.incident.getRawValue()); }
   reprogramDispatch(item: DispatchOrder): void { if (this.reprogram.invalid) return; const value = this.reprogram.getRawValue(); this.facade.reprogram(item, { deliveryWindowStart: this.instant(value.deliveryWindowStart), deliveryWindowEnd: this.instant(value.deliveryWindowEnd), eta: value.eta ? this.instant(value.eta) : undefined, reason: value.reason }); }
   complete(item: DispatchOrder): void { if (this.pod.invalid) return; const value = this.pod.getRawValue(); this.facade.complete(item, { receiverName: value.receiverName, completedAt: this.instant(value.completedAt), notes: value.notes || undefined, photoEvidenceDeclared: value.photoEvidenceDeclared, signatureEvidenceDeclared: value.signatureEvidenceDeclared }); }
+  appendHandoff(item: DispatchOrder): void { if (this.handoff.invalid) return; this.facade.appendHandoff(item, this.handoff.controls.note.value); this.handoff.reset(); }
   exportCsv(): void { const item = this.facade.selected(); if (item) downloadCsv(`nexa-${item.dispatchNumber}.csv`, [{ dispatch: item.dispatchNumber, salesOrder: item.salesOrderNumber, status: item.status, destination: item.destination ?? '', pod: item.podStatus ?? '' }]); }
   print(): void { printCurrentView(); }
   private instant(value: string): string { return new Date(value).toISOString(); }

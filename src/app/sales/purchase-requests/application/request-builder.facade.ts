@@ -11,6 +11,7 @@ import {
   UpdatePurchaseRequestLineCommand
 } from '../../infrastructure/http/sales-operations-api.service';
 import { PurchaseRequest } from '../domain/purchase-request.models';
+import { SalesOrder } from '../../sales-orders/domain/sales-order.models';
 
 export type RequestBuilderStatus = 'idle' | 'loading' | 'saving' | 'success' | 'error';
 
@@ -34,6 +35,7 @@ export class RequestBuilderFacade {
   private lastCatalogFilters: CatalogFilters = { ...DEFAULT_CATALOG_FILTERS, status: 'ACTIVE', size: 100 };
 
   readonly state = this.stateSignal.asReadonly();
+  readonly manualOrder = signal<SalesOrder | null>(null);
 
   loadReferences(): void {
     this.stateSignal.update((state) => ({ ...state, status: 'loading', message: null }));
@@ -66,6 +68,14 @@ export class RequestBuilderFacade {
 
   create(command: CreatePurchaseRequestCommand): Observable<PurchaseRequest> {
     return this.runSave(this.api.createPurchaseRequest(command));
+  }
+
+  createManualOrder(command: import('../../infrastructure/http/sales-operations-api.service').CreateManualSalesOrderCommand): Observable<SalesOrder> {
+    this.stateSignal.update((state) => ({ ...state, status: 'saving', message: null }));
+    return this.api.createManualSalesOrder(command).pipe(
+      tap((order) => { this.manualOrder.set(order); this.stateSignal.update((state) => ({ ...state, status: 'success', message: null })); }),
+      catchError((error: unknown) => { this.fail('MANUAL_SALES_ORDER_CREATE_FAILED'); return throwError(() => error); }),
+    );
   }
 
   update(id: string, version: number, command: UpdatePurchaseRequestCommand): Observable<PurchaseRequest> {
