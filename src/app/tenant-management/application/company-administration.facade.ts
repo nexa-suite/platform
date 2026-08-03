@@ -1,6 +1,6 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { computed, inject, Injectable, signal } from '@angular/core';
-import { forkJoin, map, Observable, of, switchMap } from 'rxjs';
+import { catchError, forkJoin, map, Observable, of, switchMap } from 'rxjs';
 import { AuthenticationService } from '../../iam/application/authentication.service';
 import {
   CustomFieldDefinition,
@@ -11,6 +11,7 @@ import {
   OperationalSettings,
   OrganizationProfile,
   RegionalSettings,
+  RoleDefinition,
   TenantAdministrationState,
   TenantSecuritySettings,
   UnitPreferences,
@@ -41,6 +42,7 @@ export class CompanyAdministrationFacade {
       profile: this.api.organizationProfile(),
       workspaces: this.api.workspaces(),
       memberships: this.api.memberships(),
+      roleDefinitions: this.roleDefinitionsRequest(),
       regional: this.api.regionalSettings(),
       units: this.api.unitPreferences(),
       security: this.api.securitySettings(),
@@ -113,6 +115,22 @@ export class CompanyAdministrationFacade {
   changeRoles(membershipId: string, version: number, roles: readonly string[]): void {
     if (!this.canManage()) return;
     this.mutate('membership', this.api.changeRoles(membershipId, version, roles), (state, result) => this.replaceMembership(state, result));
+  }
+  changeRoleDefinitions(membershipId: string, version: number, roleDefinitionIds: readonly string[]): void {
+    if (!this.canManage()) return;
+    this.mutate('membership', this.api.changeRoleDefinitions(membershipId, version, roleDefinitionIds), (state, result) => this.replaceMembership(state, result));
+  }
+  createRoleDefinition(value: { readonly workspaceId?: string; readonly code: string; readonly name: string; readonly description?: string; readonly permissions: readonly string[] }): void {
+    if (!this.canManage()) return;
+    this.mutate('role-definition', this.api.createRoleDefinition(value), (state, result) => ({ ...state, roleDefinitions: [...state.roleDefinitions, result], notice: 'Role definition created' }));
+  }
+  updateRoleDefinition(id: string, version: number, value: { readonly name: string; readonly description?: string; readonly permissions: readonly string[] }): void {
+    if (!this.canManage()) return;
+    this.mutate('role-definition', this.api.updateRoleDefinition(id, version, value), (state, result) => ({ ...state, roleDefinitions: this.replaceById(state.roleDefinitions, result) }));
+  }
+  deactivateRoleDefinition(role: RoleDefinition): void {
+    if (!this.canManage()) return;
+    this.mutate('role-definition', this.api.deactivateRoleDefinition(role.id, role.version), (state, result) => ({ ...state, roleDefinitions: this.replaceById(state.roleDefinitions, result) }));
   }
   suspend(membershipId: string, version: number): void {
     if (!this.canManage()) return;
@@ -217,4 +235,8 @@ export class CompanyAdministrationFacade {
   }
   private replaceInvitation(list: InvitationList, item: InvitationView): InvitationList { return { ...list, items: this.replaceById(list.items, item) }; }
   private appendInvitation(list: InvitationList, item: InvitationView): InvitationList { return { ...list, items: [item, ...list.items] }; }
+  private roleDefinitionsRequest(): Observable<readonly RoleDefinition[]> {
+    const request = (this.api as CompanyAdministrationApiService & { roleDefinitions?: () => Observable<readonly RoleDefinition[]> }).roleDefinitions;
+    return typeof request === 'function' ? request.call(this.api).pipe(catchError(() => of([]))) : of([]);
+  }
 }

@@ -48,7 +48,7 @@ export const PLATFORM_LANDINGS: Readonly<Record<InternalRole, PlatformArea>> = {
   COMPANY_OWNER: { path: '/ops/executive-overview', permission: PLATFORM_PERMISSIONS.ownerDashboardRead },
   SALES: { path: '/ops/commercial/dashboard', permission: PLATFORM_PERMISSIONS.salesRead },
   WAREHOUSE: { path: '/ops/operations/dashboard', permission: PLATFORM_PERMISSIONS.warehouseRead },
-  LOGISTICS: { path: '/ops/operations/dashboard', permission: PLATFORM_PERMISSIONS.warehouseRead }
+  LOGISTICS: { path: '/ops/operations/dashboard', permission: PLATFORM_PERMISSIONS.logisticsRead }
 };
 
 export const PLATFORM_ROLE_PRIORITY: readonly InternalRole[] = [

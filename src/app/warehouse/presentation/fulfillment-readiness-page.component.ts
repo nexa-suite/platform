@@ -27,7 +27,7 @@ import { WarehouseOperationsFacade } from '../application/warehouse-operations.f
             <p>{{ preview.orderNumber }} · {{ preview.complete ? 'Ready' : 'Shortage' }}</p>
             <p>{{ preview.notice }}</p>
             <ul>@for (line of preview.lines; track line.catalogItemId) { <li>{{ line.catalogItemId }} · requested {{ line.requested }} · allocated {{ line.allocations.length }} · shortage {{ line.shortage }}</li> }</ul>
-            <button type="button" (click)="reserve()" [disabled]="!preview.complete">Reserve inventory</button>
+            <button type="button" (click)="reserve()" [disabled]="!preview.complete || !facade.canWrite()">Reserve inventory</button>
           }
         </nexa-section-panel>
         <nexa-section-panel title="Ready reservations">

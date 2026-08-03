@@ -10,6 +10,7 @@ import { ChangeFeedService } from './core/change-feed/infrastructure/change-feed
 import { SalesOperationsApiService } from './sales/infrastructure/http/sales-operations-api.service';
 import { ClientAccountsFacade } from './sales/client-accounts/application/client-accounts.facade';
 import { PurchaseRequestOperationsFacade } from './sales/purchase-requests/application/purchase-request-operations.facade';
+import { RequestBuilderFacade } from './sales/purchase-requests/application/request-builder.facade';
 import { SalesOrdersFacade } from './sales/sales-orders/application/sales-orders.facade';
 import { WarehouseOperationsApiService } from './warehouse/infrastructure/warehouse-operations-api.service';
 import { WarehouseOperationsFacade } from './warehouse/application/warehouse-operations.facade';
@@ -141,6 +142,22 @@ export const routes: Routes = [
         canActivate: [permissionGuard(PLATFORM_PERMISSIONS.salesRead)], providers: [SalesOperationsApiService, ClientAccountsFacade, ChangeFeedService]
       },
       {
+        path: 'ops/commercial/request-builder',
+        loadComponent: () => import('./sales/purchase-requests/presentation/request-builder-page.component').then((module) => module.RequestBuilderPageComponent),
+        canActivate: [permissionGuard(PLATFORM_PERMISSIONS.salesWrite)], providers: [SalesOperationsApiService, RequestBuilderFacade]
+      },
+      {
+        path: 'ops/commercial/request-builder/:purchaseRequestId',
+        loadComponent: () => import('./sales/purchase-requests/presentation/request-builder-page.component').then((module) => module.RequestBuilderPageComponent),
+        canActivate: [permissionGuard(PLATFORM_PERMISSIONS.salesWrite)], providers: [SalesOperationsApiService, RequestBuilderFacade]
+      },
+      {
+        path: 'ops/commercial/manual-sales-order',
+        loadComponent: () => import('./sales/purchase-requests/presentation/request-builder-page.component').then((module) => module.RequestBuilderPageComponent),
+        data: { mode: 'manual-sales-order' },
+        canActivate: [permissionGuard(PLATFORM_PERMISSIONS.salesWrite)], providers: [SalesOperationsApiService, RequestBuilderFacade]
+      },
+      {
         path: 'ops/commercial/purchase-requests',
         loadComponent: () => import('./sales/purchase-requests/presentation/purchase-request-inbox-page.component').then((module) => module.PurchaseRequestInboxPageComponent),
         canActivate: [permissionGuard(PLATFORM_PERMISSIONS.salesRead)], providers: [SalesOperationsApiService, PurchaseRequestOperationsFacade, ChangeFeedService]
@@ -167,6 +184,7 @@ export const routes: Routes = [
       },
       { path: 'ops/clients', pathMatch: 'full', redirectTo: 'ops/commercial/client-accounts' },
       { path: 'ops/commercial/requests', pathMatch: 'full', redirectTo: 'ops/commercial/purchase-requests' },
+      { path: 'ops/commercial/purchase-requests/new', pathMatch: 'full', redirectTo: 'ops/commercial/request-builder' },
       { path: 'ops/commercial/requests/:purchaseRequestId', redirectTo: dynamicRedirect('/ops/commercial/purchase-requests', 'purchaseRequestId') },
       { path: 'ops/commercial/orders', pathMatch: 'full', redirectTo: 'ops/commercial/sales-orders' },
       { path: 'ops/commercial/orders/:salesOrderId', redirectTo: dynamicRedirect('/ops/commercial/sales-orders', 'salesOrderId') },

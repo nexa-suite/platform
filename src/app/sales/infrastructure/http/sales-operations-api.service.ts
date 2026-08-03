@@ -2,7 +2,7 @@ import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable, map } from 'rxjs';
 import { platformApiUrl, PLATFORM_RUNTIME_CONFIG } from '../../../core/security/runtime-config';
-import { ClientAccount, ClientAccountCommand, ClientAccountFilters, ClientAccountPage, DEFAULT_CLIENT_ACCOUNT_FILTERS } from '../../client-accounts/domain/client-account.models';
+import { ClientAccount, ClientAccountCreateCommand, ClientAccountFilters, ClientAccountPage, ClientAccountUpdateCommand, DEFAULT_CLIENT_ACCOUNT_FILTERS } from '../../client-accounts/domain/client-account.models';
 import { DEFAULT_PURCHASE_REQUEST_FILTERS, PurchaseRequest, PurchaseRequestAction, PurchaseRequestEvent, PurchaseRequestFilters, PurchaseRequestPage } from '../../purchase-requests/domain/purchase-request.models';
 import { DEFAULT_SALES_ORDER_FILTERS, FulfillmentCandidate, SalesOrder, SalesOrderEvent, SalesOrderFilters, SalesOrderPage } from '../../sales-orders/domain/sales-order.models';
 import { ApiPageDto, ApiRecord, toClientAccount, toClientAccountPage, toFulfillmentCandidate, toPurchaseRequest, toPurchaseRequestEvent, toPurchaseRequestPage, toSalesOrder, toSalesOrderEvent, toSalesOrderPage } from './sales-operations-mappers';
@@ -23,11 +23,11 @@ export class SalesOperationsApiService {
     return this.http.get<ApiRecord>(this.api(`/client-accounts/${encodeURIComponent(id)}`)).pipe(map(toClientAccount));
   }
 
-  createClientAccount(command: ClientAccountCommand): Observable<ClientAccount> {
+  createClientAccount(command: ClientAccountCreateCommand): Observable<ClientAccount> {
     return this.http.post<ApiRecord>(this.api('/client-accounts'), command).pipe(map(toClientAccount));
   }
 
-  updateClientAccount(id: string, version: number, command: Partial<ClientAccountCommand>): Observable<ClientAccount> {
+  updateClientAccount(id: string, version: number, command: ClientAccountUpdateCommand): Observable<ClientAccount> {
     return this.http.patch<ApiRecord>(this.api(`/client-accounts/${encodeURIComponent(id)}`), command, { headers: this.ifMatch(version) }).pipe(map(toClientAccount));
   }
 
@@ -37,6 +37,30 @@ export class SalesOperationsApiService {
 
   associateBuyer(id: string, version: number, membershipId: string | null): Observable<ClientAccount> {
     return this.http.put<ApiRecord>(this.api(`/client-accounts/${encodeURIComponent(id)}/buyer-membership`), { membershipId }, { headers: this.ifMatch(version) }).pipe(map(toClientAccount));
+  }
+
+  createPurchaseRequest(command: CreatePurchaseRequestCommand): Observable<PurchaseRequest> {
+    return this.http.post<ApiRecord>(this.api('/purchase-requests'), command, { headers: this.idempotencyHeader() }).pipe(map(toPurchaseRequest));
+  }
+
+  updatePurchaseRequest(id: string, version: number, command: UpdatePurchaseRequestCommand): Observable<PurchaseRequest> {
+    return this.http.patch<ApiRecord>(this.api(`/purchase-requests/${encodeURIComponent(id)}`), command, { headers: this.ifMatch(version) }).pipe(map(toPurchaseRequest));
+  }
+
+  addPurchaseRequestLine(id: string, version: number, command: PurchaseRequestLineCommand): Observable<PurchaseRequest> {
+    return this.http.post<ApiRecord>(this.api(`/purchase-requests/${encodeURIComponent(id)}/lines`), command, { headers: this.ifMatch(version) }).pipe(map(toPurchaseRequest));
+  }
+
+  updatePurchaseRequestLine(id: string, lineId: string, version: number, command: UpdatePurchaseRequestLineCommand): Observable<PurchaseRequest> {
+    return this.http.patch<ApiRecord>(this.api(`/purchase-requests/${encodeURIComponent(id)}/lines/${encodeURIComponent(lineId)}`), command, { headers: this.ifMatch(version) }).pipe(map(toPurchaseRequest));
+  }
+
+  deletePurchaseRequestLine(id: string, lineId: string, version: number): Observable<PurchaseRequest> {
+    return this.http.delete<ApiRecord>(this.api(`/purchase-requests/${encodeURIComponent(id)}/lines/${encodeURIComponent(lineId)}`), { headers: this.ifMatch(version) }).pipe(map(toPurchaseRequest));
+  }
+
+  submitPurchaseRequest(id: string, version: number): Observable<PurchaseRequest> {
+    return this.http.post<ApiRecord>(this.api(`/purchase-requests/${encodeURIComponent(id)}/submissions`), null, { headers: this.ifMatch(version).set('Idempotency-Key', this.idempotencyKey()) }).pipe(map(toPurchaseRequest));
   }
 
   purchaseRequests(filters: PurchaseRequestFilters = DEFAULT_PURCHASE_REQUEST_FILTERS): Observable<PurchaseRequestPage> {
@@ -110,4 +134,36 @@ export class SalesOperationsApiService {
   }
 
   private ifMatch(version: number): HttpHeaders { return new HttpHeaders({ 'If-Match': `"${version}"` }); }
+  private idempotencyHeader(): HttpHeaders { return new HttpHeaders({ 'Idempotency-Key': this.idempotencyKey() }); }
+  private idempotencyKey(): string { return globalThis.crypto?.randomUUID?.() ?? `platform-${Date.now()}-${Math.random().toString(36).slice(2)}`; }
+}
+
+export interface CreatePurchaseRequestCommand {
+  readonly clientAccountId?: string;
+  readonly priority?: string;
+  readonly requestedDeliveryDate?: string | null;
+  readonly deliveryProfileSnapshot?: string | null;
+  readonly paymentOption?: string | null;
+  readonly comment?: string | null;
+  readonly lines: readonly PurchaseRequestLineCommand[];
+}
+
+export interface UpdatePurchaseRequestCommand {
+  readonly priority?: string | null;
+  readonly requestedDeliveryDate?: string | null;
+  readonly deliveryProfileSnapshot?: string | null;
+  readonly paymentOption?: string | null;
+  readonly comment?: string | null;
+}
+
+export interface PurchaseRequestLineCommand {
+  readonly catalogItemId: string;
+  readonly quantity: number;
+  readonly unit: string;
+  readonly notes?: string | null;
+}
+
+export interface UpdatePurchaseRequestLineCommand {
+  readonly quantity: number;
+  readonly notes?: string | null;
 }

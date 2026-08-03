@@ -13,6 +13,7 @@ import { ChangeFeedService } from '../../../core/change-feed/infrastructure/chan
 import { ErrorStateComponent } from '../../../shared/presentation/components/error-state/error-state.component';
 import { LoadingStateComponent } from '../../../shared/presentation/components/loading-state/loading-state.component';
 import { PageHeaderComponent } from '../../../shared/presentation/components/page-header/page-header.component';
+import { downloadCsv, printCurrentView } from '../../../shared/application/utilities/export.util';
 import { SalesOrdersFacade } from '../application/sales-orders.facade';
 
 @Component({ selector: 'nexa-sales-order-detail-page', imports: [DecimalPipe, MatButtonModule, MatCardModule, MatChipsModule, MatFormFieldModule, MatInputModule, ReactiveFormsModule, RouterLink, TranslatePipe, ErrorStateComponent, LoadingStateComponent, PageHeaderComponent], templateUrl: './sales-order-detail-page.component.html', styleUrl: './sales-order-detail-page.component.scss', changeDetection: ChangeDetectionStrategy.OnPush })
@@ -28,4 +29,6 @@ export class SalesOrderDetailPageComponent {
   reject(): void { const item = this.facade.state().item; if (item) this.facade.reject(item.id, item.version, this.reason.value); }
   cancel(): void { const item = this.facade.state().item; if (item) this.facade.cancel(item.id, item.version, this.reason.value); }
   retry(): void { this.facade.retry(); }
+  exportCsv(): void { const order = this.facade.state().item; if (order) downloadCsv(`nexa-${order.number}.csv`, order.lines.map((line) => ({ item: line.itemName, quantity: line.quantity, unit: line.unit, price: line.unitPriceAmount ?? '', currency: line.unitPriceCurrency ?? '' }))); }
+  print(): void { printCurrentView(); }
 }

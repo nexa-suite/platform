@@ -213,6 +213,10 @@ async function assertNoForbiddenSidebarLink(page: Page): Promise<void> {
   const sidebar = page.getByRole('navigation', {
     name: /internal operations navigation|navegación de operaciones internas/i,
   });
+  if (!(await sidebar.isVisible())) {
+    const menuButton = page.getByRole('button', { name: /open operations navigation|abrir navegación de operaciones|abrir navegacion de operaciones/i });
+    if (await menuButton.isVisible()) await menuButton.click();
+  }
   await expect(sidebar).toBeVisible();
   await expect(sidebar.locator('a[href*="/forbidden"]')).toHaveCount(0);
   await expect(sidebar).not.toContainText(/forbidden|access restricted|acceso restringido/i);
