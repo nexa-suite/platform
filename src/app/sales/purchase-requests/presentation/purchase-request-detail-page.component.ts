@@ -20,12 +20,13 @@ export class PurchaseRequestDetailPageComponent {
   readonly facade = inject(PurchaseRequestOperationsFacade);
   readonly note = new FormControl('', { nonNullable: true });
   private readonly authentication = inject(AuthenticationService);
+  readonly canWrite = computed(() => this.authentication.hasPermission('sales:write'));
   readonly canConvert = computed(() => this.authentication.hasPermission('sales:write'));
   private readonly feed = inject(ChangeFeedService);
   private readonly id: string | null;
 
   constructor() { this.id = inject(ActivatedRoute).snapshot.paramMap.get('purchaseRequestId'); this.feed.connect(); if (this.id) this.facade.loadDetail(this.id); }
-  review(action: PurchaseRequestAction): void { const item = this.facade.state().item; if (item) this.facade.transition(item.id, item.version, action, this.note.value); }
-  convert(): void { const item = this.facade.state().item; if (item) this.facade.convertToOrder(item.id, item.version, this.note.value); }
+  review(action: PurchaseRequestAction): void { const item = this.facade.state().item; if (this.canWrite() && item) this.facade.transition(item.id, item.version, action, this.note.value); }
+  convert(): void { const item = this.facade.state().item; if (this.canWrite() && item) this.facade.convertToOrder(item.id, item.version, this.note.value); }
   retry(): void { this.facade.retry(); }
 }

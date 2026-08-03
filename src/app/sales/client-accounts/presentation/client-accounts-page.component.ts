@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatChipsModule } from '@angular/material/chips';
@@ -9,6 +9,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatSortModule, Sort } from '@angular/material/sort';
 import { RouterLink } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
+import { AuthenticationService } from '../../../iam/application/authentication.service';
 import { ChangeFeedService } from '../../../core/change-feed/infrastructure/change-feed.service';
 import { ErrorStateComponent } from '../../../shared/presentation/components/error-state/error-state.component';
 import { LoadingStateComponent } from '../../../shared/presentation/components/loading-state/loading-state.component';
@@ -16,6 +17,7 @@ import { EmptyStateComponent } from '../../../shared/presentation/components/emp
 import { PageHeaderComponent } from '../../../shared/presentation/components/page-header/page-header.component';
 import { ClientAccountsFacade } from '../application/client-accounts.facade';
 import { ClientAccountFilters, DEFAULT_CLIENT_ACCOUNT_FILTERS } from '../domain/client-account.models';
+import { downloadCsv } from '../../../shared/application/utilities/export.util';
 
 @Component({
   selector: 'nexa-client-accounts-page',
@@ -26,6 +28,8 @@ import { ClientAccountFilters, DEFAULT_CLIENT_ACCOUNT_FILTERS } from '../domain/
 })
 export class ClientAccountsPageComponent {
   readonly facade = inject(ClientAccountsFacade);
+  private readonly authentication = inject(AuthenticationService);
+  readonly canWrite = computed(() => this.authentication.hasPermission('sales:write'));
   private readonly feed = inject(ChangeFeedService);
   readonly filters = signal<ClientAccountFilters>(DEFAULT_CLIENT_ACCOUNT_FILTERS);
 
@@ -40,6 +44,10 @@ export class ClientAccountsPageComponent {
   }
   onPage(page: PageEvent): void { this.update({ page: page.pageIndex, size: page.pageSize }); }
   retry(): void { this.facade.retry(); }
+  exportCsv(): void {
+    const items = this.facade.state().page?.items ?? [];
+    downloadCsv('nexa-client-accounts.csv', items.map((account) => ({ code: account.code, businessName: account.businessName, commercialName: account.commercialName, status: account.status, contactEmail: account.contactEmail, deliveryProfile: account.deliveryProfile })));
+  }
 
   private update(changes: Partial<ClientAccountFilters>): void {
     const next = { ...this.filters(), ...changes };

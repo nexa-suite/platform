@@ -26,6 +26,24 @@ export interface WorkspaceMembershipSummary {
   readonly status: string;
   readonly version: number;
   readonly roles: readonly string[];
+  readonly roleDefinitionIds?: readonly string[];
+  readonly permissionCodes?: readonly string[];
+}
+
+export interface RoleDefinition {
+  readonly id: string;
+  readonly tenantId: string | null;
+  readonly workspaceId: string | null;
+  readonly type: 'SYSTEM_RESERVED' | 'SYSTEM_TEMPLATE' | 'CUSTOM' | string;
+  readonly code: string;
+  readonly name: string;
+  readonly description: string;
+  readonly permissions: readonly string[];
+  readonly status: 'ACTIVE' | 'INACTIVE' | string;
+  readonly createdBy: string | null;
+  readonly createdAt: string | null;
+  readonly updatedAt: string | null;
+  readonly version: number;
 }
 
 export interface OrganizationProfile {
@@ -172,6 +190,7 @@ export interface TenantAdministrationState {
   readonly profile: OrganizationProfile | null;
   readonly workspaces: readonly WorkspaceSummary[];
   readonly memberships: readonly WorkspaceMembershipSummary[];
+  readonly roleDefinitions: readonly RoleDefinition[];
   readonly membershipDetail: WorkspaceMembershipSummary | null;
   readonly workspaceSettings: WorkspaceSettings | null;
   readonly regional: RegionalSettings | null;
@@ -197,6 +216,7 @@ export const INITIAL_TENANT_ADMINISTRATION_STATE: TenantAdministrationState = {
   profile: null,
   workspaces: [],
   memberships: [],
+  roleDefinitions: [],
   membershipDetail: null,
   workspaceSettings: null,
   regional: null,

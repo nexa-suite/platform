@@ -31,6 +31,14 @@ export interface AuthenticatedUser {
   readonly workspaceSlug: string;
   readonly roles: readonly InternalRole[];
   readonly permissions: readonly string[];
+  /** Raw role codes are retained so tenant-defined roles are not discarded by the UI. */
+  readonly roleCodes?: readonly string[];
+  readonly roleDefinitionIds?: readonly string[];
+  readonly tenantId?: string;
+  readonly tenantSlug?: string;
+  readonly workspaceId?: string;
+  readonly membershipId?: string;
+  readonly authorizationVersion?: number;
 }
 
 export interface AuthSession {
@@ -65,4 +73,8 @@ export function normalizeInternalRoles(values: readonly string[] | undefined): r
 
 export function normalizePermissions(values: readonly string[] | undefined): readonly string[] {
   return [...new Set((values ?? []).map((value) => value.trim().toLowerCase()).filter(Boolean))];
+}
+
+export function normalizeRoleCodes(values: readonly string[] | undefined): readonly string[] {
+  return [...new Set((values ?? []).map((value) => value.trim().toUpperCase().replace(/^ROLE_/, '')).filter(Boolean))];
 }

@@ -7,8 +7,8 @@
         <div class="members-list">
           @for (member of facade.state().memberships; track member.id) {
             <article class="member-row">
-              <div class="member-copy"><strong>{{ member.displayName }}</strong><span>{{ member.email }} · {{ i18n.status(member.status) }}</span><small>{{ roleNames(member.roles) }}</small></div>
-              <mat-form-field appearance="outline" class="roles-field"><mat-label>{{ i18n.t('fixedRoles') }}</mat-label><mat-select multiple [value]="selectedRoles(member)" (selectionChange)="requestRoleChange(member, $event.value)" [disabled]="!facade.canManage() || facade.busy()">@for (role of fixedRoles; track role) { <mat-option [value]="role">{{ i18n.role(role) }}</mat-option> }</mat-select></mat-form-field>
+              <div class="member-copy"><strong>{{ member.displayName }}</strong><span>{{ member.email }} · {{ i18n.status(member.status) }}</span><small>{{ roleNames(facade.state().roleDefinitions.length ? (member.roleDefinitionIds ?? []) : member.roles) }}</small></div>
+              <mat-form-field appearance="outline" class="roles-field"><mat-label>{{ facade.state().roleDefinitions.length ? i18n.t('dynamicRoles') : i18n.t('fixedRoles') }}</mat-label><mat-select multiple [value]="selectedRoles(member)" (selectionChange)="requestRoleChange(member, $event.value)" [disabled]="!facade.canManage() || facade.busy()">@for (role of assignableRoles(); track role.value) { <mat-option [value]="role.value">{{ role.label }}</mat-option> }</mat-select></mat-form-field>
               <button mat-button type="button" (click)="openMemberDetail(member)">{{ i18n.t('details') }}</button>
               <button mat-button type="button" (click)="requestMembershipLifecycle(member)" [disabled]="!facade.canManage() || facade.busy()">{{ member.status === 'ACTIVE' ? i18n.t('suspend') : i18n.t('reactivate') }}</button>
             </article>
@@ -34,7 +34,7 @@
       @if (facade.state().membershipDetail; as detail) {
         <aside class="member-detail" aria-live="polite">
           <div class="detail-heading"><strong>{{ i18n.t('memberDetail') }}</strong><button mat-button type="button" (click)="closeMemberDetail()">{{ i18n.t('close') }}</button></div>
-          <dl><div><dt>{{ i18n.t('displayName') }}</dt><dd>{{ detail.displayName }}</dd></div><div><dt>{{ i18n.t('email') }}</dt><dd>{{ detail.email }}</dd></div><div><dt>{{ i18n.t('status') }}</dt><dd>{{ i18n.status(detail.status) }}</dd></div><div><dt>{{ i18n.t('userId') }}</dt><dd>{{ detail.userId }}</dd></div><div><dt>{{ i18n.t('membershipId') }}</dt><dd>{{ detail.id }}</dd></div><div><dt>{{ i18n.t('fixedRoles') }}</dt><dd>{{ roleNames(detail.roles) }}</dd></div></dl>
+          <dl><div><dt>{{ i18n.t('displayName') }}</dt><dd>{{ detail.displayName }}</dd></div><div><dt>{{ i18n.t('email') }}</dt><dd>{{ detail.email }}</dd></div><div><dt>{{ i18n.t('status') }}</dt><dd>{{ i18n.status(detail.status) }}</dd></div><div><dt>{{ i18n.t('userId') }}</dt><dd>{{ detail.userId }}</dd></div><div><dt>{{ i18n.t('membershipId') }}</dt><dd>{{ detail.id }}</dd></div><div><dt>{{ i18n.t('dynamicRoles') }}</dt><dd>{{ roleNames(facade.state().roleDefinitions.length ? (detail.roleDefinitionIds ?? []) : detail.roles) }}</dd></div></dl>
         </aside>
       }
       <p class="hint">{{ i18n.t('finalAdminHint') }}</p>

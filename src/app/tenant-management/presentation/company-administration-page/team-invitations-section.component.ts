@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -24,6 +24,10 @@ export class TeamInvitationsSectionComponent {
   readonly facade = inject(CompanyAdministrationFacade);
   readonly i18n = inject(TenantAdministrationI18n);
   readonly fixedRoles = FIXED_ROLES;
+  readonly assignableRoles = computed(() => {
+    const definitions = this.facade.state().roleDefinitions.filter((role) => role.status === 'ACTIVE');
+    return definitions.length ? definitions.map((role) => ({ value: role.id, label: role.name || role.code })) : this.fixedRoles.map((role) => ({ value: role, label: this.i18n.role(role) }));
+  });
   readonly pendingRoleChange = signal<{ readonly member: WorkspaceMembershipSummary; readonly roles: readonly string[] } | null>(null);
   readonly pendingMembershipLifecycle = signal<{ readonly member: WorkspaceMembershipSummary; readonly action: 'suspend' | 'reactivate' } | null>(null);
   private readonly fb = inject(FormBuilder).nonNullable;
@@ -50,17 +54,19 @@ export class TeamInvitationsSectionComponent {
     const pending = this.pendingRoleChange();
     if (!pending || !this.facade.canManage()) return;
     this.pendingRoleChange.set(null);
-    this.facade.changeRoles(pending.member.id, pending.member.version, pending.roles);
+    if (this.facade.state().roleDefinitions.length) this.facade.changeRoleDefinitions(pending.member.id, pending.member.version, pending.roles);
+    else this.facade.changeRoles(pending.member.id, pending.member.version, pending.roles);
   }
 
   cancelRoleChange(): void { this.pendingRoleChange.set(null); }
 
   selectedRoles(member: WorkspaceMembershipSummary): readonly string[] {
     const pending = this.pendingRoleChange();
-    return pending?.member.id === member.id ? pending.roles : member.roles;
+    if (pending?.member.id === member.id) return pending.roles;
+    return this.facade.state().roleDefinitions.length ? (member.roleDefinitionIds ?? []) : member.roles;
   }
 
-  roleNames(roles: readonly string[]): string { return roles.map((role) => this.i18n.role(role)).join(', '); }
+  roleNames(roles: readonly string[]): string { return roles.map((role) => this.roleLabel(role)).join(', '); }
 
   openMemberDetail(member: WorkspaceMembershipSummary): void {
     this.facade.loadMembershipDetail(member.id);
@@ -93,5 +99,10 @@ export class TeamInvitationsSectionComponent {
 
   private sameRoles(left: readonly string[], right: readonly string[]): boolean {
     return [...left].sort().join('|') === [...right].sort().join('|');
+  }
+
+  private roleLabel(value: string): string {
+    const definition = this.facade.state().roleDefinitions.find((role) => role.id === value || role.code === value);
+    return definition?.name || definition?.code || this.i18n.role(value);
   }
 }

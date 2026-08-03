@@ -16,6 +16,7 @@ import { LoadingStateComponent } from '../../../shared/presentation/components/l
 import { PageHeaderComponent } from '../../../shared/presentation/components/page-header/page-header.component';
 import { PurchaseRequestOperationsFacade } from '../application/purchase-request-operations.facade';
 import { DEFAULT_PURCHASE_REQUEST_FILTERS, PurchaseRequestFilters, PurchaseRequestPriority, PurchaseRequestStatus } from '../domain/purchase-request.models';
+import { downloadCsv, printCurrentView } from '../../../shared/application/utilities/export.util';
 
 @Component({ selector: 'nexa-purchase-request-inbox-page', imports: [MatButtonModule, MatCardModule, MatChipsModule, MatFormFieldModule, MatInputModule, MatPaginatorModule, MatSelectModule, MatSortModule, RouterLink, TranslatePipe, ErrorStateComponent, LoadingStateComponent, EmptyStateComponent, PageHeaderComponent], templateUrl: './purchase-request-inbox-page.component.html', styleUrl: './purchase-request-inbox-page.component.scss', changeDetection: ChangeDetectionStrategy.OnPush })
 export class PurchaseRequestInboxPageComponent {
@@ -30,5 +31,7 @@ export class PurchaseRequestInboxPageComponent {
   onSort(sort: Sort): void { const allowed = ['createdAt', 'updatedAt'] as const; if (allowed.includes(sort.active as typeof allowed[number])) this.update({ sort: sort.active as PurchaseRequestFilters['sort'], direction: sort.direction === 'asc' ? 'asc' : 'desc', page: 0 }); }
   onPage(page: PageEvent): void { this.update({ page: page.pageIndex, size: page.pageSize }); }
   retry(): void { this.facade.retry(); }
+  exportCsv(): void { downloadCsv('nexa-purchase-requests.csv', (this.facade.state().page?.items ?? []).map((request) => ({ code: request.code, client: request.clientAccountId, status: request.status, priority: request.priority, deliveryDate: request.requestedDeliveryDate ?? '', lines: request.lineCount }))); }
+  print(): void { printCurrentView(); }
   private update(changes: Partial<PurchaseRequestFilters>): void { const next = { ...this.filters(), ...changes }; this.filters.set(next); this.facade.load(next); }
 }

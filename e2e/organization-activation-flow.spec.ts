@@ -66,6 +66,10 @@ test('organization onboarding reaches ACTIVE only through the operator boundary 
     await page.getByRole('button', { name: /sign in|ingresar/i }).click();
     await expect(page).not.toHaveURL(/\/sign-in/);
     const switcher = page.locator('.workspace-card select');
+    if (!(await switcher.isVisible())) {
+      const menuButton = page.getByRole('button', { name: /open operations navigation|abrir navegación de operaciones|abrir navegacion de operaciones/i });
+      if (await menuButton.isVisible()) await menuButton.click();
+    }
     await expect(switcher).toBeVisible();
     await expect(switcher.locator('option')).toHaveText([
       /tenant administration|administración del tenant/i,

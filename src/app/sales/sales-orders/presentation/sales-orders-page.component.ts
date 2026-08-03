@@ -17,6 +17,7 @@ import { LoadingStateComponent } from '../../../shared/presentation/components/l
 import { PageHeaderComponent } from '../../../shared/presentation/components/page-header/page-header.component';
 import { SalesOrdersFacade } from '../application/sales-orders.facade';
 import { DEFAULT_SALES_ORDER_FILTERS, SalesOrderFilters, SalesOrderStatus } from '../domain/sales-order.models';
+import { downloadCsv, printCurrentView } from '../../../shared/application/utilities/export.util';
 
 @Component({ selector: 'nexa-sales-orders-page', imports: [DecimalPipe, MatButtonModule, MatCardModule, MatChipsModule, MatFormFieldModule, MatInputModule, MatPaginatorModule, MatSelectModule, MatSortModule, RouterLink, TranslatePipe, ErrorStateComponent, LoadingStateComponent, EmptyStateComponent, PageHeaderComponent], templateUrl: './sales-orders-page.component.html', styleUrl: './sales-orders-page.component.scss', changeDetection: ChangeDetectionStrategy.OnPush })
 export class SalesOrdersPageComponent {
@@ -29,5 +30,7 @@ export class SalesOrdersPageComponent {
   onSort(sort: Sort): void { const allowed = ['orderNumber', 'createdAt', 'updatedAt', 'priority', 'total', 'requestedDeliveryDate'] as const; if (allowed.includes(sort.active as typeof allowed[number])) this.update({ sort: sort.active as SalesOrderFilters['sort'], direction: sort.direction === 'asc' ? 'asc' : 'desc', page: 0 }); }
   onPage(page: PageEvent): void { this.update({ page: page.pageIndex, size: page.pageSize }); }
   retry(): void { this.facade.retry(); }
+  exportCsv(): void { downloadCsv('nexa-sales-orders.csv', (this.facade.state().page?.items ?? []).map((order) => ({ number: order.number, client: order.clientAccountName || order.clientAccountId, status: order.status, total: order.total, currency: order.currency, purchaseRequest: order.purchaseRequestId }))); }
+  print(): void { printCurrentView(); }
   private update(changes: Partial<SalesOrderFilters>): void { const next = { ...this.filters(), ...changes }; this.filters.set(next); this.facade.load(next); }
 }

@@ -16,6 +16,7 @@ import {
   PlanOption,
   PlanUsage,
   RegionalSettings,
+  RoleDefinition,
   TenantSecuritySettings,
   UnitPreferences,
   WorkspaceMembershipSummary,
@@ -39,6 +40,8 @@ export class CompanyAdministrationApiService {
   workspaces(): Observable<readonly WorkspaceSummary[]> { return this.get<readonly WorkspaceSummary[]>('/workspaces'); }
   workspace(id: string): Observable<WorkspaceDetails> { return this.get<WorkspaceDetails>(`/workspaces/${encodeURIComponent(id)}`); }
   memberships(): Observable<readonly WorkspaceMembershipSummary[]> { return this.get<readonly WorkspaceMembershipSummary[]>('/workspace-memberships'); }
+  roleDefinitions(): Observable<readonly RoleDefinition[]> { return this.get<readonly RoleDefinition[]>('/roles'); }
+  permissionCatalog(): Observable<readonly { readonly code: string; readonly group: string; readonly legacyCodes: readonly string[] }[]> { return this.get('/permissions/catalog'); }
   membership(id: string): Observable<WorkspaceMembershipSummary> { return this.get<WorkspaceMembershipSummary>(`/workspace-memberships/${encodeURIComponent(id)}`); }
   workspaceSettings(id: string): Observable<WorkspaceSettings> { return this.get<WorkspaceSettings>(`/workspaces/${encodeURIComponent(id)}/settings`); }
   regionalSettings(): Observable<RegionalSettings> { return this.get<RegionalSettings>('/settings/regional'); }
@@ -64,6 +67,10 @@ export class CompanyAdministrationApiService {
   suspendWorkspace(id: string, version: number): Observable<WorkspaceSummary> { return this.command<WorkspaceSummary>(`/workspaces/${encodeURIComponent(id)}/suspensions`, version); }
   reactivateWorkspace(id: string, version: number): Observable<WorkspaceSummary> { return this.command<WorkspaceSummary>(`/workspaces/${encodeURIComponent(id)}/reactivations`, version); }
   changeRoles(id: string, version: number, roles: readonly string[]): Observable<WorkspaceMembershipSummary> { return this.patch(`/workspace-memberships/${encodeURIComponent(id)}/roles`, { roles }, version); }
+  changeRoleDefinitions(id: string, version: number, roleDefinitionIds: readonly string[]): Observable<WorkspaceMembershipSummary> { return this.patch(`/workspace-memberships/${encodeURIComponent(id)}/roles`, { roleDefinitionIds }, version); }
+  createRoleDefinition(body: { readonly workspaceId?: string; readonly code: string; readonly name: string; readonly description?: string; readonly permissions: readonly string[] }): Observable<RoleDefinition> { return this.http.post<RoleDefinition>(this.url('/roles'), body); }
+  updateRoleDefinition(id: string, version: number, body: { readonly name: string; readonly description?: string; readonly permissions: readonly string[] }): Observable<RoleDefinition> { return this.patch(`/roles/${encodeURIComponent(id)}`, body, version); }
+  deactivateRoleDefinition(id: string, version: number): Observable<RoleDefinition> { return this.http.delete<RoleDefinition>(this.url(`/roles/${encodeURIComponent(id)}`), { headers: this.ifMatch(version) }); }
   suspend(id: string, version: number): Observable<WorkspaceMembershipSummary> { return this.command<WorkspaceMembershipSummary>(`/workspace-memberships/${encodeURIComponent(id)}/suspensions`, version); }
   reactivate(id: string, version: number): Observable<WorkspaceMembershipSummary> { return this.command<WorkspaceMembershipSummary>(`/workspace-memberships/${encodeURIComponent(id)}/reactivations`, version); }
   updateWorkspaceSettings(id: string, body: Omit<WorkspaceSettings, 'workspaceId' | 'version'>, version: number): Observable<WorkspaceSettings> { return this.patch(`/workspaces/${encodeURIComponent(id)}/settings`, body, version); }

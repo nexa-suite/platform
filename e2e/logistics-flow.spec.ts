@@ -6,5 +6,10 @@ test('Logistics reaches dispatch and operations views', async ({ page }) => {
   await signIn(page, 'LOGISTICS');
   await page.goto('/ops/operations/dispatch-orders');
   await expect(page.locator('body')).toContainText(/dispatch|despacho/i);
-  await expect(page.getByRole('link', { name: /proof of delivery|prueba de entrega/i })).toBeVisible();
+  const proofLink = page.getByRole('link', { name: /proof of delivery|prueba de entrega/i });
+  if (!(await proofLink.isVisible())) {
+    const menuButton = page.getByRole('button', { name: /open operations navigation|abrir navegación de operaciones|abrir navegacion de operaciones/i });
+    if (await menuButton.isVisible()) await menuButton.click();
+  }
+  await expect(proofLink).toBeVisible();
 });

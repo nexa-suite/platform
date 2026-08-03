@@ -6,6 +6,9 @@ export interface ClientAccount {
   readonly code: string;
   readonly businessName: string;
   readonly commercialName: string;
+  readonly countryCode: string;
+  readonly taxType: string;
+  readonly taxValue: string;
   readonly segment: string;
   readonly contactPerson: string;
   readonly contactEmail: string;
@@ -36,9 +39,13 @@ export interface ClientAccountFilters {
   readonly direction: 'asc' | 'desc';
 }
 
-export interface ClientAccountCommand {
+export interface ClientAccountCreateCommand {
+  readonly code: string;
   readonly businessName: string;
   readonly commercialName: string;
+  readonly countryCode: string;
+  readonly taxType: string;
+  readonly taxValue: string;
   readonly segment: string;
   readonly contactPerson: string;
   readonly contactEmail: string;
@@ -46,6 +53,11 @@ export interface ClientAccountCommand {
   readonly deliveryProfile: string;
   readonly paymentCondition: string;
 }
+
+export type ClientAccountCommand = ClientAccountCreateCommand;
+
+export type ClientAccountUpdateCommand = Partial<Pick<ClientAccountCreateCommand,
+  'businessName' | 'commercialName' | 'segment' | 'contactPerson' | 'contactEmail' | 'phone' | 'deliveryProfile' | 'paymentCondition'>>;
 
 export const DEFAULT_CLIENT_ACCOUNT_FILTERS: ClientAccountFilters = {
   q: '',

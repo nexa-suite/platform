@@ -24,6 +24,7 @@ const ICON_PATHS: Record<string, IconPath> = {
   lock: ['M6 10h12v10H6z', 'M8 10V7a4 4 0 0 1 8 0v3'],
   logout: ['M10 5H5v14h5', 'M13 8l4 4-4 4', 'M17 12H9'],
   monitoring: ['M4 19V5', 'M4 19h16', 'M7 15v-3', 'M11 15V8', 'M15 15v-5', 'M19 15V6'],
+  notifications: ['M6 17h12', 'M8 17V10a4 4 0 0 1 8 0v7', 'M10 20h4', 'M5 17h14'],
   pause: ['M8 5v14', 'M16 5v14'],
   play: ['M8 5l10 7-10 7z'],
   receipt_long: ['M5 3h14v18l-3-2-4 2-4-2-3 2z', 'M8 8h8', 'M8 12h8', 'M8 16h5'],
@@ -34,7 +35,12 @@ const ICON_PATHS: Record<string, IconPath> = {
   thermostat: ['M10 5a2 2 0 1 1 4 0v8a4 4 0 1 1-4 0z', 'M12 11v5'],
   verified: ['M12 3l2 2 3-.2 1.2 2.8 2.5 1.8-.9 2.9.9 2.9-2.5 1.8-1.2 2.8-3-.2-2 2-2-2-3 .2-1.2-2.8-2.5-1.8.9-2.9-.9-2.9 2.5-1.8L9 4.8z', 'M8 12l2.5 2.5L16 9'],
   warehouse: ['M3 20V8l9-5 9 5v12H3z', 'M7 20v-6h10v6', 'M7 10h2', 'M15 10h2'],
-  add: ['M12 5v14', 'M5 12h14']
+  add: ['M12 5v14', 'M5 12h14'],
+  admin_panel_settings: ['M12 3l7 3v5c0 4.5-3 7.8-7 10-4-2.2-7-5.5-7-10V6z', 'M9 12l2 2 4-4'],
+  insights: ['M4 19V5', 'M4 19h16', 'M7 15l3-5 3 3 5-7'],
+  handshake: ['M4 9h4l4 3 4-3h4', 'M7 9l-3 4 5 5 3-2 3 2 5-5-3-4', 'M9 12l3 3 3-3'],
+  playlist_add: ['M5 5h10', 'M5 10h10', 'M5 15h5', 'M18 13v7', 'M14.5 16.5h7'],
+  add_shopping_cart: ['M4 5h2l2 10h9l2-7H7', 'M10 19a1 1 0 1 0 0-2 1 1 0 0 0 0 2z', 'M17 19a1 1 0 1 0 0-2 1 1 0 0 0 0 2z', 'M18 3v5', 'M15.5 5.5h5']
 };
 
 @Component({

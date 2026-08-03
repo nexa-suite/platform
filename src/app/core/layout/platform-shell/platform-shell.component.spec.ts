@@ -4,6 +4,7 @@ import { provideRouter } from '@angular/router';
 import { provideTranslateService } from '@ngx-translate/core';
 import { vi } from 'vitest';
 import { AuthenticationService } from '../../../iam/application/authentication.service';
+import { PlatformNotificationsService } from '../../notifications/platform-notifications.service';
 import { PlatformShellComponent } from './platform-shell.component';
 
 describe('PlatformShellComponent', () => {
@@ -15,7 +16,8 @@ describe('PlatformShellComponent', () => {
       providers: [
         provideRouter([]),
         provideTranslateService(),
-        { provide: AuthenticationService, useValue: { currentUser: signal(null), hasPermission: vi.fn(), signOut: () => undefined } }
+        { provide: AuthenticationService, useValue: { currentUser: signal(null), hasPermission: vi.fn(), signOut: () => undefined } },
+        { provide: PlatformNotificationsService, useValue: { notifications: signal([]), unreadCount: signal(0), markAllRead: vi.fn() } }
       ]
     }).compileComponents();
     fixture = TestBed.createComponent(PlatformShellComponent);

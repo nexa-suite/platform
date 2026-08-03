@@ -14,7 +14,13 @@ export class AuthenticationService {
   readonly status = computed<AuthStatus>(() => this.stateSignal().status);
   readonly currentUser = computed<AuthenticatedUser | null>(() => this.stateSignal().user);
   readonly isAuthenticated = computed(() => this.stateSignal().status === 'authenticated');
-  readonly hasPermission = (permission: string): boolean => this.currentUser()?.permissions.includes(permission.trim().toLowerCase()) ?? false;
+  readonly hasPermission = (permission: string): boolean => {
+    const required = permission.trim().toLowerCase();
+    return this.currentUser()?.permissions.some((candidate) => {
+      const normalized = candidate.trim().toLowerCase();
+      return normalized === required || normalized.replaceAll('.', ':') === required.replaceAll('.', ':');
+    }) ?? false;
+  };
 
   restore(): Observable<void> {
     this.stateSignal.set({ status: 'restoring', user: null, message: null });
