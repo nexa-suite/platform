@@ -24,11 +24,14 @@ test('organization onboarding reaches ACTIVE only through the operator boundary 
     const slug = `e2e-activated-${suffix}`;
     await page.getByRole('textbox', { name: /workspace slug|slug/i }).fill(slug);
     await page.getByRole('checkbox').check();
-    const registrationResponsePromise = page.waitForResponse((response) => response.request().method() === 'POST' && response.url().includes('/api/v1/tenant-management/organization-registrations'));
+    const registrationPromise = page.waitForResponse((response) => response.request().method() === 'POST' && response.url().includes('/api/v1/tenant-management/organization-registrations')).then(async (response) => ({
+      ok: response.ok(),
+      body: await response.json() as { registrationId: string; statusToken: string },
+    }));
     await page.getByRole('button', { name: /submit registration|enviar registro/i }).click();
-    const registrationResponse = await registrationResponsePromise;
-    expect(registrationResponse.ok()).toBeTruthy();
-    const registration = await registrationResponse.json() as { registrationId: string; statusToken: string };
+    const registrationResponse = await registrationPromise;
+    expect(registrationResponse.ok).toBeTruthy();
+    const registration = registrationResponse.body;
     await expect(page).toHaveURL(/registration-pending/);
     const pendingUrl = await page.url();
     const registrationId = registration.registrationId;

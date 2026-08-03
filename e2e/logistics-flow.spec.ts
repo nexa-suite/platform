@@ -9,7 +9,8 @@ test('Logistics reaches dispatch and operations views', async ({ page }) => {
   const proofLink = page.getByRole('link', { name: /proof of delivery|prueba de entrega/i });
   if (!(await proofLink.isVisible())) {
     const menuButton = page.getByRole('button', { name: /open operations navigation|abrir navegación de operaciones|abrir navegacion de operaciones/i });
-    if (await menuButton.isVisible()) await menuButton.click();
+    await expect(menuButton).toBeVisible();
+    await menuButton.click();
   }
   await expect(proofLink).toBeVisible();
 });

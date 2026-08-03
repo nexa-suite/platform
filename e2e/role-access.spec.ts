@@ -168,7 +168,8 @@ async function assertNoForbiddenSidebarLink(page: Page): Promise<void> {
   });
   if (!(await sidebar.isVisible())) {
     const menuButton = page.getByRole('button', { name: /open operations navigation|abrir navegación de operaciones|abrir navegacion de operaciones/i });
-    if (await menuButton.isVisible()) await menuButton.click();
+    await expect(menuButton).toBeVisible();
+    await menuButton.click();
   }
   await expect(sidebar).toBeVisible();
   await expect(sidebar.locator('a[href*="/forbidden"]')).toHaveCount(0);
@@ -221,7 +222,8 @@ test('founder multi-role exposes both assigned areas without a Forbidden sidebar
   const areaSelector = page.locator('.workspace-card select[aria-label]');
   if (!(await areaSelector.isVisible())) {
     const menuButton = page.getByRole('button', { name: /open operations navigation|abrir navegación de operaciones|abrir navegacion de operaciones/i });
-    if (await menuButton.isVisible()) await menuButton.click();
+    await expect(menuButton).toBeVisible();
+    await menuButton.click();
   }
   await expect(areaSelector).toBeVisible();
   await expect(areaSelector.locator('option')).toHaveText([

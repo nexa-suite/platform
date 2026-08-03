@@ -9,7 +9,8 @@ test('Warehouse reaches authoritative inventory and reservation views', async ({
   const reservationsLink = page.getByRole('link', { name: /reservations|reservas/i });
   if (!(await reservationsLink.isVisible())) {
     const menuButton = page.getByRole('button', { name: /open operations navigation|abrir navegación de operaciones|abrir navegacion de operaciones/i });
-    if (await menuButton.isVisible()) await menuButton.click();
+    await expect(menuButton).toBeVisible();
+    await menuButton.click();
   }
   await expect(reservationsLink).toBeVisible();
 });
