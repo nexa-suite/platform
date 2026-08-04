@@ -15,7 +15,7 @@ export const ROLE_FIXTURES: Readonly<Record<CredentialRole, RoleFixture>> = {
     expectedRoles: ['TENANT_ADMIN', 'COMPANY_OWNER'],
     expectedPermissions: [
       'tenant:read', 'tenant:manage', 'iam:user:read', 'iam:user:manage',
-      'owner:dashboard:read', 'sales:read', 'warehouse:read', 'logistics:read',
+      'owner:dashboard:read', 'sales:read', 'warehouse:read', 'logistics:read', 'fulfillment:read',
       'catalog:read', 'catalog:manage', 'catalog:price:manage', 'promotion:read', 'promotion:manage'
     ],
     surface: 'PLATFORM'
@@ -28,14 +28,14 @@ export const ROLE_FIXTURES: Readonly<Record<CredentialRole, RoleFixture>> = {
   COMPANY_OWNER: {
     expectedRoles: ['COMPANY_OWNER'],
     expectedPermissions: [
-      'tenant:read', 'owner:dashboard:read', 'sales:read', 'warehouse:read', 'logistics:read',
+      'tenant:read', 'owner:dashboard:read', 'sales:read', 'warehouse:read', 'logistics:read', 'fulfillment:read',
       'catalog:read', 'catalog:manage', 'catalog:price:manage', 'promotion:read', 'promotion:manage'
     ],
     surface: 'PLATFORM'
   },
   SALES: {
     expectedRoles: ['SALES'],
-    expectedPermissions: ['catalog:read', 'catalog:manage', 'catalog:price:manage', 'promotion:read', 'sales:read', 'sales:write'],
+    expectedPermissions: ['catalog:read', 'promotion:read', 'sales:read', 'sales:write'],
     surface: 'PLATFORM'
   },
   WAREHOUSE: {
@@ -45,7 +45,7 @@ export const ROLE_FIXTURES: Readonly<Record<CredentialRole, RoleFixture>> = {
   },
   LOGISTICS: {
     expectedRoles: ['LOGISTICS'],
-    expectedPermissions: ['catalog:read', 'promotion:read', 'promotion:manage', 'warehouse:read', 'logistics:read', 'logistics:write', 'fulfillment:read'],
+    expectedPermissions: ['catalog:read', 'promotion:read', 'warehouse:read', 'logistics:read', 'logistics:write', 'fulfillment:read'],
     surface: 'PLATFORM'
   },
   BUYER: {

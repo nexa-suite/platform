@@ -55,8 +55,9 @@ const ROLE_ACCESS_MATRIX: readonly RoleAccessCase[] = [
       '/ops/operations/proof-of-delivery',
       '/ops/operations/temperature-incidents',
       '/ops/operations/operational-analytics',
+      '/ops/operations/fulfillment-readiness',
     ],
-    denied: [{ path: '/ops/operations/fulfillment-readiness', reason: 'PERMISSION_NOT_GRANTED' }],
+    denied: [],
   },
   {
     label: 'pure SALES',
@@ -66,14 +67,16 @@ const ROLE_ACCESS_MATRIX: readonly RoleAccessCase[] = [
     allowed: [
       '/ops/commercial/dashboard',
       '/ops/catalog',
-      '/ops/catalog/products/new',
       '/ops/catalog/promotions',
     ],
     denied: [
       { path: '/ops/operations/company-administration', reason: 'PERMISSION_NOT_GRANTED' },
       { path: '/ops/executive-overview', reason: 'PERMISSION_NOT_GRANTED' },
       { path: '/ops/operations/dispatch-orders', reason: 'PERMISSION_NOT_GRANTED' },
+      { path: '/ops/catalog/products/new', reason: 'PERMISSION_NOT_GRANTED' },
       { path: '/ops/catalog/promotions/new', reason: 'PERMISSION_NOT_GRANTED' },
+      { path: '/ops/catalog/categories', reason: 'PERMISSION_NOT_GRANTED' },
+      { path: '/ops/catalog/brands', reason: 'PERMISSION_NOT_GRANTED' },
     ],
   },
   {
@@ -110,12 +113,12 @@ const ROLE_ACCESS_MATRIX: readonly RoleAccessCase[] = [
       '/ops/operations/operational-analytics',
       '/ops/catalog',
       '/ops/catalog/promotions',
-      '/ops/catalog/promotions/new',
     ],
     denied: [
       { path: '/ops/commercial/dashboard', reason: 'PERMISSION_NOT_GRANTED' },
       { path: '/ops/executive-overview', reason: 'PERMISSION_NOT_GRANTED' },
       { path: '/ops/catalog/products/new', reason: 'PERMISSION_NOT_GRANTED' },
+      { path: '/ops/catalog/promotions/new', reason: 'PERMISSION_NOT_GRANTED' },
       { path: '/ops/catalog/categories', reason: 'PERMISSION_NOT_GRANTED' },
       { path: '/ops/catalog/brands', reason: 'PERMISSION_NOT_GRANTED' },
     ],
@@ -133,8 +136,9 @@ const ROLE_ACCESS_MATRIX: readonly RoleAccessCase[] = [
       '/ops/catalog/promotions/new',
       '/ops/operations/dashboard',
       '/ops/operations/dispatch-orders',
+      '/ops/operations/fulfillment-readiness',
     ],
-    denied: [{ path: '/ops/operations/fulfillment-readiness', reason: 'PERMISSION_NOT_GRANTED' }],
+    denied: [],
   },
 ];
 
