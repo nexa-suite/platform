@@ -24,14 +24,27 @@ test('organization onboarding reaches ACTIVE only through the operator boundary 
     const slug = `e2e-activated-${suffix}`;
     await page.getByRole('textbox', { name: /workspace slug|slug/i }).fill(slug);
     await page.getByRole('checkbox').check();
-    const registrationPromise = page.waitForResponse((response) => response.request().method() === 'POST' && response.url().includes('/api/v1/tenant-management/organization-registrations')).then(async (response) => ({
-      ok: response.ok(),
-      body: await response.json() as { registrationId: string; statusToken: string },
-    }));
+    let registrationResponse: { ok: boolean; body: { registrationId: string; statusToken: string } } | undefined;
+    const registrationRoute = '**/api/v1/tenant-management/organization-registrations';
+    await page.route(registrationRoute, async (route) => {
+      if (route.request().method() !== 'POST') {
+        await route.continue();
+        return;
+      }
+      const response = await route.fetch();
+      const body = await response.body();
+      registrationResponse = {
+        ok: response.ok(),
+        body: JSON.parse(body.toString()) as { registrationId: string; statusToken: string },
+      };
+      await route.fulfill({ response, body });
+    });
     await page.getByRole('button', { name: /submit registration|enviar registro/i }).click();
-    const registrationResponse = await registrationPromise;
-    expect(registrationResponse.ok).toBeTruthy();
-    const registration = registrationResponse.body;
+    await expect.poll(() => registrationResponse, { timeout: 10_000 }).toBeDefined();
+    await page.unroute(registrationRoute);
+    expect(registrationResponse).toBeDefined();
+    expect(registrationResponse!.ok).toBeTruthy();
+    const registration = registrationResponse!.body;
     await expect(page).toHaveURL(/registration-pending/);
     const pendingUrl = await page.url();
     const registrationId = registration.registrationId;

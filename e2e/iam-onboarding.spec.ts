@@ -16,18 +16,23 @@ test('public organization onboarding reaches the pending-review state', async ({
   await page.getByRole('textbox', { name: /workspace slug|slug/i }).fill(`e2e-${Date.now()}`);
   await page.getByRole('checkbox').check();
   let registrationResponse: { ok: boolean; body: { statusToken?: string } } | undefined;
-  const registrationPromise = page.waitForResponse(async (response) => {
-    if (response.request().method() !== 'POST' || !response.url().includes('/api/v1/tenant-management/organization-registrations')) {
-      return false;
+  const registrationRoute = '**/api/v1/tenant-management/organization-registrations';
+  await page.route(registrationRoute, async (route) => {
+    if (route.request().method() !== 'POST') {
+      await route.continue();
+      return;
     }
+    const response = await route.fetch();
+    const body = await response.body();
     registrationResponse = {
       ok: response.ok(),
-      body: await response.json() as { statusToken?: string },
+      body: JSON.parse(body.toString()) as { statusToken?: string },
     };
-    return true;
+    await route.fulfill({ response, body });
   });
   await page.getByRole('button', { name: /submit registration|enviar registro/i }).click();
-  await registrationPromise;
+  await expect.poll(() => registrationResponse, { timeout: 10_000 }).toBeDefined();
+  await page.unroute(registrationRoute);
   expect(registrationResponse).toBeDefined();
   expect(registrationResponse!.ok).toBeTruthy();
   const registration = registrationResponse!.body;
