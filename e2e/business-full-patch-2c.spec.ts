@@ -2,41 +2,12 @@ import { expect, test } from '@playwright/test';
 import { requiresCredentials, signIn } from './support/auth';
 import { createLifecycleDispatch } from './support/logistics-fixtures';
 
-test('SALES creates and submits a real request from the Request Builder', async ({ page }) => {
+test('SALES legacy Request Builder bookmark redirects to the canonical purchase-request inbox', async ({ page }) => {
   requiresCredentials('SALES');
   await signIn(page, 'SALES');
   await page.goto('/ops/commercial/request-builder');
-  await expect(page.getByRole('heading', { name: /build purchase request|construir solicitud/i })).toBeVisible();
-
-  const clientSelect = page.getByRole('combobox', { name: /client account|cuenta cliente/i });
-  await clientSelect.click();
-  const clientOption = page.locator('.cdk-overlay-pane [role="option"]').nth(1);
-  await expect(clientOption).toBeVisible();
-  await clientOption.click();
-
-  const productSelect = page.getByRole('combobox', { name: /product|producto/i });
-  await productSelect.click();
-  const productOption = page.locator('.cdk-overlay-pane [role="option"]').nth(1);
-  await expect(productOption).toBeVisible();
-  await productOption.click();
-  await page.getByRole('spinbutton', { name: /quantity|cantidad/i }).fill('1');
-  await page.getByRole('button', { name: /add line|agregar línea/i }).click();
-
-  const requestedDeliveryDate = new Date(Date.now() + 86_400_000).toISOString().slice(0, 10);
-  await page.locator('[formcontrolname="requestedDeliveryDate"]').fill(requestedDeliveryDate);
-  const deliveryProfile = page.locator('[formcontrolname="deliveryProfileSnapshot"]');
-  if (!(await deliveryProfile.inputValue())) await deliveryProfile.fill('E2E business delivery address');
-
-  const createResponse = page.waitForResponse((response) => response.request().method() === 'POST' && response.url().includes('/api/v1/purchase-requests'));
-  await page.getByRole('button', { name: /save draft|guardar borrador/i }).click();
-  const created = await createResponse;
-  expect([200, 201]).toContain(created.status());
-  await expect(page.getByRole('link', { name: /open request|abrir solicitud/i })).toBeVisible();
-
-  const submitResponse = page.waitForResponse((response) => response.request().method() === 'POST' && response.url().includes('/submissions'));
-  await page.getByRole('button', { name: /submit request|enviar solicitud/i }).click();
-  const submitted = await submitResponse;
-  expect(submitted.ok()).toBeTruthy();
+  await expect(page).toHaveURL(/\/ops\/commercial\/purchase-requests$/);
+  await expect(page.getByRole('heading', { name: /purchase requests|solicitudes de compra/i })).toBeVisible();
 });
 
 test('LOGISTICS moves a dispatch card through a real Kanban lifecycle command and reloads with keyboard rollback', async ({ page, request }) => {
@@ -50,16 +21,21 @@ test('LOGISTICS moves a dispatch card through a real Kanban lifecycle command an
   const target = page.locator('[data-status="PREPARING"]');
   await expect(source).toBeVisible();
   const mutation = page.waitForResponse((response) => response.request().method() === 'POST' && response.url().includes('/preparation-starts'));
-  const handleBox = await source.locator('.drag-hint').boundingBox();
-  const targetBox = await target.locator('.kanban-items').boundingBox();
-  expect(handleBox).not.toBeNull();
-  expect(targetBox).not.toBeNull();
-  await page.mouse.move(handleBox!.x + handleBox!.width / 2, handleBox!.y + handleBox!.height / 2);
-  await page.mouse.down();
-  await page.mouse.move(handleBox!.x + handleBox!.width / 2 + 12, handleBox!.y + handleBox!.height / 2 + 12, { steps: 5 });
-  await page.mouse.move(targetBox!.x + targetBox!.width / 2, targetBox!.y + Math.min(40, targetBox!.height - 10), { steps: 20 });
-  await page.waitForTimeout(250);
-  await page.mouse.up();
+  if (test.info().project.name === 'mobile') {
+    const card = page.locator(`[data-status="READY_FOR_OPERATIONS"] article`).filter({ has: page.locator(`a[href$="/${fixture.id}"]`) });
+    await card.locator('select').selectOption('PREPARING');
+  } else {
+    const handleBox = await source.locator('.drag-hint').boundingBox();
+    const targetBox = await target.locator('.kanban-items').boundingBox();
+    expect(handleBox).not.toBeNull();
+    expect(targetBox).not.toBeNull();
+    await page.mouse.move(handleBox!.x + handleBox!.width / 2, handleBox!.y + handleBox!.height / 2);
+    await page.mouse.down();
+    await page.mouse.move(handleBox!.x + handleBox!.width / 2 + 12, handleBox!.y + handleBox!.height / 2 + 12, { steps: 5 });
+    await page.mouse.move(targetBox!.x + targetBox!.width / 2, targetBox!.y + Math.min(40, targetBox!.height - 10), { steps: 20 });
+    await page.waitForTimeout(250);
+    await page.mouse.up();
+  }
   const response = await mutation;
   expect(response.ok()).toBeTruthy();
 

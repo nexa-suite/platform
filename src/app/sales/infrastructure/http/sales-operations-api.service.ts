@@ -5,7 +5,8 @@ import { platformApiUrl, PLATFORM_RUNTIME_CONFIG } from '../../../core/security/
 import { ClientAccount, ClientAccountAddress, ClientAccountCreateCommand, ClientAccountFilters, ClientAccountPage, ClientAccountUpdateCommand, DEFAULT_CLIENT_ACCOUNT_FILTERS, PeruReferenceOption } from '../../client-accounts/domain/client-account.models';
 import { DEFAULT_PURCHASE_REQUEST_FILTERS, PurchaseRequest, PurchaseRequestAction, PurchaseRequestEvent, PurchaseRequestFilters, PurchaseRequestPage } from '../../purchase-requests/domain/purchase-request.models';
 import { DEFAULT_SALES_ORDER_FILTERS, FulfillmentCandidate, SalesOrder, SalesOrderEvent, SalesOrderFilters, SalesOrderPage } from '../../sales-orders/domain/sales-order.models';
-import { ApiPageDto, ApiRecord, toClientAccount, toClientAccountPage, toFulfillmentCandidate, toPurchaseRequest, toPurchaseRequestEvent, toPurchaseRequestPage, toSalesOrder, toSalesOrderEvent, toSalesOrderPage } from './sales-operations-mappers';
+import { ManualOrderClientCommand, ManualOrderDeliveryCommand, ManualOrderDraft, ManualOrderLineCommand, ManualOrderReview } from '../../manual-orders/domain/manual-order.models';
+import { ApiPageDto, ApiRecord, toClientAccount, toClientAccountPage, toFulfillmentCandidate, toManualOrderDraft, toManualOrderReview, toPurchaseRequest, toPurchaseRequestEvent, toPurchaseRequestPage, toSalesOrder, toSalesOrderEvent, toSalesOrderPage } from './sales-operations-mappers';
 
 @Injectable()
 export class SalesOperationsApiService {
@@ -69,6 +70,50 @@ export class SalesOperationsApiService {
 
   createManualSalesOrder(command: CreateManualSalesOrderCommand): Observable<SalesOrder> {
     return this.http.post<ApiRecord>(this.api('/sales-orders/manual'), command, { headers: this.idempotencyHeader() }).pipe(map(toSalesOrder));
+  }
+
+  createManualSalesOrderDraft(idempotencyKey = this.idempotencyKey()): Observable<ManualOrderDraft> {
+    return this.http.post<ApiRecord>(this.api('/sales-orders/manual-drafts'), null, {
+      headers: new HttpHeaders({ 'Idempotency-Key': idempotencyKey })
+    }).pipe(map((value) => toManualOrderDraft(value)));
+  }
+
+  manualSalesOrderDraft(id: string): Observable<ManualOrderDraft> {
+    return this.http.get<ApiRecord>(this.api(`/sales-orders/manual-drafts/${encodeURIComponent(id)}`)).pipe(map(toManualOrderDraft));
+  }
+
+  updateManualSalesOrderDraftClient(id: string, version: number, command: ManualOrderClientCommand): Observable<ManualOrderDraft> {
+    return this.http.put<ApiRecord>(this.api(`/sales-orders/manual-drafts/${encodeURIComponent(id)}/client`), command, {
+      headers: this.ifMatch(version)
+    }).pipe(map(toManualOrderDraft));
+  }
+
+  replaceManualSalesOrderDraftItems(id: string, version: number, lines: readonly ManualOrderLineCommand[]): Observable<ManualOrderDraft> {
+    return this.http.put<ApiRecord>(this.api(`/sales-orders/manual-drafts/${encodeURIComponent(id)}/items`), { lines }, {
+      headers: this.ifMatch(version)
+    }).pipe(map(toManualOrderDraft));
+  }
+
+  updateManualSalesOrderDraftDelivery(id: string, version: number, command: ManualOrderDeliveryCommand): Observable<ManualOrderDraft> {
+    return this.http.put<ApiRecord>(this.api(`/sales-orders/manual-drafts/${encodeURIComponent(id)}/delivery`), command, {
+      headers: this.ifMatch(version)
+    }).pipe(map(toManualOrderDraft));
+  }
+
+  reviewManualSalesOrderDraft(id: string): Observable<ManualOrderReview> {
+    return this.http.get<ApiRecord>(this.api(`/sales-orders/manual-drafts/${encodeURIComponent(id)}/review`)).pipe(map(toManualOrderReview));
+  }
+
+  submitManualSalesOrderDraft(id: string, version: number, idempotencyKey = this.idempotencyKey()): Observable<SalesOrder> {
+    return this.http.post<ApiRecord>(this.api(`/sales-orders/manual-drafts/${encodeURIComponent(id)}/submissions`), null, {
+      headers: this.ifMatch(version).set('Idempotency-Key', idempotencyKey)
+    }).pipe(map(toSalesOrder));
+  }
+
+  abandonManualSalesOrderDraft(id: string, version: number): Observable<ManualOrderDraft> {
+    return this.http.post<ApiRecord>(this.api(`/sales-orders/manual-drafts/${encodeURIComponent(id)}/abandonments`), null, {
+      headers: this.ifMatch(version)
+    }).pipe(map(toManualOrderDraft));
   }
 
   createPurchaseRequest(command: CreatePurchaseRequestCommand): Observable<PurchaseRequest> {

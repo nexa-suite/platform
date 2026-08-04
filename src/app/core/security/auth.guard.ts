@@ -20,5 +20,6 @@ export const anonymousGuard: CanActivateFn = (_route, routerState) => {
 
   if (authentication.status() !== 'authenticated') return true;
 
-  return router.createUrlTree([safeReturnUrl(routerState.root.queryParams['returnUrl']) || PLATFORM_ROUTES.landing]);
+  const returnUrl = routerState.root.queryParams['returnUrl'];
+  return router.parseUrl(safeReturnUrl(typeof returnUrl === 'string' ? returnUrl : PLATFORM_ROUTES.landing));
 };

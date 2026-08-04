@@ -18,7 +18,7 @@ const session: AuthSession = {
 };
 
 describe('AuthenticationService', () => {
-  const api = { login: vi.fn(), currentSession: vi.fn(), refresh: vi.fn() };
+  const api = { login: vi.fn(), currentSession: vi.fn(), refresh: vi.fn(), signOut: vi.fn() };
   let service: AuthenticationService;
 
   beforeEach(() => {
@@ -57,5 +57,18 @@ describe('AuthenticationService', () => {
     expect(service.status()).toBe('error');
     expect(service.state().message).toBe('SIGN_IN_FAILED');
     expect(service.state().message).not.toContain('secret');
+  });
+
+  it('revokes the server session and clears the local session on logout', () => {
+    api.login.mockReturnValue(of(session));
+    api.currentSession.mockReturnValue(of(session));
+    api.signOut.mockReturnValue(of(undefined));
+    service.signIn({ identifier: 'carlos@icisa.pe', password: 'password', workspaceSlug: 'icisa' }).subscribe();
+
+    service.signOut().subscribe();
+
+    expect(api.signOut).toHaveBeenCalledWith('token-in-memory');
+    expect(service.status()).toBe('anonymous');
+    expect(service.accessToken()).toBeNull();
   });
 });

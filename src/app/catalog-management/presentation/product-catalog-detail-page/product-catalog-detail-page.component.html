@@ -25,12 +25,12 @@
 <ng-template #detailTemplate let-product>
   <nexa-page-header
     [eyebrow]="'catalog.detailEyebrow' | translate"
-    [title]="product.name"
+    [title]="product.productFamilyName"
     [subtitle]="product.brand" />
   <mat-card class="detail-card">
     <div class="image-frame">
       @if (product.image.url) {
-        <img [src]="product.image.url" [alt]="product.name" />
+        <img [src]="product.image.url" [alt]="product.productFamilyName" />
       } @else {
         <nexa-icon name="image" />
       }
@@ -39,10 +39,13 @@
       <div class="badges">
         <nexa-cold-chain-badge [label]="coldChainLabel(product.coldChain) | translate" [variant]="coldChainVariant(product.coldChain)" />
       </div>
-      <p class="category">{{ product.category }}</p>
+      <p class="category">{{ product.category }} · {{ product.skuCode || product.id }}</p>
       <p class="description">{{ product.description }}</p>
       <dl class="commercial-details">
         <div><dt>{{ 'catalog.columns.presentation' | translate }}</dt><dd>{{ product.presentation }}</dd></div>
+        <div><dt>Product Family</dt><dd>{{ product.productFamilyName }}</dd></div>
+        <div><dt>Availability</dt><dd [class.near-expiry]="product.nearExpiry">{{ product.availabilityStatus }}</dd></div>
+        @if (product.unitOfMeasure) { <div><dt>{{ 'catalog.fields.unitOfMeasure' | translate }}</dt><dd>{{ product.unitOfMeasure }}</dd></div> }
         <div><dt>{{ 'catalog.columns.price' | translate }}</dt><dd>{{ formatPrice(product) }}</dd></div>
       </dl>
     </div>

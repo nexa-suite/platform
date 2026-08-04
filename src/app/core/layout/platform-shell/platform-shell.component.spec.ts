@@ -48,6 +48,18 @@ describe('PlatformShellComponent', () => {
     fixture.detectChanges();
 
     expect(fixture.componentInstance.navigation().map((item) => item.path)).toEqual(['/ops/catalog']);
-    expect(fixture.componentInstance.availableAreas()).toEqual([]);
+    expect(fixture.componentInstance.availableAreas().map((area) => area.path)).toEqual(['/ops/catalog']);
+  });
+
+  it('offers a permission-backed area for a tenant-defined role', () => {
+    const auth = TestBed.inject(AuthenticationService) as unknown as {
+      currentUser: ReturnType<typeof signal>;
+      hasPermission: ReturnType<typeof vi.fn>;
+    };
+    auth.currentUser.set({ subject: 'u1', identifier: 'custom@nexa.test', displayName: 'Custom', workspaceSlug: 'icisa', roles: [], roleCodes: ['CUSTOM_SALES'], permissions: ['sales:read'] });
+    auth.hasPermission.mockImplementation((permission: string) => permission === 'sales:read');
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.availableAreas().map((area) => area.path)).toEqual(['/ops/commercial/dashboard']);
   });
 });

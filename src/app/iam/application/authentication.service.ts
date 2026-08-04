@@ -1,14 +1,25 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
+import { Router } from '@angular/router';
 import { Observable, catchError, map, of, switchMap, tap, throwError } from 'rxjs';
 import { INITIAL_AUTH_STATE, AuthSession, AuthState, AuthStatus, AuthenticatedUser, SignInCommand } from '../domain/models/auth.models';
 import { AuthApiService } from '../infrastructure/http/auth-api.service';
 import { AccessTokenStore } from '../infrastructure/token/access-token.store';
+import { AuthLifecycleChannel } from '../../core/security/auth-lifecycle.channel';
 
 @Injectable({ providedIn: 'root' })
 export class AuthenticationService {
   private readonly api = inject(AuthApiService);
   private readonly tokenStore = inject(AccessTokenStore);
+  private readonly lifecycle = inject(AuthLifecycleChannel);
+  private readonly router = inject(Router, { optional: true });
   private readonly stateSignal = signal<AuthState>(INITIAL_AUTH_STATE);
+
+  constructor() {
+    this.lifecycle.events.subscribe(() => {
+      this.clearLocalSession();
+      void this.router?.navigateByUrl('/sign-in', { replaceUrl: true });
+    });
+  }
 
   readonly state = this.stateSignal.asReadonly();
   readonly status = computed<AuthStatus>(() => this.stateSignal().status);
@@ -76,22 +87,31 @@ export class AuthenticationService {
   }
 
   expireSession(): void {
-    this.tokenStore.clear();
-    this.stateSignal.set({ status: 'anonymous', user: null, message: 'SESSION_EXPIRED' });
+    this.clearLocalSession('SESSION_EXPIRED');
+    this.lifecycle.broadcastLogout();
+    void this.router?.navigateByUrl('/sign-in', { replaceUrl: true });
   }
 
-  signOut(): void {
-    this.stateSignal.update((current) => ({ ...current, status: 'signingOut', message: null }));
-    this.api.signOut(this.tokenStore.read()).pipe(
-      catchError(() => of(void 0))
-    ).subscribe(() => {
-      this.tokenStore.clear();
-      this.stateSignal.set({ status: 'anonymous', user: null, message: null });
-    });
+  signOut(): Observable<void> {
+    const accessToken = this.tokenStore.read();
+    this.stateSignal.set({ status: 'signingOut', user: null, message: null });
+    return this.api.signOut(accessToken).pipe(
+      catchError(() => of(void 0)),
+      tap(() => {
+        this.clearLocalSession();
+        this.lifecycle.broadcastLogout();
+      }),
+      map(() => undefined),
+    );
   }
 
   private acceptSession(session: AuthSession): void {
     this.tokenStore.write(session.accessToken);
     this.stateSignal.set({ status: 'authenticated', user: session.user, message: null });
+  }
+
+  private clearLocalSession(message: string | null = null): void {
+    this.tokenStore.clear();
+    this.stateSignal.set({ status: 'anonymous', user: null, message });
   }
 }

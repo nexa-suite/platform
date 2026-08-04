@@ -15,11 +15,11 @@
       <strong>{{ currentUser()?.workspaceSlug }}</strong>
       @if (availableAreas().length > 1) {
         <label class="workspace-area-label" for="workspace-area">{{ 'shell.areaSelector' | translate }}</label>
-        <select id="workspace-area" [value]="selectedArea()?.role ?? ''" [attr.aria-label]="'shell.areaSelector' | translate" (change)="switchArea($any($event.target).value)">
-          @for (entry of availableAreas(); track entry.role) { <option [value]="entry.role">{{ ('shell.roles.' + entry.role) | translate }}</option> }
+        <select id="workspace-area" [value]="selectedArea()?.id ?? ''" [attr.aria-label]="'shell.areaSelector' | translate" (change)="switchArea($any($event.target).value)">
+          @for (entry of availableAreas(); track entry.id) { <option [value]="entry.id">{{ entry.labelKey | translate }}</option> }
         </select>
       } @else if (selectedArea(); as entry) {
-        <span class="workspace-area">{{ ('shell.roles.' + entry.role) | translate }}</span>
+        <span class="workspace-area">{{ entry.labelKey | translate }}</span>
       }
     </section>
 

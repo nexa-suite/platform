@@ -27,6 +27,64 @@ export interface CatalogBrand {
   readonly version: number;
 }
 
+export interface CatalogProductFamily {
+  readonly id: string;
+  readonly code: string;
+  readonly name: string;
+  readonly description: string;
+  readonly categoryId: string;
+  readonly categoryName: string;
+  readonly brandId: string;
+  readonly brandName: string;
+  readonly countryOfOrigin: string | null;
+  readonly manufacturerReference: string | null;
+  readonly supplierReference: string | null;
+  readonly storageFamily: string;
+  readonly status: CatalogLifecycleStatus;
+  readonly skuCount: number;
+  readonly imagePath: string | null;
+  readonly imageFileName: string | null;
+  readonly version: number;
+  readonly createdAt: string;
+  readonly updatedAt: string;
+}
+
+export interface CatalogSellableSku {
+  readonly id: string;
+  readonly familyId: string;
+  readonly familyCode: string;
+  readonly familyName: string;
+  readonly categoryName: string;
+  readonly brandName: string;
+  readonly skuCode: string;
+  readonly gtin: string | null;
+  readonly presentation: string;
+  readonly packagingType: string;
+  readonly unitOfMeasure: string;
+  readonly netWeight: number | null;
+  readonly grossWeight: number | null;
+  readonly packQuantity: number;
+  readonly temperatureMin: number | null;
+  readonly temperatureMax: number | null;
+  readonly shelfLifeDays: number;
+  readonly minimumRemainingShelfLifeDays: number;
+  readonly lotTrackingRequired: boolean;
+  readonly expiryTrackingRequired: boolean;
+  readonly taxCategory: string;
+  readonly status: CatalogLifecycleStatus;
+  readonly visible: boolean;
+  readonly version: number;
+  readonly legacyCatalogItemId: string | null;
+  readonly imagePath: string | null;
+  readonly imageFileName: string | null;
+  readonly availabilityStatus: string;
+  readonly nearExpiry: boolean;
+  readonly availabilityAsOf: string | null;
+  readonly currentPrice: CatalogPrice | null;
+  readonly createdAt: string;
+  readonly updatedAt: string;
+}
+
 export interface CatalogProduct {
   readonly id: string;
   readonly catalogItemId: string;
@@ -50,7 +108,8 @@ export interface CatalogProduct {
 
 export interface CatalogPrice {
   readonly id: string;
-  readonly productId: string;
+  readonly skuId?: string;
+  readonly productId?: string;
   readonly amount: number;
   readonly currency: string;
   readonly validFrom: string;

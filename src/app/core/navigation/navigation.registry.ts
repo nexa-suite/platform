@@ -25,8 +25,7 @@ const ADMINISTRATION_ITEMS: readonly PlatformNavigationItem[] = [
 const COMMERCIAL_ITEMS: readonly PlatformNavigationItem[] = [
   { labelKey: 'shell.navigation.salesDashboard', path: '/ops/commercial/dashboard', icon: 'monitoring', permission: PLATFORM_PERMISSIONS.salesRead },
   { labelKey: 'shell.navigation.clientAccounts', path: '/ops/commercial/client-accounts', icon: 'handshake', permission: PLATFORM_PERMISSIONS.salesRead },
-  { labelKey: 'shell.navigation.requestBuilder', path: '/ops/commercial/request-builder', icon: 'playlist_add', permission: PLATFORM_PERMISSIONS.salesWrite },
-  { labelKey: 'shell.navigation.manualSalesOrder', path: '/ops/commercial/manual-sales-order', icon: 'add_shopping_cart', permission: PLATFORM_PERMISSIONS.salesWrite },
+  { labelKey: 'shell.navigation.manualSalesOrder', path: '/ops/commercial/manual-orders/new', icon: 'add_shopping_cart', permission: PLATFORM_PERMISSIONS.salesWrite },
   { labelKey: 'shell.navigation.purchaseRequests', path: '/ops/commercial/purchase-requests', icon: 'request_quote', permission: PLATFORM_PERMISSIONS.salesRead },
   { labelKey: 'shell.navigation.salesOrders', path: '/ops/commercial/sales-orders', icon: 'receipt_long', permission: PLATFORM_PERMISSIONS.salesRead }
 ];
