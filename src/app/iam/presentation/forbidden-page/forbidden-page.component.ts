@@ -4,7 +4,7 @@ import { MatCardModule } from '@angular/material/card';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 import { PLATFORM_ROUTES } from '../../../core/routing/route-paths';
-import { PLATFORM_LANDINGS, PLATFORM_ROLE_PRIORITY } from '../../../core/security/platform-permissions';
+import { firstPermittedPlatformLanding } from '../../../core/security/platform-permissions';
 import { AuthenticationService } from '../../application/authentication.service';
 import { NexaIconComponent } from '../../../shared/presentation/components/nexa-icon/nexa-icon.component';
 
@@ -27,11 +27,6 @@ export class ForbiddenPageComponent {
   });
   protected readonly reasonKey = computed(() => `auth.forbidden.reasons.${this.reason()}`);
   protected readonly overviewRoute = computed(() => {
-    const user = this.authentication.currentUser();
-    for (const role of PLATFORM_ROLE_PRIORITY) {
-      const landing = PLATFORM_LANDINGS[role];
-      if (user?.roles.includes(role) && this.authentication.hasPermission(landing.permission)) return landing.path;
-    }
-    return PLATFORM_ROUTES.landing;
+    return firstPermittedPlatformLanding(this.authentication.hasPermission)?.path ?? PLATFORM_ROUTES.landing;
   });
 }

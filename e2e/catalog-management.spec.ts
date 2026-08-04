@@ -108,7 +108,7 @@ test('Company Owner completes the canonical Product Family, SKU and price mutati
   expect((await skuActivation.json() as SellableSku).status).toBe('ACTIVE');
 
   const priceResponse = await page.request.post(`${API_URL}/api/v1/skus/${sku.id}/prices`, {
-    headers,
+    headers: { ...headers, 'Idempotency-Key': `e2e-price-${suffix}` },
     data: {
       amount: 19.99,
       currency: 'USD',

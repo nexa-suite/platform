@@ -18,4 +18,10 @@ describe('Platform catalog route matrix', () => {
     expect(alias?.redirectTo).toBe('ops/catalog/products');
     expect(alias?.pathMatch).toBe('full');
   });
+
+  it('protects the business-document feature with the canonical document permission', () => {
+    const shell = routes.find((route) => route.path === '');
+    const route = shell?.children?.find((candidate) => candidate.path === 'ops/operations/business-documents');
+    expect(route?.canActivate).toBeTruthy();
+  });
 });

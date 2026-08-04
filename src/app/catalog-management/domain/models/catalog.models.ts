@@ -14,12 +14,23 @@ export interface CatalogImage {
 
 export interface ProductCatalogItem {
   readonly id: string;
+  readonly productFamilyId: string | null;
+  readonly productFamilyCode: string | null;
+  readonly productFamilyName: string;
+  readonly sellableSkuId: string | null;
+  readonly skuCode: string | null;
   readonly name: string;
   readonly brand: string;
   readonly category: string;
   readonly presentation: string;
+  readonly unitOfMeasure: string | null;
+  readonly packagingType: string | null;
+  readonly netWeight: number | null;
+  readonly grossWeight: number | null;
   readonly unitPrice: CatalogMoney;
   readonly coldChain: ColdChainRequirement;
+  readonly availabilityStatus: string;
+  readonly nearExpiry: boolean;
   readonly image: CatalogImage;
 }
 

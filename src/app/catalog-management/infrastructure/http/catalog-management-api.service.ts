@@ -1,10 +1,11 @@
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable, map } from 'rxjs';
-import { platformApiUrl, PLATFORM_RUNTIME_CONFIG } from '../../../core/security/runtime-config';
+import { platformApiUrl, platformMediaUrl, PLATFORM_RUNTIME_CONFIG } from '../../../core/security/runtime-config';
 import {
   CatalogBrand, CatalogBrandCommand, CatalogCategory, CatalogCategoryCommand, CatalogLifecycleStatus,
   CatalogManagementPage, CatalogPrice, CatalogPriceCommand, CatalogProduct, CatalogProductCommand,
+  CatalogProductFamily, CatalogSellableSku,
   CatalogPromotion, CatalogPromotionCommand
 } from '../../domain/models/catalog-management.models';
 
@@ -27,6 +28,25 @@ export class CatalogManagementApiService {
   updateBrand(id: string, version: number, command: CatalogBrandCommand): Observable<CatalogBrand> { return this.update(`/catalog/brands/${encodeURIComponent(id)}`, version, command); }
   changeBrandStatus(id: string, version: number, status: 'ACTIVE' | 'INACTIVE'): Observable<CatalogBrand> { return this.lifecycle<CatalogBrand>(`/catalog/brands/${encodeURIComponent(id)}/${status === 'ACTIVE' ? 'activations' : 'deactivations'}`, version); }
 
+  families(search = ''): Observable<CatalogManagementPage<CatalogProductFamily>> {
+    return this.getPage<CatalogProductFamily>('/product-families', search).pipe(map((page) => ({ ...page, items: page.items.map((family) => this.mapFamily(family)) })));
+  }
+  family(id: string): Observable<CatalogProductFamily> {
+    return this.http.get<CatalogProductFamily>(this.api(`/product-families/${encodeURIComponent(id)}`)).pipe(map((family) => this.mapFamily(family)));
+  }
+  skus(search = '', familyId?: string): Observable<CatalogManagementPage<CatalogSellableSku>> {
+    let params = new HttpParams().set('page', 0).set('size', 100);
+    if (search) params = params.set('search', search);
+    if (familyId) params = params.set('familyId', familyId);
+    return this.http.get<CatalogManagementPage<CatalogSellableSku>>(this.api('/skus'), { params }).pipe(map((page) => ({
+      ...page, totalPages: page.totalPages ?? (page.total ? Math.ceil(page.total / page.size) : 0),
+      items: page.items.map((sku) => this.mapSku(sku))
+    })));
+  }
+  sku(id: string): Observable<CatalogSellableSku> {
+    return this.http.get<CatalogSellableSku>(this.api(`/skus/${encodeURIComponent(id)}`)).pipe(map((sku) => this.mapSku(sku)));
+  }
+
   products(search = '', status = ''): Observable<CatalogManagementPage<CatalogProduct>> {
     let params = new HttpParams().set('page', 0).set('size', 100);
     if (search) params = params.set('search', search);
@@ -41,9 +61,8 @@ export class CatalogManagementApiService {
     return this.lifecycle<CatalogProduct>(`/catalog/products/${encodeURIComponent(id)}/${suffix[status]}`, version);
   }
 
-  prices(productId: string): Observable<readonly CatalogPrice[]> { return this.http.get<readonly CatalogPrice[]>(this.api(`/catalog/products/${encodeURIComponent(productId)}/prices`)); }
-  createPrice(productId: string, command: CatalogPriceCommand): Observable<CatalogPrice> { return this.create(`/catalog/products/${encodeURIComponent(productId)}/prices`, command); }
-  cancelPrice(id: string, version: number): Observable<CatalogPrice> { return this.lifecycle<CatalogPrice>(`/catalog/prices/${encodeURIComponent(id)}/cancellations`, version); }
+  prices(skuId: string): Observable<readonly CatalogPrice[]> { return this.http.get<readonly CatalogPrice[]>(this.api(`/skus/${encodeURIComponent(skuId)}/prices`)); }
+  createPrice(skuId: string, command: CatalogPriceCommand): Observable<CatalogPrice> { return this.create(`/skus/${encodeURIComponent(skuId)}/prices`, command); }
 
   promotions(status = ''): Observable<CatalogManagementPage<CatalogPromotion>> {
     let params = new HttpParams().set('page', 0).set('size', 100);
@@ -68,5 +87,9 @@ export class CatalogManagementApiService {
   private lifecycle<T>(path: string, version: number): Observable<T> { return this.http.post<T>(this.api(path), {}, { headers: this.ifMatch(version) }); }
   private ifMatch(version: number): HttpHeaders { return new HttpHeaders({ 'If-Match': `"${version}"` }); }
   private idempotencyKey(): string { return globalThis.crypto?.randomUUID?.() ?? `catalog-${Date.now()}-${Math.random().toString(36).slice(2)}`; }
+  private mapFamily(value: CatalogProductFamily): CatalogProductFamily { return { ...value, imagePath: platformMediaUrl(this.config, value.imagePath) }; }
+  private mapSku(value: CatalogSellableSku): CatalogSellableSku {
+    return { ...value, imagePath: platformMediaUrl(this.config, value.imagePath), currentPrice: value.currentPrice ? { ...value.currentPrice, skuId: value.currentPrice.skuId ?? value.id, productId: value.currentPrice.productId ?? value.id } : null };
+  }
   private api(path: string): string { return platformApiUrl(this.config, `/api/v1${path}`); }
 }

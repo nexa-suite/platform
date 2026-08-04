@@ -11,9 +11,8 @@ import { map } from 'rxjs';
 import { BrandLogoComponent } from '../../../shared/presentation/components/brand-logo/brand-logo.component';
 import { LanguageSwitcherComponent } from '../../i18n/language-switcher/language-switcher.component';
 import { AuthenticationService } from '../../../iam/application/authentication.service';
-import { InternalRole, isInternalRole } from '../../../iam/domain/models/auth.models';
 import { PLATFORM_NAVIGATION_GROUPS } from '../../navigation/navigation.registry';
-import { PLATFORM_AREAS } from '../../security/platform-permissions';
+import { PLATFORM_AREAS, PLATFORM_PERMISSION_WORK_AREAS, PlatformWorkArea } from '../../security/platform-permissions';
 import { NexaIconComponent } from '../../../shared/presentation/components/nexa-icon/nexa-icon.component';
 import { PlatformNotificationsService } from '../../notifications/platform-notifications.service';
 
@@ -51,27 +50,36 @@ export class PlatformShellComponent {
   readonly isMobile = toSignal(this.breakpoints.observe('(max-width: 760px)').pipe(map((state) => state.matches)), { initialValue: false });
   readonly mobileNavOpen = signal(false);
   readonly notificationsOpen = signal(false);
-  readonly selectedAreaRole = signal<InternalRole | null>(null);
+  readonly selectedAreaId = signal<string | null>(null);
   readonly navigationGroups = computed(() => this.currentUser()
     ? PLATFORM_NAVIGATION_GROUPS
       .map((group) => ({ ...group, items: group.items.filter((item) => this.authentication.hasPermission(item.permission)) }))
       .filter((group) => group.items.length > 0)
     : []);
   readonly navigation = computed(() => this.navigationGroups().flatMap((group) => group.items));
-  readonly availableAreas = computed(() => (this.currentUser()?.roles ?? [])
-    .map((role) => ({ role, area: PLATFORM_AREAS[role] }))
-    .filter(({ area }) => this.authentication.hasPermission(area.permission)));
+  readonly availableAreas = computed<readonly PlatformWorkArea[]>(() => {
+    const user = this.currentUser();
+    if (!user) return [];
+
+    const fixedRoleAreas = user.roles
+      .map((role): PlatformWorkArea | null => {
+        const area = PLATFORM_AREAS[role];
+        return area ? { ...area, id: role, labelKey: `shell.roles.${role}` } : null;
+      })
+      .filter((area): area is PlatformWorkArea => area !== null && this.authentication.hasPermission(area.permission));
+
+    if (fixedRoleAreas.length) return fixedRoleAreas;
+    return PLATFORM_PERMISSION_WORK_AREAS.filter((area) => this.authentication.hasPermission(area.permission));
+  });
   readonly selectedArea = computed(() => {
-    const selected = this.selectedAreaRole();
-    return this.availableAreas().find(({ role }) => role === selected) ?? this.availableAreas()[0] ?? null;
+    const selected = this.selectedAreaId();
+    return this.availableAreas().find(({ id }) => id === selected) ?? this.availableAreas()[0] ?? null;
   });
 
   switchArea(value: string): void {
-    if (!isInternalRole(value)) return;
-    const role = value as InternalRole;
-    const area = PLATFORM_AREAS[role];
-    if (!this.currentUser()?.roles.includes(role) || !this.authentication.hasPermission(area.permission)) return;
-    this.selectedAreaRole.set(role);
+    const area = this.availableAreas().find((candidate) => candidate.id === value);
+    if (!area || !this.authentication.hasPermission(area.permission)) return;
+    this.selectedAreaId.set(area.id);
     this.closeMobileNav();
     void this.router.navigateByUrl(area.path);
   }
@@ -82,6 +90,8 @@ export class PlatformShellComponent {
   markNotificationsRead(): void { this.notifications.markAllRead(); }
 
   signOut(): void {
-    this.authentication.signOut();
+    this.authentication.signOut().subscribe({
+      complete: () => void this.router.navigateByUrl('/sign-in', { replaceUrl: true }),
+    });
   }
 }

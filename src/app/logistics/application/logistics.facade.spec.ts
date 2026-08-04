@@ -1,5 +1,6 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
 import { vi } from 'vitest';
 import { AuthenticationService } from '../../iam/application/authentication.service';
 import { DispatchOrder } from '../domain/logistics.models';
@@ -30,5 +31,30 @@ describe('LogisticsFacade', () => {
 
     expect(api.prepare).not.toHaveBeenCalled();
     expect(facade.error()).toBe('LOGISTICS_WRITE_FORBIDDEN');
+  });
+
+  it('exposes only transitions backed by an existing authoritative API command', () => {
+    const api = { dispatches: vi.fn(() => of({ items: [dispatch] })) };
+    TestBed.configureTestingModule({ providers: [LogisticsFacade, { provide: LogisticsApiService, useValue: api }, { provide: AuthenticationService, useValue: { hasPermission: vi.fn(() => true) } }] });
+    const facade = TestBed.inject(LogisticsFacade);
+
+    expect(facade.moveTargets(dispatch)).toEqual(['PREPARING']);
+    expect(facade.canMove(dispatch, 'PREPARING')).toBe(true);
+    expect(facade.canMove(dispatch, 'ASSIGNED')).toBe(false);
+  });
+
+  it('reloads the board and exposes a controlled message after a stale ETag', () => {
+    const api = {
+      prepare: vi.fn(() => throwError(() => new HttpErrorResponse({ status: 412, statusText: 'Precondition Failed' }))),
+      dispatches: vi.fn(() => of({ items: [dispatch] })),
+    };
+    TestBed.configureTestingModule({ providers: [LogisticsFacade, { provide: LogisticsApiService, useValue: api }, { provide: AuthenticationService, useValue: { hasPermission: vi.fn(() => true) } }] });
+    const facade = TestBed.inject(LogisticsFacade);
+
+    facade.moveToStatus(dispatch, 'PREPARING');
+
+    expect(api.prepare).toHaveBeenCalledWith(dispatch);
+    expect(api.dispatches).toHaveBeenCalled();
+    expect(facade.error()).toBe('LOGISTICS_CONCURRENCY_CONFLICT');
   });
 });
