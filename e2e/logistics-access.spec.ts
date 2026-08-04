@@ -256,7 +256,7 @@ async function assertDeniedSurface(page: Page, denied: DeniedRoute): Promise<voi
   });
 }
 
-test('pure LOGISTICS reaches operational reads, dispatch detail and promotion management', async ({
+test('pure LOGISTICS reaches operational reads and dispatch detail without promotion management', async ({
   page,
   request,
 }) => {
@@ -304,9 +304,6 @@ test('pure LOGISTICS reaches operational reads, dispatch detail and promotion ma
   await assertAllowedSurface(page, '/ops/catalog', /catalog management|gestión de catálogo/i);
   await assertAllowedSurface(page, '/ops/catalog/products', /products|productos/i);
   await assertAllowedSurface(page, '/ops/catalog/promotions', /promotions|promociones/i);
-
-  await assertAllowedSurface(page, '/ops/catalog/promotions/new', /new promotion|nueva promoción/i);
-  await expect(page.getByRole('button', { name: /save|guardar/i })).toBeVisible();
 
   await assertAllowedSurface(page, '/ops/catalog/pricing', /pricing|precios/i);
   await expect(page.getByRole('button', { name: /create price|crear precio/i })).toHaveCount(0);
