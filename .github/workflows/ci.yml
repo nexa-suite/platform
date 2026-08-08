@@ -65,6 +65,22 @@ jobs:
             echo "NEXA_E2E_BUYER_PASSWORD=CI-Buyer-Password-2026!"
             echo "NEXA_E2E_SYSTEM_OPERATOR=ci-system-operator-token-0123456789-abcdefghijklmnopqrstuvwxyz"
           } >> "$GITHUB_ENV"
+      - name: Mask isolated test credentials
+        run: |
+          for value in \
+            'ci-postgres-password' \
+            'CI-Owner-Password-2026!' \
+            'CI-Tenant-Admin-Password-2026!' \
+            'CI-Company-Owner-Password-2026!' \
+            'CI-Sales-Password-2026!' \
+            'CI-Warehouse-Password-2026!' \
+            'CI-Logistics-Password-2026!' \
+            'CI-Buyer-Password-2026!' \
+            'ci-system-operator-token-0123456789-abcdefghijklmnopqrstuvwxyz' \
+            'ci-notification-outbox-key-012345678901234567890123456789' \
+            'ci-reset-throttle-key-012345678901234567890123456789'; do
+            echo "::add-mask::$value"
+          done
       - name: Start isolated API runtime
         working-directory: api
         env:
