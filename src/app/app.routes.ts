@@ -22,14 +22,23 @@ import { tenantManagementRoutes } from './tenant-management/tenant-management.ro
 const roleLandingRedirect: RedirectFunction = () => {
   const auth = inject(AuthenticationService);
   const router = inject(Router);
+  if (auth.status() !== 'authenticated') {
+    return router.createUrlTree(['/sign-in'], { queryParams: { returnUrl: '/' } });
+  }
   const landing = platformLandingForUser(auth.currentUser(), auth.hasPermission);
   return router.createUrlTree([landing?.path ?? '/forbidden']);
 };
 const dynamicRedirect = (target: string, parameter: string): RedirectFunction => (route) =>
   inject(Router).createUrlTree([target, route.params[parameter]]);
+const businessDocumentsOrderRedirect: RedirectFunction = (route) =>
+  inject(Router).createUrlTree(['/ops/operations/business-documents'], { queryParams: { orderId: route.params['orderId'] } });
 
 export const routes: Routes = [
   ...tenantManagementRoutes,
+  { path: 'auth/login', pathMatch: 'full', redirectTo: 'sign-in' },
+  { path: 'auth/recover', pathMatch: 'full', redirectTo: 'forgot-password' },
+  { path: 'auth/blocked', pathMatch: 'full', redirectTo: 'forbidden' },
+  { path: 'auth/forbidden', pathMatch: 'full', redirectTo: 'forbidden' },
   { path: 'sign-in', loadComponent: () => import('./iam/presentation/sign-in-page/sign-in-page.component').then((module) => module.SignInPageComponent), canActivate: [anonymousGuard] },
   { path: 'forgot-password', loadComponent: () => import('./iam/presentation/forgot-password-page/forgot-password-page.component').then((module) => module.ForgotPasswordPageComponent) },
   { path: 'reset-password', loadComponent: () => import('./iam/presentation/reset-password-page/reset-password-page.component').then((module) => module.ResetPasswordPageComponent) },
@@ -98,14 +107,17 @@ export const routes: Routes = [
       {
         path: 'ops/operations/fulfillment-readiness', data: { mode: 'readiness' },
         loadComponent: () => import('./warehouse/presentation/fulfillment-readiness-page.component').then((module) => module.FulfillmentReadinessPageComponent),
-        canActivate: [permissionGuard(PLATFORM_PERMISSIONS.fulfillmentRead)], providers: [WarehouseOperationsApiService, WarehouseOperationsFacade]
+        canActivate: [permissionGuard(PLATFORM_PERMISSIONS.fulfillmentRead)], providers: [WarehouseOperationsApiService, WarehouseOperationsFacade, SalesOperationsApiService]
       },
       { path: 'ops/operations/inventory-overview', loadComponent: () => import('./warehouse/presentation/inventory-overview-page.component').then((module) => module.InventoryOverviewPageComponent), canActivate: [permissionGuard(PLATFORM_PERMISSIONS.warehouseRead)], providers: [WarehouseOperationsApiService, WarehouseOperationsFacade] },
+      { path: 'ops/operations/inventory-control', pathMatch: 'full', redirectTo: 'ops/operations/inventory' },
+      { path: 'ops/operations/inventory-lots', pathMatch: 'full', redirectTo: 'ops/operations/inventory/lots' },
       { path: 'ops/operations/dispatch-orders', loadComponent: () => import('./logistics/presentation/dispatch-board-page.component').then((module) => module.DispatchBoardPageComponent), canActivate: [permissionGuard(PLATFORM_PERMISSIONS.logisticsRead)] },
       { path: 'ops/operations/dispatch-orders/:dispatchOrderId', loadComponent: () => import('./logistics/presentation/dispatch-detail-page.component').then((module) => module.DispatchDetailPageComponent), canActivate: [permissionGuard(PLATFORM_PERMISSIONS.logisticsRead)] },
       { path: 'ops/operations/proof-of-delivery', loadComponent: () => import('./logistics/presentation/proof-of-delivery-page.component').then((module) => module.ProofOfDeliveryPageComponent), canActivate: [permissionGuard(PLATFORM_PERMISSIONS.logisticsRead)] },
       { path: 'ops/operations/temperature-incidents', loadComponent: () => import('./logistics/presentation/temperature-incidents-page.component').then((module) => module.TemperatureIncidentsPageComponent), canActivate: [permissionGuard(PLATFORM_PERMISSIONS.logisticsRead)] },
       { path: 'ops/operations/operational-analytics', loadComponent: () => import('./logistics/presentation/operational-analytics-page.component').then((module) => module.OperationalAnalyticsPageComponent), canActivate: [permissionGuard(PLATFORM_PERMISSIONS.logisticsRead)] },
+      { path: 'ops/operations/business-documents/orders/:orderId', redirectTo: businessDocumentsOrderRedirect },
       { path: 'ops/operations/business-documents', loadComponent: () => import('./documents/presentation/business-documents-page.component').then((module) => module.BusinessDocumentsPageComponent), canActivate: [permissionGuard(PLATFORM_PERMISSIONS.documentRead)] },
       { path: 'ops/catalog', pathMatch: 'full', loadComponent: () => import('./catalog-management/presentation/catalog-home-page/catalog-home-page.component').then((module) => module.CatalogHomePageComponent), canActivate: [catalogReadGuard] },
       { path: 'ops/catalog/products', pathMatch: 'full', loadComponent: () => import('./catalog-management/presentation/catalog-products-page/catalog-products-page.component').then((module) => module.CatalogProductsPageComponent), canActivate: [catalogReadGuard] },
@@ -117,10 +129,14 @@ export const routes: Routes = [
       { path: 'ops/catalog/brands', data: { kind: 'brands' }, loadComponent: () => import('./catalog-management/presentation/catalog-taxonomy-page/catalog-taxonomy-page.component').then((module) => module.CatalogTaxonomyPageComponent), canActivate: [catalogManageGuard] },
       { path: 'ops/catalog/pricing', loadComponent: () => import('./catalog-management/presentation/catalog-pricing-page/catalog-pricing-page.component').then((module) => module.CatalogPricingPageComponent), canActivate: [catalogReadGuard] },
       { path: 'ops/catalog/promotions', loadComponent: () => import('./catalog-management/presentation/catalog-promotions-page/catalog-promotions-page.component').then((module) => module.CatalogPromotionsPageComponent), canActivate: [promotionReadGuard] },
-      { path: 'ops/catalog/promotions/new', loadComponent: () => import('./catalog-management/presentation/catalog-promotion-form-page/catalog-promotion-form-page.component').then((module) => module.CatalogPromotionFormPageComponent), canActivate: [promotionManageGuard] },
-      { path: 'ops/catalog/promotions/:promotionId', loadComponent: () => import('./catalog-management/presentation/catalog-promotion-form-page/catalog-promotion-form-page.component').then((module) => module.CatalogPromotionFormPageComponent), canActivate: [promotionReadGuard] },
+      { path: 'ops/catalog/promotions/new', loadComponent: () => import('./catalog-management/presentation/catalog-promotion-form-page/catalog-promotion-form-page.component').then((module) => module.CatalogPromotionFormPageComponent), canActivate: [promotionManageGuard], providers: [SalesOperationsApiService] },
+      { path: 'ops/catalog/promotions/:promotionId', loadComponent: () => import('./catalog-management/presentation/catalog-promotion-form-page/catalog-promotion-form-page.component').then((module) => module.CatalogPromotionFormPageComponent), canActivate: [promotionReadGuard], providers: [SalesOperationsApiService] },
       { path: 'ops/product-catalog', pathMatch: 'full', redirectTo: 'ops/catalog/products' },
       { path: 'ops/product-catalog/:catalogItemId', loadComponent: () => import('./catalog-management/presentation/product-catalog-detail-page/product-catalog-detail-page.component').then((module) => module.ProductCatalogDetailPageComponent), canActivate: [catalogReadGuard] },
+      { path: 'ops/commercial/promotions', pathMatch: 'full', redirectTo: 'ops/catalog/promotions' },
+      { path: 'ops/commercial/manual-order-entry', pathMatch: 'full', redirectTo: 'ops/commercial/manual-orders/new' },
+      { path: 'ops/commercial/business-documents/orders/:orderId', redirectTo: businessDocumentsOrderRedirect },
+      { path: 'ops/commercial/business-documents', pathMatch: 'full', redirectTo: 'ops/operations/business-documents' },
       {
         path: 'ops/operations/company-administration',
         loadComponent: () => import('./tenant-management/presentation/company-administration-page/company-administration-page.component').then((module) => module.CompanyAdministrationPageComponent),
@@ -205,6 +221,8 @@ export const routes: Routes = [
         loadComponent: () => import('./sales/sales-orders/presentation/sales-order-detail-page.component').then((module) => module.SalesOrderDetailPageComponent),
         canActivate: [permissionGuard(PLATFORM_PERMISSIONS.salesRead)], providers: [SalesOperationsApiService, SalesOrdersFacade, ChangeFeedService]
       },
+      { path: 'ops/commercial/purchase-orders', pathMatch: 'full', redirectTo: 'ops/commercial/sales-orders' },
+      { path: 'ops/commercial/purchase-orders/:salesOrderId', redirectTo: dynamicRedirect('/ops/commercial/sales-orders', 'salesOrderId') },
       {
         path: 'ops/fulfillment/readiness',
         loadComponent: () => import('./sales/sales-orders/presentation/fulfillment-readiness-page.component').then((module) => module.FulfillmentReadinessPageComponent),
@@ -217,6 +235,7 @@ export const routes: Routes = [
       { path: 'ops/commercial/orders', pathMatch: 'full', redirectTo: 'ops/commercial/sales-orders' },
       { path: 'ops/commercial/orders/:salesOrderId', redirectTo: dynamicRedirect('/ops/commercial/sales-orders', 'salesOrderId') },
       { path: 'ops/orders', pathMatch: 'full', redirectTo: 'ops/commercial/sales-orders' },
+      { path: 'ops/profile', pathMatch: 'full', redirectTo: 'iam/profile' },
       { path: 'overview', pathMatch: 'full', redirectTo: 'ops/overview' },
       { path: '**', redirectTo: '/' }
     ]

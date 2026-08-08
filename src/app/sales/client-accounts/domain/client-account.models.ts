@@ -20,6 +20,12 @@ export interface ClientAccount {
   readonly version: number;
 }
 
+export interface BuyerMembershipCandidate {
+  readonly id: string;
+  readonly email: string;
+  readonly displayName: string;
+}
+
 export interface ClientAccountAddress {
   readonly id: string;
   readonly clientAccountId: string;

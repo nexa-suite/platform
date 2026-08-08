@@ -2,7 +2,7 @@ import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable, map } from 'rxjs';
 import { platformApiUrl, PLATFORM_RUNTIME_CONFIG } from '../../../core/security/runtime-config';
-import { ClientAccount, ClientAccountAddress, ClientAccountCreateCommand, ClientAccountFilters, ClientAccountPage, ClientAccountUpdateCommand, DEFAULT_CLIENT_ACCOUNT_FILTERS, PeruReferenceOption } from '../../client-accounts/domain/client-account.models';
+import { BuyerMembershipCandidate, ClientAccount, ClientAccountAddress, ClientAccountCreateCommand, ClientAccountFilters, ClientAccountPage, ClientAccountUpdateCommand, DEFAULT_CLIENT_ACCOUNT_FILTERS, PeruReferenceOption } from '../../client-accounts/domain/client-account.models';
 import { DEFAULT_PURCHASE_REQUEST_FILTERS, PurchaseRequest, PurchaseRequestAction, PurchaseRequestEvent, PurchaseRequestFilters, PurchaseRequestPage } from '../../purchase-requests/domain/purchase-request.models';
 import { DEFAULT_SALES_ORDER_FILTERS, FulfillmentCandidate, SalesOrder, SalesOrderEvent, SalesOrderFilters, SalesOrderPage } from '../../sales-orders/domain/sales-order.models';
 import { ManualOrderClientCommand, ManualOrderDeliveryCommand, ManualOrderDraft, ManualOrderLineCommand, ManualOrderReview } from '../../manual-orders/domain/manual-order.models';
@@ -22,6 +22,10 @@ export class SalesOperationsApiService {
 
   clientAccount(id: string): Observable<ClientAccount> {
     return this.http.get<ApiRecord>(this.api(`/client-accounts/${encodeURIComponent(id)}`)).pipe(map(toClientAccount));
+  }
+
+  buyerMembershipCandidates(): Observable<readonly BuyerMembershipCandidate[]> {
+    return this.http.get<readonly BuyerMembershipCandidate[]>(this.api('/client-accounts/buyer-membership-candidates'));
   }
 
   createClientAccount(command: ClientAccountCreateCommand): Observable<ClientAccount> {

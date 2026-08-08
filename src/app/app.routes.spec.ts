@@ -24,4 +24,24 @@ describe('Platform catalog route matrix', () => {
     const route = shell?.children?.find((candidate) => candidate.path === 'ops/operations/business-documents');
     expect(route?.canActivate).toBeTruthy();
   });
+
+  it('keeps the canonical legacy aliases ahead of wildcard navigation', () => {
+    const shell = routes.find((route) => route.path === '');
+    const paths = new Set((shell?.children ?? []).map((route) => route.path));
+    expect([...paths]).toEqual(expect.arrayContaining([
+      'ops/commercial/purchase-orders',
+      'ops/commercial/purchase-orders/:salesOrderId',
+      'ops/commercial/manual-order-entry',
+      'ops/commercial/promotions',
+      'ops/commercial/business-documents',
+      'ops/commercial/business-documents/orders/:orderId',
+      'ops/operations/inventory-control',
+      'ops/operations/inventory-lots',
+      'ops/operations/business-documents/orders/:orderId',
+      'ops/profile'
+    ]));
+    const documentDetail = (shell?.children ?? []).find((route) => route.path === 'ops/operations/business-documents/orders/:orderId');
+    const documentList = (shell?.children ?? []).find((route) => route.path === 'ops/operations/business-documents');
+    expect((shell?.children ?? []).indexOf(documentDetail!)).toBeLessThan((shell?.children ?? []).indexOf(documentList!));
+  });
 });

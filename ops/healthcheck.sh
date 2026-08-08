@@ -3,10 +3,18 @@
 set -eu
 
 health_url="${NEXA_HEALTH_URL:-http://127.0.0.1/health}"
+api_health_url="${NEXA_API_HEALTH_URL:-http://127.0.0.1/api-health}"
+
+wget \
+    -q \
+    -T "${NEXA_HEALTH_TIMEOUT_SECONDS:-3}" \
+    -t 1 \
+    -O /dev/null \
+    "$health_url"
 
 exec wget \
     -q \
     -T "${NEXA_HEALTH_TIMEOUT_SECONDS:-3}" \
     -t 1 \
     -O /dev/null \
-    "$health_url"
+    "$api_health_url"

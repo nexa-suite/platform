@@ -16,6 +16,7 @@ export interface BusinessDocument {
   readonly status: string;
   readonly format: 'PDF' | 'CSV' | 'XML';
   readonly contentType: string | null;
+  readonly checksumSha256: string | null;
   readonly byteSize: number;
   readonly generatedAt: string | null;
   readonly failureCode: string | null;
@@ -48,4 +49,13 @@ export interface GenerationRequest {
   readonly status: string;
   readonly requestedAt: string;
   readonly completedAt: string | null;
+}
+
+export interface BusinessDocumentEvent {
+  readonly eventId: string;
+  readonly eventType: string;
+  readonly status: string;
+  readonly occurredAt: string;
+  readonly processedAt: string | null;
+  readonly attemptCount: number;
 }

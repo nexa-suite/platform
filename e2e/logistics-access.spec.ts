@@ -388,7 +388,7 @@ test('LOGISTICS performs supported dispatch lifecycle actions against the server
       await expect(page.locator('nexa-loading-state')).toHaveCount(0, { timeout: 10_000 });
 
       if (status === 'PREPARING') {
-        await page.locator('[formcontrolname="responsibleMembershipId"]').fill(membershipId);
+        await page.locator('[formcontrolname="responsibleMembershipId"]').selectOption(membershipId);
         await page.locator('[formcontrolname="vehicleReference"]').fill('E2E-TRUCK-01');
         await page.locator('[formcontrolname="routeName"]').fill('E2E route');
         mutation = await mutateDispatch(page, logisticsSession.accessToken, dispatchId, 'assignments', () => page.getByRole('button', { name: /^assign$|^asignar$/i }).click(), 'ASSIGNED', version);

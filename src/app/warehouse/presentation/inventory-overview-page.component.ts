@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { PageHeaderComponent } from '../../shared/presentation/components/page-header/page-header.component';
@@ -6,6 +6,8 @@ import { SectionPanelComponent } from '../../shared/presentation/components/sect
 import { LoadingStateComponent } from '../../shared/presentation/components/loading-state/loading-state.component';
 import { ErrorStateComponent } from '../../shared/presentation/components/error-state/error-state.component';
 import { WarehouseOperationsFacade } from '../application/warehouse-operations.facade';
+import { CatalogManagementApiService } from '../../catalog-management/infrastructure/http/catalog-management-api.service';
+import { CatalogProduct } from '../../catalog-management/domain/models/catalog-management.models';
 
 @Component({
   selector: 'nexa-inventory-overview-page',
@@ -18,7 +20,7 @@ import { WarehouseOperationsFacade } from '../application/warehouse-operations.f
       @else if (facade.error(); as error) { <nexa-error-state title="Inventory unavailable" [description]="error" (retry)="facade.retry()" /> }
       @else {
         <nexa-section-panel title="Inbound receipt">
-          <form [formGroup]="receipt" (ngSubmit)="receive()"><input formControlName="warehouseId" placeholder="Warehouse ID"><input formControlName="zoneId" placeholder="Zone ID"><input formControlName="catalogItemId" placeholder="Catalog item"><input formControlName="batchNumber" placeholder="Batch"><input type="date" formControlName="expirationDate"><input type="number" min="0.0001" formControlName="quantity" placeholder="Quantity"><input formControlName="unit" placeholder="Unit"><input type="number" formControlName="temperatureValue" placeholder="Temperature"><button type="submit" [disabled]="receipt.invalid || !facade.canWrite()">Register inbound</button></form>
+          <form [formGroup]="receipt" (ngSubmit)="receive()"><label>Warehouse<select formControlName="warehouseId" (change)="warehouseChanged()"><option value="">Select warehouse</option>@for (warehouse of facade.warehouses(); track warehouse.id) { <option [value]="warehouse.id">{{ warehouse.name }} · {{ warehouse.code }}</option> }</select></label><label>Zone<select formControlName="zoneId"><option value="">Select zone</option>@for (zone of facade.zones(); track zone.id) { <option [value]="zone.id">{{ zone.name }} · {{ zone.code }}</option> }</select></label><label>Catalog item<select formControlName="catalogItemId"><option value="">Select item</option>@for (item of catalogProducts(); track item.id) { <option [value]="item.catalogItemId">{{ item.name }} · {{ item.productCode }}</option> }</select></label><input formControlName="batchNumber" placeholder="Batch"><input type="date" formControlName="expirationDate"><input type="number" min="0.0001" formControlName="quantity" placeholder="Quantity"><input formControlName="unit" placeholder="Unit"><input type="number" formControlName="temperatureValue" placeholder="Temperature"><button type="submit" [disabled]="receipt.invalid || !facade.canWrite()">Register inbound</button></form>
         </nexa-section-panel>
         <nexa-section-panel title="Current inventory">
           <table><thead><tr><th>Catalog</th><th>Batch</th><th>Expiration</th><th>Available</th><th>Status</th></tr></thead><tbody>
@@ -29,13 +31,23 @@ import { WarehouseOperationsFacade } from '../application/warehouse-operations.f
       }
     </section>
   `,
-  styles: [`form{display:flex;gap:.5rem;flex-wrap:wrap}input{padding:.55rem}table{width:100%;border-collapse:collapse}th,td{padding:.65rem;text-align:left;border-bottom:1px solid #ddd}`],
+  styles: [`form{display:flex;gap:.5rem;flex-wrap:wrap}label{display:grid;gap:.25rem;color:#475569;font-size:.85rem}input,select{padding:.55rem}table{width:100%;border-collapse:collapse}th,td{padding:.65rem;text-align:left;border-bottom:1px solid #ddd}`],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class InventoryOverviewPageComponent {
   readonly facade = inject(WarehouseOperationsFacade);
+  private readonly catalog = inject(CatalogManagementApiService);
+  readonly catalogProducts = signal<readonly CatalogProduct[]>([]);
   private readonly fb = inject(FormBuilder);
   readonly receipt = this.fb.nonNullable.group({ warehouseId: ['', Validators.required], zoneId: ['', Validators.required], catalogItemId: ['', Validators.required], batchNumber: ['', Validators.required], expirationDate: ['', Validators.required], quantity: [1, [Validators.required, Validators.min(0.0001)]], unit: ['UNIT', Validators.required], temperatureValue: [null as number | null] });
-  constructor() { this.facade.load(); }
+  constructor() {
+    this.facade.load();
+    this.catalog.products('', 'ACTIVE').subscribe({ next: (page) => this.catalogProducts.set(page.items) });
+  }
+  warehouseChanged(): void {
+    const warehouseId = this.receipt.controls.warehouseId.value;
+    this.receipt.controls.zoneId.setValue('');
+    if (warehouseId) this.facade.loadZones(warehouseId);
+  }
   receive(): void { if (this.receipt.invalid) return; const value = this.receipt.getRawValue(); this.facade.receive({ ...value, temperatureValue: value.temperatureValue ?? undefined }); }
 }

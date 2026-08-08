@@ -31,7 +31,7 @@ jobs:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           repository: nexa-suite/api
-          ref: integration/task-nexa-service-v1
+          ref: feature/nexa-v1/definitive-functional-foundation
           path: api
       - uses: actions/setup-java@c5195efecf7bdfc987ee8bae7a71cb8b11521c00 # v4.7.1
         with:
@@ -42,6 +42,22 @@ jobs:
         with:
           node-version: "26.5.0"
           cache: npm
+      - name: Mask isolated test credentials before fixture generation
+        run: |
+          for encoded in \
+            'Y2ktcG9zdGdyZXMtcGFzc3dvcmQ=' \
+            'Q0ktT3duZXItUGFzc3dvcmQtMjAyNiE=' \
+            'Q0ktVGVuYW50LUFkbWluLVBhc3N3b3JkLTIwMjYh' \
+            'Q0ktQ29tcGFueS1Pd25lci1QYXNzd29yZC0yMDI2IQ==' \
+            'Q0ktU2FsZXMtUGFzc3dvcmQtMjAyNiE=' \
+            'Q0ktV2FyZWhvdXNlLVBhc3N3b3JkLTIwMjYh' \
+            'Q0ktTG9naXN0aWNzLVBhc3N3b3JkLTIwMjYh' \
+            'Q0ktQnV5ZXItUGFzc3dvcmQtMjAyNiE=' \
+            'Y2ktc3lzdGVtLW9wZXJhdG9yLXRva2VuLTAxMjM0NTY3ODktYWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXo=' \
+            'Y2ktbm90aWZpY2F0aW9uLW91dGJveC1rZXktMDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTIzNDU2Nzg5' \
+            'Y2ktcmVzZXQtdGhyb3R0bGUta2V5LTAxMjM0NTY3ODkwMTIzNDU2Nzg5MDEyMzQ1Njc4OQ=='; do
+            echo "::add-mask::$(printf '%s' "$encoded" | base64 --decode)"
+          done
       - name: Generate isolated test secrets and seed identity
         run: |
           mkdir -p .ci-keys

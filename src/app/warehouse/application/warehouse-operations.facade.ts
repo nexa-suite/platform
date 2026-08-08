@@ -8,7 +8,7 @@ import { WarehouseOperationsApiService } from '../infrastructure/warehouse-opera
 export class WarehouseOperationsFacade {
   private readonly api = inject(WarehouseOperationsApiService);
   private readonly authentication = inject(AuthenticationService);
-  readonly canWrite = computed(() => this.authentication.hasPermission('warehouse:write'));
+  readonly canWrite = computed(() => this.authentication.hasPermission('warehouse:write') || ['warehouse.location.manage', 'inventory.receive', 'inventory.adjust', 'inventory.reserve', 'inventory.release', 'inventory.waste', 'fulfillment.manage'].some((permission) => this.authentication.hasPermission(permission)));
   readonly loading = signal(false); readonly error = signal<string | null>(null); readonly warehouses = signal<readonly WarehouseSummary[]>([]); readonly zones = signal<readonly StorageZone[]>([]); readonly lots = signal<readonly InventoryLot[]>([]); readonly movements = signal<readonly StockMovement[]>([]); readonly reservations = signal<readonly Reservation[]>([]);
   readonly previewResult = signal<ReservationPreview | null>(null);
   readonly selectedLot = signal<InventoryLot | null>(null);
