@@ -23,7 +23,7 @@ type TaxonomyItem = CatalogCategory | CatalogBrand;
         <nexa-section-panel [title]="formTitleKey() | translate">
           <form [formGroup]="form" (ngSubmit)="save()" novalidate>
             @if (isCategory()) {
-              <label>{{ 'catalog.fields.parentId' | translate }}<input formControlName="parentId" [placeholder]="'catalog.fields.optional' | translate" /></label>
+              <label>{{ 'catalog.fields.parentId' | translate }}<select formControlName="parentId"><option value="">{{ 'catalog.fields.optional' | translate }}</option>@for (parent of parentOptions(); track parent.id) { <option [value]="parent.id" [disabled]="parent.id === editingId()">{{ parent.name }} · {{ parent.slug }}</option> }</select></label>
             }
             <label>{{ 'catalog.fields.slug' | translate }}<input formControlName="slug" autocomplete="off" /></label>
             <label>{{ 'catalog.fields.name' | translate }}<input formControlName="name" autocomplete="off" /></label>
@@ -60,7 +60,7 @@ type TaxonomyItem = CatalogCategory | CatalogBrand;
     .management-grid { display: grid; grid-template-columns: minmax(16rem, .8fr) minmax(0, 1.6fr); gap: var(--nexa-space-6); }
     form, .search { display: grid; gap: var(--nexa-space-3); }
     label { display: grid; gap: var(--nexa-space-1); color: var(--nexa-color-text-secondary); font-size: var(--nexa-font-size-sm); }
-    input, textarea { width: 100%; padding: .65rem .75rem; border: 1px solid var(--nexa-color-border-default); border-radius: var(--nexa-radius-sm); font: inherit; }
+    input, textarea, select { width: 100%; padding: .65rem .75rem; border: 1px solid var(--nexa-color-border-default); border-radius: var(--nexa-radius-sm); font: inherit; }
     button { min-height: 2.35rem; padding: .45rem .75rem; border: 0; border-radius: var(--nexa-radius-sm); background: var(--nexa-color-primary-700); color: white; cursor: pointer; font: inherit; }
     button:disabled { cursor: not-allowed; opacity: .55; }
     button.secondary { background: transparent; border: 1px solid var(--nexa-color-border-default); color: var(--nexa-color-text-primary); }
@@ -85,6 +85,7 @@ export class CatalogTaxonomyPageComponent {
   readonly descriptionKey = computed(() => this.isCategory() ? 'catalog.modules.categories.description' : 'catalog.modules.brands.description');
   readonly formTitleKey = computed(() => this.editingId() ? 'catalog.actions.edit' : (this.isCategory() ? 'catalog.actions.newCategory' : 'catalog.actions.newBrand'));
   readonly items = signal<readonly TaxonomyItem[]>([]);
+  readonly parentOptions = computed(() => this.items().filter((item): item is CatalogCategory => 'parentId' in item));
   readonly search = signal('');
   readonly loading = signal(false);
   readonly saving = signal(false);

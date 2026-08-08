@@ -21,7 +21,7 @@ import { CatalogManagementApiService } from '../../infrastructure/http/catalog-m
           <label>{{ 'catalog.filters.query' | translate }}<input [value]="search()" (input)="search.set($any($event.target).value)" (keyup.enter)="loadSkus()" /></label>
           @if (loading()) { <p role="status">{{ 'catalog.states.loading' | translate }}</p> }
           @if (!loading() && !skus().length) { <p>{{ 'catalog.states.emptyDescription' | translate }}</p> }
-          @for (sku of skus(); track sku.id) { <button type="button" class="sku-option" [class.selected]="selectedSku()?.id === sku.id" (click)="selectSku(sku)"><strong>{{ sku.familyName }}</strong><span>{{ sku.skuCode }} · {{ sku.presentation }} · {{ formatPrice(sku) }}</span></button> }
+          @for (sku of skus(); track sku.id) { <button type="button" class="sku-option" [class.selected]="selectedSku()?.id === sku.id" (click)="selectSku(sku)"><strong>{{ sku.familyName }}@if (sku.variantName) { · {{ sku.variantName }} }</strong><span>{{ sku.skuCode }} · {{ sku.presentation }} · {{ formatPrice(sku) }}</span></button> }
         </nexa-section-panel>
         <nexa-section-panel title="Canonical price history">
           @if (!selectedSku()) { <p>{{ 'catalog.states.selectProduct' | translate }}</p> }

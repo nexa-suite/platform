@@ -15,7 +15,7 @@ import { ErrorStateComponent } from '../../../shared/presentation/components/err
 import { LoadingStateComponent } from '../../../shared/presentation/components/loading-state/loading-state.component';
 import { PageHeaderComponent } from '../../../shared/presentation/components/page-header/page-header.component';
 import { ClientAccountsFacade } from '../application/client-accounts.facade';
-import { ClientAccountAddress, ClientAccountCreateCommand, ClientAccountUpdateCommand, PeruReferenceOption } from '../domain/client-account.models';
+import { BuyerMembershipCandidate, ClientAccountAddress, ClientAccountCreateCommand, ClientAccountUpdateCommand, PeruReferenceOption } from '../domain/client-account.models';
 import { ClientAccountAddressCommand, ClientAccountAddressUpdateCommand, DeliveryAddressCommand, SalesOperationsApiService } from '../../infrastructure/http/sales-operations-api.service';
 import { printCurrentView } from '../../../shared/application/utilities/export.util';
 
@@ -51,6 +51,7 @@ export class ClientAccountDetailPageComponent {
     return location ? `https://www.google.com/maps/search/?api=1&query=${location.latitude},${location.longitude}` : null;
   });
   readonly addresses = signal<readonly ClientAccountAddress[]>([]);
+  readonly buyerMembershipCandidates = signal<readonly BuyerMembershipCandidate[]>([]);
   readonly addressError = signal<string | null>(null);
   readonly addressFormOpen = signal(false);
   readonly editingAddressId = signal<string | null>(null);
@@ -96,6 +97,7 @@ export class ClientAccountDetailPageComponent {
     if (this.id) {
       this.facade.loadDetail(this.id);
       this.loadAddresses(this.id);
+      this.operations.buyerMembershipCandidates().subscribe({ next: (items) => this.buyerMembershipCandidates.set(items) });
       this.operations.reference('departments').subscribe({ next: (items) => this.departments.set(items) });
       this.operations.reference('road-types').subscribe({ next: (items) => this.roadTypes.set(items) });
     }
@@ -139,6 +141,12 @@ export class ClientAccountDetailPageComponent {
   activate(): void { const account = this.facade.state().item; if (this.canWrite() && account) this.facade.changeStatus(account.id, account.version, 'activations'); }
   suspend(): void { const account = this.facade.state().item; if (this.canWrite() && account) this.facade.changeStatus(account.id, account.version, 'suspensions'); }
   associateBuyer(): void { const account = this.facade.state().item; if (this.canWrite() && account) this.facade.associateBuyer(account.id, account.version, this.form.controls.buyerMembershipId.value.trim() || null); }
+  buyerMembershipLabel(): string {
+    const id = this.facade.state().item?.buyerMembershipId;
+    if (!id) return '—';
+    const candidate = this.buyerMembershipCandidates().find((item) => item.id === id);
+    return candidate ? `${candidate.displayName} · ${candidate.email}` : 'Buyer membership asociada';
+  }
   requestCurrentLocation(): void {
     if (typeof navigator === 'undefined' || !navigator.geolocation) { this.locationStatus.set('unsupported'); return; }
     this.locationStatus.set('requesting');

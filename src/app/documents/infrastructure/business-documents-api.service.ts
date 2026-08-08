@@ -2,7 +2,7 @@ import { HttpClient, HttpHeaders, HttpParams, HttpResponse } from '@angular/comm
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { PLATFORM_RUNTIME_CONFIG, platformApiUrl } from '../../core/security/runtime-config';
-import { ApiPage, BusinessDocument, EvidenceObject, GenerationRequest } from '../domain/business-document.models';
+import { ApiPage, BusinessDocument, BusinessDocumentEvent, EvidenceObject, GenerationRequest } from '../domain/business-document.models';
 
 @Injectable({ providedIn: 'root' })
 export class BusinessDocumentsApiService {
@@ -21,6 +21,10 @@ export class BusinessDocumentsApiService {
   requestGeneration(command: { subjectType: string; subjectId: string; documentType: string; format: 'PDF' | 'CSV' | 'XML' }, key?: string): Observable<GenerationRequest> {
     return this.http.post<GenerationRequest>(this.api('/business-document-generation-requests'), command, { headers: this.idempotency(key) });
   }
+
+  get(id: string): Observable<BusinessDocument> { return this.http.get<BusinessDocument>(this.api(`/business-documents/${encodeURIComponent(id)}`)); }
+  events(id: string): Observable<readonly BusinessDocumentEvent[]> { return this.http.get<readonly BusinessDocumentEvent[]>(this.api(`/business-documents/${encodeURIComponent(id)}/events`)); }
+  regenerate(id: string, key?: string): Observable<GenerationRequest> { return this.http.post<GenerationRequest>(this.api(`/business-documents/${encodeURIComponent(id)}/regenerations`), {}, { headers: this.idempotency(key) }); }
 
   download(id: string): Observable<HttpResponse<Blob>> {
     return this.http.get(this.api(`/business-documents/${encodeURIComponent(id)}/downloads`), { observe: 'response', responseType: 'blob' });

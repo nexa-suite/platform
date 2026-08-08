@@ -49,11 +49,29 @@ export interface CatalogProductFamily {
   readonly updatedAt: string;
 }
 
+export interface CatalogProductVariant {
+  readonly id: string;
+  readonly familyId: string;
+  readonly familyCode: string;
+  readonly familyName: string;
+  readonly code: string;
+  readonly name: string;
+  readonly description: string | null;
+  readonly status: CatalogLifecycleStatus;
+  readonly skuCount: number;
+  readonly version: number;
+  readonly createdAt: string;
+  readonly updatedAt: string;
+}
+
 export interface CatalogSellableSku {
   readonly id: string;
   readonly familyId: string;
   readonly familyCode: string;
   readonly familyName: string;
+  readonly variantId?: string | null;
+  readonly variantCode?: string | null;
+  readonly variantName?: string | null;
   readonly categoryName: string;
   readonly brandName: string;
   readonly skuCode: string;

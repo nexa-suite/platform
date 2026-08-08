@@ -6,6 +6,7 @@ import {
   CatalogBrand, CatalogBrandCommand, CatalogCategory, CatalogCategoryCommand, CatalogLifecycleStatus,
   CatalogManagementPage, CatalogPrice, CatalogPriceCommand, CatalogProduct, CatalogProductCommand,
   CatalogProductFamily, CatalogSellableSku,
+  CatalogProductVariant,
   CatalogPromotion, CatalogPromotionCommand
 } from '../../domain/models/catalog-management.models';
 
@@ -33,6 +34,13 @@ export class CatalogManagementApiService {
   }
   family(id: string): Observable<CatalogProductFamily> {
     return this.http.get<CatalogProductFamily>(this.api(`/product-families/${encodeURIComponent(id)}`)).pipe(map((family) => this.mapFamily(family)));
+  }
+  variants(familyId: string, search = ''): Observable<CatalogManagementPage<CatalogProductVariant>> {
+    return this.getPage<CatalogProductVariant>(`/product-families/${encodeURIComponent(familyId)}/variants`, search);
+  }
+  variant(id: string): Observable<CatalogProductVariant> { return this.http.get<CatalogProductVariant>(this.api(`/product-variants/${encodeURIComponent(id)}`)); }
+  variantSkus(variantId: string, search = ''): Observable<CatalogManagementPage<CatalogSellableSku>> {
+    return this.getPage<CatalogSellableSku>(`/product-variants/${encodeURIComponent(variantId)}/skus`, search).pipe(map((page) => ({ ...page, items: page.items.map((sku) => this.mapSku(sku)) })));
   }
   skus(search = '', familyId?: string): Observable<CatalogManagementPage<CatalogSellableSku>> {
     let params = new HttpParams().set('page', 0).set('size', 100);

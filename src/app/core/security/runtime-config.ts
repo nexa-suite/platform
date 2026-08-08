@@ -15,7 +15,10 @@ interface RuntimeGlobal {
 
 export function platformRuntimeConfigFactory(): PlatformRuntimeConfig {
   const configured = (globalThis as typeof globalThis & RuntimeGlobal).__NEXA_RUNTIME_CONFIG__;
-  const apiBaseUrl = configured?.apiBaseUrl?.trim() || 'http://localhost:8080';
+  // Keep API calls same-origin when the SPA is served behind its Nginx proxy.
+  // An explicit absolute runtime value remains available for isolated local
+  // development and test harnesses.
+  const apiBaseUrl = configured?.apiBaseUrl?.trim() ?? '';
 
   return {
     apiBaseUrl: apiBaseUrl.replace(/\/$/, ''),
