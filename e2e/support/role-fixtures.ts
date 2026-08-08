@@ -15,7 +15,7 @@ export const ROLE_FIXTURES: Readonly<Record<CredentialRole, RoleFixture>> = {
     expectedRoles: ['TENANT_ADMIN', 'COMPANY_OWNER'],
     expectedPermissions: [
       'tenant:read', 'tenant:manage', 'iam:user:read', 'iam:user:manage',
-      'owner:dashboard:read', 'sales:read', 'warehouse:read', 'logistics:read', 'fulfillment:read',
+      'owner:dashboard:read', 'sales:read',
       'catalog:read', 'catalog:manage', 'catalog:price:manage', 'promotion:read', 'promotion:manage'
     ],
     surface: 'PLATFORM'
@@ -28,7 +28,7 @@ export const ROLE_FIXTURES: Readonly<Record<CredentialRole, RoleFixture>> = {
   COMPANY_OWNER: {
     expectedRoles: ['COMPANY_OWNER'],
     expectedPermissions: [
-      'tenant:read', 'owner:dashboard:read', 'sales:read', 'warehouse:read', 'logistics:read', 'fulfillment:read',
+      'tenant:read', 'owner:dashboard:read', 'sales:read',
       'catalog:read', 'catalog:manage', 'catalog:price:manage', 'promotion:read', 'promotion:manage'
     ],
     surface: 'PLATFORM'
