@@ -62,7 +62,7 @@ The Platform link is the approved secured vertical slice for this release. Mobil
 | IAM | Secured client/API slice |
 | Tenant Management | Workspace-scoped client/API foundation |
 | Catalog Management | Secured read slice; shared local reference seed |
-| Sales | Client Accounts and Purchase Requests |
+| Sales | Client Accounts, Purchase Requests and Sales Orders in `v0.7.0` |
 | Warehouse | Implemented operations surface in `v0.7.0` |
 | Logistics | Implemented dispatch and delivery operations in `v0.7.0` |
 | Invoicing | Planned |
