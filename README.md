@@ -6,11 +6,11 @@
 
 Internal operations workspace for Sales, Warehouse, Logistics, Company Ownership and Administration.
 
-[![Angular 22](https://img.shields.io/badge/Angular-22-DD0031?style=flat-square&logo=angular&logoColor=white)](https://angular.dev/) [![TypeScript strict](https://img.shields.io/badge/TypeScript-strict-3178C6?style=flat-square&logo=typescript&logoColor=white)](https://www.typescriptlang.org/) [![Angular Material 22](https://img.shields.io/badge/Angular%20Material-22-757575?style=flat-square&logo=materialdesign&logoColor=white)](https://material.angular.dev/) [![Release v0.5.0](https://img.shields.io/badge/release-v0.5.0-2563EB?style=flat-square)](https://github.com/nexa-suite/platform/releases/tag/v0.5.0)
+[![Angular 22](https://img.shields.io/badge/Angular-22-DD0031?style=flat-square&logo=angular&logoColor=white)](https://angular.dev/) [![TypeScript strict](https://img.shields.io/badge/TypeScript-strict-3178C6?style=flat-square&logo=typescript&logoColor=white)](https://www.typescriptlang.org/) [![Angular Material 22](https://img.shields.io/badge/Angular%20Material-22-757575?style=flat-square&logo=materialdesign&logoColor=white)](https://material.angular.dev/) [![Release v0.7.0](https://img.shields.io/badge/release-v0.7.0-2563EB?style=flat-square)](https://github.com/nexa-suite/platform/releases/tag/v0.7.0)
 
 [Changelog](./CHANGELOG.md) · [Release notes](./docs/releases/) · [Contributing](./.github/CONTRIBUTING.md) · [Security](./.github/SECURITY.md)
 
-**Current repository:** Platform · **Current release:** `v0.5.0`
+**Current repository:** Platform · **Latest published release:** `v0.7.0` · **Development version:** `0.7.1`
 
 [Website](https://github.com/nexa-suite/website) · [Platform](https://github.com/nexa-suite/platform) · [Portal](https://github.com/nexa-suite/portal) · [API](https://github.com/nexa-suite/api) · [Mobile](https://github.com/nexa-suite/mobile)
 
@@ -20,7 +20,9 @@ Internal operations workspace for Sales, Warehouse, Logistics, Company Ownership
 
 ## What is implemented
 
-`v0.5.0` packages Angular 22 Platform access foundations, Company Administration, Client Accounts, Purchase Request operations, internal-role route protection and secured Product Catalog flow.
+`v0.7.0` packages Angular 22 Platform access foundations, Company Administration, Client Accounts, Purchase Request and Sales Order operations, plus Warehouse and Logistics workflows with role-specific route protection.
+
+Current `develop` artifact `0.7.1` contains development stabilization for Sales Dashboard metrics, role landing states and operations navigation. This material is not a published release.
 
 Platform is the internal experience, not the buyer-facing product and not the security authority. This release integrates the secured IAM/session/catalog read contract with the API; broader business workflows, persistence beyond the API contract and production deployment are not implemented here.
 
@@ -29,9 +31,9 @@ Platform is the internal experience, not the buyer-facing product and not the se
 ```mermaid
 flowchart LR
     Website["Website<br/>Static public site<br/>v1.0.0"]
-    Platform["Platform<br/>Angular 22 secured surface<br/>v0.5.0"]
-    Portal["Buyer Portal<br/>Angular 22 secured surface<br/>v0.5.0"]
-    API["API<br/>IAM, tenant scope and commercial requests<br/>v0.6.0"]
+    Platform["Platform<br/>Angular 22 secured surface<br/>v0.7.0"]
+    Portal["Buyer Portal<br/>Angular 22 secured surface<br/>v0.7.0"]
+    API["API<br/>IAM, tenant scope and commercial workflows<br/>v0.8.0"]
 
     Website -. "product navigation" .-> Platform
     Website -. "product navigation" .-> Portal
@@ -45,12 +47,12 @@ The Platform link is the approved secured vertical slice for this release. Mobil
 
 ## Repository map
 
-| Repository | Current release | Responsibility | Evidence status |
+| Repository | Latest published release | Responsibility | Evidence status |
 |---|---:|---|---|
 | [Website](https://github.com/nexa-suite/website) | `v1.0.0` | Static public product discovery | Released static site |
-| **Platform** | **`v0.5.0`** | Internal operations shell | Angular 22 secured commercial surface; Docker runtime |
-| [Portal](https://github.com/nexa-suite/portal) | `v0.5.0` | Buyer self-service shell | Angular 22 secured commercial surface; Docker runtime |
-| [API](https://github.com/nexa-suite/api) | `v0.6.0` | Business and integration authority | IAM, tenant scope, Catalog and Sales requests |
+| **Platform** | **`v0.7.0`** | Internal operations shell | Angular 22 secured commercial, Warehouse and Logistics surface; Docker runtime |
+| [Portal](https://github.com/nexa-suite/portal) | `v0.7.0` | Buyer self-service shell | Angular 22 secured commercial and delivery surface; Docker runtime |
+| [API](https://github.com/nexa-suite/api) | `v0.8.0` | Business and integration authority | IAM, tenant scope, commercial, Warehouse and Logistics workflows |
 | [Mobile](https://github.com/nexa-suite/mobile) | `v0.1.1` | Future native clients | Documentation-only |
 
 ## Bounded contexts
@@ -61,8 +63,8 @@ The Platform link is the approved secured vertical slice for this release. Mobil
 | Tenant Management | Workspace-scoped client/API foundation |
 | Catalog Management | Secured read slice; shared local reference seed |
 | Sales | Client Accounts and Purchase Requests |
-| Warehouse | Planned |
-| Logistics | Planned |
+| Warehouse | Implemented operations surface in `v0.7.0` |
+| Logistics | Implemented dispatch and delivery operations in `v0.7.0` |
 | Invoicing | Planned |
 
 ## Architecture
