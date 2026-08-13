@@ -27,7 +27,7 @@ export class AccessPlanSectionComponent {
   });
 
   createRole(): void {
-    if (!this.facade.canManage() || this.roleForm.invalid) { this.roleForm.markAllAsTouched(); return; }
+    if (!this.facade.canManageRoleDefinitions() || this.roleForm.invalid) { this.roleForm.markAllAsTouched(); return; }
     const value = this.roleForm.getRawValue();
     this.facade.createRoleDefinition({
       workspaceId: this.facade.state().selectedWorkspaceId ?? undefined,

@@ -31,7 +31,9 @@ export class CompanyAdministrationPageComponent {
     { id: 'settings', labelKey: 'settingsTab' },
     { id: 'access', labelKey: 'accessTab' }
   ];
-  readonly readOnly = computed(() => !this.facade.canManage());
+  readonly technicalReadOnly = computed(() => !this.facade.canManageWorkspace() && !this.facade.canManageRoleDefinitions() && !this.facade.canManageSecurity());
+  /** Compatibility alias retained for host integrations; the page is not business-read-only for Company Owner. */
+  readonly readOnly = this.technicalReadOnly;
 
   constructor() { this.facade.load(); }
   selectTab(tab: AdministrationTab): void { this.tab.set(tab); }

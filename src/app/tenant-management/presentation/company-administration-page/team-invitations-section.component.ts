@@ -38,13 +38,13 @@ export class TeamInvitationsSectionComponent {
   });
 
   invite(): void {
-    if (!this.facade.canManage() || this.invitationForm.invalid) { this.invitationForm.markAllAsTouched(); return; }
+    if (!this.facade.canInviteMembers() || this.invitationForm.invalid) { this.invitationForm.markAllAsTouched(); return; }
     this.facade.createInvitation(this.invitationForm.getRawValue());
     this.invitationForm.reset({ email: '', displayName: '', roles: ['SALES'] });
   }
 
   requestRoleChange(member: WorkspaceMembershipSummary, roles: readonly string[]): void {
-    if (!this.facade.canManage()) return;
+    if (!this.facade.canAssignRoles()) return;
     if (roles.length === 0) return;
     if (this.sameRoles(member.roles, roles)) return;
     this.pendingRoleChange.set({ member, roles: [...roles].sort() });
@@ -52,7 +52,7 @@ export class TeamInvitationsSectionComponent {
 
   confirmRoleChange(): void {
     const pending = this.pendingRoleChange();
-    if (!pending || !this.facade.canManage()) return;
+    if (!pending || !this.facade.canAssignRoles()) return;
     this.pendingRoleChange.set(null);
     if (this.facade.state().roleDefinitions.length) this.facade.changeRoleDefinitions(pending.member.id, pending.member.version, pending.roles);
     else this.facade.changeRoles(pending.member.id, pending.member.version, pending.roles);
@@ -81,13 +81,13 @@ export class TeamInvitationsSectionComponent {
   }
 
   requestMembershipLifecycle(member: WorkspaceMembershipSummary): void {
-    if (!this.facade.canManage()) return;
+    if (!this.facade.canManageMembers()) return;
     this.pendingMembershipLifecycle.set({ member, action: member.status === 'ACTIVE' ? 'suspend' : 'reactivate' });
   }
 
   confirmMembershipLifecycle(): void {
     const pending = this.pendingMembershipLifecycle();
-    if (!pending || !this.facade.canManage()) return;
+    if (!pending || !this.facade.canManageMembers()) return;
     this.pendingMembershipLifecycle.set(null);
     if (pending.action === 'suspend') this.facade.suspend(pending.member.id, pending.member.version);
     else this.facade.reactivate(pending.member.id, pending.member.version);

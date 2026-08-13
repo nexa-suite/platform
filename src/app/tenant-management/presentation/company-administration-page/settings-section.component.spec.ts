@@ -16,6 +16,10 @@ describe('SettingsSectionComponent', () => {
   const facade = {
     state: state.asReadonly(),
     canManage: signal(true).asReadonly(),
+    canManageOrganization: signal(true).asReadonly(),
+    canManageWorkspace: signal(true).asReadonly(),
+    canManageNotifications: signal(true).asReadonly(),
+    canManageSecurity: signal(true).asReadonly(),
     busy: signal(false).asReadonly(),
     updateWorkspaceSettings: vi.fn()
   };

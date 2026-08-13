@@ -51,23 +51,23 @@ export class SettingsSectionComponent {
     });
   }
 
-  saveRegional(): void { if (!this.canSubmit(this.regionalForm)) return; this.facade.updateRegional(this.regionalForm.getRawValue(), this.regionalVersion); }
-  saveUnits(): void { if (!this.canSubmit(this.unitsForm)) return; this.facade.updateUnits(this.unitsForm.getRawValue(), this.unitsVersion); }
+  saveRegional(): void { if (!this.canSubmit(this.regionalForm, this.facade.canManageOrganization())) return; this.facade.updateRegional(this.regionalForm.getRawValue(), this.regionalVersion); }
+  saveUnits(): void { if (!this.canSubmit(this.unitsForm, this.facade.canManageOrganization())) return; this.facade.updateUnits(this.unitsForm.getRawValue(), this.unitsVersion); }
   saveWorkspaceSettings(): void {
-    if (!this.canSubmit(this.workspaceSettingsForm)) return;
+    if (!this.canSubmit(this.workspaceSettingsForm, this.facade.canManageWorkspace())) return;
     const state = this.facade.state();
     const warehousePreferenceStrategy = state.operational?.defaultWarehouseSelectionPolicy ?? state.workspaceSettings?.warehousePreferenceStrategy ?? 'MANUAL';
     this.facade.updateWorkspaceSettings({ ...this.workspaceSettingsForm.getRawValue(), warehousePreferenceStrategy }, this.workspaceSettingsVersion);
   }
-  saveOperational(): void { if (!this.canSubmit(this.operationalForm)) return; this.facade.updateOperational(this.operationalForm.getRawValue(), this.operationalVersion); }
-  saveSecurity(): void { if (!this.canSubmit(this.securityForm)) return; const value = this.securityForm.getRawValue(); this.facade.updateSecurity({ ...value, requiredEmailDomain: value.requiredEmailDomain || null }, this.securityVersion); }
+  saveOperational(): void { if (!this.canSubmit(this.operationalForm, this.facade.canManageWorkspace())) return; this.facade.updateOperational(this.operationalForm.getRawValue(), this.operationalVersion); }
+  saveSecurity(): void { if (!this.canSubmit(this.securityForm, this.facade.canManageSecurity())) return; const value = this.securityForm.getRawValue(); this.facade.updateSecurity({ ...value, requiredEmailDomain: value.requiredEmailDomain || null }, this.securityVersion); }
   toggleNotification(preference: NotificationPreference): void {
     const current = this.facade.state().notifications;
-    if (!this.facade.canManage() || !current) return;
+    if (!this.facade.canManageNotifications() || !current) return;
     const preferences = current.preferences.map((item) => item.eventCategory === preference.eventCategory && item.channel === preference.channel ? { ...item, enabled: !item.enabled } : item);
     this.facade.updateNotifications({ preferences, version: current.version }, this.notificationVersion);
   }
-  createCustomField(): void { if (!this.canSubmit(this.customFieldForm)) return; this.facade.createCustomField(this.customFieldForm.getRawValue()); this.customFieldForm.reset({ fieldKey: '', label: '', fieldKind: 'TEXT', scope: 'CLIENT_ACCOUNT', required: false, uniqueValue: false, displayOrder: 0, active: true }); }
+  createCustomField(): void { if (!this.canSubmit(this.customFieldForm, this.facade.canManageWorkspace())) return; this.facade.createCustomField(this.customFieldForm.getRawValue()); this.customFieldForm.reset({ fieldKey: '', label: '', fieldKind: 'TEXT', scope: 'CLIENT_ACCOUNT', required: false, uniqueValue: false, displayOrder: 0, active: true }); }
   toggleCustomField(field: CustomFieldDefinition): void { this.facade.toggleCustomField(field); }
   editCustomField(field: CustomFieldDefinition): void {
     this.editingCustomFieldId = field.id;
@@ -75,12 +75,12 @@ export class SettingsSectionComponent {
   }
   cancelCustomFieldEdit(): void { this.editingCustomFieldId = null; this.customFieldEditForm.reset(); }
   saveCustomField(): void {
-    if (!this.editingCustomFieldId || !this.canSubmit(this.customFieldEditForm)) return;
+    if (!this.editingCustomFieldId || !this.canSubmit(this.customFieldEditForm, this.facade.canManageWorkspace())) return;
     const field = this.facade.state().customFields.find((item) => item.id === this.editingCustomFieldId);
     if (!field) return;
     this.facade.updateCustomField(field.id, this.customFieldEditForm.getRawValue(), field.version);
     this.cancelCustomFieldEdit();
   }
 
-  private canSubmit(form: { invalid: boolean; markAllAsTouched: () => void }): boolean { if (!this.facade.canManage() || form.invalid) { form.markAllAsTouched(); return false; } return true; }
+  private canSubmit(form: { invalid: boolean; markAllAsTouched: () => void }, permitted: boolean): boolean { if (!permitted || form.invalid) { form.markAllAsTouched(); return false; } return true; }
 }

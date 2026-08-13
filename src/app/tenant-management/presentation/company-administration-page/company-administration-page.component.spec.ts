@@ -8,7 +8,16 @@ import { provideTranslateService } from '@ngx-translate/core';
 describe('CompanyAdministrationPageComponent', () => {
   let fixture: ComponentFixture<CompanyAdministrationPageComponent>;
   const state = signal({ ...INITIAL_TENANT_ADMINISTRATION_STATE, status: 'success' as const, organization: { id: 'org', name: 'Nexa', slug: 'nexa', status: 'ACTIVE', currentWorkspaceId: 'workspace', currentWorkspaceName: 'ICISA', version: 0 }, profile: { legalName: 'Nexa', displayName: 'Nexa', businessIdentifier: null, operationCategory: 'B2B', version: 0 }, workspaces: [], memberships: [] });
-  const facade = { state: state.asReadonly(), canManage: signal(true).asReadonly(), busy: signal(false).asReadonly(), load: () => undefined, retry: () => undefined };
+  const facade = {
+    state: state.asReadonly(),
+    canManage: signal(true).asReadonly(),
+    canManageWorkspace: signal(false).asReadonly(),
+    canManageRoleDefinitions: signal(false).asReadonly(),
+    canManageSecurity: signal(false).asReadonly(),
+    busy: signal(false).asReadonly(),
+    load: () => undefined,
+    retry: () => undefined
+  };
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({ imports: [CompanyAdministrationPageComponent], providers: [provideTranslateService(), { provide: CompanyAdministrationFacade, useValue: facade }] }).compileComponents();

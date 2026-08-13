@@ -6,7 +6,6 @@ import { platformSurfaceGuard } from './core/security/platform-surface.guard';
 import { PlatformShellComponent } from './core/layout/platform-shell/platform-shell.component';
 import { permissionGuard } from './core/security/permission.guard';
 import { platformLandingForUser, PLATFORM_PERMISSIONS } from './core/security/platform-permissions';
-import { ChangeFeedService } from './core/change-feed/infrastructure/change-feed.service';
 import { SalesOperationsApiService } from './sales/infrastructure/http/sales-operations-api.service';
 import { ClientAccountsFacade } from './sales/client-accounts/application/client-accounts.facade';
 import { PurchaseRequestOperationsFacade } from './sales/purchase-requests/application/purchase-request-operations.facade';
@@ -147,17 +146,17 @@ export const routes: Routes = [
       {
         path: 'ops/commercial/client-accounts',
         loadComponent: () => import('./sales/client-accounts/presentation/client-accounts-page.component').then((module) => module.ClientAccountsPageComponent),
-        canActivate: [permissionGuard(PLATFORM_PERMISSIONS.salesRead)], providers: [SalesOperationsApiService, ClientAccountsFacade, ChangeFeedService]
+        canActivate: [permissionGuard(PLATFORM_PERMISSIONS.salesRead)], providers: [SalesOperationsApiService, ClientAccountsFacade]
       },
       {
         path: 'ops/commercial/client-accounts/new',
         loadComponent: () => import('./sales/client-accounts/presentation/client-account-detail-page.component').then((module) => module.ClientAccountDetailPageComponent),
-        canActivate: [permissionGuard(PLATFORM_PERMISSIONS.salesWrite)], providers: [SalesOperationsApiService, ClientAccountsFacade, ChangeFeedService]
+        canActivate: [permissionGuard(PLATFORM_PERMISSIONS.salesWrite)], providers: [SalesOperationsApiService, ClientAccountsFacade]
       },
       {
         path: 'ops/commercial/client-accounts/:clientAccountId',
         loadComponent: () => import('./sales/client-accounts/presentation/client-account-detail-page.component').then((module) => module.ClientAccountDetailPageComponent),
-        canActivate: [permissionGuard(PLATFORM_PERMISSIONS.salesRead)], providers: [SalesOperationsApiService, ClientAccountsFacade, ChangeFeedService]
+        canActivate: [permissionGuard(PLATFORM_PERMISSIONS.salesRead)], providers: [SalesOperationsApiService, ClientAccountsFacade]
       },
       { path: 'ops/commercial/request-builder', pathMatch: 'full', redirectTo: 'ops/commercial/purchase-requests' },
       { path: 'ops/commercial/request-builder/:purchaseRequestId', pathMatch: 'full', redirectTo: dynamicRedirect('/ops/commercial/purchase-requests', 'purchaseRequestId') },
@@ -204,29 +203,29 @@ export const routes: Routes = [
       {
         path: 'ops/commercial/purchase-requests',
         loadComponent: () => import('./sales/purchase-requests/presentation/purchase-request-inbox-page.component').then((module) => module.PurchaseRequestInboxPageComponent),
-        canActivate: [permissionGuard(PLATFORM_PERMISSIONS.salesRead)], providers: [SalesOperationsApiService, PurchaseRequestOperationsFacade, ChangeFeedService]
+        canActivate: [permissionGuard(PLATFORM_PERMISSIONS.salesRead)], providers: [SalesOperationsApiService, PurchaseRequestOperationsFacade]
       },
       {
         path: 'ops/commercial/purchase-requests/:purchaseRequestId',
         loadComponent: () => import('./sales/purchase-requests/presentation/purchase-request-detail-page.component').then((module) => module.PurchaseRequestDetailPageComponent),
-        canActivate: [permissionGuard(PLATFORM_PERMISSIONS.salesRead)], providers: [SalesOperationsApiService, PurchaseRequestOperationsFacade, ChangeFeedService]
+        canActivate: [permissionGuard(PLATFORM_PERMISSIONS.salesRead)], providers: [SalesOperationsApiService, PurchaseRequestOperationsFacade]
       },
       {
         path: 'ops/commercial/sales-orders',
         loadComponent: () => import('./sales/sales-orders/presentation/sales-orders-page.component').then((module) => module.SalesOrdersPageComponent),
-        canActivate: [permissionGuard(PLATFORM_PERMISSIONS.salesRead)], providers: [SalesOperationsApiService, SalesOrdersFacade, ChangeFeedService]
+        canActivate: [permissionGuard(PLATFORM_PERMISSIONS.salesRead)], providers: [SalesOperationsApiService, SalesOrdersFacade]
       },
       {
         path: 'ops/commercial/sales-orders/:salesOrderId',
         loadComponent: () => import('./sales/sales-orders/presentation/sales-order-detail-page.component').then((module) => module.SalesOrderDetailPageComponent),
-        canActivate: [permissionGuard(PLATFORM_PERMISSIONS.salesRead)], providers: [SalesOperationsApiService, SalesOrdersFacade, ChangeFeedService]
+        canActivate: [permissionGuard(PLATFORM_PERMISSIONS.salesRead)], providers: [SalesOperationsApiService, SalesOrdersFacade]
       },
       { path: 'ops/commercial/purchase-orders', pathMatch: 'full', redirectTo: 'ops/commercial/sales-orders' },
       { path: 'ops/commercial/purchase-orders/:salesOrderId', redirectTo: dynamicRedirect('/ops/commercial/sales-orders', 'salesOrderId') },
       {
         path: 'ops/fulfillment/readiness',
         loadComponent: () => import('./sales/sales-orders/presentation/fulfillment-readiness-page.component').then((module) => module.FulfillmentReadinessPageComponent),
-        canActivate: [permissionGuard(PLATFORM_PERMISSIONS.fulfillmentRead)], providers: [SalesOperationsApiService, SalesOrdersFacade, ChangeFeedService]
+        canActivate: [permissionGuard(PLATFORM_PERMISSIONS.fulfillmentRead)], providers: [SalesOperationsApiService, SalesOrdersFacade]
       },
       { path: 'ops/clients', pathMatch: 'full', redirectTo: 'ops/commercial/client-accounts' },
       { path: 'ops/commercial/requests', pathMatch: 'full', redirectTo: 'ops/commercial/purchase-requests' },

@@ -73,23 +73,25 @@ test.describe('Tenant Administration', () => {
     await assertNoBrowserSecrets(page);
   });
 
-  test('pure Company Owner sees tenant administration as read-only', async ({ page }) => {
+  test('pure Company Owner can govern organization and workforce without technical tenant configuration', async ({ page }) => {
     requiresCredentials('COMPANY_OWNER');
     await signIn(page, 'COMPANY_OWNER');
     await page.goto('/ops/operations/company-administration');
-    await expect(page.getByRole('status')).toContainText(/Company Owner view|vista de Company Owner/i);
+    await expect(page.getByRole('status')).toContainText(/Technical tenant configuration|configuración técnica del tenant/i);
 
     await page.getByRole('button', { name: 'Organization & workspaces', exact: true }).click();
     await expect(page.getByRole('button', { name: 'Create workspace', exact: true })).toBeDisabled();
-    await expect(page.getByRole('button', { name: 'Save organization', exact: true })).toBeDisabled();
+    await expect(page.getByRole('button', { name: 'Save organization', exact: true })).toBeEnabled();
     await expect(page.getByRole('textbox', { name: 'New workspace name', exact: true })).toBeDisabled();
 
     await page.getByRole('button', { name: 'Team & invitations', exact: true }).click();
-    await expect(page.getByRole('button', { name: 'Send invitation', exact: true })).toBeDisabled();
-    await expect(page.getByRole('button', { name: 'Suspend', exact: true }).first()).toBeDisabled();
+    await expect(page.getByRole('button', { name: 'Send invitation', exact: true })).toBeEnabled();
+    await expect(page.getByRole('button', { name: 'Suspend', exact: true }).first()).toBeEnabled();
 
     await page.getByRole('button', { name: 'Settings', exact: true }).click();
     await expect(page.getByRole('button', { name: 'Save security settings', exact: true })).toBeDisabled();
+    await expect(page.getByRole('button', { name: 'Save regional settings', exact: true })).toBeEnabled();
+    await expect(page.getByRole('button', { name: 'Save operational rules', exact: true })).toBeDisabled();
     await assertNoBrowserSecrets(page);
   });
 });

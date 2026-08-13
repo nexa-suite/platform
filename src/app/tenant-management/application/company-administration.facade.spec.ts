@@ -70,11 +70,27 @@ describe('CompanyAdministrationFacade', () => {
     expect(facade.state().notice).toBe('STALE_RELOADED');
   });
 
-  it('does not issue mutations for a Company Owner read-only session', () => {
+  it('does not issue mutations when the required permission is absent', () => {
     const api = apiMock();
     TestBed.configureTestingModule({ providers: [CompanyAdministrationFacade, { provide: CompanyAdministrationApiService, useValue: api }, { provide: AuthenticationService, useValue: { hasPermission: () => false } }] });
     const facade = TestBed.inject(CompanyAdministrationFacade);
     facade.changeRoles('member', 1, ['WAREHOUSE']);
     expect(api.changeRoles).not.toHaveBeenCalled();
+  });
+
+  it('keeps Company Owner governance permissions separate from technical tenant permissions', () => {
+    const governed = new Set(['tenant.organization.manage', 'tenant.member.invite', 'tenant.member.manage', 'tenant.role.assign', 'notification.manage_preferences']);
+    const api = apiMock();
+    TestBed.configureTestingModule({ providers: [CompanyAdministrationFacade, { provide: CompanyAdministrationApiService, useValue: api }, { provide: AuthenticationService, useValue: { hasPermission: (permission: string) => governed.has(permission) } }] });
+    const facade = TestBed.inject(CompanyAdministrationFacade);
+
+    expect(facade.canManageOrganization()).toBe(true);
+    expect(facade.canInviteMembers()).toBe(true);
+    expect(facade.canManageMembers()).toBe(true);
+    expect(facade.canAssignRoles()).toBe(true);
+    expect(facade.canManageNotifications()).toBe(true);
+    expect(facade.canManageWorkspace()).toBe(false);
+    expect(facade.canManageRoleDefinitions()).toBe(false);
+    expect(facade.canManageSecurity()).toBe(false);
   });
 });
