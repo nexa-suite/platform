@@ -54,12 +54,12 @@ export class OrganizationWorkspacesSectionComponent {
   }
 
   saveProfile(): void {
-    if (!this.facade.canManage() || this.profileForm.invalid) { this.profileForm.markAllAsTouched(); return; }
+    if (!this.facade.canManageOrganization() || this.profileForm.invalid) { this.profileForm.markAllAsTouched(); return; }
     this.facade.updateOrganization({ ...this.profileForm.getRawValue(), businessIdentifier: this.profileForm.controls.businessIdentifier.value || null }, this.profileVersion);
   }
 
   createWorkspace(): void {
-    if (!this.facade.canManage() || this.workspaceCreateForm.invalid) { this.workspaceCreateForm.markAllAsTouched(); return; }
+    if (!this.facade.canManageWorkspace() || this.workspaceCreateForm.invalid) { this.workspaceCreateForm.markAllAsTouched(); return; }
     this.facade.createWorkspace(this.workspaceCreateForm.getRawValue());
     this.workspaceCreateForm.reset();
   }
@@ -72,7 +72,7 @@ export class OrganizationWorkspacesSectionComponent {
   cancelEdit(): void { this.editingWorkspaceId = null; this.workspaceVersion = -1; }
 
   saveWorkspace(): void {
-    if (!this.facade.canManage() || !this.editingWorkspaceId || this.workspaceEditForm.invalid) { this.workspaceEditForm.markAllAsTouched(); return; }
+    if (!this.facade.canManageWorkspace() || !this.editingWorkspaceId || this.workspaceEditForm.invalid) { this.workspaceEditForm.markAllAsTouched(); return; }
     this.facade.renameWorkspace(this.editingWorkspaceId, this.workspaceVersion, this.workspaceEditForm.controls.name.value, this.workspaceEditForm.controls.slug.value);
     this.cancelEdit();
   }
@@ -82,13 +82,13 @@ export class OrganizationWorkspacesSectionComponent {
   }
 
   requestWorkspaceLifecycle(workspace: WorkspaceSummary): void {
-    if (!this.facade.canManage()) return;
+    if (!this.facade.canManageWorkspace()) return;
     this.pendingWorkspaceLifecycle.set({ workspace, action: workspace.status === 'ACTIVE' ? 'suspend' : 'reactivate' });
   }
 
   confirmWorkspaceLifecycle(): void {
     const pending = this.pendingWorkspaceLifecycle();
-    if (!pending || !this.facade.canManage()) return;
+    if (!pending || !this.facade.canManageWorkspace()) return;
     this.pendingWorkspaceLifecycle.set(null);
     if (pending.action === 'suspend') this.facade.suspendWorkspace(pending.workspace.id, pending.workspace.version);
     else this.facade.reactivateWorkspace(pending.workspace.id, pending.workspace.version);

@@ -3,7 +3,7 @@
   @if (facade.state().status === 'loading') { <nexa-loading-state [lines]="6" [label]="i18n.t('loadingAdministration')" /> }
   @else if (facade.state().status === 'error') { <nexa-error-state [title]="i18n.t('loadErrorTitle')" [description]="i18n.t('loadErrorDescription')" (retry)="facade.retry()" /> }
   @else if (facade.state().status === 'success') {
-    @if (readOnly()) { <div class="read-only-banner" role="status">{{ i18n.t('readOnly') }}</div> }
+    @if (technicalReadOnly()) { <div class="read-only-banner" role="status">{{ i18n.t('technicalReadOnly') }}</div> }
     @if (facade.state().message; as message) { <div class="message error" role="alert">{{ friendlyMessage(message) }} <button mat-button type="button" (click)="facade.retry()">{{ i18n.t('reload') }}</button></div> }
     @if (facade.state().notice; as notice) { <div class="message success" role="status">{{ localizedNotice(notice) }}</div> }
     <nav class="tabs" [attr.aria-label]="i18n.t('sectionsLabel')">

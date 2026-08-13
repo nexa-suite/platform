@@ -14,6 +14,9 @@ describe('TeamInvitationsSectionComponent', () => {
   const facade = {
     state: state.asReadonly(),
     canManage: signal(true).asReadonly(),
+    canInviteMembers: signal(true).asReadonly(),
+    canManageMembers: signal(true).asReadonly(),
+    canAssignRoles: signal(true).asReadonly(),
     busy: signal(false).asReadonly(),
     changeRoles: vi.fn(),
     loadMembershipDetail: vi.fn(),

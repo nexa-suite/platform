@@ -29,7 +29,16 @@ export class CompanyAdministrationFacade {
   private readonly mutationSignal = signal<string | null>(null);
 
   readonly state = this.stateSignal.asReadonly();
-  readonly canManage = computed(() => this.auth.hasPermission('tenant:manage'));
+  readonly canManageOrganization = computed(() => this.auth.hasPermission('tenant.organization.manage'));
+  readonly canManageWorkspace = computed(() => this.auth.hasPermission('tenant.workspace.manage'));
+  readonly canInviteMembers = computed(() => this.auth.hasPermission('tenant.member.invite'));
+  readonly canManageMembers = computed(() => this.auth.hasPermission('tenant.member.manage'));
+  readonly canAssignRoles = computed(() => this.auth.hasPermission('tenant.role.assign'));
+  readonly canManageRoleDefinitions = computed(() => this.auth.hasPermission('tenant.role.manage'));
+  readonly canManageNotifications = computed(() => this.auth.hasPermission('notification.manage_preferences'));
+  readonly canManageSecurity = computed(() => this.auth.hasPermission('tenant.security.manage'));
+  /** Compatibility alias for callers that only need the organization profile capability. */
+  readonly canManage = this.canManageOrganization;
   readonly busy = computed(() => this.mutationSignal() !== null);
   readonly mutation = this.mutationSignal.asReadonly();
 
@@ -93,103 +102,103 @@ export class CompanyAdministrationFacade {
   clearMembershipDetail(): void { this.stateSignal.update((state) => ({ ...state, membershipDetail: null })); }
 
   updateOrganization(value: Omit<OrganizationProfile, 'version'>, version: number): void {
-    if (!this.canManage()) return;
+    if (!this.canManageOrganization()) return;
     this.mutate('organization', this.api.updateOrganization(value, version), (state, result) => ({ ...state, profile: result }));
   }
   createWorkspace(value: { readonly name: string; readonly slug: string }): void {
-    if (!this.canManage()) return;
+    if (!this.canManageWorkspace()) return;
     this.mutate('workspace', this.api.createWorkspace(value, this.idempotencyKey()), (state, result) => ({ ...state, workspaces: [...state.workspaces, result], notice: 'Workspace created' }));
   }
   renameWorkspace(workspaceId: string, version: number, name: string, slug?: string): void {
-    if (!this.canManage()) return;
+    if (!this.canManageWorkspace()) return;
     this.mutate('workspace', this.api.updateWorkspace(workspaceId, version, { name, slug }), (state, result) => ({ ...state, workspaces: this.replaceById(state.workspaces, result) }));
   }
   suspendWorkspace(workspaceId: string, version: number): void {
-    if (!this.canManage()) return;
+    if (!this.canManageWorkspace()) return;
     this.mutate('workspace', this.api.suspendWorkspace(workspaceId, version), (state, result) => ({ ...state, workspaces: this.replaceById(state.workspaces, result) }));
   }
   reactivateWorkspace(workspaceId: string, version: number): void {
-    if (!this.canManage()) return;
+    if (!this.canManageWorkspace()) return;
     this.mutate('workspace', this.api.reactivateWorkspace(workspaceId, version), (state, result) => ({ ...state, workspaces: this.replaceById(state.workspaces, result) }));
   }
   changeRoles(membershipId: string, version: number, roles: readonly string[]): void {
-    if (!this.canManage()) return;
+    if (!this.canAssignRoles()) return;
     this.mutate('membership', this.api.changeRoles(membershipId, version, roles), (state, result) => this.replaceMembership(state, result));
   }
   changeRoleDefinitions(membershipId: string, version: number, roleDefinitionIds: readonly string[]): void {
-    if (!this.canManage()) return;
+    if (!this.canAssignRoles()) return;
     this.mutate('membership', this.api.changeRoleDefinitions(membershipId, version, roleDefinitionIds), (state, result) => this.replaceMembership(state, result));
   }
   createRoleDefinition(value: { readonly workspaceId?: string; readonly code: string; readonly name: string; readonly description?: string; readonly permissions: readonly string[] }): void {
-    if (!this.canManage()) return;
+    if (!this.canManageRoleDefinitions()) return;
     this.mutate('role-definition', this.api.createRoleDefinition(value), (state, result) => ({ ...state, roleDefinitions: [...state.roleDefinitions, result], notice: 'Role definition created' }));
   }
   updateRoleDefinition(id: string, version: number, value: { readonly name: string; readonly description?: string; readonly permissions: readonly string[] }): void {
-    if (!this.canManage()) return;
+    if (!this.canManageRoleDefinitions()) return;
     this.mutate('role-definition', this.api.updateRoleDefinition(id, version, value), (state, result) => ({ ...state, roleDefinitions: this.replaceById(state.roleDefinitions, result) }));
   }
   deactivateRoleDefinition(role: RoleDefinition): void {
-    if (!this.canManage()) return;
+    if (!this.canManageRoleDefinitions()) return;
     this.mutate('role-definition', this.api.deactivateRoleDefinition(role.id, role.version), (state, result) => ({ ...state, roleDefinitions: this.replaceById(state.roleDefinitions, result) }));
   }
   suspend(membershipId: string, version: number): void {
-    if (!this.canManage()) return;
+    if (!this.canManageMembers()) return;
     this.mutate('membership', this.api.suspend(membershipId, version), (state, result) => this.replaceMembership(state, result));
   }
   reactivate(membershipId: string, version: number): void {
-    if (!this.canManage()) return;
+    if (!this.canManageMembers()) return;
     this.mutate('membership', this.api.reactivate(membershipId, version), (state, result) => this.replaceMembership(state, result));
   }
   updateWorkspaceSettings(value: Omit<WorkspaceSettings, 'workspaceId' | 'version'>, version: number): void {
-    if (!this.canManage()) return;
+    if (!this.canManageWorkspace()) return;
     const workspaceId = this.requireWorkspace();
     this.mutate('workspace-settings', this.api.updateWorkspaceSettings(workspaceId, value, version), (state, result) => ({ ...state, workspaceSettings: result }));
   }
   updateRegional(value: Omit<RegionalSettings, 'version'>, version: number): void {
-    if (!this.canManage()) return;
+    if (!this.canManageOrganization()) return;
     this.mutate('regional', this.api.updateRegionalSettings(value, version), (state, result) => ({ ...state, regional: result }));
   }
   updateUnits(value: Omit<UnitPreferences, 'version'>, version: number): void {
-    if (!this.canManage()) return;
+    if (!this.canManageOrganization()) return;
     this.mutate('units', this.api.updateUnitPreferences(value, version), (state, result) => ({ ...state, units: result }));
   }
   updateOperational(value: Omit<OperationalSettings, 'workspaceId' | 'version'>, version: number): void {
-    if (!this.canManage()) return;
+    if (!this.canManageWorkspace()) return;
     const workspaceId = this.requireWorkspace();
     this.mutate('operational', this.api.updateOperationalSettings(workspaceId, value, version), (state, result) => ({ ...state, operational: result }));
   }
   updateNotifications(value: NotificationSettings, version: number): void {
-    if (!this.canManage()) return;
+    if (!this.canManageNotifications()) return;
     const workspaceId = this.requireWorkspace();
     this.mutate('notifications', this.api.updateNotificationSettings(workspaceId, value, version), (state, result) => ({ ...state, notifications: result }));
   }
   updateSecurity(value: Omit<TenantSecuritySettings, 'version'>, version: number): void {
-    if (!this.canManage()) return;
+    if (!this.canManageSecurity()) return;
     this.mutate('security', this.api.updateSecuritySettings(value, version), (state, result) => ({ ...state, security: result }));
   }
   createCustomField(value: Omit<CustomFieldDefinition, 'id' | 'version'>): void {
-    if (!this.canManage()) return;
+    if (!this.canManageWorkspace()) return;
     this.mutate('custom-field', this.api.createCustomField(value), (state, result) => ({ ...state, customFields: [...state.customFields, result] }));
   }
   updateCustomField(id: string, value: Omit<CustomFieldDefinition, 'id' | 'version'>, version: number): void {
-    if (!this.canManage()) return;
+    if (!this.canManageWorkspace()) return;
     this.mutate('custom-field', this.api.updateCustomField(id, value, version), (state, result) => ({ ...state, customFields: this.replaceById(state.customFields, result) }));
   }
   toggleCustomField(field: CustomFieldDefinition): void {
-    if (!this.canManage()) return;
+    if (!this.canManageWorkspace()) return;
     const request$ = field.active ? this.api.deactivateCustomField(field.id, field.version) : this.api.activateCustomField(field.id, field.version);
     this.mutate('custom-field', request$, (state, result) => ({ ...state, customFields: this.replaceById(state.customFields, result) }));
   }
   createInvitation(value: { readonly email: string; readonly displayName: string; readonly roles: readonly string[] }): void {
-    if (!this.canManage()) return;
+    if (!this.canInviteMembers()) return;
     this.mutate('invitation', this.api.createInvitation(value, this.idempotencyKey()), (state, result) => ({ ...state, invitations: this.appendInvitation(state.invitations, result), notice: 'Invitation created' }));
   }
   revokeInvitation(value: InvitationView): void {
-    if (!this.canManage()) return;
+    if (!this.canManageMembers()) return;
     this.mutate('invitation', this.api.revokeInvitation(value.id, value.version), (state, result) => ({ ...state, invitations: this.replaceInvitation(state.invitations, result) }));
   }
   resendInvitation(value: InvitationView): void {
-    if (!this.canManage()) return;
+    if (!this.canManageMembers()) return;
     this.mutate('invitation', this.api.resendInvitation(value.id, value.version), (state, result) => ({ ...state, invitations: this.replaceInvitation(state.invitations, result) }));
   }
 

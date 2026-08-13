@@ -8,9 +8,9 @@
           @for (member of facade.state().memberships; track member.id) {
             <article class="member-row">
               <div class="member-copy"><strong>{{ member.displayName }}</strong><span>{{ member.email }} · {{ i18n.status(member.status) }}</span><small>{{ roleNames(facade.state().roleDefinitions.length ? (member.roleDefinitionIds ?? []) : member.roles) }}</small></div>
-              <mat-form-field appearance="outline" class="roles-field"><mat-label>{{ facade.state().roleDefinitions.length ? i18n.t('dynamicRoles') : i18n.t('fixedRoles') }}</mat-label><mat-select multiple [value]="selectedRoles(member)" (selectionChange)="requestRoleChange(member, $event.value)" [disabled]="!facade.canManage() || facade.busy()">@for (role of assignableRoles(); track role.value) { <mat-option [value]="role.value">{{ role.label }}</mat-option> }</mat-select></mat-form-field>
+              <mat-form-field appearance="outline" class="roles-field"><mat-label>{{ facade.state().roleDefinitions.length ? i18n.t('dynamicRoles') : i18n.t('fixedRoles') }}</mat-label><mat-select multiple [value]="selectedRoles(member)" (selectionChange)="requestRoleChange(member, $event.value)" [disabled]="!facade.canAssignRoles() || facade.busy()">@for (role of assignableRoles(); track role.value) { <mat-option [value]="role.value">{{ role.label }}</mat-option> }</mat-select></mat-form-field>
               <button mat-button type="button" (click)="openMemberDetail(member)">{{ i18n.t('details') }}</button>
-              <button mat-button type="button" (click)="requestMembershipLifecycle(member)" [disabled]="!facade.canManage() || facade.busy()">{{ member.status === 'ACTIVE' ? i18n.t('suspend') : i18n.t('reactivate') }}</button>
+              <button mat-button type="button" (click)="requestMembershipLifecycle(member)" [disabled]="!facade.canManageMembers() || facade.busy()">{{ member.status === 'ACTIVE' ? i18n.t('suspend') : i18n.t('reactivate') }}</button>
             </article>
           }
         </div>
@@ -45,7 +45,7 @@
     <mat-card-header><mat-card-subtitle>{{ i18n.t('invitations') }}</mat-card-subtitle><mat-card-title>{{ i18n.t('internalAccessOnly') }}</mat-card-title></mat-card-header>
     <mat-card-content>
       <form [formGroup]="invitationForm" (ngSubmit)="invite()" class="form-grid" [attr.aria-label]="i18n.t('inviteInternalMember')">
-        <fieldset [disabled]="!facade.canManage() || facade.busy()">
+        <fieldset [disabled]="!facade.canInviteMembers() || facade.busy()">
           <mat-form-field appearance="outline"><mat-label>{{ i18n.t('email') }}</mat-label><input matInput type="email" formControlName="email"><mat-error>{{ i18n.t('required') }}</mat-error></mat-form-field>
           <mat-form-field appearance="outline"><mat-label>{{ i18n.t('displayName') }}</mat-label><input matInput formControlName="displayName"><mat-error>{{ i18n.t('required') }}</mat-error></mat-form-field>
           <mat-form-field appearance="outline" class="roles-field"><mat-label>{{ i18n.t('fixedRoles') }}</mat-label><mat-select multiple formControlName="roles">@for (role of fixedRoles; track role) { <mat-option [value]="role">{{ i18n.role(role) }}</mat-option> }</mat-select></mat-form-field>
@@ -56,7 +56,7 @@
       @else {
         <div class="invitation-list">
           @for (invitation of facade.state().invitations.items; track invitation.id) {
-            <article class="invitation-row"><div><strong>{{ invitation.displayName }}</strong><span>{{ invitation.email }} · {{ roleNames(invitation.roles) }}</span><small>{{ i18n.status(invitation.status) }} · {{ i18n.t('expires') }} {{ invitation.expiresAt | date:'mediumDate' }}</small></div><div class="row-actions"><button mat-button type="button" (click)="facade.resendInvitation(invitation)" [disabled]="!facade.canManage() || facade.busy() || invitation.status !== 'PENDING'">{{ i18n.t('resend') }}</button><button mat-button type="button" (click)="facade.revokeInvitation(invitation)" [disabled]="!facade.canManage() || facade.busy() || invitation.status !== 'PENDING'">{{ i18n.t('revoke') }}</button></div></article>
+            <article class="invitation-row"><div><strong>{{ invitation.displayName }}</strong><span>{{ invitation.email }} · {{ roleNames(invitation.roles) }}</span><small>{{ i18n.status(invitation.status) }} · {{ i18n.t('expires') }} {{ invitation.expiresAt | date:'mediumDate' }}</small></div><div class="row-actions"><button mat-button type="button" (click)="facade.resendInvitation(invitation)" [disabled]="!facade.canManageMembers() || facade.busy() || invitation.status !== 'PENDING'">{{ i18n.t('resend') }}</button><button mat-button type="button" (click)="facade.revokeInvitation(invitation)" [disabled]="!facade.canManageMembers() || facade.busy() || invitation.status !== 'PENDING'">{{ i18n.t('revoke') }}</button></div></article>
           }
         </div>
       }

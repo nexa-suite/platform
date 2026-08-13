@@ -3,7 +3,7 @@
     <mat-card-header><mat-card-subtitle>{{ i18n.t('regionalSettings') }}</mat-card-subtitle><mat-card-title>{{ i18n.t('localeAndTimezone') }}</mat-card-title></mat-card-header>
     <mat-card-content>
       <form [formGroup]="regionalForm" (ngSubmit)="saveRegional()" class="form-grid" [attr.aria-label]="i18n.t('regionalSettings')">
-        <fieldset [disabled]="!facade.canManage() || facade.busy()">
+        <fieldset [disabled]="!facade.canManageOrganization() || facade.busy()">
           <mat-form-field appearance="outline"><mat-label>{{ i18n.t('timezone') }}</mat-label><input matInput formControlName="timezone"></mat-form-field>
           <mat-form-field appearance="outline"><mat-label>{{ i18n.t('language') }}</mat-label><mat-select formControlName="language"><mat-option value="en">{{ i18n.t('english') }}</mat-option><mat-option value="es">{{ i18n.t('spanish') }}</mat-option></mat-select></mat-form-field>
           <mat-form-field appearance="outline"><mat-label>{{ i18n.t('currency') }}</mat-label><input matInput formControlName="currency"></mat-form-field>
@@ -20,7 +20,7 @@
     <mat-card-header><mat-card-subtitle>{{ i18n.t('units') }}</mat-card-subtitle><mat-card-title>{{ i18n.t('coldChainMeasurement') }}</mat-card-title></mat-card-header>
     <mat-card-content>
       <form [formGroup]="unitsForm" (ngSubmit)="saveUnits()" class="form-grid" [attr.aria-label]="i18n.t('units')">
-        <fieldset [disabled]="!facade.canManage() || facade.busy()">
+        <fieldset [disabled]="!facade.canManageOrganization() || facade.busy()">
           <mat-form-field appearance="outline"><mat-label>{{ i18n.t('mass') }}</mat-label><mat-select formControlName="massUnit"><mat-option value="KG">{{ i18n.t('kilograms') }}</mat-option><mat-option value="LB">{{ i18n.t('pounds') }}</mat-option></mat-select></mat-form-field>
           <mat-form-field appearance="outline"><mat-label>{{ i18n.t('temperature') }}</mat-label><mat-select formControlName="temperatureUnit"><mat-option value="CELSIUS">{{ i18n.t('celsius') }}</mat-option><mat-option value="FAHRENHEIT">{{ i18n.t('fahrenheit') }}</mat-option></mat-select></mat-form-field>
           <mat-form-field appearance="outline"><mat-label>{{ i18n.t('distance') }}</mat-label><mat-select formControlName="distanceUnit"><mat-option value="KM">{{ i18n.t('kilometres') }}</mat-option><mat-option value="MI">{{ i18n.t('miles') }}</mat-option></mat-select></mat-form-field>
@@ -36,7 +36,7 @@
     <mat-card-content>
       @if (facade.state().workspaceSettings; as workspaceSettings) {
         <form [formGroup]="workspaceSettingsForm" (ngSubmit)="saveWorkspaceSettings()" class="form-grid" [attr.aria-label]="i18n.t('workspaceSettings')">
-          <fieldset [disabled]="!facade.canManage() || facade.busy()">
+          <fieldset [disabled]="!facade.canManageWorkspace() || facade.busy()">
             <mat-form-field appearance="outline"><mat-label>{{ i18n.t('defaultWorkspaceBehavior') }}</mat-label><mat-select formControlName="defaultWorkspaceBehavior"><mat-option value="STANDARD">{{ i18n.t('standard') }}</mat-option><mat-option value="COMPACT">{{ i18n.t('compact') }}</mat-option></mat-select></mat-form-field>
             <p class="hint">{{ i18n.t('warehousePreferenceAuthority') }}: {{ workspaceSettings.warehousePreferenceStrategy }}</p>
             <button mat-flat-button color="primary" type="submit">{{ i18n.t('saveWorkspaceSettings') }}</button>
@@ -50,7 +50,7 @@
     <mat-card-header><mat-card-subtitle>{{ i18n.t('operationalRules') }}</mat-card-subtitle><mat-card-title>{{ i18n.t('fulfillmentDefaults') }}</mat-card-title></mat-card-header>
     <mat-card-content>
       <form [formGroup]="operationalForm" (ngSubmit)="saveOperational()" class="form-grid" [attr.aria-label]="i18n.t('operationalRules')">
-        <fieldset [disabled]="!facade.canManage() || facade.busy()">
+        <fieldset [disabled]="!facade.canManageWorkspace() || facade.busy()">
           <mat-form-field appearance="outline"><mat-label>{{ i18n.t('warehouseSelection') }}</mat-label><mat-select formControlName="defaultWarehouseSelectionPolicy"><mat-option value="MANUAL">{{ i18n.t('manual') }}</mat-option><mat-option value="PREFERRED">{{ i18n.t('preferred') }}</mat-option></mat-select></mat-form-field>
           <mat-form-field appearance="outline"><mat-label>{{ i18n.t('orderCutoff') }}</mat-label><mat-select formControlName="orderCutoffPolicy"><mat-option value="WORKSPACE_HOURS">{{ i18n.t('workspaceHours') }}</mat-option><mat-option value="FIXED_TIME">{{ i18n.t('fixedTime') }}</mat-option></mat-select></mat-form-field>
           <mat-form-field appearance="outline"><mat-label>{{ i18n.t('fulfillmentDefault') }}</mat-label><mat-select formControlName="fulfillmentDefaults"><mat-option value="STANDARD">{{ i18n.t('standard') }}</mat-option><mat-option value="FEFO">{{ i18n.t('fefo') }}</mat-option></mat-select></mat-form-field>
@@ -72,7 +72,7 @@
     <mat-card-content>
       @if (facade.state().notifications; as notifications) {
         @for (preference of notifications.preferences; track preference.eventCategory + preference.channel) {
-          <button class="preference" type="button" (click)="toggleNotification(preference)" [disabled]="!facade.canManage() || facade.busy()" [attr.aria-pressed]="preference.enabled"><span>{{ preference.eventCategory }} · {{ preference.channel }}</span><strong>{{ preference.enabled ? i18n.t('enabled') : i18n.t('disabled') }}</strong></button>
+          <button class="preference" type="button" (click)="toggleNotification(preference)" [disabled]="!facade.canManageNotifications() || facade.busy()" [attr.aria-pressed]="preference.enabled"><span>{{ preference.eventCategory }} · {{ preference.channel }}</span><strong>{{ preference.enabled ? i18n.t('enabled') : i18n.t('disabled') }}</strong></button>
         } @empty {
           <p class="empty">{{ i18n.t('noNotificationPreferences') }}</p>
         }
@@ -84,7 +84,7 @@
     <mat-card-header><mat-card-subtitle>{{ i18n.t('securitySettings') }}</mat-card-subtitle><mat-card-title>{{ i18n.t('safeTenantPolicy') }}</mat-card-title></mat-card-header>
     <mat-card-content>
       <form [formGroup]="securityForm" (ngSubmit)="saveSecurity()" class="form-grid" [attr.aria-label]="i18n.t('securitySettings')">
-        <fieldset [disabled]="!facade.canManage() || facade.busy()">
+        <fieldset [disabled]="!facade.canManageSecurity() || facade.busy()">
           <mat-form-field appearance="outline"><mat-label>{{ i18n.t('minimumPasswordLength') }}</mat-label><input matInput type="number" formControlName="passwordMinLength"><mat-error>{{ i18n.t('passwordPolicy') }}</mat-error></mat-form-field>
           <mat-form-field appearance="outline"><mat-label>{{ i18n.t('sessionDuration') }}</mat-label><input matInput type="number" formControlName="sessionDurationMinutes"></mat-form-field>
           <mat-form-field appearance="outline"><mat-label>{{ i18n.t('invitationExpiration') }}</mat-label><input matInput type="number" formControlName="invitationExpirationHours"></mat-form-field>
@@ -99,7 +99,7 @@
     <mat-card-header><mat-card-subtitle>{{ i18n.t('customFields') }}</mat-card-subtitle><mat-card-title>{{ i18n.t('typedDefinitions') }}</mat-card-title></mat-card-header>
     <mat-card-content>
       <form [formGroup]="customFieldForm" (ngSubmit)="createCustomField()" class="form-grid" [attr.aria-label]="i18n.t('createDefinition')">
-        <fieldset [disabled]="!facade.canManage() || facade.busy()">
+        <fieldset [disabled]="!facade.canManageWorkspace() || facade.busy()">
           <mat-form-field appearance="outline"><mat-label>{{ i18n.t('key') }}</mat-label><input matInput formControlName="fieldKey"></mat-form-field>
           <mat-form-field appearance="outline"><mat-label>{{ i18n.t('displayName') }}</mat-label><input matInput formControlName="label"></mat-form-field>
           <mat-form-field appearance="outline"><mat-label>{{ i18n.t('type') }}</mat-label><mat-select formControlName="fieldKind"><mat-option value="TEXT">{{ i18n.t('text') }}</mat-option><mat-option value="NUMBER">{{ i18n.t('number') }}</mat-option><mat-option value="DECIMAL">{{ i18n.t('decimal') }}</mat-option><mat-option value="BOOLEAN">{{ i18n.t('boolean') }}</mat-option><mat-option value="DATE">{{ i18n.t('date') }}</mat-option></mat-select></mat-form-field>
@@ -111,7 +111,7 @@
       </form>
       @if (editingCustomFieldId; as editingId) {
         <form [formGroup]="customFieldEditForm" (ngSubmit)="saveCustomField()" class="form-grid edit-custom-form" [attr.aria-label]="i18n.t('editDefinition')">
-          <fieldset [disabled]="!facade.canManage() || facade.busy()">
+          <fieldset [disabled]="!facade.canManageWorkspace() || facade.busy()">
             <mat-form-field appearance="outline"><mat-label>{{ i18n.t('key') }}</mat-label><input matInput formControlName="fieldKey"></mat-form-field>
             <mat-form-field appearance="outline"><mat-label>{{ i18n.t('displayName') }}</mat-label><input matInput formControlName="label"></mat-form-field>
             <mat-form-field appearance="outline"><mat-label>{{ i18n.t('type') }}</mat-label><mat-select formControlName="fieldKind"><mat-option value="TEXT">{{ i18n.t('text') }}</mat-option><mat-option value="NUMBER">{{ i18n.t('number') }}</mat-option><mat-option value="DECIMAL">{{ i18n.t('decimal') }}</mat-option><mat-option value="BOOLEAN">{{ i18n.t('boolean') }}</mat-option><mat-option value="DATE">{{ i18n.t('date') }}</mat-option></mat-select></mat-form-field>
@@ -124,7 +124,7 @@
       }
       <div class="custom-list">
         @for (field of facade.state().customFields; track field.id) {
-          <div class="custom-row"><span><strong>{{ field.label }}</strong><small>{{ field.fieldKey }} · {{ field.fieldKind }} · {{ field.scope }} · {{ field.active ? i18n.t('active') : i18n.t('disabledStatus') }}</small></span><div class="row-actions"><button mat-button type="button" (click)="editCustomField(field)" [disabled]="!facade.canManage() || facade.busy()">{{ i18n.t('edit') }}</button><button mat-button type="button" (click)="toggleCustomField(field)" [disabled]="!facade.canManage() || facade.busy()">{{ field.active ? i18n.t('deactivate') : i18n.t('activate') }}</button></div></div>
+          <div class="custom-row"><span><strong>{{ field.label }}</strong><small>{{ field.fieldKey }} · {{ field.fieldKind }} · {{ field.scope }} · {{ field.active ? i18n.t('active') : i18n.t('disabledStatus') }}</small></span><div class="row-actions"><button mat-button type="button" (click)="editCustomField(field)" [disabled]="!facade.canManageWorkspace() || facade.busy()">{{ i18n.t('edit') }}</button><button mat-button type="button" (click)="toggleCustomField(field)" [disabled]="!facade.canManageWorkspace() || facade.busy()">{{ field.active ? i18n.t('deactivate') : i18n.t('activate') }}</button></div></div>
         } @empty { <p class="empty">{{ i18n.t('noCustomFields') }}</p> }
       </div>
     </mat-card-content>
