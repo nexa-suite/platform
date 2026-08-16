@@ -1,114 +1,84 @@
 <div align="center">
 
-<img src="./docs/assets/nexa.svg" alt="Nexa Logo" width="250"/>
+<img src="./docs/assets/nexa.svg" alt="Nexa" width="220" />
 
 # Nexa Platform
 
-Internal operations workspace for Sales, Warehouse, Logistics, Company Ownership and Administration.
+**Internal operational workspace for Nexa tenant teams.**
 
-[![Angular 22](https://img.shields.io/badge/Angular-22-DD0031?style=flat-square&logo=angular&logoColor=white)](https://angular.dev/) [![TypeScript strict](https://img.shields.io/badge/TypeScript-strict-3178C6?style=flat-square&logo=typescript&logoColor=white)](https://www.typescriptlang.org/) [![Angular Material 22](https://img.shields.io/badge/Angular%20Material-22-757575?style=flat-square&logo=materialdesign&logoColor=white)](https://material.angular.dev/) [![Release v0.7.0](https://img.shields.io/badge/release-v0.7.0-2563EB?style=flat-square)](https://github.com/nexa-suite/platform/releases/tag/v0.7.0)
+[![Angular 22](https://img.shields.io/badge/Angular-22-DD0031?style=flat-square&logo=angular&logoColor=white)](https://angular.dev/) [![TypeScript strict](https://img.shields.io/badge/TypeScript-strict-3178C6?style=flat-square&logo=typescript&logoColor=white)](https://www.typescriptlang.org/) [![Angular Material 22](https://img.shields.io/badge/Angular%20Material-22-757575?style=flat-square&logo=materialdesign&logoColor=white)](https://material.angular.dev/) [![Release](https://img.shields.io/github/v/release/nexa-suite/platform?style=flat-square&label=release)](https://github.com/nexa-suite/platform/releases)
 
 [Changelog](./CHANGELOG.md) · [Release notes](./docs/releases/) · [Contributing](./.github/CONTRIBUTING.md) · [Security](./.github/SECURITY.md)
-
-**Current repository:** Platform · **Latest published release:** `v0.7.0` · **Development version:** `0.7.1`
-
-[Website](https://github.com/nexa-suite/website) · [Platform](https://github.com/nexa-suite/platform) · [Portal](https://github.com/nexa-suite/portal) · [API](https://github.com/nexa-suite/api) · [Mobile](https://github.com/nexa-suite/mobile)
 
 </div>
 
 ---
 
-## What is implemented
+## Overview
 
-`v0.7.0` packages Angular 22 Platform access foundations, Company Administration, Client Accounts, Purchase Request and Sales Order operations, plus Warehouse and Logistics workflows with role-specific route protection.
+Angular secured surface for tenant administrators, company owners, business operations, sales, warehouse and dispatch teams. Platform presents operational workflows; API owns identity, tenant scope and business authority.
 
-Current `develop` artifact `0.7.1` contains development stabilization for Sales Dashboard metrics, role landing states and operations navigation. This material is not a published release.
+## Operational areas
 
-Platform is the internal experience, not the buyer-facing product and not the security authority. This release integrates the secured IAM/session/catalog read contract with the API; broader business workflows, persistence beyond the API contract and production deployment are not implemented here.
+- Company administration and client accounts.
+- Purchase Requests and Sales Orders.
+- Catalog discovery and commercial workspaces.
+- Warehouse and Logistics workflows.
+- Role-specific route protection, loading, error and empty states.
+- English and Spanish interface foundations.
 
-## Product boundaries
+This repository is not the buyer-facing product, security authority or persistence owner.
 
-```mermaid
-flowchart LR
-    Website["Website<br/>Static public site<br/>v1.0.0"]
-    Platform["Platform<br/>Angular 22 secured surface<br/>v0.7.0"]
-    Portal["Buyer Portal<br/>Angular 22 secured surface<br/>v0.7.0"]
-    API["API<br/>IAM, tenant scope and commercial workflows<br/>v0.8.0"]
+## Nexa Product Ecosystem
 
-    Website -. "product navigation" .-> Platform
-    Website -. "product navigation" .-> Portal
-    Platform -->|"secured IAM and Catalog read contract"| API
-    Portal -. "secured IAM and Catalog read contract" .-> API
-```
-
-The Platform link is the approved secured vertical slice for this release. Mobile is not implemented and is intentionally absent from the runtime map. PostgreSQL, AI, IoT and cloud services remain outside this frontend release.
-
-![Nexa Suite repository map](./docs/assets/repository-map/nexa-suite-map.svg)
-
-## Repository map
-
-| Repository | Latest published release | Responsibility | Evidence status |
-|---|---:|---|---|
-| [Website](https://github.com/nexa-suite/website) | `v1.0.0` | Static public product discovery | Released static site |
-| **Platform** | **`v0.7.0`** | Internal operations shell | Angular 22 secured commercial, Warehouse and Logistics surface; Docker runtime |
-| [Portal](https://github.com/nexa-suite/portal) | `v0.7.0` | Buyer self-service shell | Angular 22 secured commercial and delivery surface; Docker runtime |
-| [API](https://github.com/nexa-suite/api) | `v0.8.0` | Business and integration authority | IAM, tenant scope, commercial, Warehouse and Logistics workflows |
-| [Mobile](https://github.com/nexa-suite/mobile) | `v0.1.1` | Future native clients | Documentation-only |
-
-## Bounded contexts
-
-| Area | Current maturity |
-|---|---|
-| IAM | Secured client/API slice |
-| Tenant Management | Workspace-scoped client/API foundation |
-| Catalog Management | Secured read slice; shared local reference seed |
-| Sales | Client Accounts, Purchase Requests and Sales Orders in `v0.7.0` |
-| Warehouse | Implemented operations surface in `v0.7.0` |
-| Logistics | Implemented dispatch and delivery operations in `v0.7.0` |
-| Invoicing | Planned |
+<table>
+<tr><td><a href="https://github.com/nexa-suite/website"><strong>Nexa Website</strong></a><br />Public product discovery.<br /><img src="https://img.shields.io/github/v/release/nexa-suite/website?style=flat-square&label=release" alt="Website release" /></td><td><strong>Nexa Platform</strong><br />This repository. Internal operational workspace.<br /><img src="https://img.shields.io/github/v/release/nexa-suite/platform?style=flat-square&label=release" alt="Platform release" /></td></tr>
+<tr><td><a href="https://github.com/nexa-suite/portal"><strong>Nexa Buyer Portal</strong></a><br />Buyer-facing business experience.<br /><img src="https://img.shields.io/github/v/release/nexa-suite/portal?style=flat-square&label=release" alt="Portal release" /></td><td><a href="https://github.com/nexa-suite/api"><strong>Nexa API</strong></a><br />Business and integration authority.<br /><img src="https://img.shields.io/github/v/release/nexa-suite/api?style=flat-square&label=release" alt="API release" /></td></tr>
+<tr><td colspan="2"><a href="https://github.com/nexa-suite/mobile"><strong>Nexa Mobile</strong></a><br />Architecture runway for future native clients.<br /><img src="https://img.shields.io/github/v/release/nexa-suite/mobile?style=flat-square&label=release" alt="Mobile release" /></td></tr>
+</table>
 
 ## Architecture
 
-Presentation depends on Application. Application depends on Domain. Infrastructure remains outside Domain. Frontend models and API adapters require an approved vertical slice and an explicit contract; the Platform shell does not own backend business rules.
+Standalone Angular application. Shared presentation components, signals, route guards and API adapters stay separated by responsibility. Business rules and tenant authorization remain API contracts.
 
-## Tech stack
+## Technology
 
-Angular 22, TypeScript strict mode, Angular Material/CDK 22, Signals, RxJS, `ngx-translate` 18, SCSS and npm 11.17.0 as declared by `package.json`.
+Angular 22, TypeScript strict mode, Angular Material/CDK 22, Signals, RxJS, ngx-translate, SCSS and npm.
 
 ## Getting started
 
-```bash
-npm ci
-npm start
-```
+    npm ci
+    npm start
 
-Open [http://localhost:4200](http://localhost:4200) and navigate to `/overview`.
+Open http://localhost:4200.
 
-## Available commands
+## Validation
 
-```bash
-npm run validate:catalog-assets
-npm test
-npm run build
-```
+    npm run validate:catalog-assets
+    npm test
+    npm run build
 
-## Project structure
+## Repository structure
 
-```text
-src/app/core/                                      # Shell, routes and language service
-src/app/shared/presentation/components/            # Reusable visual components
-src/app/shared/application/utilities/              # Pure address, date and number utilities
-public/catalog-items/                              # Manifest-validated canonical media subset
-src/styles/                                        # Tokens, typography, motion, Material and a11y
-docs/assets/repository-map/                         # Local architecture map
-docs/releases/                                      # Versioned release notes
-```
+    src/app/core/                         Shell, routes and language service
+    src/app/shared/presentation/         Reusable visual components
+    src/app/shared/application/          Pure application utilities
+    public/catalog-items/                Manifest-validated catalog media
+    src/styles/                           Tokens, typography, Material and accessibility
+    docs/                                 Architecture and releases
 
 ## Documentation
 
-- [Release notes index](./docs/releases/)
+- [Release notes](./docs/releases/)
 - [Release policy](./.github/RELEASE_POLICY.md)
+- [Changelog](./CHANGELOG.md)
 
-## Roadmap boundary
+## Security
 
-Future vertical slices require explicit contracts, identity, tenant rules and runtime/browser evidence. Planned database, AI, IoT, cloud and mobile capabilities must not be described as Platform implementation until those gates pass.
+Do not report vulnerabilities through public issues. Follow the [Security Policy](./.github/SECURITY.md).
+
+## Legal
+
+Copyright © 2026 Nexa. All rights reserved. No open-source license is selected by this README.
+
+<div align="center"><br />Nexa · Operations with a clear line to business authority</div>
