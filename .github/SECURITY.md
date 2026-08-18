@@ -24,5 +24,5 @@ Do not report security issues through public issues. We will acknowledge receipt
 
 | Version | Support |
 |---|---|
-| `0.2.x` | Supported |
-| `< 0.2` | Unsupported |
+| `0.7.x` | Supported |
+| `< 0.7` | Unsupported |
