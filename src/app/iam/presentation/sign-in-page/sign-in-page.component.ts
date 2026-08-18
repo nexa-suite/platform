@@ -3,7 +3,7 @@ import { form, FormField, minLength, required } from '@angular/forms/signals';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 import { AuthenticationService } from '../../application/authentication.service';
 import { SignInCommand } from '../../domain/models/auth.models';
@@ -11,7 +11,7 @@ import { safeReturnUrl } from '../../../core/routing/route-paths';
 
 @Component({
   selector: 'nexa-sign-in-page',
-  imports: [FormField, MatButtonModule, MatFormFieldModule, MatInputModule, TranslatePipe],
+  imports: [FormField, MatButtonModule, MatFormFieldModule, MatInputModule, RouterLink, TranslatePipe],
   templateUrl: './sign-in-page.component.html',
   styleUrl: './sign-in-page.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush

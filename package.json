@@ -1,10 +1,12 @@
 {
   "name": "nexa-platform",
-  "version": "0.7.0",
+  "version": "0.7.1",
   "scripts": {
     "ng": "ng",
     "start": "ng serve --port 4200",
     "build": "ng build",
+    "test:e2e": "playwright test -c e2e/playwright.config.ts",
+    "test:e2e:headed": "playwright test -c e2e/playwright.config.ts --headed",
     "validate:catalog-assets": "node scripts/validate-catalog-assets.mjs",
     "watch": "ng build --watch --configuration development",
     "test": "ng test --watch=false"
@@ -29,6 +31,7 @@
     "@angular/build": "^22.0.8",
     "@angular/cli": "^22.0.8",
     "@angular/compiler-cli": "^22.0.0",
+    "@playwright/test": "^1.62.1",
     "jsdom": "^28.0.0",
     "prettier": "^3.8.1",
     "typescript": "~6.0.2",

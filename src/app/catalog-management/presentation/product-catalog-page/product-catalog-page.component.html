@@ -5,7 +5,7 @@
     [subtitle]="'catalog.description' | translate">
     <div page-header-actions>
       <button mat-stroked-button type="button" (click)="clearFilters()">
-        <mat-icon aria-hidden="true">filter_alt_off</mat-icon>
+        <nexa-icon name="filter_alt_off" />
         {{ 'catalog.clearFilters' | translate }}
       </button>
     </div>
@@ -70,16 +70,17 @@
           <article class="catalog-card">
             <a class="catalog-card-visual" [routerLink]="['/ops/product-catalog', item.id]" [queryParams]="detailQueryParams()">
               @if (item.image.url) {
-                <img [src]="item.image.url" [alt]="item.name" loading="lazy" />
+                <img [src]="item.image.url" [alt]="item.productFamilyName" loading="lazy" />
               } @else {
-                <mat-icon aria-hidden="true">inventory_2</mat-icon>
+                <nexa-icon name="inventory_2" />
               }
             </a>
             <div class="catalog-card-body">
               <p class="catalog-category">{{ item.category }}</p>
-              <h3>{{ item.name }}</h3>
-              <p class="catalog-brand">{{ item.brand }} · {{ item.presentation }}</p>
+              <h3>{{ item.productFamilyName }}</h3>
+              <p class="catalog-brand">{{ item.brand }} · {{ item.skuCode || item.id }} · {{ item.presentation }}@if (item.unitOfMeasure) { · {{ item.unitOfMeasure }} }</p>
               <nexa-cold-chain-badge [label]="coldChainLabel(item.coldChain) | translate" [variant]="coldChainVariant(item.coldChain)" />
+              <p class="catalog-availability" [class.near-expiry]="item.nearExpiry">{{ item.availabilityStatus }}</p>
               <div class="catalog-card-footer">
                 <strong>{{ formatPrice(item) }}</strong>
                 <a [routerLink]="['/ops/product-catalog', item.id]" [queryParams]="detailQueryParams()">{{ 'catalog.viewDetail' | translate }}</a>

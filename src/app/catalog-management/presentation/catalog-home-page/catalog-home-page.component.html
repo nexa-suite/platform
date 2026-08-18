@@ -1,0 +1,21 @@
+<div class="catalog-home-page">
+  <nexa-page-header
+    [eyebrow]="'catalog.eyebrow' | translate"
+    [title]="'catalog.hub.title' | translate"
+    [subtitle]="'catalog.hub.description' | translate" />
+
+  <nexa-section-panel [title]="'catalog.hub.sectionsTitle' | translate">
+    <div class="catalog-links" role="list">
+      @for (section of sections(); track section.path) {
+        <a class="catalog-link" [routerLink]="section.path" role="listitem">
+          <nexa-icon class="catalog-link-icon" [name]="section.icon" />
+          <span class="catalog-link-copy">
+            <strong>{{ section.titleKey | translate }}</strong>
+            <span>{{ section.descriptionKey | translate }}</span>
+          </span>
+          <nexa-icon class="catalog-link-arrow" name="arrow_forward" />
+        </a>
+      }
+    </div>
+  </nexa-section-panel>
+</div>

@@ -1,6 +1,7 @@
 import { ClientAccount, ClientAccountPage } from '../../client-accounts/domain/client-account.models';
 import { PaymentOption, PurchaseRequest, PurchaseRequestEvent, PurchaseRequestLine, PurchaseRequestPage, PurchaseRequestStatus } from '../../purchase-requests/domain/purchase-request.models';
 import { FulfillmentCandidate, SalesOrder, SalesOrderEvent, SalesOrderLine, SalesOrderPage, SalesOrderStatus } from '../../sales-orders/domain/sales-order.models';
+import { ManualOrderClient, ManualOrderDraft, ManualOrderDelivery, ManualOrderLine, ManualOrderReview } from '../../manual-orders/domain/manual-order.models';
 
 export type ApiRecord = Readonly<Record<string, unknown>>;
 
@@ -42,6 +43,9 @@ export function toClientAccount(value: ApiRecord): ClientAccount {
     code: stringValue(value, 'clientAccountCode', 'code'),
     businessName: stringValue(value, 'businessName', 'legalName'),
     commercialName: stringValue(value, 'commercialName', 'tradeName'),
+    countryCode: stringValue(value, 'countryCode', 'taxCountryCode'),
+    taxType: stringValue(value, 'taxType', 'taxIdentifierType'),
+    taxValue: stringValue(value, 'taxValue', 'taxIdentifierValue'),
     segment: stringValue(value, 'segment'),
     contactPerson: stringValue(value, 'contactPerson', 'contactName'),
     contactEmail: stringValue(value, 'contactEmail', 'email'),
@@ -190,5 +194,86 @@ export function toFulfillmentCandidate(value: ApiRecord): FulfillmentCandidate {
     status: 'AWAITING_INVENTORY_RESERVATION',
     warehouseId: nullableString(value, 'warehouseId'),
     logisticsEligibleAt: nullableString(value, 'logisticsEligibleAt', 'eligibleAt')
+  };
+}
+
+function toManualOrderClient(value: ApiRecord): ManualOrderClient {
+  return {
+    id: stringValue(value, 'id', 'clientAccountId'),
+    code: stringValue(value, 'code', 'clientAccountCode'),
+    businessName: stringValue(value, 'businessName', 'legalName'),
+    commercialName: stringValue(value, 'commercialName', 'tradeName'),
+    taxIdentifierType: stringValue(value, 'taxIdentifierType'),
+    taxIdentifierValue: stringValue(value, 'taxIdentifierValue'),
+    status: stringValue(value, 'status'),
+    paymentTerms: stringValue(value, 'paymentTerms', 'paymentCondition'),
+    creditLimit: numberValue(value, 'creditLimit'),
+    currentExposure: numberValue(value, 'currentExposure', 'currentCommercialExposure'),
+    availableCredit: numberValue(value, 'availableCredit')
+  };
+}
+
+function toManualOrderLine(value: ApiRecord): ManualOrderLine {
+  return {
+    id: stringValue(value, 'id', 'lineId'),
+    skuId: stringValue(value, 'skuId'),
+    catalogItemId: stringValue(value, 'catalogItemId'),
+    productFamily: stringValue(value, 'productFamily', 'productFamilyName'),
+    familyCode: stringValue(value, 'familyCode', 'productFamilyCode'),
+    skuCode: stringValue(value, 'skuCode'),
+    presentation: stringValue(value, 'presentation'),
+    unit: stringValue(value, 'unit'),
+    quantity: numberValue(value, 'quantity'),
+    baseUnitPrice: numberValue(value, 'baseUnitPrice', 'baseUnitPriceAmount'),
+    effectiveUnitPrice: numberValue(value, 'effectiveUnitPrice', 'unitPriceAmount'),
+    discountAmount: numberValue(value, 'discountAmount'),
+    currency: stringValue(value, 'currency', 'unitPriceCurrency'),
+    availabilityStatus: stringValue(value, 'availabilityStatus'),
+    notes: nullableString(value, 'notes')
+  };
+}
+
+function toManualOrderDelivery(value: ApiRecord): ManualOrderDelivery {
+  return {
+    addressId: nullableString(value, 'addressId'),
+    addressSnapshot: nullableString(value, 'addressSnapshot'),
+    routeSnapshot: nullableString(value, 'routeSnapshot'),
+    warehouseSnapshot: nullableString(value, 'warehouseSnapshot'),
+    warehouseId: nullableString(value, 'warehouseId'),
+    routeProvider: nullableString(value, 'routeProvider'),
+    deliveryNotes: nullableString(value, 'deliveryNotes')
+  };
+}
+
+export function toManualOrderDraft(value: ApiRecord): ManualOrderDraft {
+  return {
+    id: stringValue(value, 'id', 'draftId'),
+    status: stringValue(value, 'status') as ManualOrderDraft['status'],
+    version: numberValue(value, 'version'),
+    client: value['client'] ? toManualOrderClient(record(value['client'])) : null,
+    requestedDeliveryDate: nullableString(value, 'requestedDeliveryDate'),
+    priority: stringValue(value, 'priority'),
+    paymentPreference: nullableString(value, 'paymentPreference'),
+    currency: stringValue(value, 'currency'),
+    notes: nullableString(value, 'notes'),
+    creditResult: nullableString(value, 'creditResult'),
+    lines: Array.isArray(value['lines']) ? value['lines'].map((line) => toManualOrderLine(record(line))) : [],
+    delivery: value['delivery'] ? toManualOrderDelivery(record(value['delivery'])) : null,
+    readyToCreate: value['readyToCreate'] === true,
+    salesOrderId: nullableString(value, 'salesOrderId'),
+    createdAt: stringValue(value, 'createdAt'),
+    updatedAt: stringValue(value, 'updatedAt'),
+    submittedAt: nullableString(value, 'submittedAt')
+  };
+}
+
+export function toManualOrderReview(value: ApiRecord): ManualOrderReview {
+  return {
+    draft: toManualOrderDraft(record(value['draft'])),
+    clientComplete: value['clientComplete'] === true,
+    itemsComplete: value['itemsComplete'] === true,
+    deliveryComplete: value['deliveryComplete'] === true,
+    readyToCreate: value['readyToCreate'] === true,
+    missing: Array.isArray(value['missing']) ? value['missing'].map((item) => String(item)) : []
   };
 }

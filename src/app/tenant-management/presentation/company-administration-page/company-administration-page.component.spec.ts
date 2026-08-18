@@ -1,14 +1,32 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { of } from 'rxjs';
+import { signal } from '@angular/core';
 import { CompanyAdministrationPageComponent } from './company-administration-page.component';
-import { CompanyAdministrationApiService } from '../../infrastructure/http/company-administration-api.service';
+import { CompanyAdministrationFacade } from '../../application/company-administration.facade';
+import { INITIAL_TENANT_ADMINISTRATION_STATE } from '../../domain/models/company-administration.models';
+import { provideTranslateService } from '@ngx-translate/core';
 
 describe('CompanyAdministrationPageComponent', () => {
   let fixture: ComponentFixture<CompanyAdministrationPageComponent>;
+  const state = signal({ ...INITIAL_TENANT_ADMINISTRATION_STATE, status: 'success' as const, organization: { id: 'org', name: 'Nexa', slug: 'nexa', status: 'ACTIVE', currentWorkspaceId: 'workspace', currentWorkspaceName: 'ICISA', version: 0 }, profile: { legalName: 'Nexa', displayName: 'Nexa', businessIdentifier: null, operationCategory: 'B2B', version: 0 }, workspaces: [], memberships: [] });
+  const facade = {
+    state: state.asReadonly(),
+    canManage: signal(true).asReadonly(),
+    canManageWorkspace: signal(false).asReadonly(),
+    canManageRoleDefinitions: signal(false).asReadonly(),
+    canManageSecurity: signal(false).asReadonly(),
+    busy: signal(false).asReadonly(),
+    load: () => undefined,
+    retry: () => undefined
+  };
+
   beforeEach(async () => {
-    await TestBed.configureTestingModule({ imports: [CompanyAdministrationPageComponent], providers: [{ provide: CompanyAdministrationApiService, useValue: { organization: () => of({ id: '1', name: 'Nexa', slug: 'nexa', status: 'ACTIVE', currentWorkspaceId: 'w', currentWorkspaceName: 'ICISA', version: 0 }), workspaces: () => of([]), memberships: () => of([]) } }] }).compileComponents();
-    fixture = TestBed.createComponent(CompanyAdministrationPageComponent);
-    fixture.detectChanges();
+    await TestBed.configureTestingModule({ imports: [CompanyAdministrationPageComponent], providers: [provideTranslateService(), { provide: CompanyAdministrationFacade, useValue: facade }] }).compileComponents();
+    fixture = TestBed.createComponent(CompanyAdministrationPageComponent); fixture.detectChanges();
   });
-  it('renders the organization administration heading', () => expect(fixture.nativeElement.textContent).toContain('Company administration'));
+
+  it('renders administrative navigation and organization overview', () => {
+    expect(fixture.nativeElement.textContent).toContain('Company administration');
+    expect(fixture.nativeElement.textContent).toContain('Organization');
+    expect(fixture.nativeElement.textContent).toContain('Manage workspaces');
+  });
 });

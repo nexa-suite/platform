@@ -15,13 +15,25 @@ interface CatalogApiMoney { readonly amount: string | number; readonly currency:
 interface CatalogApiImage { readonly url?: string; readonly fileName?: string; }
 interface CatalogApiItem {
   readonly catalogItemId: string;
+  readonly productId?: string;
+  readonly productFamilyId?: string;
+  readonly productFamilyCode?: string;
+  readonly productFamilyName?: string;
+  readonly sellableSkuId?: string;
+  readonly skuCode?: string;
   readonly itemName: string;
   readonly brandName: string;
   readonly categoryName: string;
   readonly description?: string;
   readonly presentation: string;
+  readonly unitOfMeasure?: string;
+  readonly packagingType?: string;
+  readonly netWeight?: string | number;
+  readonly grossWeight?: string | number;
   readonly unitPrice: CatalogApiMoney;
   readonly coldChainRequirement: string;
+  readonly availabilityStatus?: string;
+  readonly nearExpiry?: boolean;
   readonly image?: CatalogApiImage;
 }
 interface CatalogApiPage {
@@ -88,12 +100,23 @@ export class CatalogApiService {
   private toItem(item: CatalogApiItem): ProductCatalogItem {
     return {
       id: item.catalogItemId,
+      productFamilyId: item.productFamilyId ?? null,
+      productFamilyCode: item.productFamilyCode ?? null,
+      productFamilyName: item.productFamilyName ?? item.itemName,
+      sellableSkuId: item.sellableSkuId ?? item.productId ?? null,
+      skuCode: item.skuCode ?? null,
       name: item.itemName,
       brand: item.brandName,
       category: item.categoryName,
       presentation: item.presentation,
+      unitOfMeasure: item.unitOfMeasure ?? null,
+      packagingType: item.packagingType ?? null,
+      netWeight: item.netWeight == null ? null : Number(item.netWeight),
+      grossWeight: item.grossWeight == null ? null : Number(item.grossWeight),
       unitPrice: this.toMoney(item.unitPrice),
       coldChain: this.toColdChain(item.coldChainRequirement),
+      availabilityStatus: item.availabilityStatus ?? 'UNKNOWN',
+      nearExpiry: item.nearExpiry ?? false,
       image: {
         url: platformMediaUrl(this.config, item.image?.url),
         fileName: item.image?.fileName ?? null

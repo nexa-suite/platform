@@ -3,6 +3,26 @@
 All notable changes to this project are documented in this file.
 The project uses Semantic Versioning.
 
+## Unreleased
+
+No unreleased changes are included in this baseline.
+
+## [0.7.1] - 2026-08-18
+
+Operations release stabilization for the internal Angular workspace.
+
+### Added
+
+- Real server-backed Sales Dashboard metrics, recent resources and working links.
+- Dedicated role-route and operations-state coverage for the stabilized surface.
+
+### Changed
+
+- Operations navigation and i18n now expose only implemented Sales, Warehouse and Logistics workflows.
+- Duplicate workspace artifacts and generated browser outputs are ignored and removed.
+
+Structural parity with Vue is not claimed.
+
 ## [0.7.0] - 2026-07-31
 
 This release consolidates the previously unpublished TASK-NEXA-008, TASK-NEXA-008.6, TASK-NEXA-009, TASK-NEXA-010 and TASK-NEXA-010.5 work.
@@ -17,7 +37,9 @@ This release consolidates the previously unpublished TASK-NEXA-008, TASK-NEXA-00
 
 - Owner, Sales, Warehouse and Logistics navigation and permissions are separated; Buyer access remains rejected by Platform guards.
 
-## [0.6.0] - 2026-07-30
+## Previously unreleased candidate: 0.6.0
+
+This candidate content was later consolidated into published `v0.7.0`; `v0.6.0` has no published tag or GitHub Release.
 
 ### Added
 

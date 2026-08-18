@@ -1,12 +1,27 @@
 <section class="page">
-  <nexa-page-header eyebrow="Tenant management" title="Company administration" subtitle="Workspace identity and active team memberships." />
-  @if (facade.state().status === 'loading') { <nexa-loading-state [lines]="4" label="Loading company administration" /> }
-  @if (facade.state().status === 'error') { <nexa-error-state title="Unable to load administration" description="The company scope could not be loaded." (retry)="facade.retry()" /> }
-  @if (facade.state().status === 'success') {
-    <div class="grid">
-      <mat-card class="hero-card"><mat-card-header><mat-card-subtitle>Organization</mat-card-subtitle><mat-card-title>{{ facade.state().organization?.name }}</mat-card-title></mat-card-header><mat-card-content><p class="muted">{{ facade.state().organization?.slug }}</p><mat-chip-set><mat-chip>{{ facade.state().organization?.status }}</mat-chip></mat-chip-set></mat-card-content></mat-card>
-      <mat-card><mat-card-header><mat-card-subtitle>Workspaces</mat-card-subtitle><mat-card-title>{{ facade.state().workspaces.length }}</mat-card-title></mat-card-header><mat-card-content><ul>@for (workspace of facade.state().workspaces; track workspace.id) { <li><strong>{{ workspace.name }}</strong><span>{{ workspace.status }}</span><button mat-button type="button" (click)="rename(workspace.id, workspace.version, workspace.name)" [attr.aria-label]="'Save workspace ' + workspace.name">Save name</button></li> }</ul></mat-card-content></mat-card>
-      <mat-card class="members-card"><mat-card-header><mat-card-subtitle>Active memberships</mat-card-subtitle><mat-card-title>{{ facade.state().memberships.length }}</mat-card-title></mat-card-header><mat-card-content><div class="members">@for (member of facade.state().memberships; track member.id) { <div class="member"><mat-icon aria-hidden="true">person</mat-icon><div><strong>{{ member.displayName }}</strong><small>{{ member.email }} · {{ member.role }}</small></div><mat-chip>{{ member.status }}</mat-chip><button mat-button type="button" (click)="changeRole(member.id, member.version, 'SALES')" [attr.aria-label]="'Change role for ' + member.displayName">Sales role</button>@if(member.status === 'ACTIVE'){<button mat-button type="button" (click)="suspend(member.id, member.version)" [attr.aria-label]="'Suspend ' + member.displayName">Suspend</button>} @else {<button mat-button type="button" (click)="reactivate(member.id, member.version)" [attr.aria-label]="'Reactivate ' + member.displayName">Reactivate</button>}</div> }</div></mat-card-content></mat-card>
-    </div>
+  <nexa-page-header [eyebrow]="i18n.t('pageEyebrow')" [title]="i18n.t('pageTitle')" [subtitle]="i18n.t('pageSubtitle')" />
+  @if (facade.state().status === 'loading') { <nexa-loading-state [lines]="6" [label]="i18n.t('loadingAdministration')" /> }
+  @else if (facade.state().status === 'error') { <nexa-error-state [title]="i18n.t('loadErrorTitle')" [description]="i18n.t('loadErrorDescription')" (retry)="facade.retry()" /> }
+  @else if (facade.state().status === 'success') {
+    @if (technicalReadOnly()) { <div class="read-only-banner" role="status">{{ i18n.t('technicalReadOnly') }}</div> }
+    @if (facade.state().message; as message) { <div class="message error" role="alert">{{ friendlyMessage(message) }} <button mat-button type="button" (click)="facade.retry()">{{ i18n.t('reload') }}</button></div> }
+    @if (facade.state().notice; as notice) { <div class="message success" role="status">{{ localizedNotice(notice) }}</div> }
+    <nav class="tabs" [attr.aria-label]="i18n.t('sectionsLabel')">
+      @for (item of tabs; track item.id) { <button type="button" class="tab" [class.active]="tab() === item.id" [attr.aria-current]="tab() === item.id ? 'page' : null" (click)="selectTab(item.id)">{{ i18n.t(item.labelKey) }}</button> }
+    </nav>
+    @switch (tab()) {
+      @case ('overview') {
+        <div class="overview-grid">
+          <mat-card class="hero"><mat-card-content><p class="eyebrow">{{ i18n.t('organization') }}</p><h2>{{ facade.state().organization?.name }}</h2><p>{{ facade.state().organization?.slug }} · {{ i18n.status(facade.state().organization?.status ?? '') }}</p></mat-card-content></mat-card>
+          <mat-card><mat-card-header><mat-card-subtitle>{{ i18n.t('workspaces') }}</mat-card-subtitle><mat-card-title>{{ facade.state().workspaces.length }}</mat-card-title></mat-card-header><mat-card-content><p>{{ i18n.t('configuredTenantWorkspaces') }}</p><button mat-button type="button" (click)="selectTab('organization')">{{ i18n.t('manageWorkspaces') }}</button></mat-card-content></mat-card>
+          <mat-card><mat-card-header><mat-card-subtitle>{{ i18n.t('members') }}</mat-card-subtitle><mat-card-title>{{ facade.state().memberships.length }}</mat-card-title></mat-card-header><mat-card-content><p>{{ i18n.t('fixedRoleMemberships') }}</p><button mat-button type="button" (click)="selectTab('team')">{{ i18n.t('manageTeam') }}</button></mat-card-content></mat-card>
+          <mat-card><mat-card-header><mat-card-subtitle>{{ i18n.t('currentPlan') }}</mat-card-subtitle><mat-card-title>{{ facade.state().planUsage?.planCode }}</mat-card-title></mat-card-header><mat-card-content><p>{{ i18n.t('referenceUsage') }}</p><button mat-button type="button" (click)="selectTab('access')">{{ i18n.t('viewAccessUsage') }}</button></mat-card-content></mat-card>
+        </div>
+      }
+      @case ('organization') { <nexa-organization-workspaces-section /> }
+      @case ('team') { <nexa-team-invitations-section /> }
+      @case ('settings') { <nexa-tenant-settings-section /> }
+      @case ('access') { <nexa-access-plan-section /> }
+    }
   }
 </section>

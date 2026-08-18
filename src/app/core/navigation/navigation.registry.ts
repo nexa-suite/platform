@@ -1,28 +1,64 @@
+import { PLATFORM_PERMISSIONS, PlatformPermission } from '../security/platform-permissions';
+
 export interface PlatformNavigationItem {
-  readonly label: string;
+  readonly labelKey: string;
   readonly path: string;
   readonly icon: string;
-  readonly permission?: string;
-  readonly roles?: readonly string[];
+  readonly permission: PlatformPermission;
 }
 
+export type PlatformNavigationGroupId = 'administration' | 'commercial' | 'catalog' | 'warehouse' | 'logistics';
+
+export interface PlatformNavigationGroup {
+  readonly id: PlatformNavigationGroupId;
+  readonly labelKey: string;
+  readonly icon: string;
+  readonly items: readonly PlatformNavigationItem[];
+}
+
+const ADMINISTRATION_ITEMS: readonly PlatformNavigationItem[] = [
+  { labelKey: 'shell.navigation.companyAdministration', path: '/ops/operations/company-administration', icon: 'business', permission: PLATFORM_PERMISSIONS.tenantRead },
+  { labelKey: 'shell.navigation.auditViewer', path: '/ops/operations/audit', icon: 'fact_check', permission: PLATFORM_PERMISSIONS.tenantRead },
+  { labelKey: 'shell.navigation.executiveOverview', path: '/ops/executive-overview', icon: 'insights', permission: PLATFORM_PERMISSIONS.ownerDashboardRead }
+];
+
+const COMMERCIAL_ITEMS: readonly PlatformNavigationItem[] = [
+  { labelKey: 'shell.navigation.salesDashboard', path: '/ops/commercial/dashboard', icon: 'monitoring', permission: PLATFORM_PERMISSIONS.salesRead },
+  { labelKey: 'shell.navigation.clientAccounts', path: '/ops/commercial/client-accounts', icon: 'handshake', permission: PLATFORM_PERMISSIONS.salesRead },
+  { labelKey: 'shell.navigation.manualSalesOrder', path: '/ops/commercial/manual-orders/new', icon: 'add_shopping_cart', permission: PLATFORM_PERMISSIONS.salesWrite },
+  { labelKey: 'shell.navigation.purchaseRequests', path: '/ops/commercial/purchase-requests', icon: 'request_quote', permission: PLATFORM_PERMISSIONS.salesRead },
+  { labelKey: 'shell.navigation.salesOrders', path: '/ops/commercial/sales-orders', icon: 'receipt_long', permission: PLATFORM_PERMISSIONS.salesRead }
+];
+
+const CATALOG_ITEMS: readonly PlatformNavigationItem[] = [
+  { labelKey: 'catalog.navigation.catalog', path: '/ops/catalog', icon: 'inventory_2', permission: PLATFORM_PERMISSIONS.catalogRead }
+];
+
+const WAREHOUSE_ITEMS: readonly PlatformNavigationItem[] = [
+  { labelKey: 'shell.navigation.operationsDashboard', path: '/ops/operations/dashboard', icon: 'dashboard', permission: PLATFORM_PERMISSIONS.warehouseRead },
+  { labelKey: 'shell.navigation.inventoryControl', path: '/ops/operations/inventory', icon: 'inventory', permission: PLATFORM_PERMISSIONS.warehouseRead },
+  { labelKey: 'shell.navigation.warehouses', path: '/ops/operations/warehouses', icon: 'warehouse', permission: PLATFORM_PERMISSIONS.warehouseRead },
+  { labelKey: 'shell.navigation.inventoryLots', path: '/ops/operations/inventory/lots', icon: 'category', permission: PLATFORM_PERMISSIONS.warehouseRead },
+  { labelKey: 'shell.navigation.stockMovements', path: '/ops/operations/inventory/movements', icon: 'swap_vert', permission: PLATFORM_PERMISSIONS.warehouseRead },
+  { labelKey: 'shell.navigation.reservations', path: '/ops/operations/inventory/reservations', icon: 'inventory_2', permission: PLATFORM_PERMISSIONS.warehouseRead },
+  { labelKey: 'shell.navigation.fulfillmentReadiness', path: '/ops/operations/fulfillment-readiness', icon: 'local_shipping', permission: PLATFORM_PERMISSIONS.fulfillmentRead }
+];
+
+const LOGISTICS_ITEMS: readonly PlatformNavigationItem[] = [
+  { labelKey: 'shell.navigation.dispatchOrders', path: '/ops/operations/dispatch-orders', icon: 'send', permission: PLATFORM_PERMISSIONS.logisticsRead },
+  { labelKey: 'shell.navigation.proofOfDelivery', path: '/ops/operations/proof-of-delivery', icon: 'fact_check', permission: PLATFORM_PERMISSIONS.logisticsRead },
+  { labelKey: 'shell.navigation.temperatureIncidents', path: '/ops/operations/temperature-incidents', icon: 'thermostat', permission: PLATFORM_PERMISSIONS.logisticsRead },
+  { labelKey: 'shell.navigation.operationalAnalytics', path: '/ops/operations/operational-analytics', icon: 'analytics', permission: PLATFORM_PERMISSIONS.logisticsRead }
+];
+
+export const PLATFORM_NAVIGATION_GROUPS: readonly PlatformNavigationGroup[] = [
+  { id: 'administration', labelKey: 'shell.groups.administration', icon: 'admin_panel_settings', items: ADMINISTRATION_ITEMS },
+  { id: 'commercial', labelKey: 'shell.groups.commercial', icon: 'handshake', items: COMMERCIAL_ITEMS },
+  { id: 'catalog', labelKey: 'shell.groups.catalog', icon: 'inventory_2', items: CATALOG_ITEMS },
+  { id: 'warehouse', labelKey: 'shell.groups.warehouse', icon: 'warehouse', items: WAREHOUSE_ITEMS },
+  { id: 'logistics', labelKey: 'shell.groups.logistics', icon: 'local_shipping', items: LOGISTICS_ITEMS }
+];
+
 export const PLATFORM_NAVIGATION: readonly PlatformNavigationItem[] = [
-  { label: 'Company Administration', path: '/ops/operations/company-administration', icon: 'business', permission: 'tenant:read', roles: ['COMPANY_OWNER'] },
-  { label: 'Overview', path: '/ops/overview', icon: 'dashboard', roles: ['COMPANY_OWNER'] },
-  { label: 'Operations Dashboard', path: '/ops/operations/dashboard', icon: 'dashboard', permission: 'warehouse:read', roles: ['WAREHOUSE', 'LOGISTICS'] },
-  { label: 'Product Catalog', path: '/ops/product-catalog', icon: 'inventory_2', permission: 'catalog:read', roles: ['SALES', 'WAREHOUSE'] },
-  { label: 'Client Accounts', path: '/ops/commercial/client-accounts', icon: 'handshake', permission: 'sales:read', roles: ['SALES'] },
-  { label: 'Purchase Requests', path: '/ops/commercial/purchase-requests', icon: 'request_quote', permission: 'sales:read', roles: ['SALES'] },
-  { label: 'Sales Orders', path: '/ops/commercial/sales-orders', icon: 'receipt_long', permission: 'sales:read', roles: ['SALES'] },
-  { label: 'Inventory Control', path: '/ops/operations/inventory', icon: 'inventory', permission: 'warehouse:read', roles: ['WAREHOUSE', 'LOGISTICS'] },
-  { label: 'Warehouses and Zones', path: '/ops/operations/warehouses', icon: 'warehouse', permission: 'warehouse:read', roles: ['WAREHOUSE'] },
-  { label: 'Inventory Lots', path: '/ops/operations/inventory/lots', icon: 'category', permission: 'warehouse:read', roles: ['WAREHOUSE'] },
-  { label: 'Stock Movements', path: '/ops/operations/inventory/movements', icon: 'swap_vert', permission: 'warehouse:read', roles: ['WAREHOUSE'] },
-  { label: 'Reservations', path: '/ops/operations/inventory/reservations', icon: 'inventory_2', permission: 'warehouse:read', roles: ['WAREHOUSE'] },
-  { label: 'Fulfillment Readiness', path: '/ops/operations/fulfillment-readiness', icon: 'local_shipping', permission: 'fulfillment:read', roles: ['WAREHOUSE', 'LOGISTICS'] },
-  { label: 'Inventory Overview', path: '/ops/operations/inventory-overview', icon: 'inventory', permission: 'warehouse:read', roles: ['LOGISTICS'] },
-  { label: 'Dispatch Orders', path: '/ops/operations/dispatch-orders', icon: 'send', permission: 'logistics:read', roles: ['LOGISTICS'] },
-  { label: 'Proof of Delivery', path: '/ops/operations/proof-of-delivery', icon: 'fact_check', permission: 'logistics:read', roles: ['LOGISTICS'] },
-  { label: 'Temperature and Incidents', path: '/ops/operations/temperature-incidents', icon: 'thermostat', permission: 'logistics:read', roles: ['LOGISTICS'] },
-  { label: 'Operational Analytics', path: '/ops/operations/operational-analytics', icon: 'analytics', permission: 'logistics:read', roles: ['LOGISTICS'] }
+  ...PLATFORM_NAVIGATION_GROUPS.flatMap((group) => group.items)
 ];

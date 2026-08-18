@@ -1,7 +1,7 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DestroyRef } from '@angular/core';
-import { ClientAccount, ClientAccountCommand, ClientAccountFilters, ClientAccountsState, DEFAULT_CLIENT_ACCOUNT_FILTERS } from '../domain/client-account.models';
+import { ClientAccountCreateCommand, ClientAccountFilters, ClientAccountUpdateCommand, ClientAccountsState, DEFAULT_CLIENT_ACCOUNT_FILTERS } from '../domain/client-account.models';
 import { ChangeFeedService } from '../../../core/change-feed/infrastructure/change-feed.service';
 import { SalesOperationsApiService } from '../../infrastructure/http/sales-operations-api.service';
 
@@ -45,11 +45,11 @@ export class ClientAccountsFacade {
     });
   }
 
-  create(command: ClientAccountCommand): void {
+  create(command: ClientAccountCreateCommand): void {
     this.api.createClientAccount(command).subscribe({ next: (item) => this.stateSignal.update((state) => ({ ...state, status: 'success', item, message: null })), error: () => this.fail('CLIENT_ACCOUNT_CREATE_FAILED') });
   }
 
-  update(id: string, version: number, command: Partial<ClientAccountCommand>): void {
+  update(id: string, version: number, command: ClientAccountUpdateCommand): void {
     this.api.updateClientAccount(id, version, command).subscribe({ next: (item) => this.stateSignal.update((state) => ({ ...state, status: 'success', item, message: null })), error: () => this.fail('CLIENT_ACCOUNT_CONCURRENCY_FAILED') });
   }
 

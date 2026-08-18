@@ -7,6 +7,7 @@ import {
   InternalRole,
   normalizeInternalRoles,
   normalizePermissions,
+  normalizeRoleCodes,
   SignInCommand
 } from '../../domain/models/auth.models';
 import { PLATFORM_RUNTIME_CONFIG, platformApiUrl } from '../../../core/security/runtime-config';
@@ -17,8 +18,14 @@ interface AuthApiUser {
   readonly email?: string;
   readonly preferredLanguage?: string;
   readonly workspaceSlug?: string;
-  readonly role?: string;
+  readonly roles?: readonly string[];
   readonly permissions?: readonly string[];
+  readonly roleDefinitionIds?: readonly string[];
+  readonly authorizationVersion?: number;
+  readonly tenantId?: string;
+  readonly tenantSlug?: string;
+  readonly workspaceId?: string;
+  readonly membershipId?: string;
 }
 
 interface AuthApiSessionResponse {
@@ -30,7 +37,7 @@ interface AuthApiCurrentSessionResponse {
   readonly user: AuthApiUser;
   readonly tenant: { readonly tenantId: string; readonly tenantSlug: string };
   readonly workspace: { readonly workspaceId: string; readonly workspaceSlug: string };
-  readonly membership: { readonly membershipId: string; readonly role: string; readonly permissions: readonly string[] };
+  readonly membership: { readonly membershipId: string; readonly roles: readonly string[]; readonly permissions: readonly string[]; readonly roleDefinitionIds?: readonly string[]; readonly authorizationVersion?: number };
   readonly surface: string;
 }
 
@@ -63,8 +70,14 @@ export class AuthApiService {
       session: {
         ...response.user,
         workspaceSlug: response.workspace.workspaceSlug,
-        role: response.membership.role,
-        permissions: response.membership.permissions
+        tenantId: response.tenant.tenantId,
+        tenantSlug: response.tenant.tenantSlug,
+        workspaceId: response.workspace.workspaceId,
+        membershipId: response.membership.membershipId,
+        roles: response.membership.roles,
+        permissions: response.membership.permissions,
+        roleDefinitionIds: response.membership.roleDefinitionIds,
+        authorizationVersion: response.membership.authorizationVersion
       }
     })));
   }
@@ -82,14 +95,21 @@ export class AuthApiService {
     const user = response.session ?? {};
     const identifier = user.email ?? command?.identifier ?? '';
     const workspaceSlug = user.workspaceSlug ?? command?.workspaceSlug ?? '';
-    const roles = normalizeInternalRoles(user.role ? [user.role] : []);
+    const roles = normalizeInternalRoles(user.roles);
     const authenticatedUser: AuthenticatedUser = {
       subject: user.userId ?? identifier,
       identifier,
       displayName: user.displayName ?? identifier,
       workspaceSlug,
       roles: roles as readonly InternalRole[],
-      permissions: normalizePermissions(user.permissions)
+      permissions: normalizePermissions(user.permissions),
+      ...(user.roles?.length ? { roleCodes: normalizeRoleCodes(user.roles) } : {}),
+      ...(user.roleDefinitionIds?.length ? { roleDefinitionIds: [...user.roleDefinitionIds] } : {}),
+      ...(user.tenantId ? { tenantId: user.tenantId } : {}),
+      ...(user.tenantSlug ? { tenantSlug: user.tenantSlug } : {}),
+      ...(user.workspaceId ? { workspaceId: user.workspaceId } : {}),
+      ...(user.membershipId ? { membershipId: user.membershipId } : {}),
+      ...(user.authorizationVersion !== undefined ? { authorizationVersion: user.authorizationVersion } : {})
     };
 
     return { accessToken: response.accessToken, user: authenticatedUser };

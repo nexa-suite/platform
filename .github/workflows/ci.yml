@@ -2,7 +2,7 @@ name: Platform CI
 
 on:
   push:
-    branches: [main, develop, "feature/**", "release/**"]
+    branches: [main, develop, "feature/**", "release/**", "integration/**"]
   pull_request:
     branches: [main, develop]
 
@@ -12,13 +12,134 @@ permissions:
 jobs:
   verify:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:18.4-alpine
+        env:
+          POSTGRES_DB: nexa
+          POSTGRES_USER: nexa
+          POSTGRES_PASSWORD: ci-postgres-password
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd="pg_isready -U nexa -d nexa"
+          --health-interval=5s --health-timeout=3s --health-retries=20
+      mailpit:
+        image: axllent/mailpit:v1.26.0
+        ports: ["1025:1025", "8025:8025"]
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          repository: nexa-suite/api
+          ref: develop
+          path: api
+      - uses: actions/setup-java@c5195efecf7bdfc987ee8bae7a71cb8b11521c00 # v4.7.1
+        with:
+          distribution: temurin
+          java-version: "25"
+          cache: maven
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: "26.5.0"
           cache: npm
+      - name: Mask isolated test credentials before fixture generation
+        run: |
+          for encoded in \
+            'Y2ktcG9zdGdyZXMtcGFzc3dvcmQ=' \
+            'Q0ktT3duZXItUGFzc3dvcmQtMjAyNiE=' \
+            'Q0ktVGVuYW50LUFkbWluLVBhc3N3b3JkLTIwMjYh' \
+            'Q0ktQ29tcGFueS1Pd25lci1QYXNzd29yZC0yMDI2IQ==' \
+            'Q0ktU2FsZXMtUGFzc3dvcmQtMjAyNiE=' \
+            'Q0ktV2FyZWhvdXNlLVBhc3N3b3JkLTIwMjYh' \
+            'Q0ktTG9naXN0aWNzLVBhc3N3b3JkLTIwMjYh' \
+            'Q0ktQnV5ZXItUGFzc3dvcmQtMjAyNiE=' \
+            'Y2ktc3lzdGVtLW9wZXJhdG9yLXRva2VuLTAxMjM0NTY3ODktYWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXo=' \
+            'Y2ktbm90aWZpY2F0aW9uLW91dGJveC1rZXktMDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTIzNDU2Nzg5' \
+            'Y2ktcmVzZXQtdGhyb3R0bGUta2V5LTAxMjM0NTY3ODkwMTIzNDU2Nzg5MDEyMzQ1Njc4OQ=='; do
+            echo "::add-mask::$(printf '%s' "$encoded" | base64 --decode)"
+          done
+      - name: Generate isolated test secrets and seed identity
+        run: |
+          mkdir -p .ci-keys
+          openssl genrsa -out .ci-keys/access-token-private.pem 2048
+          openssl rsa -in .ci-keys/access-token-private.pem -pubout -out .ci-keys/access-token-public.pem
+          {
+            echo "NEXA_E2E_WORKSPACE=icisa"
+            echo "NEXA_E2E_OWNER_EMAIL=owner@icisa.test"
+            echo "NEXA_E2E_OWNER_PASSWORD=CI-Owner-Password-2026!"
+            echo "NEXA_E2E_TENANT_ADMIN_EMAIL=tenant-admin@icisa.test"
+            echo "NEXA_E2E_TENANT_ADMIN_PASSWORD=CI-Tenant-Admin-Password-2026!"
+            echo "NEXA_E2E_COMPANY_OWNER_EMAIL=company-owner@icisa.test"
+            echo "NEXA_E2E_COMPANY_OWNER_PASSWORD=CI-Company-Owner-Password-2026!"
+            echo "NEXA_E2E_SALES_EMAIL=sales@icisa.test"
+            echo "NEXA_E2E_SALES_PASSWORD=CI-Sales-Password-2026!"
+            echo "NEXA_E2E_WAREHOUSE_EMAIL=warehouse@icisa.test"
+            echo "NEXA_E2E_WAREHOUSE_PASSWORD=CI-Warehouse-Password-2026!"
+            echo "NEXA_E2E_LOGISTICS_EMAIL=logistics@icisa.test"
+            echo "NEXA_E2E_LOGISTICS_PASSWORD=CI-Logistics-Password-2026!"
+            echo "NEXA_E2E_BUYER_EMAIL=buyer@icisa.test"
+            echo "NEXA_E2E_BUYER_PASSWORD=CI-Buyer-Password-2026!"
+            echo "NEXA_E2E_SYSTEM_OPERATOR=ci-system-operator-token-0123456789-abcdefghijklmnopqrstuvwxyz"
+          } >> "$GITHUB_ENV"
+      - name: Start isolated API runtime
+        working-directory: api
+        env:
+          SPRING_PROFILES_ACTIVE: local
+          SERVER_PORT: "8080"
+          NEXA_DATABASE_URL: jdbc:postgresql://127.0.0.1:5432/nexa
+          NEXA_DATABASE_USERNAME: nexa
+          NEXA_DATABASE_PASSWORD: ci-postgres-password
+          NEXA_FLYWAY_ENABLED: "true"
+          NEXA_SECURITY_RSA_PUBLIC_KEY: ${{ github.workspace }}/.ci-keys/access-token-public.pem
+          NEXA_SECURITY_RSA_PRIVATE_KEY: ${{ github.workspace }}/.ci-keys/access-token-private.pem
+          NEXA_SECURITY_ISSUER: http://localhost:8080
+          NEXA_ALLOWED_ORIGINS: http://localhost:4200,http://localhost:4300
+          NEXA_SMTP_HOST: 127.0.0.1
+          NEXA_SMTP_PORT: "1025"
+          NEXA_SMTP_REQUIRED: "false"
+          NEXA_SYSTEM_OPERATOR_TOKEN: ci-system-operator-token-0123456789-abcdefghijklmnopqrstuvwxyz
+          NEXA_NOTIFICATION_OUTBOX_KEY: ci-notification-outbox-key-012345678901234567890123456789
+          NEXA_PASSWORD_RESET_THROTTLE_KEY: ci-reset-throttle-key-012345678901234567890123456789
+          NEXA_DEV_BOOTSTRAP_ENABLED: "true"
+          NEXA_DEV_TENANT_SLUG: icisa
+          NEXA_DEV_TENANT_NAME: ICISA
+          NEXA_DEV_WORKSPACE_SLUG: icisa
+          NEXA_DEV_WORKSPACE_NAME: ICISA
+          NEXA_DEV_OWNER_EMAIL: owner@icisa.test
+          NEXA_DEV_OWNER_PASSWORD: CI-Owner-Password-2026!
+          NEXA_DEV_TENANT_ADMIN_EMAIL: tenant-admin@icisa.test
+          NEXA_DEV_TENANT_ADMIN_PASSWORD: CI-Tenant-Admin-Password-2026!
+          NEXA_DEV_COMPANY_OWNER_EMAIL: company-owner@icisa.test
+          NEXA_DEV_COMPANY_OWNER_PASSWORD: CI-Company-Owner-Password-2026!
+          NEXA_DEV_SALES_EMAIL: sales@icisa.test
+          NEXA_DEV_SALES_PASSWORD: CI-Sales-Password-2026!
+          NEXA_DEV_WAREHOUSE_EMAIL: warehouse@icisa.test
+          NEXA_DEV_WAREHOUSE_PASSWORD: CI-Warehouse-Password-2026!
+          NEXA_DEV_LOGISTICS_EMAIL: logistics@icisa.test
+          NEXA_DEV_LOGISTICS_PASSWORD: CI-Logistics-Password-2026!
+          NEXA_DEV_BUYER_EMAIL: buyer@icisa.test
+          NEXA_DEV_BUYER_PASSWORD: CI-Buyer-Password-2026!
+        run: |
+          nohup ./mvnw spring-boot:run > "$GITHUB_WORKSPACE/api-runtime.log" 2>&1 &
+          for _ in $(seq 1 60); do curl --fail --silent --max-time 5 http://127.0.0.1:8080/actuator/health && exit 0; sleep 2; done
+          cat "$GITHUB_WORKSPACE/api-runtime.log"
+          exit 1
       - run: npm ci
       - run: npm test
       - run: npm run build
+      - run: npx playwright install --with-deps chromium
+      - name: Browser E2E (mandatory)
+        run: npm run test:e2e
+        env:
+          NEXA_PLATFORM_URL: http://localhost:4200
+      - name: Upload Playwright failure artifacts
+        if: ${{ failure() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: platform-playwright-failures-${{ github.run_id }}
+          path: |
+            test-results/
+            playwright-report/
+            api-runtime.log
+          if-no-files-found: ignore
       - run: npm audit --omit=dev
