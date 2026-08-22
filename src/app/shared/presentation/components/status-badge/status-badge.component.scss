@@ -1,5 +1,6 @@
 :host { display: inline-flex; }
-.status-badge { display: inline-flex; align-items: center; min-height: 1.75rem; padding: 0 var(--nexa-space-3); border-radius: var(--nexa-radius-full); background: var(--nexa-color-neutral-100); color: var(--nexa-color-neutral-700); font-size: var(--nexa-font-size-xs); font-weight: var(--nexa-font-weight-bold); }
+.status-badge { display: inline-flex; align-items: center; gap: var(--nexa-space-2); min-height: var(--nexa-status-height); padding: 0 var(--nexa-status-padding-inline); border: 1px solid transparent; border-radius: var(--nexa-radius-full); background: var(--nexa-color-neutral-100); color: var(--nexa-color-neutral-700); font-size: var(--nexa-font-size-xs); font-weight: var(--nexa-font-weight-bold); line-height: 1; }
+.marker { width: var(--nexa-status-dot-size); height: var(--nexa-status-dot-size); border-radius: var(--nexa-radius-full); background: currentColor; }
 :host.tone-info .status-badge { background: var(--nexa-color-info-50); color: var(--nexa-color-info-700); }
 :host.tone-success .status-badge { background: var(--nexa-color-success-50); color: var(--nexa-color-success-700); }
 :host.tone-warning .status-badge { background: var(--nexa-color-warning-50); color: var(--nexa-color-warning-700); }

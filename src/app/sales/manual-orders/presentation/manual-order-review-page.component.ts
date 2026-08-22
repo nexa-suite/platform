@@ -5,11 +5,12 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { PageHeaderComponent } from '../../../shared/presentation/components/page-header/page-header.component';
 import { ManualOrderWizardFacade } from '../application/manual-order-wizard.facade';
+import { ManualOrderRoutePreviewComponent } from './manual-order-route-preview.component';
 
 @Component({
   selector: 'nexa-manual-order-review-page',
   standalone: true,
-  imports: [DecimalPipe, MatButtonModule, MatCardModule, PageHeaderComponent, RouterLink],
+  imports: [DecimalPipe, ManualOrderRoutePreviewComponent, MatButtonModule, MatCardModule, PageHeaderComponent, RouterLink],
   template: `
     <section class="page">
       <a mat-button [routerLink]="deliveryPath()">← Entrega</a>
@@ -26,14 +27,15 @@ import { ManualOrderWizardFacade } from '../application/manual-order-wizard.faca
           <h3>Ítems y precios autoritativos</h3>
           @for (line of data.draft.lines; track line.id) { <div class="line"><span>{{ line.productFamily }} · {{ line.familyCode }} · SKU {{ line.skuCode }} · {{ line.presentation }} · {{ line.quantity }} {{ line.unit }}</span><span>Base {{ line.baseUnitPrice | number:'1.2-2' }} · efectivo {{ line.effectiveUnitPrice * line.quantity | number:'1.2-2' }} · descuento {{ line.discountAmount | number:'1.2-2' }} {{ line.currency }} · {{ line.availabilityStatus }}</span></div> }
           <p class="total">Total estimado por líneas: {{ total() | number:'1.2-2' }} {{ data.draft.currency }}</p>
-          <h3>Entrega</h3><p>{{ data.draft.delivery?.addressSnapshot || 'Pendiente' }}</p><p>Almacén y ruta: {{ data.draft.delivery?.warehouseId || 'Pendiente' }} · {{ data.draft.delivery?.routeProvider || 'Pendiente' }}</p>
+          <h3>Entrega</h3><p>{{ addressLabel(data.draft.delivery?.addressSnapshot) || 'Pendiente' }}</p><p>Almacén y ruta: {{ warehouseLabel(data.draft.delivery?.warehouseSnapshot) || data.draft.delivery?.warehouseId || 'Pendiente' }} · {{ data.draft.delivery?.routeProvider || 'Pendiente' }}</p>
           <p>Distancia: {{ routeValue(data.draft.delivery?.routeSnapshot, 'distanceKm') || '—' }} km · duración: {{ routeValue(data.draft.delivery?.routeSnapshot, 'durationSeconds') || '—' }} s</p>
+          <nexa-manual-order-route-preview [routeSnapshot]="data.draft.delivery?.routeSnapshot ?? null" [warehouseSnapshot]="data.draft.delivery?.warehouseSnapshot ?? null" [addressSnapshot]="data.draft.delivery?.addressSnapshot ?? null" [routeProvider]="data.draft.delivery?.routeProvider ?? null" />
           @if (facade.state().message; as message) { <p role="alert">{{ message }}</p> }
         </mat-card-content><mat-card-actions><button mat-stroked-button type="button" (click)="abandon()">Abandonar</button><button mat-flat-button color="primary" type="button" [disabled]="submitting() || !data.readyToCreate" (click)="submit()">{{ submitting() ? 'Creando…' : 'Crear Sales Order' }}</button></mat-card-actions></mat-card>
       } @else { <p>Cargando revisión del servidor…</p> }
     </section>
   `,
-  styles: [`.page{display:grid;gap:16px;max-width:1100px;margin:auto;padding:32px}.steps{display:flex;gap:8px}.steps a{padding:8px 12px;border:1px solid #dbe3ee;border-radius:6px;text-decoration:none}.steps .active{background:#ecfdf5;border-color:#0f766e}.readiness{display:flex;gap:12px;flex-wrap:wrap}.readiness span{padding:8px 12px;background:#f1f5f9;border-radius:6px}.warning{padding:12px;background:#fff7ed;color:#9a3412;border-radius:6px}.line{display:flex;justify-content:space-between;gap:12px;padding:12px 0;border-bottom:1px solid #e2e8f0}.total{font-weight:700;text-align:right}.mat-mdc-card-actions{justify-content:space-between;padding:16px}`],
+  styleUrl: './manual-order-wizard.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ManualOrderReviewPageComponent {
@@ -55,6 +57,24 @@ export class ManualOrderReviewPageComponent {
     try {
       const value = JSON.parse(snapshot) as Record<string, unknown>;
       return value[key] === null || value[key] === undefined ? '' : String(value[key]);
+    } catch {
+      return '';
+    }
+  }
+
+  addressLabel(snapshot: string | null | undefined): string {
+    return this.snapshotLabel(snapshot, ['roadType', 'street', 'number']);
+  }
+
+  warehouseLabel(snapshot: string | null | undefined): string {
+    return this.snapshotLabel(snapshot, ['name', 'address']);
+  }
+
+  private snapshotLabel(snapshot: string | null | undefined, keys: readonly string[]): string {
+    if (!snapshot) return '';
+    try {
+      const value = JSON.parse(snapshot) as Record<string, unknown>;
+      return keys.map((key) => value[key]).filter((item): item is string => typeof item === 'string' && item.trim().length > 0).join(' · ');
     } catch {
       return '';
     }

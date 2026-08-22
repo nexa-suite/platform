@@ -1,25 +1,25 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { form, FormField, minLength, required } from '@angular/forms/signals';
-import { MatButtonModule } from '@angular/material/button';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 import { AuthenticationService } from '../../application/authentication.service';
 import { SignInCommand } from '../../domain/models/auth.models';
 import { safeReturnUrl } from '../../../core/routing/route-paths';
+import { LanguageService } from '../../../core/i18n/language.service';
+import { SupportedLanguage } from '../../../core/i18n/supported-language';
+import { BrandLogoComponent } from '../../../shared/presentation/components/brand-logo/brand-logo.component';
 
 @Component({
   selector: 'nexa-sign-in-page',
-  imports: [FormField, MatButtonModule, MatFormFieldModule, MatInputModule, RouterLink, TranslatePipe],
+  imports: [BrandLogoComponent, FormField, RouterLink, TranslatePipe],
   templateUrl: './sign-in-page.component.html',
-  styleUrl: './sign-in-page.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class SignInPageComponent {
   private readonly authentication = inject(AuthenticationService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
+  readonly languageService = inject(LanguageService);
 
   readonly model = signal<SignInCommand>({ identifier: '', password: '', workspaceSlug: '' });
   readonly signInForm = form(this.model, (schemaPath) => {
@@ -33,10 +33,19 @@ export class SignInPageComponent {
 
   submit(event: Event): void {
     event.preventDefault();
-    if (this.signInForm().invalid()) return;
+    if (this.signInForm().invalid()) {
+      this.signInForm.workspaceSlug().markAsTouched();
+      this.signInForm.identifier().markAsTouched();
+      this.signInForm.password().markAsTouched();
+      return;
+    }
     this.authentication.signIn(this.model()).subscribe({
       next: () => { void this.router.navigateByUrl(this.returnUrl()); },
       error: () => undefined
     });
+  }
+
+  setLanguage(language: SupportedLanguage): void {
+    this.languageService.setLanguage(language);
   }
 }

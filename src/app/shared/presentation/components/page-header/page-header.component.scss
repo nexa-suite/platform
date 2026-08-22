@@ -2,7 +2,7 @@
 .page-header { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--nexa-space-6); }
 .copy { min-width: 0; }
 .eyebrow { margin: 0 0 var(--nexa-space-2); color: var(--nexa-color-cold-refrigerated); font-size: var(--nexa-font-size-xs); font-weight: var(--nexa-font-weight-bold); letter-spacing: var(--nexa-letter-spacing-wider); text-transform: uppercase; }
-h1 { margin: 0; font-size: clamp(var(--nexa-font-size-2xl), 4vw, var(--nexa-font-size-5xl)); }
+h1 { max-width: 52rem; margin: 0; font-size: clamp(var(--nexa-font-size-2xl), 4vw, var(--nexa-font-size-5xl)); letter-spacing: -.025em; }
 .subtitle { max-width: 48rem; margin: var(--nexa-space-3) 0 0; color: var(--nexa-color-text-secondary); font-size: var(--nexa-font-size-lg); line-height: var(--nexa-line-height-relaxed); }
 .actions { display: flex; flex-wrap: wrap; gap: var(--nexa-space-2); }
 @media (max-width: 600px) { .page-header { flex-direction: column; } }

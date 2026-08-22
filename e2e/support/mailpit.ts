@@ -4,6 +4,17 @@ const mailpitUrl = process.env.NEXA_MAILPIT_URL ?? 'http://localhost:8025';
 
 type MailpitMessage = { readonly ID?: string; readonly Id?: string; readonly id?: string; readonly Created?: string };
 
+function resetOrigin(surface: 'PLATFORM' | 'PORTAL'): string {
+  const configuredUrl = surface === 'PORTAL'
+    ? process.env.NEXA_PORTAL_URL ?? 'http://localhost:4300'
+    : process.env.NEXA_PLATFORM_URL ?? 'http://localhost:4200';
+  return new URL(configuredUrl).origin;
+}
+
+function escapeRegExp(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
 export async function messageIds(page: Page): Promise<Set<string>> {
   const response = await page.request.get(`${mailpitUrl}/api/v1/messages`);
   expect(response.ok()).toBeTruthy();
@@ -12,8 +23,8 @@ export async function messageIds(page: Page): Promise<Set<string>> {
 }
 
 export async function waitForResetLink(page: Page, surface: 'PLATFORM' | 'PORTAL', before: Set<string>): Promise<string> {
-  const port = surface === 'PORTAL' ? '4300' : '4200';
-  const pattern = new RegExp(`http://localhost:${port}/reset-password\\?token=([^\\s"'<>]+)`);
+  const origin = resetOrigin(surface);
+  const pattern = new RegExp(`${escapeRegExp(origin)}/reset-password\\?token=([^\\s"'<>]+)`);
   const deadline = Date.now() + 20_000;
   while (Date.now() < deadline) {
     const response = await page.request.get(`${mailpitUrl}/api/v1/messages`);
@@ -27,7 +38,7 @@ export async function waitForResetLink(page: Page, surface: 'PLATFORM' | 'PORTAL
       const detail = await detailResponse.json() as Record<string, unknown>;
       const text = Object.values(detail).filter((value): value is string => typeof value === 'string').join('\\n');
       const match = text.match(pattern);
-      if (match) return `http://localhost:${port}/reset-password?token=${match[1]}`;
+      if (match) return `${origin}/reset-password?token=${match[1]}`;
     }
     await page.waitForTimeout(250);
   }

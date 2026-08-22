@@ -1,5 +1,6 @@
 import { request as playwrightRequest, test, expect } from '@playwright/test';
 import { assertNoBrowserSecrets, messageIds, waitForResetLink } from './support/mailpit';
+import { fillOrganizationRegistration } from './support/organization-onboarding';
 
 const API_URL = process.env.NEXA_API_URL ?? 'http://localhost:8080';
 
@@ -14,16 +15,17 @@ test('organization onboarding reaches ACTIVE only through the operator boundary 
   const before = await messageIds(page);
   try {
     await page.goto('/tenant-management/register-organization');
-    await page.getByRole('textbox', { name: /legal name|razón social/i }).fill(`E2E Activated ${suffix}`);
-    await page.getByRole('textbox', { name: /display name|nombre comercial/i }).fill('E2E Activated');
-    await page.getByRole('textbox', { name: /storage site|sitio de almacenamiento/i }).fill('E2E Store');
-    await page.getByRole('textbox', { name: /storage address|dirección/i }).fill('Av. E2E 200');
-    await page.getByRole('textbox', { name: /founder|administrador/i }).fill('E2E Founder');
-    await page.getByRole('textbox', { name: /login email|correo/i }).fill(founderEmail);
-    await page.getByRole('textbox', { name: /workspace name|nombre del espacio/i }).fill(`E2E Activated Workspace ${suffix}`);
     const slug = `e2e-activated-${suffix}`;
-    await page.getByRole('textbox', { name: /workspace slug|slug/i }).fill(slug);
-    await page.getByRole('checkbox').check();
+    await fillOrganizationRegistration(page, {
+      legalName: `E2E Activated ${suffix}`,
+      displayName: 'E2E Activated',
+      storageSite: 'E2E Store',
+      storageAddress: 'Av. E2E 200',
+      founderName: 'E2E Founder',
+      founderEmail,
+      workspaceName: `E2E Activated Workspace ${suffix}`,
+      workspaceSlug: slug,
+    });
     let registrationResponse: { ok: boolean; body: { registrationId: string; statusToken: string } } | undefined;
     const registrationRoute = '**/api/v1/tenant-management/organization-registrations';
     await page.route(registrationRoute, async (route) => {
