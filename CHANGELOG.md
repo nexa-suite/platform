@@ -5,9 +5,13 @@ The project uses Semantic Versioning.
 
 ## Unreleased
 
-Current `develop` artifact: `0.7.1`. The following candidate content is an **UNRELEASED DRAFT**; no release number, tag or GitHub Release is established.
+No unreleased changes are included in this baseline.
 
-### Candidate additions
+## [0.7.1] - 2026-08-18
+
+Operations release stabilization for the internal Angular workspace.
+
+### Added
 
 - Real server-backed Sales Dashboard metrics, recent resources and working links.
 - Dedicated role-route and operations-state coverage for the stabilized surface.

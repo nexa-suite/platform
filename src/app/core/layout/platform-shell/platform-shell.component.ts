@@ -1,5 +1,16 @@
 import { BreakpointObserver } from '@angular/cdk/layout';
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { DOCUMENT } from '@angular/common';
+import {
+  afterNextRender,
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  ElementRef,
+  EnvironmentInjector,
+  inject,
+  signal,
+  viewChild
+} from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatListModule } from '@angular/material/list';
 import { MatSidenavModule } from '@angular/material/sidenav';
@@ -33,21 +44,31 @@ import { PlatformNotificationsService } from '../../notifications/platform-notif
   ],
   templateUrl: './platform-shell.component.html',
   styleUrl: './platform-shell.component.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  host: {
+    '(document:keydown.escape)': 'closeOpenLayer()'
+  }
 })
 export class PlatformShellComponent {
   private readonly authentication = inject(AuthenticationService);
   private readonly router = inject(Router);
   private readonly breakpoints = inject(BreakpointObserver);
+  private readonly document = inject(DOCUMENT);
+  private readonly environmentInjector = inject(EnvironmentInjector);
+  private navigationTrigger: HTMLElement | null = null;
+  private notificationTrigger: HTMLElement | null = null;
+  private readonly mobileNavigationClose = viewChild<ElementRef<HTMLButtonElement>>('mobileNavigationClose');
+  private readonly notificationPanel = viewChild<ElementRef<HTMLElement>>('notificationPanel');
   readonly notifications = inject(PlatformNotificationsService);
   readonly currentUser = this.authentication.currentUser;
   readonly displayName = computed(() => this.currentUser()?.displayName ?? '');
+  readonly displayInitial = computed(() => this.displayName().trim().charAt(0).toLocaleUpperCase());
   readonly workspaceContext = computed(() => {
     const user = this.currentUser();
     if (!user) return null;
     return { tenant: user.tenantSlug ?? '', workspace: user.workspaceSlug, roles: user.roleCodes ?? user.roles };
   });
-  readonly isMobile = toSignal(this.breakpoints.observe('(max-width: 760px)').pipe(map((state) => state.matches)), { initialValue: false });
+  readonly isMobile = toSignal(this.breakpoints.observe('(max-width: 860px)').pipe(map((state) => state.matches)), { initialValue: false });
   readonly mobileNavOpen = signal(false);
   readonly notificationsOpen = signal(false);
   readonly selectedAreaId = signal<string | null>(null);
@@ -80,18 +101,74 @@ export class PlatformShellComponent {
     const area = this.availableAreas().find((candidate) => candidate.id === value);
     if (!area || !this.authentication.hasPermission(area.permission)) return;
     this.selectedAreaId.set(area.id);
-    this.closeMobileNav();
+    this.closeMobileNav(false);
     void this.router.navigateByUrl(area.path);
   }
 
-  toggleMobileNavigation(): void { this.mobileNavOpen.update((open) => !open); }
-  closeMobileNav(): void { if (this.isMobile()) this.mobileNavOpen.set(false); }
-  toggleNotifications(): void { this.notificationsOpen.update((open) => !open); }
+  toggleMobileNavigation(): void {
+    if (this.mobileNavOpen()) {
+      this.closeMobileNav();
+      return;
+    }
+
+    this.navigationTrigger = this.activeElement();
+    this.mobileNavOpen.set(true);
+  }
+
+  closeMobileNav(restoreFocus = true): void {
+    if (!this.isMobile() || !this.mobileNavOpen()) return;
+    this.mobileNavOpen.set(false);
+    if (restoreFocus) this.afterRender(() => this.navigationTrigger?.focus());
+  }
+
+  handleMobileNavigationState(opened: boolean): void {
+    if (!opened) return;
+    const focusClose = (): void => {
+      if (this.isMobile() && this.mobileNavOpen()) this.mobileNavigationClose()?.nativeElement.focus();
+    };
+    const view = this.document.defaultView;
+    if (view) view.requestAnimationFrame(focusClose);
+    else focusClose();
+  }
+
+  toggleNotifications(): void {
+    if (this.notificationsOpen()) {
+      this.closeNotifications();
+      return;
+    }
+
+    this.notificationTrigger = this.activeElement();
+    this.notificationsOpen.set(true);
+    this.afterRender(() => this.notificationPanel()?.nativeElement.focus());
+  }
+
+  closeNotifications(restoreFocus = true): void {
+    if (!this.notificationsOpen()) return;
+    this.notificationsOpen.set(false);
+    if (restoreFocus) this.afterRender(() => this.notificationTrigger?.focus());
+  }
+
+  closeOpenLayer(): void {
+    if (this.notificationsOpen()) {
+      this.closeNotifications();
+      return;
+    }
+    this.closeMobileNav();
+  }
+
   markNotificationsRead(): void { this.notifications.markAllRead(); }
 
   signOut(): void {
     this.authentication.signOut().subscribe({
       complete: () => void this.router.navigateByUrl('/sign-in', { replaceUrl: true }),
     });
+  }
+
+  private activeElement(): HTMLElement | null {
+    return this.document.activeElement instanceof HTMLElement ? this.document.activeElement : null;
+  }
+
+  private afterRender(callback: () => void): void {
+    afterNextRender(callback, { injector: this.environmentInjector });
   }
 }

@@ -1,3 +1,38 @@
-:focus-visible { outline: 3px solid var(--nexa-color-primary-600); outline-offset: 3px; }
-.skip-link { position: fixed; z-index: 1000; top: var(--nexa-space-2); left: var(--nexa-space-2); padding: var(--nexa-space-2) var(--nexa-space-3); transform: translateY(-180%); border-radius: var(--nexa-radius-md); background: var(--nexa-color-primary-700); color: var(--nexa-color-text-inverse); font-weight: var(--nexa-font-weight-semibold); transition: transform var(--nexa-motion-standard); }
+:focus-visible {
+  outline: var(--nexa-focus-width) solid var(--nexa-color-focus-ring);
+  outline-offset: var(--nexa-focus-offset);
+}
+
+.skip-link {
+  position: fixed;
+  z-index: 1000;
+  top: var(--nexa-space-2);
+  left: var(--nexa-space-2);
+  padding: var(--nexa-space-2) var(--nexa-space-3);
+  transform: translateY(-180%);
+  border-radius: var(--nexa-radius-md);
+  background: var(--nexa-color-primary-700);
+  color: var(--nexa-color-text-inverse);
+  font-weight: var(--nexa-font-weight-semibold);
+  transition: transform var(--nexa-motion-standard);
+}
+
 .skip-link:focus { transform: translateY(0); }
+
+.visually-hidden {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0 0 0 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+button, a, select { touch-action: manipulation; }
+
+@media (forced-colors: active) {
+  :focus-visible { outline-color: Highlight; }
+}

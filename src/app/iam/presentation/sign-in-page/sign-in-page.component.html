@@ -1,66 +1,69 @@
-<main class="sign-in-page" aria-labelledby="sign-in-title">
-  <section class="auth-hero">
-    <div class="auth-hero-content">
-      <img class="auth-logo" src="assets/branding/nexa-white.svg" alt="Nexa" />
-      <h2>{{ 'auth.signIn.heroTitle' | translate }}</h2>
-      <p>{{ 'auth.signIn.heroDescription' | translate }}</p>
-      <div class="hero-pills">
-        <span>{{ 'auth.signIn.heroPills.catalog' | translate }}</span>
-        <span>{{ 'auth.signIn.heroPills.stock' | translate }}</span>
-        <span>{{ 'auth.signIn.heroPills.orders' | translate }}</span>
-        <span>{{ 'auth.signIn.heroPills.delivery' | translate }}</span>
+<main class="auth-page" aria-labelledby="sign-in-title">
+  <section class="auth-pattern">
+    <aside class="auth-brand-plane">
+      <nexa-brand-logo variant="inverse" [width]="150" accessibleLabel="Nexa" />
+      <p class="brand-copy">{{ 'auth.signIn.heroDescription' | translate }}</p>
+      <div class="auth-grid-mark" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
+      <small>{{ 'auth.signIn.heroFooter' | translate }}</small>
+    </aside>
+
+    <section class="auth-form-panel">
+      <div class="auth-form-heading">
+        <p class="proof-label">{{ 'auth.signIn.accessKicker' | translate }}</p>
+        <div class="language-switcher" role="group" [attr.aria-label]="'shell.language' | translate">
+          <button type="button" [class.active]="languageService.currentLanguage() === 'es'" [attr.aria-pressed]="languageService.currentLanguage() === 'es'" (click)="setLanguage('es')">ES</button>
+          <button type="button" [class.active]="languageService.currentLanguage() === 'en'" [attr.aria-pressed]="languageService.currentLanguage() === 'en'" (click)="setLanguage('en')">EN</button>
+        </div>
       </div>
-    </div>
-    <footer>{{ 'auth.signIn.heroFooter' | translate }}</footer>
-  </section>
 
-  <section class="auth-form-panel">
-    <div class="language-switcher" aria-label="Language"><span>ES</span><span class="active">EN</span></div>
-    <div class="form-copy">
-      <p class="eyebrow">{{ 'auth.platformSurface' | translate }}</p>
-      <h1 id="sign-in-title">{{ 'auth.signIn.title' | translate }}</h1>
-      <p>{{ 'auth.signIn.description' | translate }}</p>
-    </div>
+      <div class="form-copy">
+        <p class="eyebrow">{{ 'auth.platformSurface' | translate }}</p>
+        <h1 id="sign-in-title">{{ 'auth.signIn.title' | translate }}</h1>
+        <p>{{ 'auth.signIn.description' | translate }}</p>
+      </div>
 
-    <form (submit)="submit($event)" novalidate>
-      <mat-form-field appearance="outline">
-        <mat-label>{{ 'auth.signIn.workspace' | translate }}</mat-label>
-        <input matInput autocomplete="organization" [formField]="signInForm.workspaceSlug" />
-        <mat-hint>{{ 'auth.signIn.workspaceHint' | translate }}</mat-hint>
-        @if (signInForm.workspaceSlug().touched() && signInForm.workspaceSlug().invalid()) {
-          <mat-error>{{ signInForm.workspaceSlug().errors()[0]?.message }}</mat-error>
+      <form (submit)="submit($event)" novalidate>
+        <label class="text-field" [class.invalid]="signInForm.workspaceSlug().touched() && signInForm.workspaceSlug().invalid()" for="workspace-slug">
+          <span>{{ 'auth.signIn.workspace' | translate }}<sup>*</sup></span>
+          <input id="workspace-slug" autocomplete="organization" [attr.aria-invalid]="signInForm.workspaceSlug().invalid()" [attr.aria-describedby]="signInForm.workspaceSlug().invalid() ? 'workspace-error' : 'workspace-hint'" [formField]="signInForm.workspaceSlug" />
+          <small id="workspace-hint">{{ 'auth.signIn.workspaceHint' | translate }}</small>
+          @if (signInForm.workspaceSlug().touched() && signInForm.workspaceSlug().invalid()) {
+            <small class="field-error" id="workspace-error">{{ signInForm.workspaceSlug().errors()[0]?.message }}</small>
+          }
+        </label>
+
+        <label class="text-field" [class.invalid]="signInForm.identifier().touched() && signInForm.identifier().invalid()" for="identifier">
+          <span>{{ 'auth.signIn.identifier' | translate }}<sup>*</sup></span>
+          <input id="identifier" autocomplete="username" [attr.aria-invalid]="signInForm.identifier().invalid()" [attr.aria-describedby]="signInForm.identifier().invalid() ? 'identifier-error' : null" [formField]="signInForm.identifier" />
+          @if (signInForm.identifier().touched() && signInForm.identifier().invalid()) {
+            <small class="field-error" id="identifier-error">{{ signInForm.identifier().errors()[0]?.message }}</small>
+          }
+        </label>
+
+        <label class="text-field" [class.invalid]="signInForm.password().touched() && signInForm.password().invalid()" for="password">
+          <span>{{ 'auth.signIn.password' | translate }}<sup>*</sup></span>
+          <input id="password" type="password" autocomplete="current-password" [attr.aria-invalid]="signInForm.password().invalid()" [attr.aria-describedby]="signInForm.password().invalid() ? 'password-error' : null" [formField]="signInForm.password" />
+          @if (signInForm.password().touched() && signInForm.password().invalid()) {
+            <small class="field-error" id="password-error">{{ signInForm.password().errors()[0]?.message }}</small>
+          }
+        </label>
+
+        @if (status() === 'error') {
+          <p class="form-error" role="alert">{{ 'auth.signIn.error' | translate }}</p>
         }
-      </mat-form-field>
 
-      <mat-form-field appearance="outline">
-        <mat-label>{{ 'auth.signIn.identifier' | translate }}</mat-label>
-        <input matInput autocomplete="username" [formField]="signInForm.identifier" />
-        @if (signInForm.identifier().touched() && signInForm.identifier().invalid()) {
-          <mat-error>{{ signInForm.identifier().errors()[0]?.message }}</mat-error>
-        }
-      </mat-form-field>
-
-      <mat-form-field appearance="outline">
-        <mat-label>{{ 'auth.signIn.password' | translate }}</mat-label>
-        <input matInput type="password" autocomplete="current-password" [formField]="signInForm.password" />
-        @if (signInForm.password().touched() && signInForm.password().invalid()) {
-          <mat-error>{{ signInForm.password().errors()[0]?.message }}</mat-error>
-        }
-      </mat-form-field>
-
-      @if (status() === 'error') {
-        <p class="form-error" role="alert">{{ 'auth.signIn.error' | translate }}</p>
-      }
-
-      <button mat-flat-button color="primary" type="submit" [disabled]="status() === 'authenticating'">
-        @if (status() === 'authenticating') {
-          {{ 'auth.signIn.authenticating' | translate }}
-        } @else {
-          {{ 'auth.signIn.submit' | translate }}
-        }
-      </button>
-      <p><a routerLink="/forgot-password">{{ 'iamSecurity.forgotTitle' | translate }}</a></p>
-      <p><a routerLink="/tenant-management/register-organization">{{ 'iamSecurity.onboardingTitle' | translate }}</a></p>
-    </form>
+        <button class="primary-action" type="submit" [disabled]="status() === 'authenticating'">
+          @if (status() === 'authenticating') {
+            <span class="loading-dot" aria-hidden="true"></span>{{ 'auth.signIn.authenticating' | translate }}
+          } @else {
+            {{ 'auth.signIn.submit' | translate }}
+          }
+        </button>
+        <nav class="auth-links" [attr.aria-label]="'auth.signIn.supportLinks' | translate">
+          <a routerLink="/forgot-password">{{ 'iamSecurity.forgotTitle' | translate }}</a>
+          <a routerLink="/tenant-management/register-organization">{{ 'iamSecurity.onboardingTitle' | translate }}</a>
+        </nav>
+      </form>
+    </section>
   </section>
 </main>

@@ -25,6 +25,12 @@ describe('Platform catalog route matrix', () => {
     expect(route?.canActivate).toBeTruthy();
   });
 
+  it('protects the bank-transfer review queue with reconciliation permission', () => {
+    const shell = routes.find((route) => route.path === '');
+    const route = shell?.children?.find((candidate) => candidate.path === 'ops/finance/bank-transfers');
+    expect(route?.canActivate).toBeTruthy();
+  });
+
   it('keeps the canonical legacy aliases ahead of wildcard navigation', () => {
     const shell = routes.find((route) => route.path === '');
     const paths = new Set((shell?.children ?? []).map((route) => route.path));

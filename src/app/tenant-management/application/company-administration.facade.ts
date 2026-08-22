@@ -1,6 +1,6 @@
-import { HttpErrorResponse } from '@angular/common/http';
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { catchError, forkJoin, map, Observable, of, switchMap } from 'rxjs';
+import { isStaleApiProblem, readApiProblemDetails } from '../../core/error/api-problem-details';
 import { AuthenticationService } from '../../iam/application/authentication.service';
 import {
   CustomFieldDefinition,
@@ -227,7 +227,8 @@ export class CompanyAdministrationFacade {
   private idempotencyKey(): string { return globalThis.crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random()}`; }
   private staleRecoveryPending = false;
   private errorCode(error: unknown): string {
-    if (error instanceof HttpErrorResponse) return String(error.error?.code ?? error.error?.title ?? `HTTP_${error.status}`);
+    const problem = readApiProblemDetails(error);
+    if (problem) return problem.code;
     return error instanceof Error ? error.message : 'REQUEST_FAILED';
   }
   private replaceById<T extends { readonly id: string }>(items: readonly T[], item: T): readonly T[] { return items.map((current) => current.id === item.id ? item : current); }
@@ -239,8 +240,7 @@ export class CompanyAdministrationFacade {
     };
   }
   private isStale(error: unknown): boolean {
-    if (!(error instanceof HttpErrorResponse)) return false;
-    return error.status === 409 || error.status === 412 || error.error?.code === 'CONCURRENCY_CONFLICT';
+    return isStaleApiProblem(error);
   }
   private replaceInvitation(list: InvitationList, item: InvitationView): InvitationList { return { ...list, items: this.replaceById(list.items, item) }; }
   private appendInvitation(list: InvitationList, item: InvitationView): InvitationList { return { ...list, items: [item, ...list.items] }; }

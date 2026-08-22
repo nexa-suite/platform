@@ -7,7 +7,7 @@ export interface PlatformNavigationItem {
   readonly permission: PlatformPermission;
 }
 
-export type PlatformNavigationGroupId = 'administration' | 'commercial' | 'catalog' | 'warehouse' | 'logistics';
+export type PlatformNavigationGroupId = 'administration' | 'commercial' | 'catalog' | 'warehouse' | 'logistics' | 'finance';
 
 export interface PlatformNavigationGroup {
   readonly id: PlatformNavigationGroupId;
@@ -51,12 +51,17 @@ const LOGISTICS_ITEMS: readonly PlatformNavigationItem[] = [
   { labelKey: 'shell.navigation.operationalAnalytics', path: '/ops/operations/operational-analytics', icon: 'analytics', permission: PLATFORM_PERMISSIONS.logisticsRead }
 ];
 
+const FINANCE_ITEMS: readonly PlatformNavigationItem[] = [
+  { labelKey: 'shell.navigation.bankTransfers', path: '/ops/finance/bank-transfers', icon: 'account_balance', permission: PLATFORM_PERMISSIONS.paymentReconcile }
+];
+
 export const PLATFORM_NAVIGATION_GROUPS: readonly PlatformNavigationGroup[] = [
   { id: 'administration', labelKey: 'shell.groups.administration', icon: 'admin_panel_settings', items: ADMINISTRATION_ITEMS },
   { id: 'commercial', labelKey: 'shell.groups.commercial', icon: 'handshake', items: COMMERCIAL_ITEMS },
   { id: 'catalog', labelKey: 'shell.groups.catalog', icon: 'inventory_2', items: CATALOG_ITEMS },
   { id: 'warehouse', labelKey: 'shell.groups.warehouse', icon: 'warehouse', items: WAREHOUSE_ITEMS },
-  { id: 'logistics', labelKey: 'shell.groups.logistics', icon: 'local_shipping', items: LOGISTICS_ITEMS }
+  { id: 'logistics', labelKey: 'shell.groups.logistics', icon: 'local_shipping', items: LOGISTICS_ITEMS },
+  { id: 'finance', labelKey: 'shell.groups.finance', icon: 'account_balance', items: FINANCE_ITEMS }
 ];
 
 export const PLATFORM_NAVIGATION: readonly PlatformNavigationItem[] = [
