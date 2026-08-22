@@ -2,8 +2,6 @@
 
 <br />
 
-<img src="./docs/assets/nexa.svg" alt="Nexa" width="240" />
-
 # Nexa Platform
 
 **Internal operational workspace for Nexa tenant teams.**
