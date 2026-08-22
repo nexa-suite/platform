@@ -4,6 +4,7 @@ type IconPath = readonly string[];
 
 /** Local SVG icon registry with no runtime font or CDN dependency. */
 const ICON_PATHS: Record<string, IconPath> = {
+  account_balance: ['M4 10h16', 'M5 20h14', 'M7 10v7', 'M12 10v7', 'M17 10v7', 'M3 7l9-4 9 4v3H3z'],
   analytics: ['M4 19V5', 'M4 19h16', 'M7 15l3-4 3 2 5-7'],
   archive: ['M4 7h16v13H4z', 'M3 4h18v3H3z', 'M9 11h6'],
   arrow_back: ['M19 12H5', 'M11 6l-6 6 6 6'],
@@ -23,6 +24,7 @@ const ICON_PATHS: Record<string, IconPath> = {
   local_shipping: ['M3 6h11v10H3z', 'M14 10h4l3 3v3h-7z', 'M7 19a2 2 0 1 0 0-4 2 2 0 0 0 0 4z', 'M17 19a2 2 0 1 0 0-4 2 2 0 0 0 0 4z'],
   lock: ['M6 10h12v10H6z', 'M8 10V7a4 4 0 0 1 8 0v3'],
   logout: ['M10 5H5v14h5', 'M13 8l4 4-4 4', 'M17 12H9'],
+  menu: ['M4 7h16', 'M4 12h16', 'M4 17h16'],
   monitoring: ['M4 19V5', 'M4 19h16', 'M7 15v-3', 'M11 15V8', 'M15 15v-5', 'M19 15V6'],
   notifications: ['M6 17h12', 'M8 17V10a4 4 0 0 1 8 0v7', 'M10 20h4', 'M5 17h14'],
   pause: ['M8 5v14', 'M16 5v14'],

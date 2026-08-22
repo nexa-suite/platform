@@ -58,7 +58,7 @@ import { ManualOrderLineCommand } from '../domain/manual-order.models';
       </mat-card>
     </section>
   `,
-  styles: [`.page{display:grid;gap:16px;max-width:1100px;margin:auto;padding:32px}.steps{display:flex;gap:8px}.steps a{padding:8px 12px;border:1px solid #dbe3ee;border-radius:6px;text-decoration:none}.steps .active{background:#ecfdf5;border-color:#0f766e}.search,.line-form{display:flex;gap:12px;align-items:center;flex-wrap:wrap}.catalog-preview{display:flex;gap:16px;align-items:center;padding:16px;margin-top:12px;background:#f8fafc;border-radius:8px}.catalog-preview img,.image-placeholder{width:72px;height:72px;object-fit:cover;border-radius:8px;background:#e2e8f0}.image-placeholder{display:grid;place-items:center;color:#475569;font-size:12px}.catalog-preview div{display:grid;gap:4px}.catalog-preview span{color:#475569}.lines{display:grid;gap:8px;margin-top:16px}.line,.server-line{display:flex;justify-content:space-between;gap:12px;padding:12px;border-bottom:1px solid #e2e8f0}.server-line{color:#334155}.mat-mdc-card-actions{justify-content:flex-end;padding:16px}`],
+  styleUrl: './manual-order-wizard.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ManualOrderItemsPageComponent {

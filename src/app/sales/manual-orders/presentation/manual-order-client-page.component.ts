@@ -38,7 +38,7 @@ import { ManualOrderWizardFacade } from '../application/manual-order-wizard.faca
       </mat-card>
     </section>
   `,
-  styles: [`.page{display:grid;gap:16px;max-width:1000px;margin:auto;padding:32px}.steps{display:flex;gap:8px}.steps a{padding:8px 12px;border:1px solid #dbe3ee;border-radius:6px;text-decoration:none}.steps .active{background:#ecfdf5;border-color:#0f766e}.form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.wide{grid-column:1/-1}.client-summary,.server-summary,.address-list{display:grid;gap:4px;padding:16px;margin-top:12px;background:#f8fafc;border-radius:8px}.server-summary{background:#ecfdf5}.address-list span{color:#475569}.mat-mdc-card-actions{justify-content:space-between;padding:16px}`],
+  styleUrl: './manual-order-wizard.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ManualOrderClientPageComponent {
@@ -49,6 +49,7 @@ export class ManualOrderClientPageComponent {
   readonly draftId = this.route.snapshot.paramMap.get('draftId') ?? '';
   readonly saving = signal(false);
   private loadedClientId: string | null = null;
+  private hydratedDraftId: string | null = null;
   readonly form = this.fb.nonNullable.group({
     clientAccountId: ['', Validators.required],
     requestedDeliveryDate: [tomorrow(), Validators.required],
@@ -63,11 +64,14 @@ export class ManualOrderClientPageComponent {
     if (this.draftId) this.facade.loadDraft(this.draftId);
     effect(() => {
       const draft = this.facade.state().draft;
-      if (draft?.id === this.draftId) this.form.patchValue({
-        clientAccountId: draft.client?.id ?? '', requestedDeliveryDate: draft.requestedDeliveryDate ?? tomorrow(),
-        priority: draft.priority || 'NORMAL', paymentPreference: draft.paymentPreference ?? 'CREDIT_LINE',
-        currency: draft.currency || 'PEN', notes: draft.notes ?? ''
-      }, { emitEvent: false });
+      if (draft?.id === this.draftId && this.hydratedDraftId !== draft.id) {
+        this.form.patchValue({
+          clientAccountId: draft.client?.id ?? '', requestedDeliveryDate: draft.requestedDeliveryDate ?? tomorrow(),
+          priority: draft.priority || 'NORMAL', paymentPreference: draft.paymentPreference ?? 'CREDIT_LINE',
+          currency: draft.currency || 'PEN', notes: draft.notes ?? ''
+        }, { emitEvent: false });
+        this.hydratedDraftId = draft.id;
+      }
       const clientId = draft?.client?.id ?? null;
       if (clientId && clientId !== this.loadedClientId) { this.loadedClientId = clientId; this.facade.loadAddresses(clientId); }
     });

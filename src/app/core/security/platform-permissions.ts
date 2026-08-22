@@ -23,6 +23,8 @@ export const PLATFORM_PERMISSIONS = {
   documentGenerate: 'document.generate',
   documentUpload: 'document.upload',
   documentDownload: 'document.download',
+  paymentRead: 'payment.read',
+  paymentReconcile: 'payment.reconcile',
   catalogRead: 'catalog:read',
   catalogManage: 'catalog:manage',
   catalogPriceManage: 'catalog:price:manage',
@@ -50,6 +52,7 @@ export const PLATFORM_PERMISSION_WORK_AREAS: readonly PlatformWorkArea[] = [
   { id: 'WAREHOUSE', path: '/ops/operations/dashboard', permission: PLATFORM_PERMISSIONS.warehouseRead, labelKey: 'shell.roles.WAREHOUSE' },
   { id: 'LOGISTICS', path: '/ops/operations/dispatch-orders', permission: PLATFORM_PERMISSIONS.logisticsRead, labelKey: 'shell.roles.LOGISTICS' },
   { id: 'FULFILLMENT', path: '/ops/fulfillment/readiness', permission: PLATFORM_PERMISSIONS.fulfillmentRead, labelKey: 'shell.navigation.fulfillmentReadiness' },
+  { id: 'FINANCE', path: '/ops/finance/bank-transfers', permission: PLATFORM_PERMISSIONS.paymentReconcile, labelKey: 'shell.navigation.bankTransfers' },
   { id: 'CATALOG', path: '/ops/catalog', permission: PLATFORM_PERMISSIONS.catalogRead, labelKey: 'shell.groups.catalog' },
 ];
 

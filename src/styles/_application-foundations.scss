@@ -1,0 +1,348 @@
+/*
+ * Shared application composition adapted from the Nexa Design Lab v1
+ * evidence. Feature components own their content; this layer owns the
+ * recurring page, data, form and feedback geometry used across Platform.
+ */
+
+:root {
+  --nexa-z-base: 0;
+  --nexa-z-sticky: 10;
+  --nexa-z-popover: 20;
+  --nexa-z-dialog: 40;
+}
+
+.platform-content {
+  min-width: 0;
+}
+
+.platform-content > * {
+  display: block;
+  width: min(100%, var(--nexa-layout-content-max));
+  margin-inline: auto;
+}
+
+.platform-content .page,
+.platform-content .catalog-home-page,
+.platform-content .catalog-page,
+.platform-content .dashboard-page,
+.platform-content .operations-page,
+.platform-content .workspace-page {
+  display: grid;
+  gap: var(--nexa-space-6);
+}
+
+.platform-content .page > h1,
+.platform-content .page > h2 {
+  margin: 0;
+  color: var(--nexa-color-text-primary);
+  font-family: var(--nexa-font-family-display);
+  line-height: var(--nexa-line-height-tight);
+}
+
+.platform-content .page > h1 {
+  font-size: clamp(var(--nexa-font-size-2xl), 3vw, var(--nexa-font-size-3xl));
+}
+
+.platform-content .page > h2 {
+  font-size: var(--nexa-font-size-xl);
+}
+
+.platform-content .page > p,
+.platform-content .page > ul,
+.platform-content .page > ol {
+  margin: 0;
+  color: var(--nexa-color-text-secondary);
+  line-height: var(--nexa-line-height-relaxed);
+}
+
+.platform-content a {
+  color: var(--nexa-color-primary-700);
+  text-underline-offset: 3px;
+}
+
+.platform-content a:hover {
+  color: var(--nexa-color-primary-800);
+}
+
+.platform-content a:focus-visible,
+.platform-content button:focus-visible,
+.platform-content input:focus-visible,
+.platform-content select:focus-visible,
+.platform-content textarea:focus-visible {
+  outline: none;
+  box-shadow: var(--nexa-focus-ring);
+}
+
+.platform-content mat-card,
+.platform-content .surface-card,
+.platform-content .data-card,
+.platform-content .content-card {
+  overflow: hidden;
+  border: 1px solid var(--nexa-color-border-default);
+  border-radius: var(--nexa-radius-card);
+  background: var(--nexa-surface-card);
+  box-shadow: var(--nexa-shadow-xs);
+}
+
+.platform-content mat-card mat-card-header,
+.platform-content mat-card mat-card-content,
+.platform-content mat-card mat-card-actions {
+  padding-inline: var(--nexa-space-6);
+}
+
+.platform-content mat-card mat-card-header {
+  padding-top: var(--nexa-space-6);
+}
+
+.platform-content mat-card mat-card-content {
+  padding-block: var(--nexa-space-5);
+}
+
+.platform-content mat-card mat-card-actions {
+  min-height: var(--nexa-control-height-lg);
+  padding-bottom: var(--nexa-space-5);
+  gap: var(--nexa-space-2);
+}
+
+.platform-content .metric-grid,
+.platform-content .stats-grid,
+.platform-content .kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+  gap: var(--nexa-space-4);
+}
+
+.platform-content .panels,
+.platform-content .panel-grid,
+.platform-content .content-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr));
+  gap: var(--nexa-space-4);
+}
+
+.platform-content .form-grid,
+.platform-content .filters,
+.platform-content .filter-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr));
+  align-items: end;
+  gap: var(--nexa-space-4);
+}
+
+.platform-content .action-row,
+.platform-content .actions,
+.platform-content .toolbar-actions,
+.platform-content .export-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--nexa-space-2);
+}
+
+.platform-content .action-row {
+  justify-content: flex-end;
+  padding-top: var(--nexa-space-2);
+}
+
+.platform-content form {
+  display: grid;
+  gap: var(--nexa-space-4);
+}
+
+.platform-content label {
+  color: var(--nexa-color-text-primary);
+  font-size: var(--nexa-font-size-sm);
+  font-weight: var(--nexa-font-weight-semibold);
+}
+
+.platform-content input:not([type='checkbox']):not([type='radio']),
+.platform-content select,
+.platform-content textarea {
+  min-height: var(--nexa-control-height-md);
+  border: 1px solid var(--nexa-color-border-interactive);
+  border-radius: var(--nexa-radius-control);
+  padding: 0 var(--nexa-space-3);
+  background: var(--nexa-surface-card);
+  color: var(--nexa-color-text-primary);
+}
+
+.platform-content textarea {
+  min-height: 7rem;
+  padding-block: var(--nexa-space-3);
+  resize: vertical;
+}
+
+.platform-content input::placeholder,
+.platform-content textarea::placeholder {
+  color: var(--nexa-color-text-muted);
+}
+
+.platform-content button:not([mat-icon-button]),
+.platform-content button[mat-button],
+.platform-content button[mat-flat-button],
+.platform-content button[mat-stroked-button],
+.platform-content a[mat-button],
+.platform-content a[mat-flat-button],
+.platform-content a[mat-stroked-button] {
+  min-height: var(--nexa-control-height-md);
+  border-radius: var(--nexa-radius-control);
+  font-weight: var(--nexa-font-weight-semibold);
+}
+
+.platform-content .mat-mdc-form-field {
+  width: 100%;
+}
+
+.platform-content .mdc-text-field--outlined {
+  border-radius: var(--nexa-radius-control);
+}
+
+.platform-content .mat-mdc-text-field-wrapper {
+  background: var(--nexa-surface-card);
+}
+
+.platform-content .mat-mdc-form-field-subscript-wrapper {
+  min-height: var(--nexa-space-4);
+}
+
+.platform-content .mat-mdc-button-base {
+  transition:
+    background-color var(--nexa-motion-standard),
+    border-color var(--nexa-motion-standard),
+    box-shadow var(--nexa-motion-standard),
+    transform var(--nexa-motion-standard);
+}
+
+.platform-content .data-table,
+.platform-content .table-shell,
+.platform-content .table-container {
+  overflow-x: auto;
+  border: 1px solid var(--nexa-color-border-default);
+  border-radius: var(--nexa-radius-card);
+  background: var(--nexa-surface-card);
+}
+
+.platform-content table,
+.platform-content mat-table {
+  width: 100%;
+  min-width: 42rem;
+}
+
+.platform-content table thead,
+.platform-content mat-header-row {
+  background: var(--nexa-surface-table-header);
+}
+
+.platform-content table th,
+.platform-content table td,
+.platform-content mat-header-cell,
+.platform-content mat-cell {
+  min-height: var(--nexa-component-table-row-height);
+  padding: var(--nexa-space-3) var(--nexa-space-4);
+  border-bottom: 1px solid var(--nexa-color-border-decorative);
+  text-align: left;
+  vertical-align: middle;
+}
+
+.platform-content table th,
+.platform-content mat-header-cell {
+  color: var(--nexa-color-text-secondary);
+  font-size: var(--nexa-font-size-xs);
+  font-weight: var(--nexa-font-weight-extrabold);
+  letter-spacing: var(--nexa-letter-spacing-wide);
+  text-transform: uppercase;
+}
+
+.platform-content table tbody tr:hover,
+.platform-content mat-row:hover {
+  background: var(--nexa-color-neutral-50);
+}
+
+.platform-content .timeline,
+.platform-content .events,
+.platform-content .activity-list {
+  display: grid;
+  gap: var(--nexa-space-3);
+}
+
+.platform-content .timeline > *,
+.platform-content .events > *,
+.platform-content .activity-list > * {
+  position: relative;
+  display: grid;
+  gap: var(--nexa-space-1);
+  padding: var(--nexa-space-3) var(--nexa-space-4);
+  border-left: 3px solid var(--nexa-color-primary-300);
+  border-radius: 0 var(--nexa-radius-control) var(--nexa-radius-control) 0;
+  background: var(--nexa-surface-inset);
+}
+
+.platform-content .notice,
+.platform-content .legal-note,
+.platform-content .message {
+  margin: 0;
+  padding: var(--nexa-space-3) var(--nexa-space-4);
+  border: 1px solid var(--nexa-color-info-standard-border);
+  border-radius: var(--nexa-radius-control);
+  background: var(--nexa-surface-info);
+  color: var(--nexa-color-info-700);
+  line-height: var(--nexa-line-height-relaxed);
+}
+
+.platform-content .empty,
+.platform-content .empty-state {
+  min-height: 12rem;
+}
+
+.platform-content .mat-mdc-paginator {
+  border-top: 1px solid var(--nexa-color-border-default);
+  background: transparent;
+}
+
+@media (max-width: 800px) {
+  .platform-content .page,
+  .platform-content .catalog-home-page,
+  .platform-content .catalog-page,
+  .platform-content .dashboard-page,
+  .platform-content .operations-page,
+  .platform-content .workspace-page {
+    gap: var(--nexa-space-5);
+  }
+
+  .platform-content mat-card mat-card-header,
+  .platform-content mat-card mat-card-content,
+  .platform-content mat-card mat-card-actions {
+    padding-inline: var(--nexa-space-4);
+  }
+
+  .platform-content mat-card mat-card-header {
+    padding-top: var(--nexa-space-4);
+  }
+
+  .platform-content mat-card mat-card-content {
+    padding-block: var(--nexa-space-4);
+  }
+}
+
+@media (max-width: 520px) {
+  .platform-content .action-row,
+  .platform-content .export-actions {
+    align-items: stretch;
+  }
+
+  .platform-content .action-row > *,
+  .platform-content .export-actions > * {
+    flex: 1 1 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .platform-content *,
+  .platform-content *::before,
+  .platform-content *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}

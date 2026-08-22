@@ -11,8 +11,10 @@ describe('LanguageService', () => {
   it('defaults to English and changes supported language', () => {
     const service = TestBed.inject(LanguageService);
     expect(service.currentLanguage()).toBe('en');
+    expect(document.documentElement.lang).toBe('en');
     service.setLanguage('es');
     expect(service.currentLanguage()).toBe('es');
+    expect(document.documentElement.lang).toBe('es');
   });
 
   it('falls back to English when browser storage is unavailable', () => {

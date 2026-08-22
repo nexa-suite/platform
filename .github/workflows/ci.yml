@@ -31,8 +31,11 @@ jobs:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           repository: nexa-suite/api
-          ref: develop
+          ref: c702f1f019ff5fad1e9aefe61ae3c98df3366959 # API V1 functional convergence baseline
           path: api
+      - name: Verify pinned API compatibility baseline
+        working-directory: api
+        run: test "$(git rev-parse HEAD)" = "c702f1f019ff5fad1e9aefe61ae3c98df3366959"
       - uses: actions/setup-java@c5195efecf7bdfc987ee8bae7a71cb8b11521c00 # v4.7.1
         with:
           distribution: temurin
@@ -94,6 +97,7 @@ jobs:
           NEXA_SECURITY_RSA_PRIVATE_KEY: ${{ github.workspace }}/.ci-keys/access-token-private.pem
           NEXA_SECURITY_ISSUER: http://localhost:8080
           NEXA_ALLOWED_ORIGINS: http://localhost:4200,http://localhost:4300
+          NEXA_CLAMAV_MODE: deterministic-local
           NEXA_SMTP_HOST: 127.0.0.1
           NEXA_SMTP_PORT: "1025"
           NEXA_SMTP_REQUIRED: "false"
