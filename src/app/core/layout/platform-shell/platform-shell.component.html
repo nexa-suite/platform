@@ -1,66 +1,192 @@
 <a class="skip-link" href="#main-content">{{ 'shell.skipToContent' | translate }}</a>
+
 <mat-sidenav-container class="platform-shell">
   <mat-sidenav
     class="platform-sidebar"
     [mode]="isMobile() ? 'over' : 'side'"
     [opened]="isMobile() ? mobileNavOpen() : true"
-    (backdropClick)="closeMobileNav()"
-    (keydown.escape)="closeMobileNav()">
-    <div class="sidebar-brand">
-      <nexa-brand-logo [width]="128" />
-      <span>{{ 'shell.platformLabel' | translate }}</span>
-    </div>
+    [attr.role]="isMobile() ? 'dialog' : 'navigation'"
+    [attr.aria-modal]="isMobile() ? 'true' : null"
+    [attr.aria-label]="'shell.navigationLabel' | translate"
+    (openedChange)="handleMobileNavigationState($event)"
+    (backdropClick)="closeMobileNav()">
+    <div class="sidebar-layout">
+      <header class="sidebar-header">
+        <div class="sidebar-brand">
+          <nexa-brand-logo [width]="104" />
+          <span>{{ 'shell.platformLabel' | translate }}</span>
+        </div>
 
-    <section class="workspace-card">
-      <strong>{{ currentUser()?.workspaceSlug }}</strong>
-      @if (availableAreas().length > 1) {
-        <label class="workspace-area-label" for="workspace-area">{{ 'shell.areaSelector' | translate }}</label>
-        <select id="workspace-area" [value]="selectedArea()?.id ?? ''" [attr.aria-label]="'shell.areaSelector' | translate" (change)="switchArea($any($event.target).value)">
-          @for (entry of availableAreas(); track entry.id) { <option [value]="entry.id">{{ entry.labelKey | translate }}</option> }
-        </select>
-      } @else if (selectedArea(); as entry) {
-        <span class="workspace-area">{{ entry.labelKey | translate }}</span>
-      }
-    </section>
+        <button
+          #mobileNavigationClose
+          class="sidebar-close"
+          type="button"
+          [attr.aria-label]="'shell.closeNavigation' | translate"
+          (click)="closeMobileNav()">
+          <nexa-icon name="cancel" />
+        </button>
+      </header>
 
-    <nav [attr.aria-label]="'shell.navigationLabel' | translate">
-      @for (group of navigationGroups(); track group.id) {
-        <section class="navigation-group" [attr.aria-labelledby]="'navigation-group-' + group.id">
-          <h2 [id]="'navigation-group-' + group.id"><nexa-icon [name]="group.icon" />{{ group.labelKey | translate }}</h2>
-          <mat-nav-list>
-            @for (item of group.items; track item.path) {
-              <a mat-list-item [routerLink]="item.path" routerLinkActive="active" (click)="closeMobileNav()">
-                <nexa-icon matListItemIcon [name]="item.icon" />
-                <span matListItemTitle>{{ item.labelKey | translate }}</span>
-              </a>
+      <section class="workspace-card" [attr.aria-label]="'shell.areaSelector' | translate">
+        <span class="workspace-card-label">{{ 'shell.internalWorkspace' | translate }}</span>
+        <div class="workspace-identity">
+          <nexa-icon name="business" />
+          <strong>{{ currentUser()?.workspaceSlug }}</strong>
+        </div>
+        @if (workspaceContext()?.tenant; as tenant) {
+          <small>{{ tenant }}</small>
+        }
+
+        @if (availableAreas().length > 1) {
+          <label class="workspace-area-label" for="workspace-area">{{ 'shell.areaSelector' | translate }}</label>
+          <select
+            id="workspace-area"
+            [attr.aria-label]="'shell.areaSelector' | translate"
+            [value]="selectedArea()?.id ?? ''"
+            (change)="switchArea($any($event.target).value)">
+            @for (entry of availableAreas(); track entry.id) {
+              <option [value]="entry.id">{{ entry.labelKey | translate }}</option>
             }
-          </mat-nav-list>
-        </section>
+          </select>
+        } @else if (selectedArea(); as entry) {
+          <span class="workspace-area">{{ entry.labelKey | translate }}</span>
+        }
+      </section>
+
+      <nav class="platform-navigation" [attr.aria-label]="'shell.navigationLabel' | translate">
+        @for (group of navigationGroups(); track group.id) {
+          <section class="navigation-group" [attr.aria-labelledby]="'navigation-group-' + group.id">
+            <h2 [id]="'navigation-group-' + group.id">
+              <nexa-icon [name]="group.icon" />
+              <span>{{ group.labelKey | translate }}</span>
+            </h2>
+            <mat-nav-list>
+              @for (item of group.items; track item.path) {
+                <a
+                  mat-list-item
+                  [routerLink]="item.path"
+                  routerLinkActive="active"
+                  (click)="closeMobileNav(false)">
+                  <nexa-icon matListItemIcon [name]="item.icon" />
+                  <span matListItemTitle>{{ item.labelKey | translate }}</span>
+                </a>
+              }
+            </mat-nav-list>
+          </section>
+        }
+      </nav>
+
+      @if (displayName()) {
+        <footer class="sidebar-footer">
+          <span class="user-avatar" aria-hidden="true">{{ displayInitial() }}</span>
+          <span>
+            <strong>{{ displayName() }}</strong>
+            <small>{{ 'shell.platformLabel' | translate }}</small>
+          </span>
+        </footer>
       }
-    </nav>
+    </div>
   </mat-sidenav>
 
   <mat-sidenav-content>
-    <mat-toolbar class="platform-toolbar">
-      <button class="mobile-menu-button" mat-icon-button type="button" [attr.aria-label]="'shell.openNavigation' | translate" [attr.aria-expanded]="mobileNavOpen()" (click)="toggleMobileNavigation()">
-        <nexa-icon name="menu" />
-      </button>
-      <div class="toolbar-title">
-        <span class="eyebrow">{{ 'shell.internalWorkspace' | translate }}</span>
-        <strong>{{ 'shell.platformName' | translate }}</strong>
+    <mat-toolbar class="platform-toolbar" [attr.aria-label]="'shell.platformName' | translate">
+      <div class="toolbar-leading">
+        <button
+          class="mobile-menu-button"
+          mat-icon-button
+          type="button"
+          [attr.aria-label]="'shell.openNavigation' | translate"
+          [attr.aria-expanded]="mobileNavOpen()"
+          (click)="toggleMobileNavigation()">
+          <nexa-icon name="menu" />
+        </button>
+
+        <div class="toolbar-title">
+          <span class="eyebrow">{{ 'shell.internalWorkspace' | translate }}</span>
+          <strong>{{ 'shell.platformName' | translate }}</strong>
+        </div>
       </div>
+
       <span class="toolbar-spacer"></span>
-      @if (displayName()) {
-        <span class="user-name">{{ displayName() }}</span>
-      }
-      <nexa-language-switcher />
-      <div class="notification-center">
-        <button mat-icon-button type="button" [attr.aria-label]="'shell.notifications.open' | translate" [attr.aria-expanded]="notificationsOpen()" (click)="toggleNotifications()"><nexa-icon name="notifications" />@if (notifications.unreadCount()) { <span class="notification-count">{{ notifications.unreadCount() }}</span> }</button>
-        @if (notificationsOpen()) { <section class="notification-panel" role="region" [attr.aria-label]="'shell.notifications.title' | translate"><header><strong>{{ 'shell.notifications.title' | translate }}</strong><button mat-button type="button" (click)="markNotificationsRead()">{{ 'shell.notifications.markRead' | translate }}</button></header>@for (notification of notifications.notifications(); track notification.id) { <article [class.unread]="!notification.read" (click)="notifications.markRead(notification.id)"><strong>{{ notification.title }}</strong><span>{{ notification.message }}</span>@if (notification.deepLink) { <a [href]="notification.deepLink" (click)="$event.stopPropagation()">{{ 'shell.notifications.open' | translate }}</a> }<small>{{ notification.createdAt }}</small></article> } @if (!notifications.notifications().length) { <p>{{ 'shell.notifications.empty' | translate }}</p> }</section> }
+
+      <div class="toolbar-actions">
+        @if (displayName()) {
+          <span class="toolbar-user-name" [title]="displayName()">{{ displayName() }}</span>
+        }
+
+        <nexa-language-switcher />
+
+        <div class="notification-center">
+          <button
+            class="toolbar-icon-button"
+            mat-icon-button
+            type="button"
+            aria-haspopup="true"
+            aria-controls="platform-notification-panel"
+            [attr.aria-label]="'shell.notifications.open' | translate"
+            [attr.aria-expanded]="notificationsOpen()"
+            (click)="toggleNotifications()">
+            <nexa-icon name="notifications" />
+            @if (notifications.unreadCount()) {
+              <span class="notification-count" aria-hidden="true">{{ notifications.unreadCount() }}</span>
+            }
+          </button>
+
+          @if (notificationsOpen()) {
+            <section
+              #notificationPanel
+              id="platform-notification-panel"
+              class="notification-panel"
+              role="region"
+              tabindex="-1"
+              aria-labelledby="platform-notification-title">
+              <header>
+                <div>
+                  <span class="panel-eyebrow">{{ 'shell.platformLabel' | translate }}</span>
+                  <strong id="platform-notification-title">{{ 'shell.notifications.title' | translate }}</strong>
+                </div>
+                <button mat-button type="button" (click)="markNotificationsRead()">
+                  {{ 'shell.notifications.markRead' | translate }}
+                </button>
+              </header>
+
+              <div class="notification-list">
+                @for (notification of notifications.notifications(); track notification.id) {
+                  <article [class.unread]="!notification.read">
+                    <button
+                      class="notification-item"
+                      type="button"
+                      (click)="notifications.markRead(notification.id)">
+                      <span class="notification-state" aria-hidden="true"></span>
+                      <span class="notification-copy">
+                        <strong>{{ notification.title }}</strong>
+                        <span>{{ notification.message }}</span>
+                        <small>{{ notification.createdAt }}</small>
+                      </span>
+                    </button>
+                    @if (notification.deepLink) {
+                      <a [href]="notification.deepLink" (click)="closeNotifications(false)">
+                        {{ 'shell.notifications.open' | translate }}
+                      </a>
+                    }
+                  </article>
+                } @empty {
+                  <p class="notification-empty" role="status">{{ 'shell.notifications.empty' | translate }}</p>
+                }
+              </div>
+            </section>
+          }
+        </div>
+
+        <button
+          class="toolbar-icon-button sign-out-button"
+          mat-icon-button
+          type="button"
+          [attr.aria-label]="'auth.signOut' | translate"
+          (click)="signOut()">
+          <nexa-icon name="logout" />
+        </button>
       </div>
-      <button mat-icon-button type="button" [attr.aria-label]="'auth.signOut' | translate" (click)="signOut()">
-        <nexa-icon name="logout" />
-      </button>
     </mat-toolbar>
 
     <main id="main-content" class="platform-content" tabindex="-1">

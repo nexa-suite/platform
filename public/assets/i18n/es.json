@@ -8,6 +8,7 @@
     "skipToContent": "Saltar al contenido",
     "navigationLabel": "Navegación de operaciones internas",
     "openNavigation": "Abrir navegación de operaciones",
+    "closeNavigation": "Cerrar navegación de operaciones",
     "areaSelector": "Cambiar área de trabajo interna",
     "roles": { "TENANT_ADMIN": "Administración del tenant", "COMPANY_OWNER": "Propietario de la compañía", "SALES": "Ventas", "WAREHOUSE": "Almacén", "LOGISTICS": "Logística" },
     "groups": { "administration": "Administración", "commercial": "Comercial", "catalog": "Catálogo", "warehouse": "Almacén", "logistics": "Logística", "finance": "Finanzas" },

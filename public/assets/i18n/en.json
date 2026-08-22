@@ -8,6 +8,7 @@
     "skipToContent": "Skip to content",
     "navigationLabel": "Internal operations navigation",
     "openNavigation": "Open operations navigation",
+    "closeNavigation": "Close operations navigation",
     "areaSelector": "Switch internal work area",
     "roles": { "TENANT_ADMIN": "Tenant administration", "COMPANY_OWNER": "Company owner", "SALES": "Sales", "WAREHOUSE": "Warehouse", "LOGISTICS": "Logistics" },
     "groups": { "administration": "Administration", "commercial": "Commercial", "catalog": "Catalog", "warehouse": "Warehouse", "logistics": "Logistics", "finance": "Finance" },
