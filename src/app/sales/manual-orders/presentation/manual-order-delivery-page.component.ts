@@ -104,7 +104,7 @@ export class ManualOrderDeliveryPageComponent {
         streetName: value.streetName.trim() || null, streetNumber: value.streetNumber.trim() || null, interior: value.interior.trim() || null,
         postalCode: value.postalCode.trim() || null, receivingInstructions: value.receivingInstructions.trim() || null,
         receivingHours: value.receivingHours.trim() || null, latitude: value.latitude, longitude: value.longitude, source: 'MANUAL'
-      }
+      }, defaultAddress: false
     });
     const save = (addressId: string) => this.facade.saveDelivery(this.draftId, { addressId, routeProvider: value.routeProvider.trim() || null, deliveryNotes: value.deliveryNotes.trim() || null });
     const operation = address$ ? address$.pipe(switchMap((address) => save(address.id))) : save(value.addressId);

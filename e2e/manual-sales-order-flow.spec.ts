@@ -32,7 +32,7 @@ test('Sales completes the four-step manual order flow with server route preview'
 
   const addressSelect = page.locator('mat-select[formcontrolname="addressId"]');
   await addressSelect.click();
-  const addressOption = page.getByRole('listbox', { name: 'Dirección guardada' }).getByRole('option').filter({ hasText: /Av\. Sucre 1992/i });
+  const addressOption = page.getByRole('listbox', { name: 'Dirección guardada' }).getByRole('option').filter({ hasText: /Av\. Sucre 1992/i }).first();
   if (await addressOption.count()) {
     await addressOption.click();
   } else {
@@ -45,7 +45,9 @@ test('Sales completes the four-step manual order flow with server route preview'
     await page.getByRole('textbox', { name: /referencia/i }).fill('Puerta principal');
     await page.locator('[formcontrolname="departmentCode"]').fill('15');
     await page.locator('[formcontrolname="provinceCode"]').fill('1501');
-    await page.locator('[formcontrolname="districtCode"]').fill('150121');
+    // The pinned API v0.9.0 fixture only contains Lima (150101). V82 seeds
+    // Pueblo Libre (150121) and the normal path selects that saved address.
+    await page.locator('[formcontrolname="districtCode"]').fill('150101');
     await page.locator('[formcontrolname="postalCode"]').fill('150121');
     await page.locator('[formcontrolname="latitude"]').fill('-12.0725');
     await page.locator('[formcontrolname="longitude"]').fill('-77.0685');
