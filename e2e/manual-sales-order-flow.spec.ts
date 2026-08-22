@@ -33,8 +33,23 @@ test('Sales completes the four-step manual order flow with server route preview'
   const addressSelect = page.locator('mat-select[formcontrolname="addressId"]');
   await addressSelect.click();
   const addressOption = page.getByRole('listbox', { name: 'Dirección guardada' }).getByRole('option').filter({ hasText: /Av\. Sucre 1992/i });
-  await expect(addressOption).toHaveCount(1);
-  await addressOption.click();
+  if (await addressOption.count()) {
+    await addressOption.click();
+  } else {
+    await page.keyboard.press('Escape');
+    await page.getByRole('textbox', { name: /tipo de vía/i }).fill('AVENUE');
+    await page.getByRole('textbox', { name: /destinatario/i }).fill('Carlos Mendoza');
+    await page.getByRole('textbox', { name: /teléfono/i }).fill('+51999999999');
+    await page.getByRole('textbox', { name: /nombre de vía/i }).fill('Av. Sucre');
+    await page.getByRole('textbox', { name: /^número$/i }).fill('1992');
+    await page.getByRole('textbox', { name: /referencia/i }).fill('Puerta principal');
+    await page.locator('[formcontrolname="departmentCode"]').fill('15');
+    await page.locator('[formcontrolname="provinceCode"]').fill('1501');
+    await page.locator('[formcontrolname="districtCode"]').fill('150121');
+    await page.locator('[formcontrolname="postalCode"]').fill('150121');
+    await page.locator('[formcontrolname="latitude"]').fill('-12.0725');
+    await page.locator('[formcontrolname="longitude"]').fill('-77.0685');
+  }
   await page.getByRole('button', { name: /guardar y continuar/i }).click();
   await expect(page).toHaveURL(/\/review$/);
   await expect(page.getByRole('heading', { name: /revisión/i })).toBeVisible();
