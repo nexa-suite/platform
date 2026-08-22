@@ -5,6 +5,7 @@
 @use './styles/accessibility';
 @use './styles/platform-shell';
 @use './styles/application-foundations';
+@use './styles/security-foundations';
 
 * { box-sizing: border-box; }
 html, body { min-height: 100%; margin: 0; background: var(--nexa-surface-page); color: var(--nexa-color-text-primary); font-family: var(--nexa-font-family-body); -webkit-font-smoothing: antialiased; }
