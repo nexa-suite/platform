@@ -31,11 +31,11 @@ jobs:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           repository: nexa-suite/api
-          ref: 9bae42448de276ddf2984b1b5026d484b63feca9 # API v0.9.0 stable compatibility baseline
+          ref: c702f1f019ff5fad1e9aefe61ae3c98df3366959 # API V1 functional convergence baseline
           path: api
       - name: Verify pinned API compatibility baseline
         working-directory: api
-        run: test "$(git rev-parse HEAD)" = "9bae42448de276ddf2984b1b5026d484b63feca9"
+        run: test "$(git rev-parse HEAD)" = "c702f1f019ff5fad1e9aefe61ae3c98df3366959"
       - uses: actions/setup-java@c5195efecf7bdfc987ee8bae7a71cb8b11521c00 # v4.7.1
         with:
           distribution: temurin

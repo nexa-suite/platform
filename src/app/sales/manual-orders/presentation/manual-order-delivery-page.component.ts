@@ -9,11 +9,12 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { PageHeaderComponent } from '../../../shared/presentation/components/page-header/page-header.component';
 import { ManualOrderWizardFacade } from '../application/manual-order-wizard.facade';
+import { ManualOrderRoutePreviewComponent } from './manual-order-route-preview.component';
 
 @Component({
   selector: 'nexa-manual-order-delivery-page',
   standalone: true,
-  imports: [MatButtonModule, MatCardModule, MatFormFieldModule, MatInputModule, MatSelectModule, PageHeaderComponent, ReactiveFormsModule, RouterLink],
+  imports: [ManualOrderRoutePreviewComponent, MatButtonModule, MatCardModule, MatFormFieldModule, MatInputModule, MatSelectModule, PageHeaderComponent, ReactiveFormsModule, RouterLink],
   template: `
     <section class="page">
       <a mat-button [routerLink]="itemsPath()">← Ítems</a>
@@ -45,13 +46,16 @@ import { ManualOrderWizardFacade } from '../application/manual-order-wizard.faca
             <mat-form-field appearance="outline" class="wide"><mat-label>Instrucciones de entrega</mat-label><textarea matInput rows="3" formControlName="deliveryNotes"></textarea></mat-form-field>
           </form>
           <p class="server-note">Al guardar, el servidor calcula la disponibilidad de todas las líneas, selecciona un almacén operativo y genera el snapshot de ruta.</p>
+          @if (facade.state().draft?.delivery; as delivery) {
+            <nexa-manual-order-route-preview [routeSnapshot]="delivery.routeSnapshot" [warehouseSnapshot]="delivery.warehouseSnapshot" [addressSnapshot]="delivery.addressSnapshot" [routeProvider]="delivery.routeProvider" />
+          }
           @if (facade.state().message; as message) { <p role="alert">{{ message }}</p> }
         </mat-card-content>
         <mat-card-actions><button mat-flat-button color="primary" type="button" [disabled]="saving()" (click)="save()">{{ saving() ? 'Validando…' : 'Guardar y continuar' }}</button></mat-card-actions>
       </mat-card>
     </section>
   `,
-  styles: [`.page{display:grid;gap:16px;max-width:1100px;margin:auto;padding:32px}.steps{display:flex;gap:8px}.steps a{padding:8px 12px;border:1px solid #dbe3ee;border-radius:6px;text-decoration:none}.steps .active{background:#ecfdf5;border-color:#0f766e}.form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.wide{grid-column:1/-1}.server-note{padding:12px;background:#f8fafc;border-radius:8px}.mat-mdc-card-actions{justify-content:flex-end;padding:16px}`],
+  styleUrl: './manual-order-wizard.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ManualOrderDeliveryPageComponent {
@@ -100,7 +104,7 @@ export class ManualOrderDeliveryPageComponent {
         streetName: value.streetName.trim() || null, streetNumber: value.streetNumber.trim() || null, interior: value.interior.trim() || null,
         postalCode: value.postalCode.trim() || null, receivingInstructions: value.receivingInstructions.trim() || null,
         receivingHours: value.receivingHours.trim() || null, latitude: value.latitude, longitude: value.longitude, source: 'MANUAL'
-      }
+      }, defaultAddress: false
     });
     const save = (addressId: string) => this.facade.saveDelivery(this.draftId, { addressId, routeProvider: value.routeProvider.trim() || null, deliveryNotes: value.deliveryNotes.trim() || null });
     const operation = address$ ? address$.pipe(switchMap((address) => save(address.id))) : save(value.addressId);

@@ -17,11 +17,13 @@ export class LanguageService {
   constructor() {
     this.translate.setFallbackLang('en');
     this.translate.use(this.current());
+    this.updateDocumentLanguage(this.current());
   }
 
   setLanguage(language: SupportedLanguage): void {
     this.current.set(language);
     this.translate.use(language);
+    this.updateDocumentLanguage(language);
     this.writeStoredLanguage(language);
   }
 
@@ -49,5 +51,9 @@ export class LanguageService {
     } catch {
       // Storage is optional; language switching remains functional without it.
     }
+  }
+
+  private updateDocumentLanguage(language: SupportedLanguage): void {
+    this.document.documentElement.lang = language;
   }
 }

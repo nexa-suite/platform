@@ -1,0 +1,215 @@
+.page {
+  display: grid;
+  gap: var(--nexa-space-6);
+  max-width: var(--nexa-layout-content-max);
+  margin: 0 auto;
+  padding: var(--nexa-layout-page-gutter);
+}
+
+.page > a[mat-button] {
+  justify-self: start;
+}
+
+.steps {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--nexa-space-2);
+  margin: 0;
+  padding: var(--nexa-space-2);
+  border: 1px solid var(--nexa-color-border-structural);
+  border-radius: var(--nexa-radius-panel);
+  background: var(--nexa-surface-card);
+}
+
+.steps a {
+  display: grid;
+  min-height: var(--nexa-control-height-lg);
+  place-items: center;
+  padding: var(--nexa-space-2) var(--nexa-space-3);
+  border: 1px solid transparent;
+  border-radius: var(--nexa-radius-control);
+  color: var(--nexa-color-text-secondary);
+  font-size: var(--nexa-font-size-sm);
+  font-weight: var(--nexa-font-weight-semibold);
+  text-align: center;
+  text-decoration: none;
+  transition: background var(--nexa-motion-standard), border-color var(--nexa-motion-standard), color var(--nexa-motion-standard);
+}
+
+.steps a:hover,
+.steps a:focus-visible {
+  border-color: var(--nexa-color-border-interactive);
+  color: var(--nexa-color-text-primary);
+}
+
+.steps a.active {
+  border-color: var(--nexa-color-role-sales-border);
+  background: var(--nexa-color-role-sales-surface);
+  color: var(--nexa-color-role-sales-text);
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--nexa-space-4);
+}
+
+.wide {
+  grid-column: 1 / -1;
+}
+
+.search,
+.line-form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--nexa-space-3);
+}
+
+.search mat-form-field {
+  min-width: min(100%, 320px);
+  flex: 1 1 280px;
+}
+
+.catalog-preview,
+.client-summary,
+.server-summary,
+.address-list,
+.server-note {
+  display: grid;
+  gap: var(--nexa-space-2);
+  margin-top: var(--nexa-space-4);
+  padding: var(--nexa-space-4);
+  border: 1px solid var(--nexa-color-border-structural);
+  border-radius: var(--nexa-radius-card);
+  background: var(--nexa-surface-inset);
+}
+
+.server-summary {
+  border-color: var(--nexa-color-success-border);
+  background: var(--nexa-surface-success);
+}
+
+.catalog-preview {
+  display: flex;
+  align-items: center;
+}
+
+.catalog-preview img,
+.image-placeholder {
+  width: 72px;
+  height: 72px;
+  flex: 0 0 72px;
+  object-fit: cover;
+  border-radius: var(--nexa-radius-md);
+  background: var(--nexa-surface-inset);
+}
+
+.image-placeholder {
+  display: grid;
+  place-items: center;
+  color: var(--nexa-color-text-secondary);
+  font-size: var(--nexa-font-size-xs);
+}
+
+.catalog-preview > div,
+.client-summary,
+.server-summary,
+.address-list {
+  color: var(--nexa-color-text-secondary);
+}
+
+.catalog-preview strong,
+.client-summary strong,
+.address-list strong {
+  color: var(--nexa-color-text-primary);
+}
+
+.lines {
+  display: grid;
+  gap: var(--nexa-space-2);
+  margin-top: var(--nexa-space-5);
+}
+
+.line,
+.server-line {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--nexa-space-4);
+  padding: var(--nexa-space-3) 0;
+  border-bottom: 1px solid var(--nexa-color-border-structural);
+}
+
+.server-line {
+  color: var(--nexa-color-text-secondary);
+}
+
+.readiness {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--nexa-space-2);
+}
+
+.readiness span,
+.status-pill {
+  padding: var(--nexa-space-2) var(--nexa-space-3);
+  border: 1px solid var(--nexa-color-border-structural);
+  border-radius: var(--nexa-radius-pill);
+  background: var(--nexa-surface-inset);
+  color: var(--nexa-color-text-secondary);
+  font-size: var(--nexa-font-size-sm);
+  font-weight: var(--nexa-font-weight-semibold);
+}
+
+.warning {
+  padding: var(--nexa-space-3);
+  border: 1px solid var(--nexa-color-warning-border);
+  border-radius: var(--nexa-radius-md);
+  background: var(--nexa-surface-warning);
+  color: var(--nexa-color-warning-text);
+}
+
+.total {
+  font-weight: var(--nexa-font-weight-bold);
+  text-align: right;
+}
+
+.mat-mdc-card-actions {
+  justify-content: space-between;
+  gap: var(--nexa-space-3);
+  padding: var(--nexa-space-4);
+}
+
+@media (max-width: 720px) {
+  .steps {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .wide {
+    grid-column: auto;
+  }
+
+  .line,
+  .server-line {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+}
+
+@media (max-width: 480px) {
+  .page {
+    padding: var(--nexa-space-4);
+  }
+
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .steps a {
+    transition: none;
+  }
+}
