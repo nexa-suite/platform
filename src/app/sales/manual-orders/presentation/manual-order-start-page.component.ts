@@ -19,7 +19,7 @@ import { ManualOrderWizardFacade } from '../application/manual-order-wizard.faca
       @if (message(); as value) { <p role="alert">{{ value }}</p> }
     </section>
   `,
-  styles: [`.page{display:grid;gap:16px;max-width:900px;margin:auto;padding:32px}`],
+  styleUrl: './manual-order-wizard.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ManualOrderStartPageComponent {
