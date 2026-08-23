@@ -2,9 +2,17 @@
   <section class="auth-pattern">
     <aside class="auth-brand-plane">
       <nexa-brand-logo variant="inverse" [width]="150" accessibleLabel="Nexa" />
-      <p class="brand-copy">{{ 'auth.signIn.heroDescription' | translate }}</p>
-      <div class="auth-grid-mark" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
-      <small>{{ 'auth.signIn.heroFooter' | translate }}</small>
+      <div class="auth-brand-message">
+        <h2>{{ 'auth.signIn.heroTitle' | translate }}</h2>
+        <p class="brand-copy">{{ 'auth.signIn.heroDescription' | translate }}</p>
+        <ul class="auth-capabilities" aria-label="Nexa Platform">
+          <li>{{ 'auth.signIn.heroPills.catalog' | translate }}</li>
+          <li>{{ 'auth.signIn.heroPills.stock' | translate }}</li>
+          <li>{{ 'auth.signIn.heroPills.orders' | translate }}</li>
+          <li>{{ 'auth.signIn.heroPills.delivery' | translate }}</li>
+        </ul>
+      </div>
+      <small class="auth-brand-footer">{{ 'auth.signIn.heroFooter' | translate }}</small>
     </aside>
 
     <section class="auth-form-panel">

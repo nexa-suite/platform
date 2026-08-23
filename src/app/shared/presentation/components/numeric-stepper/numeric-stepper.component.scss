@@ -1,0 +1,10 @@
+:host { display: block; }
+.stepper { display: flex; min-height: var(--nexa-target-size-min); align-items: center; justify-content: space-between; gap: var(--nexa-space-3); }
+.stepper-label { color: var(--nexa-color-text-primary); font-size: var(--nexa-font-size-sm); font-weight: var(--nexa-font-weight-semibold); }
+.stepper-control { display: inline-flex; align-items: center; gap: var(--nexa-space-1); padding: var(--nexa-space-1); border: 1px solid var(--nexa-color-border-interactive); border-radius: var(--nexa-radius-control); background: var(--nexa-surface-card); }
+button { display: grid; width: var(--nexa-control-height-sm, 2rem); height: var(--nexa-control-height-sm, 2rem); place-items: center; border: 0; border-radius: var(--nexa-radius-control); color: var(--nexa-color-primary-700); background: transparent; font-size: var(--nexa-font-size-md); font-weight: var(--nexa-font-weight-bold); cursor: pointer; }
+button:hover:not(:disabled) { background: var(--nexa-color-primary-50); }
+button:focus-visible { outline: none; box-shadow: var(--nexa-focus-ring); }
+button:disabled { color: var(--nexa-color-text-muted); cursor: not-allowed; }
+output { display: grid; min-width: 2rem; place-items: center; color: var(--nexa-color-text-primary); font-family: var(--nexa-font-family-mono); font-size: var(--nexa-font-size-md); font-weight: var(--nexa-font-weight-bold); }
+.disabled { color: var(--nexa-color-text-muted); }

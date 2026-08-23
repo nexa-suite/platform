@@ -1,15 +1,11 @@
 :host { display: block; }
-.metric-card { display: grid; gap: var(--nexa-space-3); min-height: 9rem; padding: var(--nexa-space-5); border: 1px solid var(--nexa-color-border-default); border-radius: var(--nexa-radius-card); background: var(--nexa-surface-card); box-shadow: var(--nexa-shadow-xs); transition: border-color var(--nexa-motion-standard), box-shadow var(--nexa-motion-standard), transform var(--nexa-motion-standard); }
+.metric-card { display: grid; gap: var(--nexa-space-2); min-height: 7.5rem; padding: var(--nexa-space-5); border: 1px solid var(--nexa-color-border-default); border-radius: var(--nexa-radius-card); background: var(--nexa-surface-card); transition: border-color var(--nexa-motion-standard), box-shadow var(--nexa-motion-standard), transform var(--nexa-motion-standard); }
 .metric-card:hover { border-color: var(--nexa-color-primary-200); box-shadow: var(--nexa-shadow-sm); transform: translateY(-1px); }
 .metric-heading { display: flex; align-items: center; justify-content: space-between; gap: var(--nexa-space-3); color: var(--nexa-color-text-secondary); font-size: var(--nexa-font-size-sm); font-weight: var(--nexa-font-weight-semibold); }
-.icon { color: var(--nexa-tone-color, var(--nexa-color-primary-600)); }
-strong { color: var(--nexa-color-text-primary); font-family: var(--nexa-font-family-display); font-size: var(--nexa-font-size-3xl); }
+.metric-mark { display: grid; width: 2rem; height: 2rem; place-items: center; border-radius: var(--nexa-radius-control); color: var(--nexa-tone-color, var(--nexa-color-primary-600)); background: color-mix(in oklab, var(--nexa-tone-color, var(--nexa-color-primary-600)) 10%, white); }
+strong { color: var(--nexa-color-text-primary); font-family: var(--nexa-font-family-display); font-size: var(--nexa-font-size-2xl); }
 p { margin: 0; color: var(--nexa-color-text-secondary); font-size: var(--nexa-font-size-sm); }
-:host.tone-info { --nexa-tone-color: var(--nexa-color-info-600); }
-:host.tone-success { --nexa-tone-color: var(--nexa-color-success-600); }
-:host.tone-warning { --nexa-tone-color: var(--nexa-color-warning-700); }
+:host.tone-info { --nexa-tone-color: var(--nexa-color-primary-600); }
+:host.tone-success { --nexa-tone-color: var(--nexa-color-success-700); }
+:host.tone-warning { --nexa-tone-color: var(--nexa-color-warning-600); }
 :host.tone-danger { --nexa-tone-color: var(--nexa-color-danger-600); }
-:host.tone-info .metric-card { border-top: 3px solid var(--nexa-color-info-600); }
-:host.tone-success .metric-card { border-top: 3px solid var(--nexa-color-success-600); }
-:host.tone-warning .metric-card { border-top: 3px solid var(--nexa-color-warning-700); }
-:host.tone-danger .metric-card { border-top: 3px solid var(--nexa-color-danger-600); }
