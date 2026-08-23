@@ -1,8 +1,8 @@
 import { TestBed } from '@angular/core/testing';
 import { of, throwError } from 'rxjs';
-import { SalesOperationsApiService } from '../../infrastructure/http/sales-operations-api.service';
-import { DEFAULT_PURCHASE_REQUEST_FILTERS } from '../../purchase-requests/domain/purchase-request.models';
-import { DEFAULT_SALES_ORDER_FILTERS } from '../../sales-orders/domain/sales-order.models';
+import { SalesCommitmentApiService } from '../../../sales-commitment/infrastructure/http/sales-commitment-api.service';
+import { DEFAULT_PURCHASE_REQUEST_FILTERS } from '../../../sales-commitment/purchase-requests/domain/purchase-request.models';
+import { DEFAULT_SALES_ORDER_FILTERS } from '../../../sales-commitment/sales-orders/domain/sales-order.models';
 import { SalesDashboardFacade } from './sales-dashboard.facade';
 
 const page = { items: [{ id: 'PR-1', code: 'PR-1', status: 'SUBMITTED', clientAccountId: 'C-1', buyerMembershipId: 'B-1', priority: 'NORMAL', requestedDeliveryDate: null, lineCount: 1, deliveryProfileSnapshot: null, paymentOption: null, comment: null, reviewNote: null, lines: [], version: 0 }], page: 0, size: 5, totalItems: 1, totalPages: 1, sort: { field: 'createdAt', direction: 'desc' as const } };
@@ -11,7 +11,7 @@ const orders = { items: [{ id: 'SO-1', number: 'SO-1', status: 'PENDING', purcha
 describe('SalesDashboardFacade', () => {
   it('renders server-backed metrics and recent resources', () => {
     const api = { purchaseRequests: vi.fn(() => of(page)), salesOrders: vi.fn(() => of(orders)) };
-    TestBed.configureTestingModule({ providers: [SalesDashboardFacade, { provide: SalesOperationsApiService, useValue: api }] });
+    TestBed.configureTestingModule({ providers: [SalesDashboardFacade, { provide: SalesCommitmentApiService, useValue: api }] });
     const facade = TestBed.inject(SalesDashboardFacade); facade.load();
     expect(facade.state().status).toBe('success');
     expect(facade.state().metrics.submittedPurchaseRequests).toBe(1);
@@ -22,7 +22,7 @@ describe('SalesDashboardFacade', () => {
 
   it('keeps a recoverable error state and retries', () => {
     const api = { purchaseRequests: vi.fn(() => throwError(() => new Error('offline'))), salesOrders: vi.fn(() => throwError(() => new Error('offline'))) };
-    TestBed.configureTestingModule({ providers: [SalesDashboardFacade, { provide: SalesOperationsApiService, useValue: api }] });
+    TestBed.configureTestingModule({ providers: [SalesDashboardFacade, { provide: SalesCommitmentApiService, useValue: api }] });
     const facade = TestBed.inject(SalesDashboardFacade); facade.load();
     expect(facade.state().status).toBe('error');
     facade.retry(); expect(api.purchaseRequests).toHaveBeenCalledTimes(8);

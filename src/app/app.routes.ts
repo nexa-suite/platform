@@ -6,13 +6,15 @@ import { platformSurfaceGuard } from './core/security/platform-surface.guard';
 import { PlatformShellComponent } from './core/layout/platform-shell/platform-shell.component';
 import { permissionGuard } from './core/security/permission.guard';
 import { platformLandingForUser, PLATFORM_PERMISSIONS } from './core/security/platform-permissions';
-import { SalesOperationsApiService } from './sales/infrastructure/http/sales-operations-api.service';
-import { ClientAccountsFacade } from './sales/client-accounts/application/client-accounts.facade';
-import { PurchaseRequestOperationsFacade } from './sales/purchase-requests/application/purchase-request-operations.facade';
-import { ManualOrderWizardFacade } from './sales/manual-orders/application/manual-order-wizard.facade';
-import { manualOrderStepGuard } from './sales/manual-orders/presentation/manual-order-step.guard';
-import { createManualOrderDraftGuard } from './sales/manual-orders/presentation/create-manual-order-draft.guard';
-import { SalesOrdersFacade } from './sales/sales-orders/application/sales-orders.facade';
+import { SalesCommitmentApiService } from './sales-commitment/infrastructure/http/sales-commitment-api.service';
+import { ClientAccountsFacade } from './customer-buyer-relationships/client-accounts/application/client-accounts.facade';
+import { PurchaseRequestOperationsFacade } from './sales-commitment/purchase-requests/application/purchase-request-operations.facade';
+import { ManualOrderWizardFacade } from './sales-commitment/manual-orders/application/manual-order-wizard.facade';
+import { manualOrderStepGuard } from './sales-commitment/manual-orders/presentation/manual-order-step.guard';
+import { createManualOrderDraftGuard } from './sales-commitment/manual-orders/presentation/create-manual-order-draft.guard';
+import { SalesOrdersFacade } from './sales-commitment/sales-orders/application/sales-orders.facade';
+import { CustomerRelationshipsApiService } from './customer-buyer-relationships/infrastructure/http/customer-relationships-api.service';
+import { SalesCommitmentCustomerGateway } from './sales-commitment/infrastructure/customer/sales-commitment-customer.gateway';
 import { WarehouseOperationsApiService } from './warehouse/infrastructure/warehouse-operations-api.service';
 import { WarehouseOperationsFacade } from './warehouse/application/warehouse-operations.facade';
 import { catalogReadGuard, catalogManageGuard, promotionReadGuard, promotionManageGuard } from './core/security/catalog-access.guard';
@@ -57,7 +59,7 @@ export const routes: Routes = [
       { path: 'ops/overview', loadComponent: () => import('./core/presentation/overview-page/overview-page.component').then((module) => module.OverviewPageComponent), canActivate: [permissionGuard(PLATFORM_PERMISSIONS.fulfillmentRead)] },
       { path: 'ops/executive-overview', loadComponent: () => import('./core/presentation/company-owner-executive-overview-page.component').then((module) => module.CompanyOwnerExecutiveOverviewPageComponent), canActivate: [permissionGuard(PLATFORM_PERMISSIONS.ownerDashboardRead)] },
       { path: 'ops/operations/audit', loadComponent: () => import('./core/audit/presentation/audit-viewer-page.component').then((module) => module.AuditViewerPageComponent), canActivate: [permissionGuard(PLATFORM_PERMISSIONS.tenantRead)] },
-      { path: 'ops/commercial/dashboard', loadComponent: () => import('./sales/dashboard/presentation/sales-dashboard-page.component').then((module) => module.SalesDashboardPageComponent), canActivate: [permissionGuard(PLATFORM_PERMISSIONS.salesRead)], providers: [SalesOperationsApiService] },
+      { path: 'ops/commercial/dashboard', loadComponent: () => import('./sales/dashboard/presentation/sales-dashboard-page.component').then((module) => module.SalesDashboardPageComponent), canActivate: [permissionGuard(PLATFORM_PERMISSIONS.salesRead)], providers: [SalesCommitmentApiService] },
       {
         path: 'ops/operations/dashboard', data: { mode: 'dashboard' },
         loadComponent: () => import('./core/presentation/role-operations-dashboard-page.component').then((module) => module.RoleOperationsDashboardPageComponent),
@@ -106,7 +108,7 @@ export const routes: Routes = [
       {
         path: 'ops/operations/fulfillment-readiness', data: { mode: 'readiness' },
         loadComponent: () => import('./warehouse/presentation/fulfillment-readiness-page.component').then((module) => module.FulfillmentReadinessPageComponent),
-        canActivate: [permissionGuard(PLATFORM_PERMISSIONS.fulfillmentRead)], providers: [WarehouseOperationsApiService, WarehouseOperationsFacade, SalesOperationsApiService]
+        canActivate: [permissionGuard(PLATFORM_PERMISSIONS.fulfillmentRead)], providers: [WarehouseOperationsApiService, WarehouseOperationsFacade, SalesCommitmentApiService]
       },
       { path: 'ops/operations/inventory-overview', loadComponent: () => import('./warehouse/presentation/inventory-overview-page.component').then((module) => module.InventoryOverviewPageComponent), canActivate: [permissionGuard(PLATFORM_PERMISSIONS.warehouseRead)], providers: [WarehouseOperationsApiService, WarehouseOperationsFacade] },
       { path: 'ops/operations/inventory-control', pathMatch: 'full', redirectTo: 'ops/operations/inventory' },
@@ -129,8 +131,8 @@ export const routes: Routes = [
       { path: 'ops/catalog/brands', data: { kind: 'brands' }, loadComponent: () => import('./catalog-management/presentation/catalog-taxonomy-page/catalog-taxonomy-page.component').then((module) => module.CatalogTaxonomyPageComponent), canActivate: [catalogManageGuard] },
       { path: 'ops/catalog/pricing', loadComponent: () => import('./catalog-management/presentation/catalog-pricing-page/catalog-pricing-page.component').then((module) => module.CatalogPricingPageComponent), canActivate: [catalogReadGuard] },
       { path: 'ops/catalog/promotions', loadComponent: () => import('./catalog-management/presentation/catalog-promotions-page/catalog-promotions-page.component').then((module) => module.CatalogPromotionsPageComponent), canActivate: [promotionReadGuard] },
-      { path: 'ops/catalog/promotions/new', loadComponent: () => import('./catalog-management/presentation/catalog-promotion-form-page/catalog-promotion-form-page.component').then((module) => module.CatalogPromotionFormPageComponent), canActivate: [promotionManageGuard], providers: [SalesOperationsApiService] },
-      { path: 'ops/catalog/promotions/:promotionId', loadComponent: () => import('./catalog-management/presentation/catalog-promotion-form-page/catalog-promotion-form-page.component').then((module) => module.CatalogPromotionFormPageComponent), canActivate: [promotionReadGuard], providers: [SalesOperationsApiService] },
+      { path: 'ops/catalog/promotions/new', loadComponent: () => import('./catalog-management/presentation/catalog-promotion-form-page/catalog-promotion-form-page.component').then((module) => module.CatalogPromotionFormPageComponent), canActivate: [promotionManageGuard], providers: [CustomerRelationshipsApiService] },
+      { path: 'ops/catalog/promotions/:promotionId', loadComponent: () => import('./catalog-management/presentation/catalog-promotion-form-page/catalog-promotion-form-page.component').then((module) => module.CatalogPromotionFormPageComponent), canActivate: [promotionReadGuard], providers: [CustomerRelationshipsApiService] },
       { path: 'ops/product-catalog', pathMatch: 'full', redirectTo: 'ops/catalog/products' },
       { path: 'ops/product-catalog/:catalogItemId', loadComponent: () => import('./catalog-management/presentation/product-catalog-detail-page/product-catalog-detail-page.component').then((module) => module.ProductCatalogDetailPageComponent), canActivate: [catalogReadGuard] },
       { path: 'ops/commercial/promotions', pathMatch: 'full', redirectTo: 'ops/catalog/promotions' },
@@ -146,31 +148,31 @@ export const routes: Routes = [
       { path: 'ops/settings', pathMatch: 'full', redirectTo: 'ops/operations/company-administration' },
       {
         path: 'ops/commercial/client-accounts',
-        loadComponent: () => import('./sales/client-accounts/presentation/client-accounts-page.component').then((module) => module.ClientAccountsPageComponent),
-        canActivate: [permissionGuard(PLATFORM_PERMISSIONS.salesRead)], providers: [SalesOperationsApiService, ClientAccountsFacade]
+        loadComponent: () => import('./customer-buyer-relationships/client-accounts/presentation/client-accounts-page.component').then((module) => module.ClientAccountsPageComponent),
+        canActivate: [permissionGuard(PLATFORM_PERMISSIONS.salesRead)], providers: [CustomerRelationshipsApiService, ClientAccountsFacade]
       },
       {
         path: 'ops/commercial/client-accounts/new',
-        loadComponent: () => import('./sales/client-accounts/presentation/client-account-detail-page.component').then((module) => module.ClientAccountDetailPageComponent),
-        canActivate: [permissionGuard(PLATFORM_PERMISSIONS.salesWrite)], providers: [SalesOperationsApiService, ClientAccountsFacade]
+        loadComponent: () => import('./customer-buyer-relationships/client-accounts/presentation/client-account-detail-page.component').then((module) => module.ClientAccountDetailPageComponent),
+        canActivate: [permissionGuard(PLATFORM_PERMISSIONS.salesWrite)], providers: [CustomerRelationshipsApiService, ClientAccountsFacade]
       },
       {
         path: 'ops/commercial/client-accounts/:clientAccountId',
-        loadComponent: () => import('./sales/client-accounts/presentation/client-account-detail-page.component').then((module) => module.ClientAccountDetailPageComponent),
-        canActivate: [permissionGuard(PLATFORM_PERMISSIONS.salesRead)], providers: [SalesOperationsApiService, ClientAccountsFacade]
+        loadComponent: () => import('./customer-buyer-relationships/client-accounts/presentation/client-account-detail-page.component').then((module) => module.ClientAccountDetailPageComponent),
+        canActivate: [permissionGuard(PLATFORM_PERMISSIONS.salesRead)], providers: [CustomerRelationshipsApiService, ClientAccountsFacade]
       },
       { path: 'ops/commercial/request-builder', pathMatch: 'full', redirectTo: 'ops/commercial/purchase-requests' },
       { path: 'ops/commercial/request-builder/:purchaseRequestId', pathMatch: 'full', redirectTo: dynamicRedirect('/ops/commercial/purchase-requests', 'purchaseRequestId') },
       { path: 'ops/commercial/manual-sales-order', pathMatch: 'full', redirectTo: 'ops/commercial/manual-orders/new' },
       {
         path: 'ops/commercial/manual-orders/new',
-        loadComponent: () => import('./sales/manual-orders/presentation/manual-order-start-page.component').then((module) => module.ManualOrderStartPageComponent),
-        canActivate: [permissionGuard(PLATFORM_PERMISSIONS.salesWrite)], providers: [SalesOperationsApiService, ManualOrderWizardFacade]
+        loadComponent: () => import('./sales-commitment/manual-orders/presentation/manual-order-start-page.component').then((module) => module.ManualOrderStartPageComponent),
+        canActivate: [permissionGuard(PLATFORM_PERMISSIONS.salesWrite)], providers: [SalesCommitmentApiService, CustomerRelationshipsApiService, SalesCommitmentCustomerGateway, ManualOrderWizardFacade]
       },
       {
         path: 'ops/commercial/manual-orders/new/client', pathMatch: 'full',
-        loadComponent: () => import('./sales/manual-orders/presentation/manual-order-start-page.component').then((module) => module.ManualOrderStartPageComponent),
-        canActivate: [permissionGuard(PLATFORM_PERMISSIONS.salesWrite), createManualOrderDraftGuard], providers: [SalesOperationsApiService, ManualOrderWizardFacade]
+        loadComponent: () => import('./sales-commitment/manual-orders/presentation/manual-order-start-page.component').then((module) => module.ManualOrderStartPageComponent),
+        canActivate: [permissionGuard(PLATFORM_PERMISSIONS.salesWrite), createManualOrderDraftGuard], providers: [SalesCommitmentApiService, CustomerRelationshipsApiService, SalesCommitmentCustomerGateway, ManualOrderWizardFacade]
       },
       {
         path: 'ops/commercial/manual-orders/new/items', pathMatch: 'full', redirectTo: 'ops/commercial/manual-orders/new/client'
@@ -183,50 +185,50 @@ export const routes: Routes = [
       },
       {
         path: 'ops/commercial/manual-orders/:draftId/client', data: { manualOrderStep: 'client' },
-        loadComponent: () => import('./sales/manual-orders/presentation/manual-order-client-page.component').then((module) => module.ManualOrderClientPageComponent),
-        canActivate: [permissionGuard(PLATFORM_PERMISSIONS.salesWrite), manualOrderStepGuard], providers: [SalesOperationsApiService, ManualOrderWizardFacade]
+        loadComponent: () => import('./sales-commitment/manual-orders/presentation/manual-order-client-page.component').then((module) => module.ManualOrderClientPageComponent),
+        canActivate: [permissionGuard(PLATFORM_PERMISSIONS.salesWrite), manualOrderStepGuard], providers: [SalesCommitmentApiService, CustomerRelationshipsApiService, SalesCommitmentCustomerGateway, ManualOrderWizardFacade]
       },
       {
         path: 'ops/commercial/manual-orders/:draftId/items', data: { manualOrderStep: 'items' },
-        loadComponent: () => import('./sales/manual-orders/presentation/manual-order-items-page.component').then((module) => module.ManualOrderItemsPageComponent),
-        canActivate: [permissionGuard(PLATFORM_PERMISSIONS.salesWrite), manualOrderStepGuard], providers: [SalesOperationsApiService, ManualOrderWizardFacade]
+        loadComponent: () => import('./sales-commitment/manual-orders/presentation/manual-order-items-page.component').then((module) => module.ManualOrderItemsPageComponent),
+        canActivate: [permissionGuard(PLATFORM_PERMISSIONS.salesWrite), manualOrderStepGuard], providers: [SalesCommitmentApiService, CustomerRelationshipsApiService, SalesCommitmentCustomerGateway, ManualOrderWizardFacade]
       },
       {
         path: 'ops/commercial/manual-orders/:draftId/delivery', data: { manualOrderStep: 'delivery' },
-        loadComponent: () => import('./sales/manual-orders/presentation/manual-order-delivery-page.component').then((module) => module.ManualOrderDeliveryPageComponent),
-        canActivate: [permissionGuard(PLATFORM_PERMISSIONS.salesWrite), manualOrderStepGuard], providers: [SalesOperationsApiService, ManualOrderWizardFacade]
+        loadComponent: () => import('./sales-commitment/manual-orders/presentation/manual-order-delivery-page.component').then((module) => module.ManualOrderDeliveryPageComponent),
+        canActivate: [permissionGuard(PLATFORM_PERMISSIONS.salesWrite), manualOrderStepGuard], providers: [SalesCommitmentApiService, CustomerRelationshipsApiService, SalesCommitmentCustomerGateway, ManualOrderWizardFacade]
       },
       {
         path: 'ops/commercial/manual-orders/:draftId/review', data: { manualOrderStep: 'review' },
-        loadComponent: () => import('./sales/manual-orders/presentation/manual-order-review-page.component').then((module) => module.ManualOrderReviewPageComponent),
-        canActivate: [permissionGuard(PLATFORM_PERMISSIONS.salesWrite), manualOrderStepGuard], providers: [SalesOperationsApiService, ManualOrderWizardFacade]
+        loadComponent: () => import('./sales-commitment/manual-orders/presentation/manual-order-review-page.component').then((module) => module.ManualOrderReviewPageComponent),
+        canActivate: [permissionGuard(PLATFORM_PERMISSIONS.salesWrite), manualOrderStepGuard], providers: [SalesCommitmentApiService, CustomerRelationshipsApiService, SalesCommitmentCustomerGateway, ManualOrderWizardFacade]
       },
       {
         path: 'ops/commercial/purchase-requests',
-        loadComponent: () => import('./sales/purchase-requests/presentation/purchase-request-inbox-page.component').then((module) => module.PurchaseRequestInboxPageComponent),
-        canActivate: [permissionGuard(PLATFORM_PERMISSIONS.salesRead)], providers: [SalesOperationsApiService, PurchaseRequestOperationsFacade]
+        loadComponent: () => import('./sales-commitment/purchase-requests/presentation/purchase-request-inbox-page.component').then((module) => module.PurchaseRequestInboxPageComponent),
+        canActivate: [permissionGuard(PLATFORM_PERMISSIONS.salesRead)], providers: [SalesCommitmentApiService, CustomerRelationshipsApiService, SalesCommitmentCustomerGateway, PurchaseRequestOperationsFacade]
       },
       {
         path: 'ops/commercial/purchase-requests/:purchaseRequestId',
-        loadComponent: () => import('./sales/purchase-requests/presentation/purchase-request-detail-page.component').then((module) => module.PurchaseRequestDetailPageComponent),
-        canActivate: [permissionGuard(PLATFORM_PERMISSIONS.salesRead)], providers: [SalesOperationsApiService, PurchaseRequestOperationsFacade]
+        loadComponent: () => import('./sales-commitment/purchase-requests/presentation/purchase-request-detail-page.component').then((module) => module.PurchaseRequestDetailPageComponent),
+        canActivate: [permissionGuard(PLATFORM_PERMISSIONS.salesRead)], providers: [SalesCommitmentApiService, CustomerRelationshipsApiService, SalesCommitmentCustomerGateway, PurchaseRequestOperationsFacade]
       },
       {
         path: 'ops/commercial/sales-orders',
-        loadComponent: () => import('./sales/sales-orders/presentation/sales-orders-page.component').then((module) => module.SalesOrdersPageComponent),
-        canActivate: [permissionGuard(PLATFORM_PERMISSIONS.salesRead)], providers: [SalesOperationsApiService, SalesOrdersFacade]
+        loadComponent: () => import('./sales-commitment/sales-orders/presentation/sales-orders-page.component').then((module) => module.SalesOrdersPageComponent),
+        canActivate: [permissionGuard(PLATFORM_PERMISSIONS.salesRead)], providers: [SalesCommitmentApiService, SalesOrdersFacade]
       },
       {
         path: 'ops/commercial/sales-orders/:salesOrderId',
-        loadComponent: () => import('./sales/sales-orders/presentation/sales-order-detail-page.component').then((module) => module.SalesOrderDetailPageComponent),
-        canActivate: [permissionGuard(PLATFORM_PERMISSIONS.salesRead)], providers: [SalesOperationsApiService, SalesOrdersFacade]
+        loadComponent: () => import('./sales-commitment/sales-orders/presentation/sales-order-detail-page.component').then((module) => module.SalesOrderDetailPageComponent),
+        canActivate: [permissionGuard(PLATFORM_PERMISSIONS.salesRead)], providers: [SalesCommitmentApiService, SalesOrdersFacade]
       },
       { path: 'ops/commercial/purchase-orders', pathMatch: 'full', redirectTo: 'ops/commercial/sales-orders' },
       { path: 'ops/commercial/purchase-orders/:salesOrderId', redirectTo: dynamicRedirect('/ops/commercial/sales-orders', 'salesOrderId') },
       {
         path: 'ops/fulfillment/readiness',
-        loadComponent: () => import('./sales/sales-orders/presentation/fulfillment-readiness-page.component').then((module) => module.FulfillmentReadinessPageComponent),
-        canActivate: [permissionGuard(PLATFORM_PERMISSIONS.fulfillmentRead)], providers: [SalesOperationsApiService, SalesOrdersFacade]
+        pathMatch: 'full',
+        redirectTo: 'ops/operations/fulfillment-readiness'
       },
       { path: 'ops/clients', pathMatch: 'full', redirectTo: 'ops/commercial/client-accounts' },
       { path: 'ops/commercial/requests', pathMatch: 'full', redirectTo: 'ops/commercial/purchase-requests' },

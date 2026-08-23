@@ -9,8 +9,8 @@ import { PageHeaderComponent } from '../../../shared/presentation/components/pag
 import { SectionPanelComponent } from '../../../shared/presentation/components/section-panel/section-panel.component';
 import { CatalogManagementApiService } from '../../infrastructure/http/catalog-management-api.service';
 import { CatalogCategory, CatalogProduct, CatalogPromotion, CatalogPromotionCommand } from '../../domain/models/catalog-management.models';
-import { SalesOperationsApiService } from '../../../sales/infrastructure/http/sales-operations-api.service';
-import { ClientAccount, DEFAULT_CLIENT_ACCOUNT_FILTERS } from '../../../sales/client-accounts/domain/client-account.models';
+import { CustomerRelationshipsApiService } from '../../../customer-buyer-relationships/infrastructure/http/customer-relationships-api.service';
+import { ClientAccount, DEFAULT_CLIENT_ACCOUNT_FILTERS } from '../../../customer-buyer-relationships/client-accounts/domain/client-account.models';
 
 @Component({
   selector: 'nexa-catalog-promotion-form-page',
@@ -56,7 +56,7 @@ export class CatalogPromotionFormPageComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly api = inject(CatalogManagementApiService);
-  private readonly salesApi = inject(SalesOperationsApiService);
+  private readonly customerApi = inject(CustomerRelationshipsApiService);
   private readonly auth = inject(AuthenticationService);
   private readonly fb = inject(FormBuilder);
   readonly promotionId = this.route.snapshot.paramMap.get('promotionId');
@@ -82,7 +82,7 @@ export class CatalogPromotionFormPageComponent {
     forkJoin({
       products: this.api.products(),
       categories: this.api.categories(),
-      clientAccounts: this.salesApi.clientAccounts({ ...DEFAULT_CLIENT_ACCOUNT_FILTERS, size: 100 })
+      clientAccounts: this.customerApi.clientAccounts({ ...DEFAULT_CLIENT_ACCOUNT_FILTERS, size: 100 })
     }).subscribe({
       next: (options) => { this.products.set(options.products.items); this.categories.set(options.categories.items); this.clientAccounts.set(options.clientAccounts.items); this.optionsLoading.set(false); },
       error: () => { this.optionsLoading.set(false); this.error.set('catalog.states.errorDescription'); }
