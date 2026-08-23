@@ -70,6 +70,19 @@ describe('CompanyAdministrationFacade', () => {
     expect(facade.state().notice).toBe('STALE_RELOADED');
   });
 
+  it('keeps the owner invariant error visible instead of treating it as a stale reload', () => {
+    const api = apiMock();
+    api.changeRoles.mockReturnValue(throwError(() => new HttpErrorResponse({ status: 409, error: { code: 'LAST_ACTIVE_OWNER_REQUIRED' } })));
+    TestBed.configureTestingModule({ providers: [CompanyAdministrationFacade, { provide: CompanyAdministrationApiService, useValue: api }, { provide: AuthenticationService, useValue: { hasPermission: () => true } }] });
+    const facade = TestBed.inject(CompanyAdministrationFacade);
+    facade.load();
+
+    facade.changeRoles('member', 1, ['WAREHOUSE']);
+
+    expect(api.memberships).toHaveBeenCalledTimes(1);
+    expect(facade.state().message).toBe('LAST_ACTIVE_OWNER_REQUIRED');
+  });
+
   it('does not issue mutations when the required permission is absent', () => {
     const api = apiMock();
     TestBed.configureTestingModule({ providers: [CompanyAdministrationFacade, { provide: CompanyAdministrationApiService, useValue: api }, { provide: AuthenticationService, useValue: { hasPermission: () => false } }] });

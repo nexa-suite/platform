@@ -25,10 +25,6 @@ export class OrganizationWorkspacesSectionComponent {
     businessIdentifier: ['', [Validators.maxLength(80)]],
     operationCategory: ['', [Validators.required, Validators.maxLength(80)]]
   });
-  readonly workspaceCreateForm = this.fb.group({
-    name: ['', [Validators.required, Validators.maxLength(160)]],
-    slug: ['', [Validators.required, Validators.pattern(/^[a-z0-9]+(?:-[a-z0-9]+)*$/), Validators.maxLength(64)]]
-  });
   readonly workspaceEditForm = this.fb.group({
     name: ['', [Validators.required, Validators.maxLength(160)]],
     slug: ['', [Validators.required, Validators.pattern(/^[a-z0-9]+(?:-[a-z0-9]+)*$/), Validators.maxLength(64)]]
@@ -56,12 +52,6 @@ export class OrganizationWorkspacesSectionComponent {
   saveProfile(): void {
     if (!this.facade.canManageOrganization() || this.profileForm.invalid) { this.profileForm.markAllAsTouched(); return; }
     this.facade.updateOrganization({ ...this.profileForm.getRawValue(), businessIdentifier: this.profileForm.controls.businessIdentifier.value || null }, this.profileVersion);
-  }
-
-  createWorkspace(): void {
-    if (!this.facade.canManageWorkspace() || this.workspaceCreateForm.invalid) { this.workspaceCreateForm.markAllAsTouched(); return; }
-    this.facade.createWorkspace(this.workspaceCreateForm.getRawValue());
-    this.workspaceCreateForm.reset();
   }
 
   editWorkspace(id: string): void {

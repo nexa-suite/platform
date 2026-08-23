@@ -1,14 +1,15 @@
 <div class="section-grid">
   <mat-card>
-    <mat-card-header><mat-card-subtitle>{{ i18n.t('teamMembers') }}</mat-card-subtitle><mat-card-title>{{ i18n.t('memberships', { count: facade.state().memberships.length }) }}</mat-card-title></mat-card-header>
+          <mat-card-header><mat-card-subtitle>{{ i18n.t('teamMembers') }}</mat-card-subtitle><mat-card-title>{{ i18n.t('memberships', { count: facade.state().memberships.length }) }}</mat-card-title></mat-card-header>
     <mat-card-content>
+      <p class="hint">{{ i18n.t('roleGovernanceHint') }}</p>
       @if (facade.state().memberships.length === 0) { <p class="empty">{{ i18n.t('noMemberships') }}</p> }
       @else {
         <div class="members-list">
           @for (member of facade.state().memberships; track member.id) {
             <article class="member-row">
               <div class="member-copy"><strong>{{ member.displayName }}</strong><span>{{ member.email }} · {{ i18n.status(member.status) }}</span><small>{{ roleNames(facade.state().roleDefinitions.length ? (member.roleDefinitionIds ?? []) : member.roles) }}</small></div>
-              <mat-form-field appearance="outline" class="roles-field"><mat-label>{{ facade.state().roleDefinitions.length ? i18n.t('dynamicRoles') : i18n.t('fixedRoles') }}</mat-label><mat-select multiple [value]="selectedRoles(member)" (selectionChange)="requestRoleChange(member, $event.value)" [disabled]="!facade.canAssignRoles() || facade.busy()">@for (role of assignableRoles(); track role.value) { <mat-option [value]="role.value">{{ role.label }}</mat-option> }</mat-select></mat-form-field>
+              <mat-form-field appearance="outline" class="roles-field"><mat-label>{{ facade.state().roleDefinitions.length ? i18n.t('dynamicRoles') : i18n.t('fixedRoles') }}</mat-label><mat-select multiple [value]="selectedRoles(member)" (selectionChange)="requestRoleChange(member, $event.value)" [disabled]="!facade.canAssignRoles() || facade.busy()">@for (role of assignableRolesFor(member); track role.value) { <mat-option [value]="role.value" [disabled]="role.disabled === true">{{ role.label }}</mat-option> }</mat-select></mat-form-field>
               <button mat-button type="button" (click)="openMemberDetail(member)">{{ i18n.t('details') }}</button>
               <button mat-button type="button" (click)="requestMembershipLifecycle(member)" [disabled]="!facade.canManageMembers() || facade.busy()">{{ member.status === 'ACTIVE' ? i18n.t('suspend') : i18n.t('reactivate') }}</button>
             </article>
@@ -31,6 +32,7 @@
           <div class="row-actions"><button mat-flat-button color="primary" type="button" (click)="confirmMembershipLifecycle()" [disabled]="facade.busy()">{{ i18n.t('confirm') }}</button><button mat-button type="button" (click)="cancelMembershipLifecycle()">{{ i18n.t('cancel') }}</button></div>
         </aside>
       }
+      @if (ownerRoleError(); as ownerRoleError) { <p class="governance-warning" role="alert">{{ i18n.error(ownerRoleError) }}</p> }
       @if (facade.state().membershipDetail; as detail) {
         <aside class="member-detail" aria-live="polite">
           <div class="detail-heading"><strong>{{ i18n.t('memberDetail') }}</strong><button mat-button type="button" (click)="closeMemberDetail()">{{ i18n.t('close') }}</button></div>
