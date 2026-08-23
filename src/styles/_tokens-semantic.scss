@@ -1,4 +1,4 @@
-/* Adapted from Design Lab a0912c3 generated semantic tokens. */
+/* Generated from tokens/semantic.tokens.json; do not edit directly. */
 :root {
   --nexa-color-primary-50: var(--nexa-primitive-blue-50);
   --nexa-color-primary-100: var(--nexa-primitive-blue-100);
@@ -36,10 +36,21 @@
   --nexa-color-focus-ring: var(--nexa-mode-focus-ring);
   --nexa-color-info-50: var(--nexa-primitive-blue-50);
   --nexa-color-info-700: var(--nexa-primitive-blue-700);
+  --nexa-color-info-standard-background: var(--nexa-surface-info);
+  --nexa-color-info-standard-border: var(--nexa-color-primary-300);
+  --nexa-color-info-standard-text: var(--nexa-color-info-700);
+  --nexa-color-info-emphasized-background: var(--nexa-color-info-700);
+  --nexa-color-info-emphasized-border: var(--nexa-color-info-700);
+  --nexa-color-info-emphasized-text: var(--nexa-color-text-inverse);
   --nexa-color-success-50: var(--nexa-primitive-green-50);
   --nexa-color-success-200: var(--nexa-primitive-green-200);
   --nexa-color-success-border: var(--nexa-primitive-green-200);
   --nexa-color-success-700: var(--nexa-primitive-green-700);
+  --nexa-color-success-standard-background: var(--nexa-surface-success);
+  --nexa-color-success-standard-text: var(--nexa-color-success-700);
+  --nexa-color-success-emphasized-background: var(--nexa-color-success-700);
+  --nexa-color-success-emphasized-border: var(--nexa-color-success-700);
+  --nexa-color-success-emphasized-text: var(--nexa-color-text-inverse);
   --nexa-color-role-sales-surface: var(--nexa-primitive-green-50);
   --nexa-color-role-sales-border: var(--nexa-primitive-green-200);
   --nexa-color-role-sales-text: var(--nexa-primitive-green-700);
@@ -53,6 +64,8 @@
   --nexa-color-warning-emphasized-background: var(--nexa-primitive-amber-800);
   --nexa-color-warning-emphasized-border: var(--nexa-primitive-amber-800);
   --nexa-color-warning-emphasized-text: var(--nexa-color-text-inverse);
+  --nexa-color-warning-standard-background: var(--nexa-surface-warning);
+  --nexa-color-warning-standard-text: var(--nexa-color-warning-text);
   --nexa-color-danger-50: var(--nexa-primitive-red-50);
   --nexa-color-danger-200: var(--nexa-primitive-red-200);
   --nexa-color-danger-600: var(--nexa-primitive-red-600);
@@ -66,6 +79,12 @@
   --nexa-color-danger-strong-background: var(--nexa-primitive-red-800);
   --nexa-color-danger-strong-border: var(--nexa-primitive-red-800);
   --nexa-color-danger-strong-text: var(--nexa-color-text-inverse);
+  --nexa-color-neutral-standard-background: var(--nexa-surface-inset);
+  --nexa-color-neutral-standard-border: var(--nexa-color-neutral-300);
+  --nexa-color-neutral-standard-text: var(--nexa-color-neutral-700);
+  --nexa-color-neutral-emphasized-background: var(--nexa-color-neutral-700);
+  --nexa-color-neutral-emphasized-border: var(--nexa-color-neutral-700);
+  --nexa-color-neutral-emphasized-text: var(--nexa-color-text-inverse);
   --nexa-color-attention-500: var(--nexa-primitive-orange-500);
   --nexa-color-attention-surface: var(--nexa-primitive-orange-50);
   --nexa-color-attention-border: var(--nexa-primitive-orange-200);

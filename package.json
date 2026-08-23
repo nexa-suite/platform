@@ -8,6 +8,7 @@
     "test:e2e": "playwright test -c e2e/playwright.config.ts",
     "test:e2e:headed": "playwright test -c e2e/playwright.config.ts --headed",
     "validate:catalog-assets": "node scripts/validate-catalog-assets.mjs",
+    "validate:design-foundations": "node scripts/validate-design-foundations.mjs",
     "watch": "ng build --watch --configuration development",
     "test": "ng test --watch=false"
   },

@@ -1,0 +1,16 @@
+{
+  "source": "nexa-design-lab",
+  "version": "1.0.1",
+  "ref": "main",
+  "commit": "d27e158569211a3afec171b1c9606f06906fc99a",
+  "assets": {
+    "primary": {
+      "path": "assets/branding/nexa.svg",
+      "sha1": "129e24d819fd74109aae866d0f035686f3e79c55"
+    },
+    "inverse": {
+      "path": "assets/branding/nexa-white.svg",
+      "sha1": "8fa090f4b651d029edb2d041dce91275030ed7bd"
+    }
+  }
+}

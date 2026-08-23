@@ -33,6 +33,26 @@
 
 button, a, select { touch-action: manipulation; }
 
+/* Keep the Lab's evaluation modes useful on production compositions too. */
+[data-target-overlay='true'] button,
+[data-target-overlay='true'] input,
+[data-target-overlay='true'] select,
+[data-target-overlay='true'] [role='switch'],
+[data-target-overlay='true'] [role='slider'] {
+  outline: 1px dashed var(--nexa-color-primary-400);
+  outline-offset: 4px;
+}
+
+:root[data-text-spacing='increased'] :where(.platform-content, .auth-page, .onboarding-page) :where(p, li, label, button, th, td, small, code, [role='status']) {
+  line-height: var(--nexa-a11y-text-spacing-line-height);
+  letter-spacing: var(--nexa-a11y-text-spacing-letter);
+  word-spacing: var(--nexa-a11y-text-spacing-word);
+}
+
+:root[data-reflow-mode='true'] :where(.platform-content, .auth-page, .onboarding-page) {
+  max-width: 100%;
+}
+
 @media (forced-colors: active) {
   :focus-visible { outline-color: Highlight; }
 }
