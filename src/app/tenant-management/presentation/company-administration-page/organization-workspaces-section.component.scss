@@ -12,6 +12,5 @@
 .workspace-row span { display: block; margin-top: 3px; }
 .inline-form { margin-top: 16px; }
 .inline-form mat-form-field { flex: 1 1 180px; }
-.create-form { border-top: 1px solid var(--nexa-color-border); padding-top: 16px; }
 .empty { color: var(--nexa-color-text-secondary); }
 @media (max-width: 820px) { .section-grid, .form-grid { grid-template-columns: 1fr; } .workspace-row { align-items: flex-start; flex-direction: column; } }

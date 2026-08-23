@@ -34,15 +34,10 @@ test.describe('Tenant Administration', () => {
       return;
     }
 
-    const suffix = `${Date.now()}-${Math.floor(Math.random() * 1000)}`;
-    const workspaceSlug = `e2e-admin-${suffix}`;
     await page.getByRole('button', { name: 'Organization & workspaces', exact: true }).click();
-    await page.getByLabel('New workspace name').fill(`E2E Administration ${suffix}`);
-    await page.getByLabel('Slug', { exact: true }).last().fill(workspaceSlug);
-    const workspaceResponse = page.waitForResponse((response) => response.request().method() === 'POST' && response.url().endsWith('/api/v1/workspaces'));
-    await page.getByRole('button', { name: 'Create workspace', exact: true }).click();
-    expect((await workspaceResponse).status()).toBe(201);
-    const workspaceRow = page.locator('.workspace-row').filter({ hasText: workspaceSlug });
+    await expect(page.getByRole('button', { name: 'Create workspace', exact: true })).toHaveCount(0);
+    await expect(page.getByRole('textbox', { name: 'New workspace name', exact: true })).toHaveCount(0);
+    const workspaceRow = page.locator('.workspace-row').first();
     await expect(workspaceRow).toBeVisible();
     await workspaceRow.getByRole('button', { name: 'Configure', exact: true }).click();
 
@@ -53,6 +48,7 @@ test.describe('Tenant Administration', () => {
     await expect(page.getByRole('status')).toContainText(/operational saved|saved/i);
 
     await page.getByRole('button', { name: 'Team & invitations', exact: true }).click();
+    const suffix = `${Date.now()}-${Math.floor(Math.random() * 1000)}`;
     const invitationEmail = `e2e-admin-${suffix}@example.test`;
     const invitationForm = page.locator('form[aria-label="Invite internal member"]');
     await invitationForm.getByLabel('Email').fill(invitationEmail);
@@ -80,9 +76,9 @@ test.describe('Tenant Administration', () => {
     await expect(page.getByRole('status')).toContainText(/Technical tenant configuration|configuración técnica del tenant/i);
 
     await page.getByRole('button', { name: 'Organization & workspaces', exact: true }).click();
-    await expect(page.getByRole('button', { name: 'Create workspace', exact: true })).toBeDisabled();
+    await expect(page.getByRole('button', { name: 'Create workspace', exact: true })).toHaveCount(0);
     await expect(page.getByRole('button', { name: 'Save organization', exact: true })).toBeEnabled();
-    await expect(page.getByRole('textbox', { name: 'New workspace name', exact: true })).toBeDisabled();
+    await expect(page.getByRole('textbox', { name: 'New workspace name', exact: true })).toHaveCount(0);
 
     await page.getByRole('button', { name: 'Team & invitations', exact: true }).click();
     await expect(page.getByRole('button', { name: 'Send invitation', exact: true })).toBeEnabled();

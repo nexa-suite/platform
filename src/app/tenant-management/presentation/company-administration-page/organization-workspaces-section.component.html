@@ -50,13 +50,6 @@
           <div class="row-actions"><button mat-flat-button color="primary" type="button" (click)="confirmWorkspaceLifecycle()" [disabled]="facade.busy()">{{ i18n.t('confirm') }}</button><button mat-button type="button" (click)="cancelWorkspaceLifecycle()">{{ i18n.t('cancel') }}</button></div>
         </aside>
       }
-      <form [formGroup]="workspaceCreateForm" (ngSubmit)="createWorkspace()" class="inline-form create-form" [attr.aria-label]="i18n.t('createWorkspace')">
-        <fieldset [disabled]="!facade.canManageWorkspace() || facade.busy()">
-          <mat-form-field appearance="outline"><mat-label>{{ i18n.t('newWorkspaceName') }}</mat-label><input matInput formControlName="name"></mat-form-field>
-          <mat-form-field appearance="outline"><mat-label>{{ i18n.t('slug') }}</mat-label><input matInput formControlName="slug"></mat-form-field>
-          <button mat-flat-button color="primary" type="submit">{{ i18n.t('createWorkspace') }}</button>
-        </fieldset>
-      </form>
     </mat-card-content>
   </mat-card>
 </div>
