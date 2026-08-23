@@ -3,6 +3,38 @@
 All notable changes to this project are documented in this file.
 The project uses Semantic Versioning.
 
+## [0.11.0] - 2026-08-23
+
+PRE-V1 Architecture & Governance Foundation release for the internal Angular operations workspace.
+
+### Added
+
+- Customer & Buyer Relationships feature boundary separation, distinct from legacy commercial client views.
+- Sales Commitment feature boundary alignment reflecting explicit commercial commitment responsibilities.
+- Updated Tenant and Workspace governance UX enforcing single operational workspace and exactly-one Company Owner model.
+- Workforce team invitation and role assignment controls aligned with V1 capability model.
+- Nexa Design Lab v1.0.1 design token integration and accessibility foundation enhancements.
+
+### Changed
+
+- Realigned domain facades and presentation layers to respect frozen Bounded Context boundaries.
+- Hardened role-access route guards and operational navigation.
+
+### Known limitations
+
+- This milestone does not represent Nexa V1 functional completion or Production Readiness.
+
+### Validation
+
+- Catalog asset validation passed.
+- Design Lab token and foundation validation passed.
+- 124 unit tests passed across 60 test suites.
+- Angular production build succeeded.
+
+## Unreleased
+
+No unreleased changes are included in this baseline.
+
 ## [0.10.0] - 2026-08-22
 
 Functional convergence continuation baseline for the internal Angular operations workspace.

@@ -1,1 +1,1 @@
-<img [src]="source()" [alt]="accessibleLabel()" [style.width.px]="width()" />
+<img [src]="source()" [attr.alt]="decorative() ? '' : accessibleLabel()" [attr.aria-hidden]="decorative() ? 'true' : null" [style.width.px]="width()" />

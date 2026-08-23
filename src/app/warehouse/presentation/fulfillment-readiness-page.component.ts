@@ -7,7 +7,7 @@ import { LoadingStateComponent } from '../../shared/presentation/components/load
 import { ErrorStateComponent } from '../../shared/presentation/components/error-state/error-state.component';
 import { WarehouseOperationsFacade } from '../application/warehouse-operations.facade';
 import { ReadinessCandidate } from '../domain/warehouse.models';
-import { SalesOperationsApiService } from '../../sales/infrastructure/http/sales-operations-api.service';
+import { SalesCommitmentApiService } from '../../sales-commitment/infrastructure/http/sales-commitment-api.service';
 
 @Component({
   selector: 'nexa-fulfillment-readiness-page',
@@ -52,7 +52,7 @@ import { SalesOperationsApiService } from '../../sales/infrastructure/http/sales
 })
 export class FulfillmentReadinessPageComponent {
   readonly facade = inject(WarehouseOperationsFacade);
-  private readonly salesApi = inject(SalesOperationsApiService);
+  private readonly salesApi = inject(SalesCommitmentApiService);
   readonly selectedCandidate = signal<ReadinessCandidate | null>(null);
   readonly salesOrderVersion = signal<number | null>(null);
   readonly loadingVersion = signal(false);

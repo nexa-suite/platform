@@ -60,4 +60,21 @@ describe('TeamInvitationsSectionComponent', () => {
     component.confirmMembershipLifecycle();
     expect(facade.suspend).toHaveBeenCalledWith('member', 4);
   });
+
+  it('does not offer Company Owner as an additional assignable role', () => {
+    const component = fixture.componentInstance;
+    expect(component.fixedRoles).not.toContain('COMPANY_OWNER');
+    expect(component.assignableRoles().map((role) => role.value)).not.toContain('COMPANY_OWNER');
+  });
+
+  it('blocks removing the only active Company Owner before issuing a mutation', () => {
+    const owner: WorkspaceMembershipSummary = { ...member, id: 'owner', roles: ['COMPANY_OWNER'] };
+    state.set({ ...state(), memberships: [owner] });
+    const component = fixture.componentInstance;
+
+    component.requestRoleChange(owner, ['SALES']);
+
+    expect(facade.changeRoles).not.toHaveBeenCalled();
+    expect(component.ownerRoleError()).toBe('LAST_ACTIVE_OWNER_REQUIRED');
+  });
 });

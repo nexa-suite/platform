@@ -209,6 +209,10 @@ export class CompanyAdministrationFacade {
       next: (result) => { this.stateSignal.update((state) => update({ ...state, message: null, notice: `${operation} saved` }, result)); this.mutationSignal.set(null); },
       error: (error: unknown) => {
         this.mutationSignal.set(null);
+        if (this.isOwnerInvariant(error)) {
+          this.stateSignal.update((state) => ({ ...state, message: this.errorCode(error), notice: null }));
+          return;
+        }
         if (this.isStale(error)) {
           this.staleRecoveryPending = true;
           this.load();
@@ -241,6 +245,9 @@ export class CompanyAdministrationFacade {
   }
   private isStale(error: unknown): boolean {
     return isStaleApiProblem(error);
+  }
+  private isOwnerInvariant(error: unknown): boolean {
+    return readApiProblemDetails(error)?.code === 'LAST_ACTIVE_OWNER_REQUIRED';
   }
   private replaceInvitation(list: InvitationList, item: InvitationView): InvitationList { return { ...list, items: this.replaceById(list.items, item) }; }
   private appendInvitation(list: InvitationList, item: InvitationView): InvitationList { return { ...list, items: [item, ...list.items] }; }

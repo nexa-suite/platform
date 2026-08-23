@@ -3,8 +3,13 @@
 @use './tokens-components';
 @use './tokens-data-visualization';
 
-/* Transitional aliases keep existing Platform presentation contracts stable. */
+/*
+ * Design Lab source of truth: v1.0.1 / main @ d27e158569211a3afec171b1c9606f06906fc99a.
+ * The generated token layers above stay source-aligned; these aliases are
+ * Platform compatibility names and must not become a second token system.
+ */
 :root {
+  --nexa-font-weight-normal: 400;
   --nexa-color-primary: var(--nexa-color-primary-600);
   --nexa-color-surface: var(--nexa-surface-card);
   --nexa-color-border: var(--nexa-color-border-default);

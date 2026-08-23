@@ -176,7 +176,7 @@ mat-nav-list {
 }
 
 mat-nav-list a {
-  min-height: 40px;
+  min-height: max(var(--nexa-layout-nav-item-height), var(--nexa-target-size-min));
   border-radius: var(--nexa-radius-nav-active);
   color: var(--nexa-color-neutral-600);
   font-size: var(--nexa-font-size-sm);
@@ -266,7 +266,7 @@ mat-sidenav-content {
 
 .platform-toolbar {
   position: sticky;
-  z-index: 10;
+  z-index: var(--nexa-z-sticky);
   top: 0;
   display: flex;
   min-height: var(--nexa-layout-toolbar-height);
@@ -381,7 +381,7 @@ button.mobile-menu-button {
 
 .notification-panel {
   position: absolute;
-  z-index: 20;
+  z-index: var(--nexa-z-popover);
   top: calc(100% + var(--nexa-space-2));
   right: 0;
   width: min(380px, calc(100vw - var(--nexa-space-8)));

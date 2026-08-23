@@ -11,7 +11,7 @@
 .auth-page .auth-form-heading { display: flex; align-items: start; justify-content: space-between; gap: var(--nexa-space-3); }
 .auth-page .proof-label, .auth-page .eyebrow, .onboarding-page .eyebrow, .onboarding-page .step-counter { margin: 0; color: var(--nexa-color-primary-700); font-size: var(--nexa-font-size-xs); font-weight: var(--nexa-font-weight-bold); letter-spacing: var(--nexa-letter-spacing-wider); text-transform: uppercase; }
 .auth-page .language-switcher, .onboarding-page .language-switcher { display: flex; gap: var(--nexa-space-2); }
-.auth-page .language-switcher button, .onboarding-page .language-switcher button { display: grid; min-width: 2.5rem; min-height: 2.5rem; place-items: center; border: 1px solid var(--nexa-color-border-default); border-radius: var(--nexa-radius-full); color: var(--nexa-color-text-secondary); background: var(--nexa-surface-card); font-size: var(--nexa-font-size-xs); cursor: pointer; }
+.auth-page .language-switcher button, .onboarding-page .language-switcher button { display: grid; min-width: var(--nexa-target-size-min); min-height: var(--nexa-target-size-min); place-items: center; border: 1px solid var(--nexa-color-border-default); border-radius: var(--nexa-radius-full); color: var(--nexa-color-text-secondary); background: var(--nexa-surface-card); font-size: var(--nexa-font-size-xs); cursor: pointer; }
 .auth-page .language-switcher button:hover, .auth-page .language-switcher button.active, .onboarding-page .language-switcher button:hover, .onboarding-page .language-switcher button.active { border-color: var(--nexa-color-primary-200); color: var(--nexa-color-primary-700); background: var(--nexa-color-primary-50); }
 .auth-page .form-copy { display: grid; gap: var(--nexa-space-3); }
 .auth-page h1, .onboarding-page h1, .onboarding-page h2 { margin: 0; font-family: var(--nexa-font-family-display); line-height: var(--nexa-line-height-tight); }
@@ -23,7 +23,7 @@
 .auth-page .text-field sup, .onboarding-page .field sup, .onboarding-page .plan-options sup { margin-left: .2rem; color: var(--nexa-color-danger-700); }
 .auth-page .text-field input, .onboarding-page .field input, .onboarding-page .field select { width: 100%; min-height: var(--nexa-control-height-lg); border: 1px solid var(--nexa-color-border-interactive); border-radius: var(--nexa-radius-control); padding: 0 var(--nexa-space-4); color: var(--nexa-color-text-primary); background: var(--nexa-surface-card); font: inherit; }
 .auth-page .text-field input:hover, .onboarding-page .field input:hover, .onboarding-page .field select:hover { border-color: var(--nexa-color-primary-400); }
-.auth-page .text-field input:focus, .onboarding-page .field input:focus, .onboarding-page .field select:focus { border-color: var(--nexa-color-primary-600); outline: none; box-shadow: var(--nexa-focus-ring); }
+.auth-page .text-field input:focus-visible, .onboarding-page .field input:focus-visible, .onboarding-page .field select:focus-visible { border-color: var(--nexa-color-primary-600); outline: none; box-shadow: var(--nexa-focus-ring); }
 .auth-page .text-field small, .onboarding-page .field small { color: var(--nexa-color-text-secondary); font-size: var(--nexa-font-size-xs); font-weight: var(--nexa-font-weight-normal); line-height: 1.4; }
 .auth-page .text-field.invalid input { border-color: var(--nexa-color-danger-600); }
 .auth-page .field-error, .auth-page .form-error, .onboarding-page .field-error, .onboarding-page .form-alert { color: var(--nexa-color-danger-700) !important; }
@@ -48,7 +48,7 @@
 .onboarding-page .progress-nav ol { display: grid; grid-template-columns: repeat(6, minmax(132px, 1fr)); min-width: 792px; margin: 0; padding: 0; list-style: none; }
 .onboarding-page .progress-nav li { position: relative; border-top: 2px solid var(--nexa-color-border-default); }
 .onboarding-page .progress-nav li.complete, .onboarding-page .progress-nav li.current { border-color: var(--nexa-color-primary-600); }
-.onboarding-page .progress-nav button { display: flex; width: 100%; min-height: 4.25rem; align-items: center; gap: var(--nexa-space-2); padding: var(--nexa-space-3) var(--nexa-space-2) 0; border: 0; color: var(--nexa-color-text-muted); background: transparent; font: inherit; font-size: var(--nexa-font-size-xs); font-weight: var(--nexa-font-weight-semibold); text-align: left; cursor: pointer; }
+.onboarding-page .progress-nav button { display: flex; width: 100%; min-height: var(--nexa-control-height-lg); align-items: center; gap: var(--nexa-space-2); padding: var(--nexa-space-3) var(--nexa-space-2) 0; border: 0; color: var(--nexa-color-text-muted); background: transparent; font: inherit; font-size: var(--nexa-font-size-xs); font-weight: var(--nexa-font-weight-semibold); text-align: left; cursor: pointer; }
 .onboarding-page .progress-nav button:disabled { cursor: not-allowed; }
 .onboarding-page .progress-nav li.current button, .onboarding-page .progress-nav li.complete button { color: var(--nexa-color-primary-700); }
 .onboarding-page .step-index { display: grid; flex: 0 0 1.75rem; width: 1.75rem; height: 1.75rem; place-items: center; border: 1px solid var(--nexa-color-border-default); border-radius: var(--nexa-radius-full); color: inherit; background: var(--nexa-surface-card); font-size: var(--nexa-font-size-xs); }
@@ -64,7 +64,7 @@
 .onboarding-page .full-width { grid-column: 1 / -1; }
 .onboarding-page .plan-options { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--nexa-space-3); margin: 0; padding: 0; border: 0; }
 .onboarding-page .plan-options legend { grid-column: 1 / -1; margin-bottom: var(--nexa-space-1); color: var(--nexa-color-text-primary); font-size: var(--nexa-font-size-sm); font-weight: var(--nexa-font-weight-semibold); }
-.onboarding-page .plan-option { display: flex; min-height: 4.25rem; align-items: center; gap: var(--nexa-space-2); padding: var(--nexa-space-3); border: 1px solid var(--nexa-color-border-default); border-radius: var(--nexa-radius-card); color: var(--nexa-color-text-primary); background: var(--nexa-surface-card); cursor: pointer; }
+.onboarding-page .plan-option { display: flex; min-height: var(--nexa-target-size-min); align-items: center; gap: var(--nexa-space-2); padding: var(--nexa-space-3); border: 1px solid var(--nexa-color-border-default); border-radius: var(--nexa-radius-card); color: var(--nexa-color-text-primary); background: var(--nexa-surface-card); cursor: pointer; }
 .onboarding-page .plan-option:hover, .onboarding-page .plan-option.selected { border-color: var(--nexa-color-primary-400); background: var(--nexa-color-primary-50); }
 .onboarding-page .plan-option input, .onboarding-page .checkbox-field input { accent-color: var(--nexa-color-primary-700); }
 .onboarding-page .review-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--nexa-space-4); margin: 0; }
