@@ -1,4 +1,4 @@
-/* Adapted from Design Lab a0912c3 generated component tokens. */
+/* Generated from tokens/component.tokens.json; do not edit directly. */
 :root {
   --nexa-font-size-xs: 12px;
   --nexa-font-size-sm: 13px;
@@ -32,6 +32,26 @@
   --nexa-control-padding-inline: var(--nexa-space-4);
   --nexa-control-padding-inline-compact: var(--nexa-space-3);
   --nexa-control-gap: var(--nexa-space-1);
+  --nexa-control-label-gap: var(--nexa-space-1);
+  --nexa-target-size-min: 44px;
+  --nexa-field-action-size: 30px;
+  --nexa-status-height: 26px;
+  --nexa-status-padding-inline: 10px;
+  --nexa-status-dot-size: 6px;
+  --nexa-toggle-width: 46px;
+  --nexa-toggle-control-height: 28px;
+  --nexa-toggle-height: 26px;
+  --nexa-toggle-thumb-size: 20px;
+  --nexa-toggle-thumb-inset: 2px;
+  --nexa-button-spinner-size: 14px;
+  --nexa-button-spinner-border: 2px;
+  --nexa-stepper-gap: var(--nexa-space-4);
+  --nexa-stepper-button-size: var(--nexa-control-height-sm);
+  --nexa-stepper-output-width: 42px;
+  --nexa-stepper-control-gap: 3px;
+  --nexa-slider-gap: 10px;
+  --nexa-slider-heading-gap: var(--nexa-space-3);
+  --nexa-slider-track-size: 6px;
   --nexa-panel-padding: var(--nexa-layout-card-padding);
   --nexa-card-padding: var(--nexa-space-4);
   --nexa-surface-gap: var(--nexa-space-4);
