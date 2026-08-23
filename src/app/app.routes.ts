@@ -15,6 +15,7 @@ import { createManualOrderDraftGuard } from './sales-commitment/manual-orders/pr
 import { SalesOrdersFacade } from './sales-commitment/sales-orders/application/sales-orders.facade';
 import { CustomerRelationshipsApiService } from './customer-buyer-relationships/infrastructure/http/customer-relationships-api.service';
 import { SalesCommitmentCustomerGateway } from './sales-commitment/infrastructure/customer/sales-commitment-customer.gateway';
+import { CatalogPromotionTargetsGateway } from './catalog-management/infrastructure/http/catalog-promotion-targets.gateway';
 import { WarehouseOperationsApiService } from './warehouse/infrastructure/warehouse-operations-api.service';
 import { WarehouseOperationsFacade } from './warehouse/application/warehouse-operations.facade';
 import { catalogReadGuard, catalogManageGuard, promotionReadGuard, promotionManageGuard } from './core/security/catalog-access.guard';
@@ -59,7 +60,7 @@ export const routes: Routes = [
       { path: 'ops/overview', loadComponent: () => import('./core/presentation/overview-page/overview-page.component').then((module) => module.OverviewPageComponent), canActivate: [permissionGuard(PLATFORM_PERMISSIONS.fulfillmentRead)] },
       { path: 'ops/executive-overview', loadComponent: () => import('./core/presentation/company-owner-executive-overview-page.component').then((module) => module.CompanyOwnerExecutiveOverviewPageComponent), canActivate: [permissionGuard(PLATFORM_PERMISSIONS.ownerDashboardRead)] },
       { path: 'ops/operations/audit', loadComponent: () => import('./core/audit/presentation/audit-viewer-page.component').then((module) => module.AuditViewerPageComponent), canActivate: [permissionGuard(PLATFORM_PERMISSIONS.tenantRead)] },
-      { path: 'ops/commercial/dashboard', loadComponent: () => import('./sales/dashboard/presentation/sales-dashboard-page.component').then((module) => module.SalesDashboardPageComponent), canActivate: [permissionGuard(PLATFORM_PERMISSIONS.salesRead)], providers: [SalesCommitmentApiService] },
+      { path: 'ops/commercial/dashboard', loadComponent: () => import('./sales-commitment/dashboard/presentation/sales-dashboard-page.component').then((module) => module.SalesDashboardPageComponent), canActivate: [permissionGuard(PLATFORM_PERMISSIONS.salesRead)], providers: [SalesCommitmentApiService] },
       {
         path: 'ops/operations/dashboard', data: { mode: 'dashboard' },
         loadComponent: () => import('./core/presentation/role-operations-dashboard-page.component').then((module) => module.RoleOperationsDashboardPageComponent),
@@ -131,8 +132,8 @@ export const routes: Routes = [
       { path: 'ops/catalog/brands', data: { kind: 'brands' }, loadComponent: () => import('./catalog-management/presentation/catalog-taxonomy-page/catalog-taxonomy-page.component').then((module) => module.CatalogTaxonomyPageComponent), canActivate: [catalogManageGuard] },
       { path: 'ops/catalog/pricing', loadComponent: () => import('./catalog-management/presentation/catalog-pricing-page/catalog-pricing-page.component').then((module) => module.CatalogPricingPageComponent), canActivate: [catalogReadGuard] },
       { path: 'ops/catalog/promotions', loadComponent: () => import('./catalog-management/presentation/catalog-promotions-page/catalog-promotions-page.component').then((module) => module.CatalogPromotionsPageComponent), canActivate: [promotionReadGuard] },
-      { path: 'ops/catalog/promotions/new', loadComponent: () => import('./catalog-management/presentation/catalog-promotion-form-page/catalog-promotion-form-page.component').then((module) => module.CatalogPromotionFormPageComponent), canActivate: [promotionManageGuard], providers: [CustomerRelationshipsApiService] },
-      { path: 'ops/catalog/promotions/:promotionId', loadComponent: () => import('./catalog-management/presentation/catalog-promotion-form-page/catalog-promotion-form-page.component').then((module) => module.CatalogPromotionFormPageComponent), canActivate: [promotionReadGuard], providers: [CustomerRelationshipsApiService] },
+      { path: 'ops/catalog/promotions/new', loadComponent: () => import('./catalog-management/presentation/catalog-promotion-form-page/catalog-promotion-form-page.component').then((module) => module.CatalogPromotionFormPageComponent), canActivate: [promotionManageGuard], providers: [CatalogPromotionTargetsGateway] },
+      { path: 'ops/catalog/promotions/:promotionId', loadComponent: () => import('./catalog-management/presentation/catalog-promotion-form-page/catalog-promotion-form-page.component').then((module) => module.CatalogPromotionFormPageComponent), canActivate: [promotionReadGuard], providers: [CatalogPromotionTargetsGateway] },
       { path: 'ops/product-catalog', pathMatch: 'full', redirectTo: 'ops/catalog/products' },
       { path: 'ops/product-catalog/:catalogItemId', loadComponent: () => import('./catalog-management/presentation/product-catalog-detail-page/product-catalog-detail-page.component').then((module) => module.ProductCatalogDetailPageComponent), canActivate: [catalogReadGuard] },
       { path: 'ops/commercial/promotions', pathMatch: 'full', redirectTo: 'ops/catalog/promotions' },

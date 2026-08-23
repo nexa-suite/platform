@@ -1,4 +1,7 @@
 import { describe, expect, it } from 'vitest';
+import { CustomerRelationshipsApiService } from './customer-buyer-relationships/infrastructure/http/customer-relationships-api.service';
+import { CatalogPromotionTargetsGateway } from './catalog-management/infrastructure/http/catalog-promotion-targets.gateway';
+import { SalesCommitmentApiService } from './sales-commitment/infrastructure/http/sales-commitment-api.service';
 import { routes } from './app.routes';
 
 describe('Platform catalog route matrix', () => {
@@ -49,5 +52,19 @@ describe('Platform catalog route matrix', () => {
     const documentDetail = (shell?.children ?? []).find((route) => route.path === 'ops/operations/business-documents/orders/:orderId');
     const documentList = (shell?.children ?? []).find((route) => route.path === 'ops/operations/business-documents');
     expect((shell?.children ?? []).indexOf(documentDetail!)).toBeLessThan((shell?.children ?? []).indexOf(documentList!));
+  });
+
+  it('keeps the commercial dashboard under Sales Commitment ownership', () => {
+    const shell = routes.find((route) => route.path === '');
+    const route = shell?.children?.find((candidate) => candidate.path === 'ops/commercial/dashboard');
+    expect(route?.loadComponent).toBeTypeOf('function');
+    expect(route?.providers).toContain(SalesCommitmentApiService);
+  });
+
+  it('uses the Catalog promotion-target gateway instead of the Customer API client', () => {
+    const shell = routes.find((route) => route.path === '');
+    const route = shell?.children?.find((candidate) => candidate.path === 'ops/catalog/promotions/new');
+    expect(route?.providers).toContain(CatalogPromotionTargetsGateway);
+    expect(route?.providers).not.toContain(CustomerRelationshipsApiService);
   });
 });

@@ -1,8 +1,8 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { forkJoin, map } from 'rxjs';
-import { SalesCommitmentApiService } from '../../../sales-commitment/infrastructure/http/sales-commitment-api.service';
-import { DEFAULT_PURCHASE_REQUEST_FILTERS, PurchaseRequestStatus } from '../../../sales-commitment/purchase-requests/domain/purchase-request.models';
-import { DEFAULT_SALES_ORDER_FILTERS, SalesOrderStatus } from '../../../sales-commitment/sales-orders/domain/sales-order.models';
+import { SalesCommitmentApiService } from '../../infrastructure/http/sales-commitment-api.service';
+import { DEFAULT_PURCHASE_REQUEST_FILTERS, PurchaseRequestStatus } from '../../purchase-requests/domain/purchase-request.models';
+import { DEFAULT_SALES_ORDER_FILTERS, SalesOrderStatus } from '../../sales-orders/domain/sales-order.models';
 import { EMPTY_SALES_DASHBOARD, SalesDashboardState } from '../domain/sales-dashboard.models';
 
 @Injectable()

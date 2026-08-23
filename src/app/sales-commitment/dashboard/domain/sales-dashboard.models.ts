@@ -1,5 +1,5 @@
-import { PurchaseRequest } from '../../../sales-commitment/purchase-requests/domain/purchase-request.models';
-import { SalesOrder } from '../../../sales-commitment/sales-orders/domain/sales-order.models';
+import { PurchaseRequest } from '../../purchase-requests/domain/purchase-request.models';
+import { SalesOrder } from '../../sales-orders/domain/sales-order.models';
 
 export type SalesDashboardLoadStatus = 'idle' | 'loading' | 'success' | 'empty' | 'error';
 

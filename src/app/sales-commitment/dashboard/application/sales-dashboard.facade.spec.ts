@@ -1,8 +1,8 @@
 import { TestBed } from '@angular/core/testing';
 import { of, throwError } from 'rxjs';
-import { SalesCommitmentApiService } from '../../../sales-commitment/infrastructure/http/sales-commitment-api.service';
-import { DEFAULT_PURCHASE_REQUEST_FILTERS } from '../../../sales-commitment/purchase-requests/domain/purchase-request.models';
-import { DEFAULT_SALES_ORDER_FILTERS } from '../../../sales-commitment/sales-orders/domain/sales-order.models';
+import { SalesCommitmentApiService } from '../../infrastructure/http/sales-commitment-api.service';
+import { DEFAULT_PURCHASE_REQUEST_FILTERS } from '../../purchase-requests/domain/purchase-request.models';
+import { DEFAULT_SALES_ORDER_FILTERS } from '../../sales-orders/domain/sales-order.models';
 import { SalesDashboardFacade } from './sales-dashboard.facade';
 
 const page = { items: [{ id: 'PR-1', code: 'PR-1', status: 'SUBMITTED', clientAccountId: 'C-1', buyerMembershipId: 'B-1', priority: 'NORMAL', requestedDeliveryDate: null, lineCount: 1, deliveryProfileSnapshot: null, paymentOption: null, comment: null, reviewNote: null, lines: [], version: 0 }], page: 0, size: 5, totalItems: 1, totalPages: 1, sort: { field: 'createdAt', direction: 'desc' as const } };
