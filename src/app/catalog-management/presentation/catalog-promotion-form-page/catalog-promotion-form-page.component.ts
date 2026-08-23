@@ -9,8 +9,8 @@ import { PageHeaderComponent } from '../../../shared/presentation/components/pag
 import { SectionPanelComponent } from '../../../shared/presentation/components/section-panel/section-panel.component';
 import { CatalogManagementApiService } from '../../infrastructure/http/catalog-management-api.service';
 import { CatalogCategory, CatalogProduct, CatalogPromotion, CatalogPromotionCommand } from '../../domain/models/catalog-management.models';
-import { SalesOperationsApiService } from '../../../sales/infrastructure/http/sales-operations-api.service';
-import { ClientAccount, DEFAULT_CLIENT_ACCOUNT_FILTERS } from '../../../sales/client-accounts/domain/client-account.models';
+import { CatalogPromotionTargetOption } from '../../domain/models/catalog-promotion-target.models';
+import { CatalogPromotionTargetsGateway } from '../../infrastructure/http/catalog-promotion-targets.gateway';
 
 @Component({
   selector: 'nexa-catalog-promotion-form-page',
@@ -31,7 +31,7 @@ import { ClientAccount, DEFAULT_CLIENT_ACCOUNT_FILTERS } from '../../../sales/cl
               <label>{{ 'catalog.fields.description' | translate }}<textarea formControlName="description" rows="4"></textarea></label>
               <fieldset class="target-fieldset"><legend>{{ 'catalog.fields.productTargets' | translate }}</legend><label class="sr-only" for="promotion-products">{{ 'catalog.fields.productTargets' | translate }}</label><select id="promotion-products" multiple size="6" formControlName="productIds">@for (product of products(); track product.id) { <option [value]="product.id">{{ product.name }} · {{ product.productCode }}</option> }</select>@if (optionsLoading()) { <small>{{ 'catalog.states.loading' | translate }}</small> }</fieldset>
               <fieldset class="target-fieldset"><legend>{{ 'catalog.fields.categoryTargets' | translate }}</legend><label class="sr-only" for="promotion-categories">{{ 'catalog.fields.categoryTargets' | translate }}</label><select id="promotion-categories" multiple size="6" formControlName="categoryIds">@for (category of categories(); track category.id) { <option [value]="category.id">{{ category.name }} · {{ category.slug }}</option> }</select></fieldset>
-              <fieldset class="target-fieldset"><legend>{{ 'catalog.fields.clientAccountTargets' | translate }}</legend><label class="sr-only" for="promotion-clients">{{ 'catalog.fields.clientAccountTargets' | translate }}</label><select id="promotion-clients" multiple size="6" formControlName="clientAccountIds">@for (client of clientAccounts(); track client.id) { <option [value]="client.id">{{ client.commercialName || client.businessName }} · {{ client.code }}</option> }</select></fieldset>
+              <fieldset class="target-fieldset"><legend>{{ 'catalog.fields.clientAccountTargets' | translate }}</legend><label class="sr-only" for="promotion-clients">{{ 'catalog.fields.clientAccountTargets' | translate }}</label><select id="promotion-clients" multiple size="6" formControlName="clientAccountIds">@for (target of promotionTargets(); track target.id) { <option [value]="target.id">{{ target.commercialName || target.businessName }} · {{ target.code }}</option> }</select></fieldset>
               <div class="form-grid"><label>{{ 'catalog.fields.clientSegment' | translate }}<input formControlName="clientSegment" /></label><label>{{ 'catalog.fields.buyerTier' | translate }}<input formControlName="buyerTier" /></label></div>
               @if (canManage()) { <div class="form-actions"><button type="submit" [disabled]="form.invalid || saving()">{{ saving() ? ('catalog.states.saving' | translate) : ('catalog.actions.save' | translate) }}</button></div> }
             </form>
@@ -56,7 +56,7 @@ export class CatalogPromotionFormPageComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly api = inject(CatalogManagementApiService);
-  private readonly salesApi = inject(SalesOperationsApiService);
+  private readonly promotionTargetsGateway = inject(CatalogPromotionTargetsGateway);
   private readonly auth = inject(AuthenticationService);
   private readonly fb = inject(FormBuilder);
   readonly promotionId = this.route.snapshot.paramMap.get('promotionId');
@@ -69,7 +69,7 @@ export class CatalogPromotionFormPageComponent {
   readonly optionsLoading = signal(true);
   readonly products = signal<readonly CatalogProduct[]>([]);
   readonly categories = signal<readonly CatalogCategory[]>([]);
-  readonly clientAccounts = signal<readonly ClientAccount[]>([]);
+  readonly promotionTargets = signal<readonly CatalogPromotionTargetOption[]>([]);
   readonly form = this.fb.nonNullable.group({ slug: ['', Validators.required], name: ['', Validators.required], description: [''], discountType: ['PERCENTAGE' as 'PERCENTAGE' | 'FIXED_AMOUNT', Validators.required], discountValue: [0, [Validators.required, Validators.min(0)]], currency: ['PEN', Validators.required], startsAt: ['', Validators.required], endsAt: [''], minimumQuantity: [1, [Validators.required, Validators.min(1)]], priority: [0, [Validators.required, Validators.min(-1000000), Validators.max(1000000)]], stackingPolicy: ['EXCLUSIVE', Validators.required], productIds: this.fb.nonNullable.control<readonly string[]>([]), categoryIds: this.fb.nonNullable.control<readonly string[]>([]), clientAccountIds: this.fb.nonNullable.control<readonly string[]>([]), clientSegment: [''], buyerTier: [''] });
 
   constructor() {
@@ -82,9 +82,9 @@ export class CatalogPromotionFormPageComponent {
     forkJoin({
       products: this.api.products(),
       categories: this.api.categories(),
-      clientAccounts: this.salesApi.clientAccounts({ ...DEFAULT_CLIENT_ACCOUNT_FILTERS, size: 100 })
+      promotionTargets: this.promotionTargetsGateway.list()
     }).subscribe({
-      next: (options) => { this.products.set(options.products.items); this.categories.set(options.categories.items); this.clientAccounts.set(options.clientAccounts.items); this.optionsLoading.set(false); },
+      next: (options) => { this.products.set(options.products.items); this.categories.set(options.categories.items); this.promotionTargets.set(options.promotionTargets); this.optionsLoading.set(false); },
       error: () => { this.optionsLoading.set(false); this.error.set('catalog.states.errorDescription'); }
     });
   }
