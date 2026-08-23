@@ -4,6 +4,7 @@ Release notes are scoped to the Platform repository and distinguish the Angular 
 
 | Published release | Summary |
 |---|---|
+| [v0.10.0](./v0.10.0.md) | Functional convergence continuation operations baseline |
 | [v0.7.1](./v0.7.1.md) | Operations workspace stabilization |
 | [v0.7.0](./v0.7.0.md) | Consolidated Warehouse and Logistics operations workspace |
 | [v0.5.0](./v0.5.0.md) | Platform access, Company Administration and commercial operations |
@@ -18,4 +19,4 @@ Release notes are scoped to the Platform repository and distinguish the Angular 
 |---|---|
 | [UNRELEASED HISTORICAL CANDIDATE: v0.6.0](./v0.6.0.md) | Consolidated into later published work; no tag or GitHub Release |
 
-Current release is `0.7.1`. Structural parity has advanced for implemented surfaces; this does not claim full product migration or pixel-level parity with Vue.
+Current release is `0.10.0`. Structural parity has advanced for implemented surfaces; this does not claim full product migration or pixel-level parity with Vue.
