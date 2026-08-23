@@ -1,0 +1,83 @@
+:host { display: inline-flex; }
+:host(.full-width) { display: flex; width: 100%; }
+a, button {
+  display: inline-flex;
+  min-height: var(--nexa-target-size-min);
+  align-items: center;
+  justify-content: center;
+  gap: var(--nexa-space-2);
+  padding: 0 var(--nexa-space-4);
+  border: 1px solid transparent;
+  border-radius: var(--nexa-radius-control);
+  font-family: var(--nexa-font-family-body);
+  font-size: var(--nexa-font-size-sm);
+  font-weight: var(--nexa-font-weight-semibold);
+  text-decoration: none;
+  box-sizing: border-box;
+  cursor: pointer;
+  transition: background-color var(--nexa-motion-duration-fast, 150ms) var(--nexa-motion-easing-standard, ease),
+              border-color var(--nexa-motion-duration-fast, 150ms) var(--nexa-motion-easing-standard, ease);
+}
+a:focus-visible, button:focus-visible {
+  outline: none;
+  box-shadow: var(--nexa-focus-ring);
+}
+.primary {
+  color: var(--nexa-color-text-inverse);
+  background: var(--nexa-color-primary-600);
+}
+.primary:hover:not(:disabled) {
+  background: var(--nexa-color-primary-700);
+}
+.secondary {
+  color: var(--nexa-color-primary-700);
+  background: var(--nexa-surface-card);
+  border-color: var(--nexa-color-border-interactive);
+}
+.secondary:hover:not(:disabled) {
+  background: var(--nexa-color-primary-50);
+  border-color: var(--nexa-color-primary-300);
+}
+.quiet {
+  color: var(--nexa-color-text-secondary);
+  background: transparent;
+}
+.quiet:hover:not(:disabled) {
+  color: var(--nexa-color-text-primary);
+  background: var(--nexa-surface-inset);
+}
+.danger {
+  color: var(--nexa-color-text-inverse);
+  background: var(--nexa-color-danger-600);
+}
+.danger:hover:not(:disabled) {
+  background: var(--nexa-color-danger-700);
+}
+.compact {
+  min-height: var(--nexa-control-height-sm, 2rem);
+  padding: 0 var(--nexa-space-3);
+  font-size: var(--nexa-font-size-xs);
+}
+.large {
+  min-height: var(--nexa-control-height-lg, 3rem);
+  padding: 0 var(--nexa-space-5);
+  font-size: var(--nexa-font-size-md);
+}
+.full-width {
+  width: 100%;
+}
+button:disabled, a[aria-disabled="true"] {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.button-spinner {
+  width: 1rem;
+  height: 1rem;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: spin var(--nexa-motion-duration-slow, 300ms) linear infinite;
+}
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}

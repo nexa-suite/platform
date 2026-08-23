@@ -1,0 +1,91 @@
+<section class="page">
+  <nexa-page-header
+    [eyebrow]="'warehouse.movements.eyebrow' | translate"
+    [title]="'warehouse.movements.title' | translate"
+    [subtitle]="'warehouse.movements.description' | translate" />
+
+  @if (facade.loading()) {
+    <nexa-loading-state [label]="'warehouse.movements.loading' | translate" />
+  } @else if (facade.error(); as error) {
+    <nexa-error-state
+      [title]="'warehouse.movements.errorTitle' | translate"
+      [description]="error"
+      (retry)="facade.retry()" />
+  } @else {
+    <section class="movement-summary" [attr.aria-label]="'warehouse.movements.summaryLabel' | translate">
+      <nexa-metric-card
+        [label]="'warehouse.movements.metrics.total' | translate"
+        [value]="facade.movements().length"
+        [hint]="'warehouse.movements.metrics.totalHint' | translate" />
+      <nexa-metric-card
+        [label]="'warehouse.movements.metrics.inbound' | translate"
+        [value]="inboundCount()"
+        [hint]="'warehouse.movements.metrics.inboundHint' | translate"
+        tone="success" />
+      <nexa-metric-card
+        [label]="'warehouse.movements.metrics.reservations' | translate"
+        [value]="reservationCount()"
+        [hint]="'warehouse.movements.metrics.reservationsHint' | translate"
+        tone="info" />
+      <nexa-metric-card
+        [label]="'warehouse.movements.metrics.outbound' | translate"
+        [value]="outboundCount()"
+        [hint]="'warehouse.movements.metrics.outboundHint' | translate"
+        tone="warning" />
+    </section>
+
+    <nexa-section-panel
+      [title]="'warehouse.movements.historyTitle' | translate"
+      [description]="'warehouse.movements.historyDescription' | translate">
+      @if (facade.movements().length) {
+        <div class="table-shell">
+          <table>
+            <caption>{{ 'warehouse.movements.tableCaption' | translate }}</caption>
+            <thead>
+              <tr>
+                <th scope="col">{{ 'warehouse.movements.fields.movement' | translate }}</th>
+                <th scope="col">{{ 'warehouse.movements.fields.lot' | translate }}</th>
+                <th scope="col">{{ 'warehouse.movements.fields.quantity' | translate }}</th>
+                <th scope="col">{{ 'warehouse.movements.fields.balance' | translate }}</th>
+                <th scope="col">{{ 'warehouse.movements.fields.occurred' | translate }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (movement of facade.movements(); track movement.id) {
+                <tr>
+                  <td>
+                    <span class="movement-type" [attr.data-tone]="movementTone(movement.type)">
+                      {{ ('warehouse.movements.types.' + movement.type) | translate }}
+                    </span>
+                    @if (movement.reason) {
+                      <small>{{ movement.reason }}</small>
+                    }
+                  </td>
+                  <td>
+                    <span class="lot-code" [title]="movement.lotId">
+                      {{ 'warehouse.movements.lotPrefix' | translate }}-{{ shortIdentifier(movement.lotId) }}
+                    </span>
+                  </td>
+                  <td>
+                    <strong>{{ movement.quantity | number:'1.0-2' }}</strong>
+                    <small>{{ ('warehouse.movements.units.' + movement.unit) | translate }}</small>
+                  </td>
+                  <td>
+                    <span class="balance">{{ movement.quantityBefore | number:'1.0-2' }} <span aria-hidden="true">→</span> {{ movement.quantityAfter | number:'1.0-2' }}</span>
+                  </td>
+                  <td>
+                    <time [attr.datetime]="movement.occurredAt">{{ movement.occurredAt | date:'d MMM, h:mm a' }}</time>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      } @else {
+        <nexa-empty-state
+          [title]="'warehouse.movements.emptyTitle' | translate"
+          [description]="'warehouse.movements.emptyDescription' | translate" />
+      }
+    </nexa-section-panel>
+  }
+</section>

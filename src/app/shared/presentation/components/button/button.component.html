@@ -1,0 +1,25 @@
+@if (routerLink(); as link) {
+  <a
+    [class]="classes()"
+    [routerLink]="link"
+    [attr.aria-label]="ariaLabel() ?? null"
+    [attr.aria-disabled]="linkDisabled()"
+    (click)="guardLink($event)">
+    @if (loading()) {
+      <span class="button-spinner" aria-hidden="true"></span>
+    }
+    <ng-content />
+  </a>
+} @else {
+  <button
+    [class]="classes()"
+    [type]="type()"
+    [disabled]="disabled() || loading()"
+    [attr.aria-label]="ariaLabel() ?? null"
+    [attr.aria-busy]="loading()">
+    @if (loading()) {
+      <span class="button-spinner" aria-hidden="true"></span>
+    }
+    <ng-content />
+  </button>
+}

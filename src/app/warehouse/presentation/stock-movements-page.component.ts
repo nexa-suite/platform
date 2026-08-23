@@ -1,11 +1,53 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { DatePipe, DecimalPipe } from '@angular/common';
+import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
+import { TranslatePipe } from '@ngx-translate/core';
+import { WarehouseOperationsFacade } from '../application/warehouse-operations.facade';
 import { EmptyStateComponent } from '../../shared/presentation/components/empty-state/empty-state.component';
 import { ErrorStateComponent } from '../../shared/presentation/components/error-state/error-state.component';
 import { LoadingStateComponent } from '../../shared/presentation/components/loading-state/loading-state.component';
-import { DatePipe } from '@angular/common';
+import { MetricCardComponent } from '../../shared/presentation/components/metric-card/metric-card.component';
 import { PageHeaderComponent } from '../../shared/presentation/components/page-header/page-header.component';
 import { SectionPanelComponent } from '../../shared/presentation/components/section-panel/section-panel.component';
-import { WarehouseOperationsFacade } from '../application/warehouse-operations.facade';
 
-@Component({selector:'nexa-stock-movements-page',standalone:true,imports:[DatePipe,PageHeaderComponent,SectionPanelComponent,LoadingStateComponent,ErrorStateComponent,EmptyStateComponent],template:`<section class="page"><nexa-page-header title="Stock Movements" subtitle="Append-only ledger from inbound, adjustment, waste and reservation commands" /> @if (facade.loading()){<nexa-loading-state label="Loading stock movements" />} @else if (facade.error(); as error){<nexa-error-state title="Stock movements unavailable" [description]="error" (retry)="facade.retry()" />} @else {<nexa-section-panel title="Ledger"> @if (facade.movements().length){<div class="table-shell"><table><caption>Stock movement ledger</caption><thead><tr><th scope="col">Type</th><th scope="col">Lot</th><th scope="col">Quantity</th><th scope="col">Before / after</th><th scope="col">Occurred</th></tr></thead><tbody>@for(movement of facade.movements();track movement.id){<tr><td>{{movement.type}}</td><td>{{movement.lotId}}</td><td>{{movement.quantity}} {{movement.unit}}</td><td>{{movement.quantityBefore}} → {{movement.quantityAfter}}</td><td>{{movement.occurredAt|date:'short'}}</td></tr>}</tbody></table></div>} @else {<nexa-empty-state title="No stock movements" description="The append-only ledger has no movements to display." />}</nexa-section-panel>}</section>`,styles:[`table{width:100%;border-collapse:collapse}th,td{padding:.65rem;text-align:left;border-bottom:1px solid var(--nexa-color-border-decorative)}`],changeDetection:ChangeDetectionStrategy.OnPush})
-export class StockMovementsPageComponent {readonly facade=inject(WarehouseOperationsFacade);constructor(){this.facade.load();}}
+@Component({
+  selector: 'nexa-stock-movements-page',
+  standalone: true,
+  imports: [
+    DatePipe,
+    DecimalPipe,
+    EmptyStateComponent,
+    ErrorStateComponent,
+    LoadingStateComponent,
+    MetricCardComponent,
+    PageHeaderComponent,
+    SectionPanelComponent,
+    TranslatePipe,
+  ],
+  templateUrl: './stock-movements-page.component.html',
+  styleUrl: './stock-movements-page.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+export class StockMovementsPageComponent {
+  readonly facade = inject(WarehouseOperationsFacade);
+  readonly inboundCount = computed(() =>
+    this.facade.movements().filter((movement) => movement.type === 'INBOUND_RECEIPT').length);
+  readonly outboundCount = computed(() =>
+    this.facade.movements().filter((movement) => movement.type === 'OUTBOUND_CONSUMPTION').length);
+  readonly reservationCount = computed(() =>
+    this.facade.movements().filter((movement) => movement.type.startsWith('RESERVATION')).length);
+
+  constructor() {
+    this.facade.load();
+  }
+
+  shortIdentifier(value: string): string {
+    return value.length > 12 ? value.slice(0, 8).toUpperCase() : value;
+  }
+
+  movementTone(type: string): 'inbound' | 'outbound' | 'reservation' | 'adjustment' {
+    if (type === 'INBOUND_RECEIPT') return 'inbound';
+    if (type === 'OUTBOUND_CONSUMPTION' || type === 'WASTE') return 'outbound';
+    if (type.startsWith('RESERVATION')) return 'reservation';
+    return 'adjustment';
+  }
+}

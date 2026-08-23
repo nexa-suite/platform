@@ -1,0 +1,72 @@
+<section class="page">
+  <nexa-page-header
+    [eyebrow]="'operationsDashboard.eyebrow' | translate"
+    [title]="(isDeliveryCoordination() ? 'operationsDashboard.delivery.title' : 'operationsDashboard.inventory.title') | translate"
+    [subtitle]="(isDeliveryCoordination() ? 'operationsDashboard.delivery.description' : 'operationsDashboard.inventory.description') | translate" />
+
+  @if (isDeliveryCoordination()) {
+    @if (delivery.loading()) {
+      <nexa-loading-state [label]="'operationsDashboard.loading' | translate" />
+    } @else if (delivery.error(); as error) {
+      <nexa-error-state
+        [title]="'operationsDashboard.errorTitle' | translate"
+        [description]="error"
+        (retry)="delivery.loadDashboard()" />
+    } @else if (delivery.dashboard(); as data) {
+      <section class="metric-grid" [attr.aria-label]="'operationsDashboard.delivery.metricsLabel' | translate">
+        <nexa-metric-card [label]="'operationsDashboard.delivery.ready' | translate" [value]="data.readyForOperations" [hint]="'operationsDashboard.delivery.readyHint' | translate" tone="info" />
+        <nexa-metric-card [label]="'operationsDashboard.delivery.inRoute' | translate" [value]="data.inRoute" [hint]="'operationsDashboard.delivery.inRouteHint' | translate" tone="warning" />
+        <nexa-metric-card [label]="'operationsDashboard.delivery.incidents' | translate" [value]="data.incidents" [hint]="'operationsDashboard.delivery.incidentsHint' | translate" tone="danger" />
+        <nexa-metric-card [label]="'operationsDashboard.delivery.delivered' | translate" [value]="data.deliveredToday" [hint]="'operationsDashboard.delivery.deliveredHint' | translate" tone="success" />
+      </section>
+      <nexa-section-panel
+        [title]="'operationsDashboard.nextActions' | translate"
+        [description]="'operationsDashboard.delivery.actionsDescription' | translate">
+        <nav class="action-grid" [attr.aria-label]="'operationsDashboard.nextActions' | translate">
+          <a routerLink="/ops/operations/dispatch-orders">
+            <span>{{ 'operationsDashboard.delivery.dispatchBoard' | translate }}</span>
+            <small>{{ 'operationsDashboard.delivery.dispatchBoardHint' | translate }}</small>
+          </a>
+          <a routerLink="/ops/operations/proof-of-delivery">
+            <span>{{ 'operationsDashboard.delivery.proof' | translate }}</span>
+            <small>{{ 'operationsDashboard.delivery.proofHint' | translate }}</small>
+          </a>
+        </nav>
+      </nexa-section-panel>
+    }
+  } @else {
+    @if (warehouse.loading()) {
+      <nexa-loading-state [label]="'operationsDashboard.loading' | translate" />
+    } @else if (warehouse.error(); as error) {
+      <nexa-error-state
+        [title]="'operationsDashboard.errorTitle' | translate"
+        [description]="error"
+        (retry)="warehouse.retry()" />
+    } @else {
+      <section class="metric-grid" [attr.aria-label]="'operationsDashboard.inventory.metricsLabel' | translate">
+        <nexa-metric-card [label]="'operationsDashboard.inventory.warehouses' | translate" [value]="warehouse.metrics().warehouses" [hint]="'operationsDashboard.inventory.warehousesHint' | translate" />
+        <nexa-metric-card [label]="'operationsDashboard.inventory.available' | translate" [value]="warehouse.metrics().available" [hint]="'operationsDashboard.inventory.availableHint' | translate" tone="success" />
+        <nexa-metric-card [label]="'operationsDashboard.inventory.reserved' | translate" [value]="warehouse.metrics().reserved" [hint]="'operationsDashboard.inventory.reservedHint' | translate" tone="info" />
+        <nexa-metric-card [label]="'operationsDashboard.inventory.shortages' | translate" [value]="warehouse.metrics().shortages" [hint]="'operationsDashboard.inventory.shortagesHint' | translate" tone="danger" />
+      </section>
+      <nexa-section-panel
+        [title]="'operationsDashboard.nextActions' | translate"
+        [description]="'operationsDashboard.inventory.actionsDescription' | translate">
+        <nav class="action-grid" [attr.aria-label]="'operationsDashboard.nextActions' | translate">
+          <a routerLink="/ops/operations/warehouses">
+            <span>{{ 'operationsDashboard.inventory.warehouseAction' | translate }}</span>
+            <small>{{ 'operationsDashboard.inventory.warehouseActionHint' | translate }}</small>
+          </a>
+          <a routerLink="/ops/operations/inventory/lots">
+            <span>{{ 'operationsDashboard.inventory.lotsAction' | translate }}</span>
+            <small>{{ 'operationsDashboard.inventory.lotsActionHint' | translate }}</small>
+          </a>
+          <a routerLink="/ops/operations/inventory/movements">
+            <span>{{ 'operationsDashboard.inventory.movementsAction' | translate }}</span>
+            <small>{{ 'operationsDashboard.inventory.movementsActionHint' | translate }}</small>
+          </a>
+        </nav>
+      </nexa-section-panel>
+    }
+  }
+</section>

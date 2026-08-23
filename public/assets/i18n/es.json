@@ -3,15 +3,15 @@
     "platformLabel": "Operación interna",
     "platformName": "Nexa Platform",
     "internalWorkspace": "Espacio de operaciones internas",
-    "internalDescription": "Coordina ventas, almacén, logística y administración desde un solo espacio de trabajo.",
+    "internalDescription": "Coordina ventas, inventario, preparación y entregas desde un solo espacio de trabajo.",
     "language": "Idioma",
     "skipToContent": "Saltar al contenido",
     "navigationLabel": "Navegación de operaciones internas",
     "openNavigation": "Abrir navegación de operaciones",
     "closeNavigation": "Cerrar navegación de operaciones",
     "areaSelector": "Cambiar área de trabajo interna",
-    "roles": { "TENANT_ADMIN": "Administración del tenant", "COMPANY_OWNER": "Propietario de la compañía", "SALES": "Ventas", "WAREHOUSE": "Almacén", "LOGISTICS": "Logística" },
-    "groups": { "administration": "Administración", "commercial": "Comercial", "catalog": "Catálogo", "warehouse": "Almacén", "logistics": "Logística", "finance": "Finanzas" },
+    "roles": { "TENANT_ADMIN": "Administración del tenant", "COMPANY_OWNER": "Propietario de la compañía", "SALES": "Ventas", "WAREHOUSE": "Almacén", "LOGISTICS": "Coordinación de despachos" },
+    "groups": { "administration": "Administración", "commercial": "Comercial", "catalog": "Catálogo", "warehouse": "Inventario", "logistics": "Preparación y entregas", "finance": "Finanzas" },
     "notifications": { "title": "Notificaciones en vivo", "open": "Abrir notificaciones en vivo", "markRead": "Marcar todas como leídas", "empty": "No hay notificaciones en vivo." },
     "navigation": { "overview": "Resumen", "executiveOverview": "Resumen ejecutivo", "catalog": "Catálogo de productos", "salesOrders": "Órdenes de venta", "fulfillment": "Preparación de despacho", "companyAdministration": "Administración de compañía", "salesDashboard": "Dashboard comercial", "operationsDashboard": "Dashboard de operaciones", "clientAccounts": "Cuentas cliente", "requestBuilder": "Constructor de solicitudes", "manualSalesOrder": "Orden de venta manual", "purchaseRequests": "Solicitudes de compra", "inventoryControl": "Control de inventario", "warehouses": "Almacenes y zonas", "inventoryLots": "Lotes de inventario", "stockMovements": "Movimientos de stock", "reservations": "Reservas", "fulfillmentReadiness": "Preparación de despacho", "inventoryOverview": "Resumen de inventario", "dispatchOrders": "Órdenes de despacho", "proofOfDelivery": "Prueba de entrega", "temperatureIncidents": "Temperatura e incidentes", "operationalAnalytics": "Analítica operativa", "auditViewer": "Visor de auditoría", "bankTransfers": "Revisión de transferencias" }
   },
@@ -160,8 +160,39 @@
     "detail": { "sourceRequest": "Solicitud de compra de origen", "lines": "Líneas", "reason": "Motivo", "timeline": "Línea de tiempo", "system": "Sistema", "noEvents": "Sin eventos." }
   },
   "fulfillment": {
-    "eyebrow": "Almacén / Logística", "title": "Preparación de despacho", "description": "Candidatos de solo lectura elegibles para la siguiente proyección de fulfillment.", "fields": { "warehouse": "Almacén" }, "actions": { "retry": "Reintentar" },
+    "eyebrow": "Inventario / Entregas", "title": "Preparación de despacho", "description": "Órdenes confirmadas listas para reservar inventario y preparar su entrega.", "fields": { "warehouse": "Almacén" }, "actions": { "retry": "Reintentar" },
     "states": { "loading": "Cargando candidatos", "emptyTitle": "Sin candidatos", "emptyDescription": "No hay órdenes confirmadas esperando reserva de inventario.", "errorTitle": "Proyección no disponible", "errorDescription": "La API no pudo cargar los candidatos." }
+  },
+  "operationsDashboard": {
+    "eyebrow": "Operación de cadena de frío",
+    "loading": "Cargando operación…",
+    "errorTitle": "No pudimos cargar la operación",
+    "nextActions": "Continuar operación",
+    "inventory": {
+      "title": "Inventario y almacén",
+      "description": "Controla existencias, reservas y lotes próximos a preparar.",
+      "metricsLabel": "Resumen de inventario",
+      "warehouses": "Almacenes", "warehousesHint": "Ubicaciones activas",
+      "available": "Lotes disponibles", "availableHint": "Con stock para pedidos",
+      "reserved": "Órdenes reservadas", "reservedHint": "Stock ya asignado",
+      "shortages": "Faltantes", "shortagesHint": "Requieren atención",
+      "actionsDescription": "Abre la tarea que necesitas resolver ahora.",
+      "warehouseAction": "Almacenes y zonas", "warehouseActionHint": "Configura ubicaciones y cámaras.",
+      "lotsAction": "Lotes de inventario", "lotsActionHint": "Revisa disponibilidad y vencimientos.",
+      "movementsAction": "Movimientos", "movementsActionHint": "Consulta ingresos, reservas y salidas."
+    },
+    "delivery": {
+      "title": "Preparación y entregas",
+      "description": "Coordina despachos, rutas e incidencias hasta la entrega al comprador.",
+      "metricsLabel": "Resumen de preparación y entregas",
+      "ready": "Listos para preparar", "readyHint": "Esperan inicio de operación",
+      "inRoute": "En ruta", "inRouteHint": "Entregas en tránsito",
+      "incidents": "Incidentes", "incidentsHint": "Requieren atención",
+      "delivered": "Entregados hoy", "deliveredHint": "Cierre del día",
+      "actionsDescription": "Continúa con los despachos activos y confirma sus entregas.",
+      "dispatchBoard": "Tablero de despachos", "dispatchBoardHint": "Prepara, asigna y sigue cada entrega.",
+      "proof": "Pruebas de entrega", "proofHint": "Completa receptor y evidencia declarada."
+    }
   },
   "warehouse": {
     "operations": "Operaciones de almacén",
@@ -175,7 +206,43 @@
     "managementTitle": "Almacenes y zonas", "managementDescription": "La configuración de almacenes usa versiones del servidor y la política configurada del tenant.", "selectionTitle": "Contexto de almacén actual", "selectionDescription": "Elige el almacén para esta sesión del navegador. Los valores por defecto del tenant se gestionan en Administración de compañía.", "currentWarehouse": "Almacén actual", "selectWarehouse": "Selecciona un almacén", "createWarehouse": "Crear almacén", "updateWarehouse": "Actualizar", "warehouses": "Almacenes", "readOnly": "El acceso Company Owner es de solo lectura para mutaciones de almacén.", "empty": "No se encontraron almacenes.",
     "actions": { "block": "Bloquear", "quarantine": "Poner en cuarentena", "restore": "Restaurar disponibilidad", "adjust": "Aplicar ajuste", "waste": "Registrar merma", "release": "Liberar reserva", "create": "Crear", "update": "Actualizar", "suspend": "Suspender", "save": "Guardar actualización", "cancel": "Cancelar" },
     "fields": { "catalog": "Catálogo", "batch": "Lote", "available": "Disponible", "order": "Orden", "expires": "Vence", "status": "Estado", "reason": "Motivo", "quantity": "Cantidad", "code": "Código", "name": "Nombre", "address": "Dirección", "actions": "Acciones" },
-    "forms": { "increase": "Aumentar", "decrease": "Disminuir" }
+    "forms": { "increase": "Aumentar", "decrease": "Disminuir" },
+    "movements": {
+      "eyebrow": "Inventario / Trazabilidad",
+      "title": "Movimientos de inventario",
+      "description": "Entradas, reservas, ajustes y salidas con un balance claro por lote.",
+      "loading": "Cargando movimientos de inventario…",
+      "errorTitle": "No pudimos cargar los movimientos",
+      "summaryLabel": "Resumen de movimientos de inventario",
+      "historyTitle": "Historial reciente",
+      "historyDescription": "Cada fila explica qué cambió, en qué lote y cuál fue el saldo resultante.",
+      "tableCaption": "Historial de movimientos de inventario",
+      "lotPrefix": "LOTE",
+      "emptyTitle": "Aún no hay movimientos",
+      "emptyDescription": "Los ingresos, reservas y salidas aparecerán aquí cuando se registren.",
+      "metrics": {
+        "total": "Movimientos",
+        "totalHint": "Registros visibles",
+        "inbound": "Ingresos",
+        "inboundHint": "Recepciones de stock",
+        "reservations": "Reservas",
+        "reservationsHint": "Asignaciones y liberaciones",
+        "outbound": "Salidas",
+        "outboundHint": "Consumo por despacho"
+      },
+      "fields": { "movement": "Movimiento", "lot": "Lote", "quantity": "Cantidad", "balance": "Saldo antes / después", "occurred": "Fecha y hora" },
+      "types": {
+        "INBOUND_RECEIPT": "Ingreso de stock",
+        "OUTBOUND_CONSUMPTION": "Salida por despacho",
+        "RESERVATION": "Stock reservado",
+        "RESERVATION_RELEASE": "Reserva liberada",
+        "RESERVATION_EXPIRATION": "Reserva vencida",
+        "ADJUSTMENT_IN": "Ajuste de ingreso",
+        "ADJUSTMENT_OUT": "Ajuste de salida",
+        "WASTE": "Merma registrada"
+      },
+      "units": { "UNIT": "unidades", "KG": "kg", "KILOGRAM": "kg", "CASE": "cajas", "BOX": "cajas", "PACK": "paquetes", "L": "litros", "LITER": "litros" }
+    }
   },
   "logistics": {
     "board": "Tablero de despachos", "boardSubtitle": "Los comandos de ciclo de vida actualizan el estado autoritativo del servidor", "detail": "Detalle del despacho", "detailSubtitle": "Asignación, agenda, evidencia y línea de tiempo", "pod": "Prueba de entrega", "temperature": "Temperatura e incidentes", "analytics": "Analítica operativa",
@@ -184,7 +251,7 @@
     "actions": { "startPreparation": "Iniciar preparación", "startRoute": "Iniciar ruta", "ready": "Marcar listo para ruta", "record": "Registrar lectura", "complete": "Completar entrega", "reprogram": "Reprogramar", "moveTo": "Mover a…", "chooseStatus": "Elegir transición válida", "detailRequired": "Abrir detalle", "exportCsv": "Exportar CSV", "print": "Imprimir / PDF" },
     "filters": { "status": "Filtrar estado", "allStatuses": "Todos los estados" },
     "states": { "photoDeclared": "Foto declarada", "photoNotDeclared": "Foto no declarada", "signatureDeclared": "Firma declarada", "signatureNotDeclared": "Firma no declarada", "metadataOnly": "Solo metadatos. El almacenamiento seguro de archivos de evidencia no está incluido en esta versión.", "noEvents": "Aún no hay eventos.", "pending": "Pendiente" },
-    "forms": { "assignment": "Asignación", "membership": "Membership de logística", "vehicle": "Vehículo", "route": "Ruta", "assign": "Asignar", "schedule": "Programar", "reading": "Lectura de temperatura", "value": "Valor", "source": "Fuente", "incident": "Incidente", "description": "Descripción", "buyerVisible": "Revisión visible al comprador", "recordIncident": "Registrar incidente", "podMetadata": "Metadatos de prueba de entrega", "receiver": "Nombre del receptor", "notes": "Notas", "photo": "Evidencia fotográfica declarada", "signature": "Evidencia de firma declarada", "completeDelivery": "Completar entrega", "reprogramRoute": "Reprogramar ruta", "reason": "Motivo", "handoff": "Handoff Almacén / Logística", "handoffNote": "Nota del handoff", "recordHandoff": "Registrar handoff", "celsius": "Celsius", "fahrenheit": "Fahrenheit", "delay": "Retraso", "vehicleIssue": "Problema de vehículo", "deliveryRefused": "Entrega rechazada", "addressIssue": "Problema de dirección", "other": "Otro", "low": "Baja", "medium": "Media", "high": "Alta", "critical": "Crítica", "createDispatch": "Crear despacho", "reservationId": "ID de reserva", "reservationVersion": "Versión de reserva" }
+    "forms": { "assignment": "Asignación", "membership": "Responsable del despacho", "vehicle": "Vehículo", "route": "Ruta", "assign": "Asignar", "schedule": "Programar", "reading": "Lectura de temperatura", "value": "Valor", "source": "Fuente", "incident": "Incidente", "description": "Descripción", "buyerVisible": "Revisión visible al comprador", "recordIncident": "Registrar incidente", "podMetadata": "Metadatos de prueba de entrega", "receiver": "Nombre del receptor", "notes": "Notas", "photo": "Evidencia fotográfica declarada", "signature": "Evidencia de firma declarada", "completeDelivery": "Completar entrega", "reprogramRoute": "Reprogramar ruta", "reason": "Motivo", "handoff": "Transferencia Inventario / Entrega", "handoffNote": "Nota de transferencia", "recordHandoff": "Registrar transferencia", "celsius": "Celsius", "fahrenheit": "Fahrenheit", "delay": "Retraso", "vehicleIssue": "Problema de vehículo", "deliveryRefused": "Entrega rechazada", "addressIssue": "Problema de dirección", "other": "Otro", "low": "Baja", "medium": "Media", "high": "Alta", "critical": "Crítica", "createDispatch": "Crear despacho", "reservationId": "ID de reserva", "reservationVersion": "Versión de reserva" }
   },
   "iamSecurityOperationOptions": { "distributor": "Distribuidor B2B", "warehouse": "Almacén refrigerado", "foodService": "Proveedor de servicios de alimentación", "thirdPartyStorage": "Almacenamiento en frío de terceros" },
   "iamSecurityPlanOptions": { "starter": "Inicial", "standard": "Estándar", "professional": "Profesional", "enterprise": "Empresarial" },

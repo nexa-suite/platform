@@ -1,0 +1,8 @@
+:host { display: inline-flex; min-width: 0; }
+.segmented { display: inline-flex; max-width: 100%; flex-wrap: wrap; gap: var(--nexa-space-1); padding: var(--nexa-space-1); border: 1px solid var(--nexa-color-border-default); border-radius: var(--nexa-radius-control); background: var(--nexa-surface-inset); }
+button { min-height: var(--nexa-control-height-md, 2.5rem); border: 0; border-radius: var(--nexa-radius-control); padding-inline: var(--nexa-space-3); color: var(--nexa-color-text-secondary); background: transparent; font-family: var(--nexa-font-family-body); font-size: var(--nexa-font-size-sm); font-weight: var(--nexa-font-weight-semibold); cursor: pointer; }
+button:hover:not(:disabled) { color: var(--nexa-color-primary-700); background: var(--nexa-color-primary-50); }
+button.selected { color: var(--nexa-color-primary-700); background: var(--nexa-surface-card); box-shadow: var(--nexa-shadow-xs); }
+button:focus-visible { outline: none; box-shadow: var(--nexa-focus-ring); }
+button:disabled { color: var(--nexa-color-text-muted); cursor: not-allowed; }
+.compact button { min-height: var(--nexa-control-height-sm, 2rem); padding-inline: var(--nexa-space-2); font-size: var(--nexa-font-size-xs); }

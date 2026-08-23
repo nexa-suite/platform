@@ -1,0 +1,119 @@
+:host {
+  display: block;
+}
+
+.movement-summary {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--nexa-space-4);
+  margin-bottom: var(--nexa-space-6);
+}
+
+.table-shell {
+  overflow-x: auto;
+  border: 1px solid var(--nexa-color-border-default);
+  border-radius: var(--nexa-radius-lg);
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 52rem;
+}
+
+caption {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+th,
+td {
+  padding: var(--nexa-space-4);
+  text-align: left;
+  border-bottom: 1px solid var(--nexa-color-border-decorative);
+  vertical-align: middle;
+}
+
+th {
+  background: var(--nexa-surface-inset);
+  color: var(--nexa-color-text-secondary);
+  font-size: var(--nexa-font-size-xs);
+  font-weight: var(--nexa-font-weight-semibold);
+  letter-spacing: .045em;
+  text-transform: uppercase;
+}
+
+tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+tbody tr:hover {
+  background: var(--nexa-surface-hover);
+}
+
+td small {
+  display: block;
+  margin-top: var(--nexa-space-1);
+  color: var(--nexa-color-text-secondary);
+}
+
+.movement-type {
+  display: inline-flex;
+  align-items: center;
+  min-height: 1.75rem;
+  padding: 0 var(--nexa-space-3);
+  border-radius: var(--nexa-radius-full);
+  background: var(--nexa-color-neutral-100);
+  color: var(--nexa-color-text-primary);
+  font-size: var(--nexa-font-size-sm);
+  font-weight: var(--nexa-font-weight-semibold);
+}
+
+.movement-type[data-tone='inbound'] {
+  background: var(--nexa-color-success-100);
+  color: var(--nexa-color-success-700);
+}
+
+.movement-type[data-tone='outbound'] {
+  background: var(--nexa-color-warning-100);
+  color: var(--nexa-color-warning-800);
+}
+
+.movement-type[data-tone='reservation'] {
+  background: var(--nexa-color-primary-100);
+  color: var(--nexa-color-primary-700);
+}
+
+.lot-code,
+.balance {
+  font-variant-numeric: tabular-nums;
+}
+
+.lot-code {
+  font-weight: var(--nexa-font-weight-semibold);
+  color: var(--nexa-color-text-primary);
+}
+
+time {
+  color: var(--nexa-color-text-secondary);
+  white-space: nowrap;
+}
+
+@media (max-width: 960px) {
+  .movement-summary {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 600px) {
+  .movement-summary {
+    grid-template-columns: 1fr;
+  }
+}

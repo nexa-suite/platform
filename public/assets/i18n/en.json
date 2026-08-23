@@ -3,15 +3,15 @@
     "platformLabel": "Internal operations",
     "platformName": "Nexa Platform",
     "internalWorkspace": "Internal operations workspace",
-    "internalDescription": "Coordinate sales, warehouse, logistics and administration workflows from one workspace.",
+    "internalDescription": "Coordinate sales, inventory, fulfillment and delivery from one workspace.",
     "language": "Language",
     "skipToContent": "Skip to content",
     "navigationLabel": "Internal operations navigation",
     "openNavigation": "Open operations navigation",
     "closeNavigation": "Close operations navigation",
     "areaSelector": "Switch internal work area",
-    "roles": { "TENANT_ADMIN": "Tenant administration", "COMPANY_OWNER": "Company owner", "SALES": "Sales", "WAREHOUSE": "Warehouse", "LOGISTICS": "Logistics" },
-    "groups": { "administration": "Administration", "commercial": "Commercial", "catalog": "Catalog", "warehouse": "Warehouse", "logistics": "Logistics", "finance": "Finance" },
+    "roles": { "TENANT_ADMIN": "Tenant administration", "COMPANY_OWNER": "Company owner", "SALES": "Sales", "WAREHOUSE": "Warehouse", "LOGISTICS": "Dispatch coordination" },
+    "groups": { "administration": "Administration", "commercial": "Commercial", "catalog": "Catalog", "warehouse": "Inventory", "logistics": "Fulfillment and delivery", "finance": "Finance" },
     "notifications": { "title": "Live notifications", "open": "Open live notifications", "markRead": "Mark all as read", "empty": "No live notifications." },
     "navigation": { "overview": "Overview", "executiveOverview": "Executive overview", "catalog": "Product catalog", "salesOrders": "Sales orders", "fulfillment": "Fulfillment readiness", "companyAdministration": "Company administration", "salesDashboard": "Sales dashboard", "clientAccounts": "Client accounts", "requestBuilder": "Request builder", "manualSalesOrder": "Manual sales order", "purchaseRequests": "Purchase requests", "inventoryControl": "Inventory control", "operationsDashboard": "Operations dashboard", "warehouses": "Warehouses and zones", "inventoryLots": "Inventory lots", "stockMovements": "Stock movements", "reservations": "Reservations", "fulfillmentReadiness": "Fulfillment readiness", "inventoryOverview": "Inventory overview", "dispatchOrders": "Dispatch orders", "proofOfDelivery": "Proof of delivery", "temperatureIncidents": "Temperature and incidents", "operationalAnalytics": "Operational analytics", "auditViewer": "Audit viewer", "bankTransfers": "Bank transfer review" }
   },
@@ -163,9 +163,40 @@
     "detail": { "sourceRequest": "Source purchase request", "lines": "Lines", "reason": "Reason", "timeline": "Timeline", "system": "System", "noEvents": "No timeline events." }
   },
   "fulfillment": {
-    "eyebrow": "Warehouse / Logistics", "title": "Fulfillment readiness", "description": "Read-only candidates eligible for the next fulfillment projection.",
+    "eyebrow": "Inventory / Delivery", "title": "Fulfillment readiness", "description": "Confirmed orders ready for inventory reservation and delivery preparation.",
     "fields": { "warehouse": "Warehouse" }, "actions": { "retry": "Retry" },
     "states": { "loading": "Loading fulfillment candidates", "emptyTitle": "No fulfillment candidates", "emptyDescription": "There are no confirmed orders awaiting inventory reservation.", "errorTitle": "Fulfillment projection unavailable", "errorDescription": "The API could not load fulfillment candidates." }
+  },
+  "operationsDashboard": {
+    "eyebrow": "Cold-chain operation",
+    "loading": "Loading operations…",
+    "errorTitle": "We could not load operations",
+    "nextActions": "Continue operations",
+    "inventory": {
+      "title": "Inventory and warehouse",
+      "description": "Control stock, reservations, and lots ready for preparation.",
+      "metricsLabel": "Inventory summary",
+      "warehouses": "Warehouses", "warehousesHint": "Active locations",
+      "available": "Available lots", "availableHint": "Stock ready for orders",
+      "reserved": "Reserved orders", "reservedHint": "Stock already allocated",
+      "shortages": "Shortages", "shortagesHint": "Require attention",
+      "actionsDescription": "Open the task you need to resolve now.",
+      "warehouseAction": "Warehouses and zones", "warehouseActionHint": "Configure locations and cold rooms.",
+      "lotsAction": "Inventory lots", "lotsActionHint": "Review availability and expiration dates.",
+      "movementsAction": "Movements", "movementsActionHint": "Review receipts, reservations, and outbound stock."
+    },
+    "delivery": {
+      "title": "Fulfillment and delivery",
+      "description": "Coordinate dispatches, routes, and incidents through buyer delivery.",
+      "metricsLabel": "Fulfillment and delivery summary",
+      "ready": "Ready to prepare", "readyHint": "Waiting for operations",
+      "inRoute": "In route", "inRouteHint": "Deliveries in transit",
+      "incidents": "Incidents", "incidentsHint": "Require attention",
+      "delivered": "Delivered today", "deliveredHint": "Today's completion",
+      "actionsDescription": "Continue active dispatches and confirm deliveries.",
+      "dispatchBoard": "Dispatch board", "dispatchBoardHint": "Prepare, assign, and track each delivery.",
+      "proof": "Proof of delivery", "proofHint": "Complete receiver and declared evidence."
+    }
   },
   "warehouse": {
     "operations": "Warehouse Operations",
@@ -179,7 +210,43 @@
     "managementTitle": "Warehouses and zones", "managementDescription": "Warehouse configuration uses server versions and the configured tenant policy.", "selectionTitle": "Current warehouse context", "selectionDescription": "Choose the warehouse for this browser session. Tenant defaults remain managed in Company Administration.", "currentWarehouse": "Current warehouse", "selectWarehouse": "Select a warehouse", "createWarehouse": "Create warehouse", "updateWarehouse": "Update", "warehouses": "Warehouses", "readOnly": "Company Owner access is read-only for warehouse mutations.", "empty": "No warehouses found.",
     "actions": { "block": "Block", "quarantine": "Quarantine", "restore": "Restore availability", "adjust": "Apply adjustment", "waste": "Record waste", "release": "Release reservation", "create": "Create", "update": "Update", "suspend": "Suspend", "save": "Save update", "cancel": "Cancel" },
     "fields": { "catalog": "Catalog", "batch": "Batch", "available": "Available", "order": "Order", "expires": "Expires", "status": "Status", "reason": "Reason", "quantity": "Quantity", "code": "Code", "name": "Name", "address": "Address", "actions": "Actions" },
-    "forms": { "increase": "Increase", "decrease": "Decrease" }
+    "forms": { "increase": "Increase", "decrease": "Decrease" },
+    "movements": {
+      "eyebrow": "Inventory / Traceability",
+      "title": "Inventory movements",
+      "description": "Receipts, reservations, adjustments, and outbound stock with a clear lot balance.",
+      "loading": "Loading inventory movements…",
+      "errorTitle": "We could not load inventory movements",
+      "summaryLabel": "Inventory movement summary",
+      "historyTitle": "Recent history",
+      "historyDescription": "Each row explains what changed, which lot was affected, and the resulting balance.",
+      "tableCaption": "Inventory movement history",
+      "lotPrefix": "LOT",
+      "emptyTitle": "No movements yet",
+      "emptyDescription": "Receipts, reservations, and outbound stock will appear here once recorded.",
+      "metrics": {
+        "total": "Movements",
+        "totalHint": "Visible records",
+        "inbound": "Inbound",
+        "inboundHint": "Stock receipts",
+        "reservations": "Reservations",
+        "reservationsHint": "Allocations and releases",
+        "outbound": "Outbound",
+        "outboundHint": "Dispatch consumption"
+      },
+      "fields": { "movement": "Movement", "lot": "Lot", "quantity": "Quantity", "balance": "Before / after", "occurred": "Date and time" },
+      "types": {
+        "INBOUND_RECEIPT": "Stock received",
+        "OUTBOUND_CONSUMPTION": "Dispatched stock",
+        "RESERVATION": "Stock reserved",
+        "RESERVATION_RELEASE": "Reservation released",
+        "RESERVATION_EXPIRATION": "Reservation expired",
+        "ADJUSTMENT_IN": "Inbound adjustment",
+        "ADJUSTMENT_OUT": "Outbound adjustment",
+        "WASTE": "Waste recorded"
+      },
+      "units": { "UNIT": "units", "KG": "kg", "KILOGRAM": "kg", "CASE": "cases", "BOX": "boxes", "PACK": "packs", "L": "liters", "LITER": "liters" }
+    }
   },
   "logistics": {
     "board": "Dispatch Board", "boardSubtitle": "Authoritative lifecycle commands refresh server state", "detail": "Dispatch Detail", "detailSubtitle": "Assignment, schedule, evidence and timeline", "pod": "Proof of Delivery", "temperature": "Temperature and Incidents", "analytics": "Operational Analytics",
@@ -188,7 +255,7 @@
     "actions": { "startPreparation": "Start preparation", "startRoute": "Start route", "ready": "Mark ready for route", "record": "Record reading", "complete": "Complete delivery", "reprogram": "Reprogram", "moveTo": "Move to…", "chooseStatus": "Choose a valid transition", "detailRequired": "Open detail", "exportCsv": "Export CSV", "print": "Print / PDF" },
     "filters": { "status": "Filter status", "allStatuses": "All statuses" },
     "states": { "photoDeclared": "Photo declared", "photoNotDeclared": "Photo not declared", "signatureDeclared": "Signature declared", "signatureNotDeclared": "Signature not declared", "metadataOnly": "Metadata only. Secure evidence-file storage is not included in this release.", "noEvents": "No events yet.", "pending": "Pending" },
-    "forms": { "assignment": "Assignment", "membership": "Logistics membership", "vehicle": "Vehicle", "route": "Route", "assign": "Assign", "schedule": "Schedule", "reading": "Temperature reading", "value": "Value", "source": "Source", "incident": "Incident", "description": "Description", "buyerVisible": "Buyer-visible review", "recordIncident": "Record incident", "podMetadata": "Proof of Delivery metadata", "receiver": "Receiver name", "notes": "Notes", "photo": "Photo evidence declared", "signature": "Signature evidence declared", "completeDelivery": "Complete delivery", "reprogramRoute": "Reprogram route", "reason": "Reason", "handoff": "Warehouse / Logistics handoff", "handoffNote": "Handoff note", "recordHandoff": "Record handoff", "celsius": "Celsius", "fahrenheit": "Fahrenheit", "delay": "Delay", "vehicleIssue": "Vehicle issue", "deliveryRefused": "Delivery refused", "addressIssue": "Address issue", "other": "Other", "low": "Low", "medium": "Medium", "high": "High", "critical": "Critical", "createDispatch": "Create dispatch", "reservationId": "Reservation ID", "reservationVersion": "Reservation version" }
+    "forms": { "assignment": "Assignment", "membership": "Dispatch owner", "vehicle": "Vehicle", "route": "Route", "assign": "Assign", "schedule": "Schedule", "reading": "Temperature reading", "value": "Value", "source": "Source", "incident": "Incident", "description": "Description", "buyerVisible": "Buyer-visible review", "recordIncident": "Record incident", "podMetadata": "Proof of Delivery metadata", "receiver": "Receiver name", "notes": "Notes", "photo": "Photo evidence declared", "signature": "Signature evidence declared", "completeDelivery": "Complete delivery", "reprogramRoute": "Reprogram route", "reason": "Reason", "handoff": "Inventory / Delivery handoff", "handoffNote": "Handoff note", "recordHandoff": "Record handoff", "celsius": "Celsius", "fahrenheit": "Fahrenheit", "delay": "Delay", "vehicleIssue": "Vehicle issue", "deliveryRefused": "Delivery refused", "addressIssue": "Address issue", "other": "Other", "low": "Low", "medium": "Medium", "high": "High", "critical": "Critical", "createDispatch": "Create dispatch", "reservationId": "Reservation ID", "reservationVersion": "Reservation version" }
   },
   "iamSecurityOperationOptions": { "distributor": "B2B distributor", "warehouse": "Refrigerated warehouse", "foodService": "Food service supplier", "thirdPartyStorage": "Third-party cold storage" },
   "iamSecurityPlanOptions": { "starter": "Starter", "standard": "Standard", "professional": "Professional", "enterprise": "Enterprise" },
