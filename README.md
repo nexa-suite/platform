@@ -40,7 +40,7 @@ This repository is not the buyer-facing product, security authority or persisten
 
 ## Architecture
 
-Standalone Angular application. Shared presentation components, signals, route guards and API adapters stay separated by responsibility. Business rules and tenant authorization remain API contracts.
+Standalone Angular application. The frontend follows the canonical 11-context set as API-aligned feature roots directly under [`src/app`](./src/app/README.md); the surface map is [`docs/architecture/bounded-context-map.md`](./docs/architecture/bounded-context-map.md). Shared presentation components, signals, route guards and API adapters stay separated by responsibility. Business rules and tenant authorization remain API contracts.
 
 ## Technology Stack
 
@@ -64,11 +64,13 @@ Open http://localhost:4200.
 ## Validation
 
     npm run validate:catalog-assets
+    npm run validate:bounded-contexts
     npm test
     npm run build
 
 ## Repository Structure
 
+    src/app/<api-context>/                Canonical API-aligned BC feature roots
     src/app/core/                         Shell, routes and language service
     src/app/shared/presentation/         Reusable visual components
     src/app/shared/application/          Pure application utilities

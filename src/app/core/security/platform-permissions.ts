@@ -1,4 +1,4 @@
-import { AuthenticatedUser, InternalRole } from '../../iam/domain/models/auth.models';
+import { AuthenticatedUser, InternalRole } from './platform-authentication.boundary';
 
 /**
  * Permission codes owned by the API access policy.

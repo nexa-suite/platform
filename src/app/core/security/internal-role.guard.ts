@@ -1,12 +1,12 @@
 import { CanActivateFn, Router } from '@angular/router';
 import { inject } from '@angular/core';
-import { AuthenticationService } from '../../iam/application/authentication.service';
-import { InternalRole } from '../../iam/domain/models/auth.models';
+import { PlatformAuthenticationBoundary } from './platform-authentication.boundary';
+import { InternalRole } from './platform-authentication.boundary';
 import { PLATFORM_ROUTES, safeReturnUrl } from '../routing/route-paths';
 
 export function internalRoleGuard(requiredRoles: readonly InternalRole[]): CanActivateFn {
   return (_route, routerState) => {
-    const authentication = inject(AuthenticationService);
+    const authentication = inject(PlatformAuthenticationBoundary);
     const router = inject(Router);
     const user = authentication.currentUser();
 

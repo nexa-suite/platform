@@ -3,6 +3,34 @@
 All notable changes to this project are documented in this file.
 The project uses Semantic Versioning.
 
+## [0.13.0] - 2026-08-26
+
+Canonical bounded-context layering and Angular composition release for the internal operations workspace.
+
+### Added
+
+- Canonical direct bounded-context roots aligned with the API vocabulary, each with explicit `application`, `domain`, `infrastructure` and `presentation` layers.
+- Executable bounded-context validation for the eleven canonical contexts, layer direction, legacy-root removal and framework-free domain code.
+- An application boundary for change-feed consumption so operational contexts do not import infrastructure clients directly.
+
+### Changed
+
+- Reorganized implemented Platform features under their canonical bounded contexts while preserving routes and REST contracts.
+- Kept cross-context collaboration explicit through application-facing ports and adapters.
+- Corrected the translation asset loader path so public routes resolve language files in the browser.
+
+### Validation
+
+- Bounded-context, catalog-asset and Design Lab foundation validators passed.
+- 131 unit tests passed across 67 test files.
+- TypeScript no-emit compilation and Angular production build passed.
+- `git diff --check` passed.
+
+### Boundary
+
+- No API endpoints, API contracts or Blueprint canonical definitions were changed by this release.
+- This remains a PRE-V1 architecture release; it does not claim complete product migration or Production Readiness.
+
 ## [0.12.0] - 2026-08-23
 
 Visual and interaction convergence baseline using Nexa Design Lab (v1.0.1) tokens and components.
