@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { AuthenticationService } from '../../iam/application/authentication.service';
+import { PlatformAuthenticationBoundary } from './platform-authentication.boundary';
 import { catalogReadGuard, catalogManageGuard, promotionManageGuard } from './catalog-access.guard';
 
 const route = {} as never;
@@ -28,7 +28,7 @@ describe('catalog access guards', () => {
     });
     authentication.hasPermission.mockImplementation((permission: string) => permission === 'catalog:read');
     TestBed.configureTestingModule({
-      providers: [provideRouter([]), { provide: AuthenticationService, useValue: authentication }]
+      providers: [provideRouter([]), { provide: PlatformAuthenticationBoundary, useValue: authentication }]
     });
   });
 

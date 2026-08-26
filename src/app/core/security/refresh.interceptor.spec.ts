@@ -3,7 +3,7 @@ import { provideHttpClientTesting, HttpTestingController } from '@angular/common
 import { TestBed } from '@angular/core/testing';
 import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
 import { Subject } from 'rxjs';
-import { AuthenticationService } from '../../iam/application/authentication.service';
+import { PlatformAuthenticationBoundary } from './platform-authentication.boundary';
 import { refreshInterceptor } from './refresh.interceptor';
 
 describe('refreshInterceptor', () => {
@@ -23,7 +23,7 @@ describe('refreshInterceptor', () => {
       providers: [
         provideHttpClient(withInterceptors([refreshInterceptor])),
         provideHttpClientTesting(),
-        { provide: AuthenticationService, useValue: authentication }
+        { provide: PlatformAuthenticationBoundary, useValue: authentication }
       ]
     });
     http = TestBed.inject(HttpClient);

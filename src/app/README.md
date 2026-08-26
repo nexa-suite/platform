@@ -1,0 +1,7 @@
+# Frontend bounded-context feature roots
+
+Esta estructura sigue el conjunto canónico de Blueprint: [bounded contexts de Nexa](https://github.com/nexa-suite/blueprint/tree/main/01-shared/domain/bounded-contexts).
+
+Cada carpeta usa exactamente el nombre del módulo API correspondiente (`tenantaccessgovernance`, `customerbuyerrelationships`, `catalogcommercialpolicy`, `salescommitment`, `inventoryavailability`, `fulfillmentdelivery`, `creditreceivables`, `payments`, `businessdocuments`, `notifications`, `businesstraceability`) y vive directamente bajo `src/app`. Cada contexto expone sus capas `application`, `domain`, `infrastructure` y `presentation`; los puertos de integración y las fachadas consumen contratos, mientras los adaptadores concretos quedan en `infrastructure` y se conectan en la composición raíz. BC-01 conserva además los módulos técnicos `iam` y `tenantmanagement`, cada uno con las mismas cuatro capas. Esta aplicación es la superficie Platform: presenta casos de uso de workforce y consume contratos del API; no redefine la autoridad del dominio ni crea un segundo catálogo de BCs.
+
+La asignación de pantallas, proyecciones y composiciones está en [`docs/architecture/bounded-context-map.md`](../../docs/architecture/bounded-context-map.md). Los contextos sin implementación frontend mantienen sus cuatro carpetas con documentación de ausencia de contrato para evitar inventar endpoints, modelos, rutas o comportamiento.

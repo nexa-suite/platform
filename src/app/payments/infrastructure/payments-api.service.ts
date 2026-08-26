@@ -3,9 +3,10 @@ import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { PLATFORM_RUNTIME_CONFIG, platformApiUrl } from '../../core/security/runtime-config';
 import { PaymentPage, PaymentReviewResult } from '../domain/payment.models';
+import { PaymentsApiPort } from '../domain/ports/payments-api.port';
 
 @Injectable({ providedIn: 'root' })
-export class PaymentsApiService {
+export class PaymentsApiService implements PaymentsApiPort {
   private readonly http = inject(HttpClient);
   private readonly config = inject(PLATFORM_RUNTIME_CONFIG);
 

@@ -1,6 +1,6 @@
 import { effect, Injectable, inject } from '@angular/core';
 import { firstValueFrom, Subject } from 'rxjs';
-import { AuthenticationService } from '../../../iam/application/authentication.service';
+import { PlatformAuthenticationBoundary } from '../../security/platform-authentication.boundary';
 import { PLATFORM_RUNTIME_CONFIG, platformApiUrl } from '../../security/runtime-config';
 import { ChangeEvent } from '../domain/change-feed.models';
 
@@ -9,8 +9,8 @@ const MAX_EVENT_IDS = 500;
 const RECONNECT_MS = 1_000;
 
 @Injectable({ providedIn: 'root' })
-export class ChangeFeedService {
-  private readonly authentication = inject(AuthenticationService);
+export class ChangeFeedClient {
+  private readonly authentication = inject(PlatformAuthenticationBoundary);
   private readonly config = inject(PLATFORM_RUNTIME_CONFIG);
   private readonly subject = new Subject<ChangeEvent>();
   private readonly seenIds = new Set<string>();

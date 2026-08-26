@@ -1,10 +1,10 @@
 import { HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
-import { AuthenticationService } from '../../iam/application/authentication.service';
+import { PlatformAuthenticationBoundary } from './platform-authentication.boundary';
 import { isAuthenticationRequest } from './auth-request-context';
 
 export const bearerInterceptor: HttpInterceptorFn = (request, next) => {
-  const authentication = inject(AuthenticationService);
+  const authentication = inject(PlatformAuthenticationBoundary);
   const accessToken = authentication.accessToken();
 
   if (!accessToken || isAuthenticationRequest(request.url)) {
