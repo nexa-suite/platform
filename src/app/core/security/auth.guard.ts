@@ -1,10 +1,10 @@
 import { CanActivateFn, Router } from '@angular/router';
 import { inject } from '@angular/core';
-import { AuthenticationService } from '../../iam/application/authentication.service';
+import { PlatformAuthenticationBoundary } from './platform-authentication.boundary';
 import { PLATFORM_ROUTES, safeReturnUrl } from '../routing/route-paths';
 
 export const authGuard: CanActivateFn = (_route, routerState) => {
-  const authentication = inject(AuthenticationService);
+  const authentication = inject(PlatformAuthenticationBoundary);
   const router = inject(Router);
 
   if (authentication.status() === 'authenticated') return true;
@@ -15,7 +15,7 @@ export const authGuard: CanActivateFn = (_route, routerState) => {
 };
 
 export const anonymousGuard: CanActivateFn = (_route, routerState) => {
-  const authentication = inject(AuthenticationService);
+  const authentication = inject(PlatformAuthenticationBoundary);
   const router = inject(Router);
 
   if (authentication.status() !== 'authenticated') return true;

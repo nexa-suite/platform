@@ -5,8 +5,8 @@ import { provideRouter } from '@angular/router';
 import { provideTranslateService } from '@ngx-translate/core';
 import { BehaviorSubject } from 'rxjs';
 import { vi } from 'vitest';
-import { AuthenticationService } from '../../../iam/application/authentication.service';
-import { PlatformNotificationsService } from '../../notifications/platform-notifications.service';
+import { PlatformAuthenticationBoundary } from '../../security/platform-authentication.boundary';
+import { PlatformNotificationsService } from '../../../notifications/application/platform-notifications.service';
 import { PlatformShellComponent } from './platform-shell.component';
 
 describe('PlatformShellComponent', () => {
@@ -21,7 +21,7 @@ describe('PlatformShellComponent', () => {
         provideRouter([]),
         provideTranslateService(),
         { provide: BreakpointObserver, useValue: { observe: () => breakpointState } },
-        { provide: AuthenticationService, useValue: { currentUser: signal(null), hasPermission: vi.fn(), signOut: () => undefined } },
+        { provide: PlatformAuthenticationBoundary, useValue: { currentUser: signal(null), hasPermission: vi.fn(), signOut: () => undefined } },
         { provide: PlatformNotificationsService, useValue: { notifications: signal([]), unreadCount: signal(0), markAllRead: vi.fn(), markRead: vi.fn() } }
       ]
     }).compileComponents();
@@ -85,7 +85,7 @@ describe('PlatformShellComponent', () => {
   });
 
   it('exposes every authorized internal work area without changing authentication state', () => {
-    const auth = TestBed.inject(AuthenticationService) as unknown as { currentUser: ReturnType<typeof signal> };
+    const auth = TestBed.inject(PlatformAuthenticationBoundary) as unknown as { currentUser: ReturnType<typeof signal> };
     auth.currentUser.set({ subject: 'u1', identifier: 'owner@nexa.test', displayName: 'Owner', workspaceSlug: 'icisa', roles: ['COMPANY_OWNER', 'SALES'], permissions: ['sales:read'] });
     fixture.detectChanges();
 
@@ -93,7 +93,7 @@ describe('PlatformShellComponent', () => {
   });
 
   it('uses backend permissions as the navigation authority instead of role labels', () => {
-    const auth = TestBed.inject(AuthenticationService) as unknown as {
+    const auth = TestBed.inject(PlatformAuthenticationBoundary) as unknown as {
       currentUser: ReturnType<typeof signal>;
       hasPermission: ReturnType<typeof vi.fn>;
     };
@@ -106,7 +106,7 @@ describe('PlatformShellComponent', () => {
   });
 
   it('offers a permission-backed area for a tenant-defined role', () => {
-    const auth = TestBed.inject(AuthenticationService) as unknown as {
+    const auth = TestBed.inject(PlatformAuthenticationBoundary) as unknown as {
       currentUser: ReturnType<typeof signal>;
       hasPermission: ReturnType<typeof vi.fn>;
     };

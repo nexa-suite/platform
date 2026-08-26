@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import { CustomerRelationshipsApiService } from './customer-buyer-relationships/infrastructure/http/customer-relationships-api.service';
-import { CatalogPromotionTargetsGateway } from './catalog-management/infrastructure/http/catalog-promotion-targets.gateway';
-import { SalesCommitmentApiService } from './sales-commitment/infrastructure/http/sales-commitment-api.service';
+import { CustomerRelationshipsApiService } from './customerbuyerrelationships/infrastructure/http/customer-relationships-api.service';
+import { CatalogPromotionTargetsGateway } from './catalogcommercialpolicy/infrastructure/http/catalog-promotion-targets.gateway';
+import { SalesCommitmentApiService } from './salescommitment/infrastructure/http/sales-commitment-api.service';
 import { routes } from './app.routes';
 
 describe('Platform catalog route matrix', () => {

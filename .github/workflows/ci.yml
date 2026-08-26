@@ -129,6 +129,8 @@ jobs:
           cat "$GITHUB_WORKSPACE/api-runtime.log"
           exit 1
       - run: npm ci
+      - name: Validate canonical bounded-context structure
+        run: npm run validate:bounded-contexts
       - run: npm test
       - run: npm run build
       - run: npx playwright install --with-deps chromium

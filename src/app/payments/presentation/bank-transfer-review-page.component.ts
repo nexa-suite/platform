@@ -3,7 +3,7 @@ import { DecimalPipe } from '@angular/common';
 import { TranslatePipe } from '@ngx-translate/core';
 import { PageHeaderComponent } from '../../shared/presentation/components/page-header/page-header.component';
 import { PaymentSummary } from '../domain/payment.models';
-import { PaymentsApiService } from '../infrastructure/payments-api.service';
+import { PaymentsFacade } from '../application/payments.facade';
 
 @Component({
   selector: 'nexa-bank-transfer-review-page',
@@ -47,7 +47,7 @@ import { PaymentsApiService } from '../infrastructure/payments-api.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class BankTransferReviewPageComponent {
-  private readonly api = inject(PaymentsApiService);
+  private readonly api = inject(PaymentsFacade);
   readonly payments = signal<readonly PaymentSummary[]>([]);
   readonly loading = signal(false);
   readonly error = signal<string | null>(null);

@@ -2,7 +2,7 @@ import { HttpClient, provideHttpClient, withInterceptors } from '@angular/common
 import { provideHttpClientTesting, HttpTestingController } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { describe, expect, it, beforeEach, afterEach } from 'vitest';
-import { AuthenticationService } from '../../iam/application/authentication.service';
+import { PlatformAuthenticationBoundary } from './platform-authentication.boundary';
 import { bearerInterceptor } from './bearer.interceptor';
 
 describe('bearerInterceptor', () => {
@@ -14,7 +14,7 @@ describe('bearerInterceptor', () => {
       providers: [
         provideHttpClient(withInterceptors([bearerInterceptor])),
         provideHttpClientTesting(),
-        { provide: AuthenticationService, useValue: { accessToken: () => 'access-token' } }
+        { provide: PlatformAuthenticationBoundary, useValue: { accessToken: () => 'access-token' } }
       ]
     });
     http = TestBed.inject(HttpClient);
