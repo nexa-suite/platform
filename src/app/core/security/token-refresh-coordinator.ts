@@ -1,10 +1,10 @@
 import { Injectable, inject } from '@angular/core';
 import { Observable, finalize, shareReplay } from 'rxjs';
-import { AuthenticationService } from '../../iam/application/authentication.service';
+import { PlatformAuthenticationBoundary } from './platform-authentication.boundary';
 
 @Injectable({ providedIn: 'root' })
 export class TokenRefreshCoordinator {
-  private readonly authentication = inject(AuthenticationService);
+  private readonly authentication = inject(PlatformAuthenticationBoundary);
   private inFlight: Observable<string> | null = null;
 
   refresh(): Observable<string> {

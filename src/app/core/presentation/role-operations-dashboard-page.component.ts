@@ -1,14 +1,14 @@
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
-import { AuthenticationService } from '../../iam/application/authentication.service';
-import { LogisticsFacade } from '../../logistics/application/logistics.facade';
+import { PlatformAuthenticationBoundary } from '../security/platform-authentication.boundary';
+import { LogisticsFacade } from '../../fulfillmentdelivery/application/logistics.facade';
 import { ErrorStateComponent } from '../../shared/presentation/components/error-state/error-state.component';
 import { LoadingStateComponent } from '../../shared/presentation/components/loading-state/loading-state.component';
 import { MetricCardComponent } from '../../shared/presentation/components/metric-card/metric-card.component';
 import { PageHeaderComponent } from '../../shared/presentation/components/page-header/page-header.component';
 import { SectionPanelComponent } from '../../shared/presentation/components/section-panel/section-panel.component';
-import { WarehouseOperationsFacade } from '../../warehouse/application/warehouse-operations.facade';
+import { WarehouseOperationsFacade } from '../../inventoryavailability/application/warehouse-operations.facade';
 
 @Component({
   selector: 'nexa-role-operations-dashboard-page',
@@ -27,7 +27,7 @@ import { WarehouseOperationsFacade } from '../../warehouse/application/warehouse
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class RoleOperationsDashboardPageComponent {
-  private readonly auth = inject(AuthenticationService);
+  private readonly auth = inject(PlatformAuthenticationBoundary);
   readonly warehouse = inject(WarehouseOperationsFacade);
   readonly delivery = inject(LogisticsFacade);
   readonly isDeliveryCoordination = computed(() =>

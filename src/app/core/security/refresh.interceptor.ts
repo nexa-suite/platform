@@ -1,12 +1,12 @@
 import { HttpErrorResponse, HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { catchError, switchMap, throwError } from 'rxjs';
-import { AuthenticationService } from '../../iam/application/authentication.service';
+import { PlatformAuthenticationBoundary } from './platform-authentication.boundary';
 import { isAuthenticationRequest, AUTH_REFRESH_RETRY } from './auth-request-context';
 import { TokenRefreshCoordinator } from './token-refresh-coordinator';
 
 export const refreshInterceptor: HttpInterceptorFn = (request, next) => {
-  const authentication = inject(AuthenticationService);
+  const authentication = inject(PlatformAuthenticationBoundary);
   const refreshCoordinator = inject(TokenRefreshCoordinator);
 
   if (isAuthenticationRequest(request.url) || request.context.get(AUTH_REFRESH_RETRY)) {

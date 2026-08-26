@@ -21,11 +21,11 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { map } from 'rxjs';
 import { BrandLogoComponent } from '../../../shared/presentation/components/brand-logo/brand-logo.component';
 import { LanguageSwitcherComponent } from '../../i18n/language-switcher/language-switcher.component';
-import { AuthenticationService } from '../../../iam/application/authentication.service';
+import { PlatformAuthenticationBoundary } from '../../security/platform-authentication.boundary';
 import { PLATFORM_NAVIGATION_GROUPS } from '../../navigation/navigation.registry';
 import { PLATFORM_AREAS, PLATFORM_PERMISSION_WORK_AREAS, PlatformWorkArea } from '../../security/platform-permissions';
 import { NexaIconComponent } from '../../../shared/presentation/components/nexa-icon/nexa-icon.component';
-import { PlatformNotificationsService } from '../../notifications/platform-notifications.service';
+import { PlatformNotificationsService } from '../../../notifications/application/platform-notifications.service';
 
 @Component({
   selector: 'nexa-platform-shell',
@@ -50,7 +50,7 @@ import { PlatformNotificationsService } from '../../notifications/platform-notif
   }
 })
 export class PlatformShellComponent {
-  private readonly authentication = inject(AuthenticationService);
+  private readonly authentication = inject(PlatformAuthenticationBoundary);
   private readonly router = inject(Router);
   private readonly breakpoints = inject(BreakpointObserver);
   private readonly document = inject(DOCUMENT);

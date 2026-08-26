@@ -4,6 +4,8 @@ Release notes are scoped to the Platform repository and distinguish the Angular 
 
 | Published release | Summary |
 |---|---|
+| [v0.13.0](./v0.13.0.md) | Canonical bounded-context layering and Angular composition |
+| [v0.12.0](./v0.12.0.md) | Visual and interaction convergence baseline |
 | [v0.11.0](./v0.11.0.md) | PRE-V1 Architecture & Governance Foundation operations baseline |
 | [v0.10.0](./v0.10.0.md) | Functional convergence continuation operations baseline |
 | [v0.7.1](./v0.7.1.md) | Operations workspace stabilization |
@@ -20,4 +22,4 @@ Release notes are scoped to the Platform repository and distinguish the Angular 
 |---|---|
 | [UNRELEASED HISTORICAL CANDIDATE: v0.6.0](./v0.6.0.md) | Consolidated into later published work; no tag or GitHub Release |
 
-Current release is `0.11.0`. Structural parity has advanced for implemented surfaces; this does not claim full product migration or pixel-level parity with Vue.
+Current release is `0.13.0`. Structural parity has advanced for implemented surfaces; this does not claim full product migration or pixel-level parity with Vue.
