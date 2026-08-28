@@ -17,6 +17,20 @@
     "notifications": { "title": "Live notifications", "open": "Open live notifications", "markRead": "Mark all as read", "empty": "No live notifications." },
     "navigation": { "overview": "Overview", "executiveOverview": "Executive overview", "catalog": "Product catalog", "salesOrders": "Sales orders", "fulfillment": "Fulfillment readiness", "companyAdministration": "Company administration", "salesDashboard": "Sales Dashboard", "productCatalog": "Product Catalog", "clientAccounts": "Client accounts", "b2bClients": "B2B Clients", "requestBuilder": "Request builder", "manualSalesOrder": "Manual sales order", "manualOrderEntry": "Manual Order Entry", "purchaseRequests": "Purchase Requests", "purchaseOrders": "Purchase Orders", "businessDocuments": "Business Documents", "inventoryControl": "Inventory control", "operationsDashboard": "Operations dashboard", "warehouses": "Warehouses and zones", "inventoryLots": "Inventory lots", "stockMovements": "Stock movements", "reservations": "Reservations", "fulfillmentReadiness": "Fulfillment readiness", "inventoryOverview": "Inventory overview", "dispatchOrders": "Dispatch orders", "proofOfDelivery": "Proof of delivery", "temperatureIncidents": "Temperature and incidents", "operationalAnalytics": "Operational analytics", "auditViewer": "Audit viewer", "bankTransfers": "Bank transfer review", "profile": "My Profile" }
   },
+  "companyOwnerOverview": {
+    "eyebrow": "Company Owner / Executive overview",
+    "title": "Executive overview",
+    "subtitle": "Read-only business health from the authorized workspace projections.",
+    "metricsLabel": "Workspace business indicators",
+    "loading": "Loading workspace indicators…",
+    "errorTitle": "Executive overview unavailable",
+    "errorDescription": "The authorized workspace projections could not be loaded. Try again.",
+    "retry": "Retry",
+    "accessNotGranted": "Access not granted for this workspace",
+    "metrics": { "salesOrders": "Sales orders", "purchaseRequests": "Purchase Requests", "clientAccounts": "Client Accounts", "warehouses": "Warehouses", "inventoryLots": "Inventory lots", "activeDispatches": "Active dispatches", "dispatchIncidents": "Dispatch incidents", "deliveredToday": "Delivered today" },
+    "hints": { "salesOrders": "Total orders visible to Sales", "purchaseRequests": "Total requests visible to Sales", "clientAccounts": "Accounts visible to Sales", "warehouses": "Warehouses visible to Warehouse", "inventoryLots": "Lots tracked by Warehouse", "activeDispatches": "Current operational dispatch workload", "dispatchIncidents": "Incidents in the operational dashboard", "deliveredToday": "Delivered dispatches reported today" },
+    "activity": { "title": "Recent business activity", "description": "Events received from the authorized workspace change feed.", "emptyTitle": "No recent activity", "emptyDescription": "New authorized workspace events will appear here." }
+  },
   "audit": { "eyebrow": "Operations / Audit", "title": "Audit viewer", "subtitle": "Tenant-scoped immutable events with safe metadata and correlation traceability.", "loading": "Loading audit events…", "errorTitle": "Audit unavailable", "retry": "Retry", "empty": "No audit events match the current filters.", "filters": { "search": "Search", "eventType": "Event type", "workArea": "Work area" }, "fields": { "date": "Date", "event": "Event", "area": "Work area", "subject": "Subject", "action": "Action", "actor": "Actor", "correlation": "Correlation" }, "actions": { "detail": "View detail", "close": "Close" }, "detail": { "title": "Audit event detail" } },
   "overview": {
     "title": "Operations workspace",

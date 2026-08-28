@@ -1,0 +1,12 @@
+:host { display: block; }
+.owner-overview { display: grid; gap: var(--nexa-space-6); }
+.metric-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--nexa-space-4); }
+.activity-list { display: grid; gap: var(--nexa-space-3); }
+.activity-row { display: flex; align-items: center; gap: var(--nexa-space-3); padding: var(--nexa-space-3) 0; border-bottom: 1px solid var(--nexa-color-border); }
+.activity-row:last-child { border-bottom: 0; }
+.activity-row > div { display: grid; min-width: 0; gap: var(--nexa-space-1); }
+.activity-row strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.activity-row small { color: var(--nexa-color-text-secondary); }
+.activity-mark { display: grid; width: 2.25rem; height: 2.25rem; flex: 0 0 2.25rem; place-items: center; border-radius: 50%; color: var(--nexa-color-cold-refrigerated); background: var(--nexa-color-surface-muted); }
+@media (max-width: 960px) { .metric-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 600px) { .metric-grid { grid-template-columns: 1fr; } .activity-row strong { white-space: normal; } }

@@ -17,6 +17,20 @@
     "notifications": { "title": "Notificaciones en vivo", "open": "Abrir notificaciones en vivo", "markRead": "Marcar todas como leídas", "empty": "No hay notificaciones en vivo." },
     "navigation": { "overview": "Resumen", "executiveOverview": "Resumen ejecutivo", "catalog": "Catálogo de productos", "salesOrders": "Órdenes de venta", "fulfillment": "Preparación de despacho", "companyAdministration": "Administración de compañía", "salesDashboard": "Dashboard Sales", "productCatalog": "Catálogo", "operationsDashboard": "Dashboard de operaciones", "clientAccounts": "Cuentas cliente", "b2bClients": "Clientes B2B", "requestBuilder": "Constructor de solicitudes", "manualSalesOrder": "Orden de venta manual", "manualOrderEntry": "Registro manual", "purchaseRequests": "Solicitudes B2B", "purchaseOrders": "Órdenes de compra", "businessDocuments": "Documentos comerciales", "inventoryControl": "Control de inventario", "warehouses": "Almacenes y zonas", "inventoryLots": "Lotes de inventario", "stockMovements": "Movimientos de stock", "reservations": "Reservas", "fulfillmentReadiness": "Preparación de despacho", "inventoryOverview": "Resumen de inventario", "dispatchOrders": "Órdenes de despacho", "proofOfDelivery": "Prueba de entrega", "temperatureIncidents": "Temperatura e incidentes", "operationalAnalytics": "Analítica operativa", "auditViewer": "Visor de auditoría", "bankTransfers": "Revisión de transferencias", "profile": "Mi perfil" }
   },
+  "companyOwnerOverview": {
+    "eyebrow": "Company Owner / Resumen ejecutivo",
+    "title": "Resumen ejecutivo",
+    "subtitle": "Salud comercial de solo lectura desde las proyecciones autorizadas del workspace.",
+    "metricsLabel": "Indicadores comerciales del workspace",
+    "loading": "Cargando indicadores del workspace…",
+    "errorTitle": "Resumen ejecutivo no disponible",
+    "errorDescription": "No se pudieron cargar las proyecciones autorizadas del workspace. Reintenta.",
+    "retry": "Reintentar",
+    "accessNotGranted": "Acceso no concedido para este workspace",
+    "metrics": { "salesOrders": "Órdenes de venta", "purchaseRequests": "Solicitudes de compra", "clientAccounts": "Cuentas cliente", "warehouses": "Almacenes", "inventoryLots": "Lotes de inventario", "activeDispatches": "Despachos activos", "dispatchIncidents": "Incidentes de despacho", "deliveredToday": "Entregados hoy" },
+    "hints": { "salesOrders": "Órdenes visibles para Sales", "purchaseRequests": "Solicitudes visibles para Sales", "clientAccounts": "Cuentas visibles para Sales", "warehouses": "Almacenes visibles para Warehouse", "inventoryLots": "Lotes rastreados por Warehouse", "activeDispatches": "Carga operativa actual de despachos", "dispatchIncidents": "Incidentes reportados por operaciones", "deliveredToday": "Despachos entregados reportados hoy" },
+    "activity": { "title": "Actividad comercial reciente", "description": "Eventos recibidos desde el change-feed autorizado del workspace.", "emptyTitle": "Sin actividad reciente", "emptyDescription": "Los nuevos eventos autorizados del workspace aparecerán aquí." }
+  },
   "audit": { "eyebrow": "Operaciones / Auditoría", "title": "Visor de auditoría", "subtitle": "Eventos inmutables delimitados por tenant con metadatos seguros y trazabilidad por correlación.", "loading": "Cargando eventos de auditoría…", "errorTitle": "Auditoría no disponible", "retry": "Reintentar", "empty": "No hay eventos que coincidan con los filtros actuales.", "filters": { "search": "Buscar", "eventType": "Tipo de evento", "workArea": "Área de trabajo" }, "fields": { "date": "Fecha", "event": "Evento", "area": "Área", "subject": "Sujeto", "action": "Acción", "actor": "Actor", "correlation": "Correlación" }, "actions": { "detail": "Ver detalle", "close": "Cerrar" }, "detail": { "title": "Detalle del evento de auditoría" } },
   "overview": {
     "title": "Espacio de operaciones",
