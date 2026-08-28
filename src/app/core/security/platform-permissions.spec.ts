@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { firstPermittedPlatformLanding, platformLandingForUser, PLATFORM_PERMISSIONS } from './platform-permissions';
+import { firstPermittedPlatformLanding, platformLandingForUser, PLATFORM_AREAS, PLATFORM_PERMISSIONS } from './platform-permissions';
 
 describe('platform permission landings', () => {
   it('resolves a landing for a custom role from effective permissions', () => {
@@ -16,5 +16,14 @@ describe('platform permission landings', () => {
       (permission) => permission === PLATFORM_PERMISSIONS.ownerDashboardRead || permission === PLATFORM_PERMISSIONS.tenantRead,
     );
     expect(landing?.path).toBe('/ops/executive-overview');
+  });
+
+  it('keeps the canonical internal work areas explicit and leaves BOM outside the current contract', () => {
+    expect(Object.keys(PLATFORM_AREAS)).toEqual(['TENANT_ADMIN', 'COMPANY_OWNER', 'SALES', 'WAREHOUSE', 'LOGISTICS']);
+    expect(PLATFORM_AREAS.COMPANY_OWNER.path).toBe('/ops/executive-overview');
+    expect(PLATFORM_AREAS.SALES.path).toBe('/ops/commercial/dashboard');
+    expect(PLATFORM_AREAS.WAREHOUSE.path).toBe('/ops/operations/dashboard');
+    expect(PLATFORM_AREAS.LOGISTICS.path).toBe('/ops/operations/dispatch-orders');
+    expect('BOM' in PLATFORM_AREAS).toBe(false);
   });
 });
