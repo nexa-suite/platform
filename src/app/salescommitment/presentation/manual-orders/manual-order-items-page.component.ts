@@ -4,8 +4,9 @@ import { TranslatePipe } from '@ngx-translate/core';
 import { NexaIconComponent } from '../../../shared/presentation/components/nexa-icon/nexa-icon.component';
 import { PlatformCatalogCartFacade } from '../../../core/presentation/catalog-cart/platform-catalog-cart.facade';
 import { ManualOrderWizardFacade } from '../../application/manual-orders/manual-order-wizard.facade';
-import { ManualOrderLineCommand } from '../../domain/manual-orders/manual-order.models';
+import { ManualOrderDraft, ManualOrderLine, ManualOrderLineCommand } from '../../domain/manual-orders/manual-order.models';
 import type { ManualOrderCartItem } from '../../domain/manual-orders/manual-order-cart.models';
+import type { SalesCommitmentCatalogItem } from '../../domain/sales-commitment-catalog.models';
 
 @Component({
   selector: 'nexa-manual-order-items-page',
@@ -41,23 +42,7 @@ export class ManualOrderItemsPageComponent {
       const catalogItems = this.facade.state().catalogItems;
       if (draft?.id !== this.draftId || !draft.lines.length || this.cart.items().length || !catalogItems.length) return;
 
-      this.cart.replace(draft.lines.map((line) => {
-        const catalogItem = catalogItems.find((item) => item.id === line.catalogItemId);
-        return {
-          catalogItemId: line.catalogItemId ?? line.skuId ?? '',
-          skuId: line.skuId ?? null,
-          productFamilyName: catalogItem?.productFamilyName ?? line.productFamily,
-          name: catalogItem?.name ?? line.productFamily,
-          presentation: catalogItem?.presentation ?? line.presentation,
-          unit: line.unit || catalogItem?.unitOfMeasure || 'UNIT',
-          quantity: line.quantity,
-          unitPriceAmount: catalogItem?.unitPrice.amount ?? line.baseUnitPrice ?? null,
-          currency: catalogItem?.unitPrice.currency ?? line.currency ?? 'PEN',
-          imageUrl: catalogItem?.image.url ?? null,
-          availabilityStatus: catalogItem?.availabilityStatus ?? line.availabilityStatus,
-          notes: line.notes ?? '',
-        };
-      }));
+      this.replaceCartFromDraft(draft, catalogItems);
     });
   }
 
@@ -117,8 +102,39 @@ export class ManualOrderItemsPageComponent {
 
     this.saving.set(true);
     this.facade.saveItems(this.draftId, this.lines()).subscribe({
-      next: () => void this.router.navigate(['/ops/commercial/manual-orders', this.draftId, 'delivery']),
+      next: (draft) => {
+        this.replaceCartFromDraft(draft, this.facade.state().catalogItems);
+        void this.router.navigate(['/ops/commercial/manual-orders', this.draftId, 'delivery']);
+      },
       error: () => this.saving.set(false),
     });
+  }
+
+  private replaceCartFromDraft(draft: ManualOrderDraft, catalogItems: readonly SalesCommitmentCatalogItem[]): void {
+    this.cart.replace(draft.lines.map((line) => this.cartItemFromDraftLine(line, catalogItems)));
+  }
+
+  private cartItemFromDraftLine(line: ManualOrderLine, catalogItems: readonly SalesCommitmentCatalogItem[]): ManualOrderCartItem {
+    const catalogItem = catalogItems.find((item) => item.id === line.catalogItemId);
+    return {
+      catalogItemId: line.catalogItemId || line.skuId,
+      skuId: line.skuId || null,
+      productFamilyName: catalogItem?.productFamilyName || line.productFamily,
+      name: catalogItem?.name || line.productFamily,
+      presentation: line.presentation || catalogItem?.presentation || line.skuCode,
+      unit: line.unit || catalogItem?.unitOfMeasure || 'UNIT',
+      quantity: line.quantity,
+      // The draft response is authoritative after a save: catalog prices are
+      // only a display fallback when a legacy response omits the amount.
+      unitPriceAmount: Number.isFinite(line.effectiveUnitPrice)
+        ? line.effectiveUnitPrice
+        : Number.isFinite(line.baseUnitPrice)
+          ? line.baseUnitPrice
+          : catalogItem?.unitPrice.amount ?? null,
+      currency: line.currency || catalogItem?.unitPrice.currency || 'PEN',
+      imageUrl: catalogItem?.image.url ?? null,
+      availabilityStatus: line.availabilityStatus || catalogItem?.availabilityStatus || 'UNKNOWN',
+      notes: line.notes ?? '',
+    };
   }
 }

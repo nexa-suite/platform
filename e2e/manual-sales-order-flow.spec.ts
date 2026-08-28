@@ -6,7 +6,9 @@ test('Sales completes the four-step manual order flow with server route preview'
   requiresCredentials('SALES');
   await signIn(page, 'SALES');
 
+  const draftCreate = page.waitForResponse((response) => response.request().method() === 'POST' && /\/api\/v1\/sales-orders\/manual-drafts$/.test(new URL(response.url()).pathname));
   await page.goto('/ops/commercial/manual-orders/new');
+  expect((await draftCreate).status()).toBe(201);
   await expect(page).toHaveURL(/\/ops\/commercial\/manual-orders\/[^/]+\/client$/);
   await expect(page.getByRole('heading', { name: /select client|selecciona cliente/i })).toBeVisible();
 
@@ -28,7 +30,9 @@ test('Sales completes the four-step manual order flow with server route preview'
   await page.getByRole('link', { name: /create sales order|crear sales order/i }).click();
   await expect(page).toHaveURL(new RegExp(`${draftItemsPath}$`));
   await expect(page.getByText(/COPPA/i).first()).toBeVisible();
+  const itemsSave = page.waitForResponse((response) => response.request().method() === 'PUT' && /\/api\/v1\/sales-orders\/manual-drafts\/[^/]+\/items$/.test(new URL(response.url()).pathname));
   await page.getByRole('button', { name: /continue to delivery|continuar a entrega/i }).click();
+  expect((await itemsSave).status()).toBe(200);
   await expect(page).toHaveURL(/\/delivery$/);
   await expect(page.getByRole('heading', { name: /delivery information|entrega y servicio/i })).toBeVisible();
   await expect(page.locator('.route-preview-card')).toBeVisible();
