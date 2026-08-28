@@ -4,6 +4,7 @@ Release notes are scoped to the Platform repository and distinguish the Angular 
 
 | Release | Summary |
 |---|---|
+| [v0.16.0](./v0.16.0.md) | Live Company Owner projections and permission-aware role surfaces |
 | [v0.15.0](./v0.15.0.md) | IAM, catalog-backed manual Sales flow and route preview |
 | [v0.14.0](./v0.14.0.md) | Runtime mock slices for generic and ICISA tenants |
 | [v0.13.0](./v0.13.0.md) | Canonical bounded-context layering and Angular composition |
@@ -24,7 +25,10 @@ Release notes are scoped to the Platform repository and distinguish the Angular 
 |---|---|
 | [UNRELEASED HISTORICAL CANDIDATE: v0.6.0](./v0.6.0.md) | Consolidated into later published work; no tag or GitHub Release |
 
-Current release is `0.15.0`. IAM and manual Sales boundaries now
+Current release is `0.16.0`. Company Owner now reads live authorized
+projections from existing context APIs, while the frontend keeps Sales,
+Warehouse and Logistics/Dispatch access separated by effective permissions.
+IAM and manual Sales boundaries now
 include workspace recognition, explicit two-factor challenge handling,
 catalog-backed items, capability-scoped navigation and server-backed route
 snapshots with an embedded map. This does not claim full product migration or
