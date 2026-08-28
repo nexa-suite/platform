@@ -626,3 +626,339 @@ button.mobile-menu-button {
     transition: none;
   }
 }
+
+/* Workspace shell parity with legacy/platform-vue ops-layout.vue. */
+nexa-platform-shell { display: block; height: 100dvh; min-height: 100dvh; }
+
+.platform-shell {
+  display: block;
+  height: 100dvh;
+  min-height: 100dvh;
+  background: #f6faff;
+}
+
+.platform-shell .platform-sidebar {
+  --mat-sidenav-container-width: 284px;
+  width: 284px;
+  min-width: 284px;
+  border-right: 1px solid #e2e8f0;
+  background: #ffffff;
+}
+
+.platform-shell .platform-sidebar .mat-drawer-inner-container {
+  overflow: hidden;
+}
+
+.platform-shell .sidebar-layout {
+  display: flex;
+  height: 100%;
+  min-height: 100%;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.platform-shell .sidebar-close {
+  display: none;
+  width: 38px;
+  height: 38px;
+  align-items: center;
+  justify-content: center;
+  align-self: flex-end;
+  margin: 10px 12px 0;
+  padding: 0;
+  border: 0;
+  border-radius: 10px;
+  color: #475569;
+  background: transparent;
+  cursor: pointer;
+}
+
+.platform-shell .workspace-identity {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 12px;
+  padding: 18px 16px 14px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.platform-shell .workspace-brand {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.platform-shell .workspace-brand nexa-brand-logo,
+.platform-shell .workspace-brand nexa-brand-logo img {
+  display: block;
+  width: 88px;
+  height: auto;
+}
+
+.platform-shell .workspace-brand > span {
+  color: #64748b;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.platform-shell .workspace-card {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 10px;
+  align-items: center;
+  margin: 0;
+  padding: 12px;
+  border: 1px solid #dbeafe;
+  border-radius: 14px;
+  background: linear-gradient(180deg, #eff6ff 0%, #ffffff 100%);
+}
+
+.platform-shell .company-mark {
+  display: inline-flex;
+  width: 38px;
+  height: 38px;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #bfdbfe;
+  border-radius: 12px;
+  color: #2563eb;
+  background: #eff6ff;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.platform-shell .workspace-copy { min-width: 0; }
+.platform-shell .workspace-copy strong { display: block; overflow: hidden; color: #0f172a; font-size: 13px; font-weight: 900; text-overflow: ellipsis; white-space: nowrap; }
+.platform-shell .workspace-copy span { display: block; overflow-wrap: anywhere; color: #64748b; font-size: 11px; line-height: 1.35; }
+
+.platform-shell .workspace-role {
+  display: inline-flex;
+  min-height: 28px;
+  align-items: center;
+  justify-self: start;
+  gap: 7px;
+  padding: 0 10px;
+  border: 1px solid #bbf7d0;
+  border-radius: 999px;
+  color: #15803d;
+  background: #f0fdf4;
+}
+
+.platform-shell .workspace-role nexa-icon { width: 16px; height: 16px; }
+.platform-shell .workspace-role span { color: #15803d; font-size: 11px; font-weight: 800; }
+
+.platform-shell .workspace-area-selector {
+  grid-column: 1 / -1;
+  width: 100%;
+  min-height: 36px;
+  margin-top: 2px;
+  padding: 0 10px;
+  border: 1px solid #dbe3ef;
+  border-radius: 10px;
+  color: #334155;
+  background: #ffffff;
+  cursor: pointer;
+  font: inherit;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.platform-shell .workspace-area-selector:hover {
+  border-color: #93c5fd;
+}
+
+.platform-shell .workspace-area-selector:focus-visible {
+  outline: 0;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, .18);
+}
+
+.platform-shell .platform-navigation.workspace-nav {
+  display: flex;
+  min-height: 0;
+  flex: 1;
+  flex-direction: column;
+  gap: 0;
+  padding: 22px 10px 16px;
+  overflow-y: auto;
+  scrollbar-gutter: stable;
+}
+
+.platform-shell .navigation-group {
+  display: grid;
+  align-content: start;
+  gap: 2px;
+  margin: 0 0 18px;
+}
+
+.platform-shell .navigation-group h2 {
+  display: block;
+  margin: 0;
+  padding: 0 14px 8px;
+  color: #94a3b8;
+  font-family: var(--nexa-font-family-body);
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: .08em;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.platform-shell .navigation-list {
+  display: grid;
+  gap: 2px;
+}
+
+.platform-shell .nav-item {
+  display: flex;
+  width: 100%;
+  min-width: 0;
+  min-height: 38px;
+  align-items: center;
+  gap: 10px;
+  padding: 0 11px;
+  border: 0;
+  border-radius: 10px;
+  color: #475569;
+  background: transparent;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 750;
+  line-height: 1.2;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color .16s ease, color .16s ease, box-shadow .16s ease;
+}
+
+.platform-shell .nav-item nexa-icon { width: 18px; height: 18px; color: currentColor; }
+.platform-shell .nav-item > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.platform-shell .nav-item .nav-count { margin-left: auto; min-width: 18px; padding: 1px 6px; border-radius: 9999px; color: #ffffff; background: #f97316; font-size: 10px; font-weight: 800; line-height: 1.2; text-align: center; }
+.platform-shell .nav-item:hover { color: #2563eb; background: #f8fbff; }
+.platform-shell .nav-item.active { color: #2563eb; background: #eff6ff; box-shadow: inset 3px 0 0 #2563eb; }
+.platform-shell .nav-item:focus-visible { outline: 0; box-shadow: 0 0 0 3px rgba(37, 99, 235, .18); }
+.platform-shell .nav-item.active:focus-visible { box-shadow: inset 3px 0 0 #2563eb, 0 0 0 3px rgba(37, 99, 235, .18); }
+.platform-shell .account-navigation { margin-top: auto; }
+.platform-shell .sign-out-nav-item { color: #b91c1c; }
+.platform-shell .sign-out-nav-item:hover { color: #b91c1c; background: #fff5f5; }
+
+.platform-shell .sidebar-footer {
+  display: block;
+  margin: 0;
+  padding: 14px 18px;
+  border-top: 1px solid #eef2f7;
+}
+
+.platform-shell .workspace-user {
+  display: flex;
+  width: 100%;
+  min-width: 0;
+  align-items: center;
+  gap: 10px;
+  padding: 0;
+  border: 0;
+  color: inherit;
+  background: transparent;
+  text-align: left;
+  text-decoration: none;
+}
+
+.platform-shell .user-avatar {
+  width: 32px;
+  height: 32px;
+  border: 0;
+  border-radius: 50%;
+  color: #2563eb;
+  background: #dbeafe;
+  font-size: 11px;
+}
+
+.platform-shell .user-copy { display: grid; min-width: 0; gap: 2px; }
+.platform-shell .user-copy strong { overflow: hidden; color: #334155; font-size: 12px; text-overflow: ellipsis; white-space: nowrap; }
+.platform-shell .user-copy small { overflow: hidden; color: #94a3b8; font-size: 11px; text-overflow: ellipsis; white-space: nowrap; }
+
+.platform-shell mat-sidenav-content {
+  display: flex;
+  height: 100%;
+  min-width: 0;
+  flex-direction: column;
+  background: #f6faff;
+}
+
+.platform-shell .platform-toolbar.topbar {
+  position: relative;
+  z-index: var(--nexa-z-sticky);
+  display: flex;
+  height: 56px;
+  min-height: 56px;
+  flex: 0 0 56px;
+  align-items: center;
+  gap: 14px;
+  padding: 0 28px;
+  border-bottom: 1px solid #e2e8f0;
+  color: #0f172a;
+  background: #ffffff;
+}
+
+.platform-shell .topbar-company { display: flex; min-width: 0; align-items: center; gap: 10px; }
+.platform-shell .topbar-company .company-mark { width: 38px; height: 38px; border-radius: 12px; }
+.platform-shell .topbar-company-copy { display: grid; min-width: 0; gap: 2px; }
+.platform-shell .topbar-company-name { overflow: hidden; color: #0f172a; font-size: 14px; font-weight: 900; text-overflow: ellipsis; white-space: nowrap; }
+.platform-shell .topbar-company-meta { overflow: hidden; color: #94a3b8; font-size: 11px; text-overflow: ellipsis; white-space: nowrap; }
+.platform-shell .topbar-right { display: flex; align-items: center; gap: 12px; }
+.platform-shell .topbar-icon-button { display: inline-flex; width: 38px; height: 38px; align-items: center; justify-content: center; padding: 0; border: 1px solid #dbe3ef; border-radius: 10px; color: #64748b; background: #ffffff; cursor: pointer; }
+.platform-shell .topbar-icon-button nexa-icon { width: 19px; height: 19px; }
+.platform-shell .topbar-icon-button:hover { color: #2563eb; border-color: #bfdbfe; background: #eff6ff; }
+.platform-shell .topbar-icon-button:focus-visible { outline: 0; box-shadow: 0 0 0 3px rgba(37, 99, 235, .18); }
+.platform-shell .mobile-menu-button { display: none; }
+
+.platform-shell .notification-center { position: relative; }
+.platform-shell .notification-dot { position: absolute; top: 7px; right: 7px; width: 6px; height: 6px; border: 1.5px solid #ffffff; border-radius: 50%; background: #f97316; }
+.platform-shell .notification-panel.notification-popover { top: calc(100% + 10px); right: 0; width: min(360px, calc(100vw - 32px)); border-radius: 14px; }
+.platform-shell .notification-mark-read { border: 0; color: #2563eb; background: transparent; font-size: 11px; font-weight: 700; cursor: pointer; }
+
+.platform-shell .platform-content.page {
+  width: 100%;
+  min-height: 0;
+  flex: 1;
+  margin: 0;
+  padding: 28px 36px 48px;
+  overflow: auto;
+}
+
+.platform-shell .platform-content.page > * {
+  width: 100%;
+  margin-inline: 0;
+}
+
+@media (max-width: 980px) {
+  .platform-shell .platform-sidebar { --mat-sidenav-container-width: 264px; width: 264px; min-width: 264px; }
+  .platform-shell .platform-toolbar.topbar { padding-inline: 22px; }
+  .platform-shell .platform-content.page { padding-inline: 24px; }
+}
+
+@media (max-width: 860px) {
+  .platform-shell .platform-sidebar { --mat-sidenav-container-width: 284px; width: 284px; min-width: 284px; box-shadow: 0 20px 48px rgba(15, 23, 42, .18); }
+  .platform-shell .sidebar-close { display: inline-flex; }
+  .platform-shell .mobile-menu-button { display: inline-flex; }
+  .platform-shell .platform-toolbar.topbar { height: 64px; min-height: 64px; flex-basis: 64px; padding-inline: 16px; }
+  .platform-shell .platform-content.page { padding: 24px 20px 40px; }
+}
+
+@media (max-width: 560px) {
+  .platform-shell .platform-toolbar.topbar { gap: 8px; padding-inline: 12px; }
+  .platform-shell .topbar-company-copy { max-width: calc(100vw - 150px); }
+  .platform-shell .topbar-company-name { font-size: 12px; }
+  .platform-shell .topbar-company-meta { font-size: 10px; }
+  .platform-shell .topbar-right { gap: 4px; }
+  .platform-shell .topbar-right nexa-language-switcher .lang-opt { width: 32px; height: 32px; }
+  .platform-shell .topbar-icon-button { width: 34px; height: 34px; }
+  .platform-shell .platform-content.page { padding: 20px 14px 32px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .platform-shell .nav-item { transition: none; }
+}

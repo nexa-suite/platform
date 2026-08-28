@@ -3,8 +3,14 @@ export interface SalesCommitmentCustomerReference {
   readonly code: string;
   readonly businessName: string;
   readonly commercialName: string;
+  /** Optional detail fields populated by the ACL for rich Sales selectors. */
+  readonly countryCode?: string;
   readonly taxType: string;
   readonly taxValue: string;
+  readonly segment?: string;
+  readonly contactPerson?: string;
+  readonly contactEmail?: string;
+  readonly phone?: string;
   readonly deliveryProfile: string;
   readonly paymentCondition: string;
   readonly status: string;

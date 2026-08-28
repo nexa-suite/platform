@@ -53,4 +53,5 @@ __MACOSX/
 .worktrees/
 playwright-report/
 test-results/
+.playwright-cli/
 Thumbs.db

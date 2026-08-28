@@ -5,6 +5,7 @@ import {
   SalesCommitmentAddressCommand,
   SalesCommitmentAddressReference,
   SalesCommitmentCustomerFilters,
+  SalesCommitmentCustomerReference,
   SalesCommitmentCustomerReferencePage,
   SalesCommitmentReferenceOption
 } from '../customer-reference.models';
@@ -17,6 +18,7 @@ export abstract class SalesCommitmentCatalogPort {
 /** ACL from Sales Commitment to Customer & Buyer Relationships. */
 export abstract class SalesCommitmentCustomerPort {
   abstract clientAccounts(filters?: SalesCommitmentCustomerFilters): Observable<SalesCommitmentCustomerReferencePage>;
+  abstract clientAccount(id: string): Observable<SalesCommitmentCustomerReference>;
   abstract clientAccountAddresses(id: string): Observable<readonly SalesCommitmentAddressReference[]>;
   abstract createClientAccountAddress(id: string, command: SalesCommitmentAddressCommand): Observable<SalesCommitmentAddressReference>;
   abstract reference(resource: 'departments' | 'provinces' | 'districts' | 'road-types', parentCode?: string): Observable<readonly SalesCommitmentReferenceOption[]>;

@@ -1,1 +1,100 @@
-<section class="page"><a mat-button routerLink="/ops/commercial/purchase-requests">{{ 'purchaseRequests.actions.back' | translate }}</a>@if (facade.state().status === 'loading' || facade.state().status === 'retrying') { <nexa-loading-state [lines]="5" [label]="'purchaseRequests.states.detailLoading' | translate" /> } @else if (facade.state().status === 'error') { <nexa-error-state [title]="'purchaseRequests.states.errorTitle' | translate" [description]="'purchaseRequests.states.detailError' | translate" [retryLabel]="'purchaseRequests.actions.retry' | translate" (retry)="retry()" /> } @if (facade.state().item; as request) { <nexa-page-header [eyebrow]="'purchaseRequests.eyebrow' | translate" [title]="request.code" [subtitle]="request.clientAccountId" /><mat-card><mat-card-content><div class="summary"><mat-chip-set><mat-chip>{{ 'purchaseRequests.status.' + request.status | translate }}</mat-chip><mat-chip>{{ request.priority }}</mat-chip></mat-chip-set><span>v{{ request.version }}</span></div>@if (!canWrite()) { <p class="read-only" role="status">{{ 'purchaseRequests.states.readOnly' | translate }}</p> }<p>{{ request.comment || ('purchaseRequests.detail.noComment' | translate) }}</p><h3>{{ 'purchaseRequests.detail.lines' | translate }}</h3><div class="lines">@for (line of request.lines; track line.id) { <div><strong>{{ line.itemName }}</strong><span>{{ line.quantity }} {{ line.unit }} · {{ line.presentation }}</span></div> } @if (!request.lines.length) { <p>{{ 'purchaseRequests.detail.emptyDraft' | translate }}</p> }</div><mat-form-field appearance="outline" class="note"><mat-label>{{ 'purchaseRequests.detail.note' | translate }}</mat-label><textarea matInput [formControl]="note" rows="3" [readonly]="!canWrite()"></textarea></mat-form-field></mat-card-content><mat-card-actions>@if (canWrite()) { @if (request.status === 'SUBMITTED') { <button mat-stroked-button type="button" (click)="review('reviews')">{{ 'purchaseRequests.actions.startReview' | translate }}</button> } @if (request.status === 'IN_REVIEW') { <button mat-stroked-button type="button" (click)="review('adjustment-requests')">{{ 'purchaseRequests.actions.requestAdjustment' | translate }}</button><button mat-flat-button color="primary" type="button" (click)="review('approvals')">{{ 'purchaseRequests.actions.approve' | translate }}</button><button mat-button type="button" (click)="review('rejections')">{{ 'purchaseRequests.actions.reject' | translate }}</button> } @if (request.status === 'APPROVED' && canConvert()) { <button mat-flat-button color="primary" type="button" (click)="convert()">{{ 'purchaseRequests.actions.convert' | translate }}</button> } }</mat-card-actions></mat-card><mat-card class="timeline"><mat-card-header><mat-card-title>{{ 'purchaseRequests.detail.timeline' | translate }}</mat-card-title></mat-card-header><mat-card-content>@for (event of facade.state().events; track event.id) { <div class="event"><strong>{{ event.type }}</strong><span>{{ event.occurredAt }} · {{ event.actorDisplayName || ('purchaseRequests.detail.system' | translate) }}</span><p>{{ event.note }}</p></div> } @if (!facade.state().events.length) { <p>{{ 'purchaseRequests.detail.noEvents' | translate }}</p> }</mat-card-content></mat-card> }</section>
+<section class="page">
+  <nexa-button routerLink="/ops/commercial/purchase-requests" variant="quiet" size="compact">
+    <nexa-icon name="arrow_back" />
+    {{ 'purchaseRequests.actions.back' | translate }}
+  </nexa-button>
+
+  @if (facade.state().status === 'loading' || facade.state().status === 'retrying') {
+    <nexa-loading-state [lines]="5" [label]="'purchaseRequests.states.detailLoading' | translate" />
+  } @else if (facade.state().status === 'error') {
+    <nexa-error-state [title]="'purchaseRequests.states.errorTitle' | translate" [description]="'purchaseRequests.states.detailError' | translate" [retryLabel]="'purchaseRequests.actions.retry' | translate" (retry)="retry()" />
+  }
+
+  @if (facade.state().item; as request) {
+    <nexa-page-header [eyebrow]="'purchaseRequests.eyebrow' | translate" [title]="request.code" [subtitle]="request.clientAccountId">
+      <div page-header-actions>
+        <nexa-status-badge [label]="('purchaseRequests.status.' + request.status) | translate" [tone]="statusTone(request.status)" emphasis="standard" />
+      </div>
+    </nexa-page-header>
+
+    <div class="detail-grid">
+      <nexa-section-panel [title]="'purchaseRequests.detail.reviewTitle' | translate" [description]="'purchaseRequests.detail.reviewDescription' | translate">
+        <div class="request-summary">
+          <div class="request-summary-copy">
+            <span class="request-code">{{ request.code }}</span>
+            <h2>{{ request.clientAccountId }}</h2>
+            <p>{{ request.comment || ('purchaseRequests.detail.noComment' | translate) }}</p>
+          </div>
+          <div class="summary-badges">
+            <nexa-status-badge [label]="('purchaseRequests.status.' + request.status) | translate" [tone]="statusTone(request.status)" />
+            <nexa-status-badge [label]="('purchaseRequests.priority.' + request.priority) | translate" [tone]="priorityTone(request.priority)" />
+            <span class="version">v{{ request.version }}</span>
+          </div>
+        </div>
+
+        <dl class="info-grid">
+          <div><dt>{{ 'purchaseRequests.detail.client' | translate }}</dt><dd>{{ request.clientAccountId }}</dd></div>
+          <div><dt>{{ 'purchaseRequests.detail.lines' | translate }}</dt><dd>{{ request.lineCount }}</dd></div>
+          <div><dt>{{ 'purchaseRequests.detail.delivery' | translate }}</dt><dd>{{ request.requestedDeliveryDate || ('purchaseRequests.detail.deliveryPending' | translate) }}</dd></div>
+          <div><dt>{{ 'purchaseRequests.detail.payment' | translate }}</dt><dd>{{ request.paymentOption || '—' }}</dd></div>
+        </dl>
+
+        <section class="lines-section" aria-labelledby="request-lines-title">
+          <h3 id="request-lines-title">{{ 'purchaseRequests.detail.lines' | translate }}</h3>
+          <div class="line-list">
+            @for (line of request.lines; track line.id) {
+              <article class="line-card">
+                <div class="line-icon"><nexa-icon name="inventory_2" /></div>
+                <div class="line-copy"><strong>{{ line.itemName }}</strong><span>{{ line.presentation }}</span></div>
+                <div class="line-quantity"><strong>{{ line.quantity }} {{ line.unit }}</strong><span>{{ line.notes || '—' }}</span></div>
+              </article>
+            } @empty {
+              <nexa-empty-state icon="inventory_2" [title]="'purchaseRequests.detail.emptyDraft' | translate" />
+            }
+          </div>
+        </section>
+
+        @if (!canWrite()) { <p class="read-only" role="status"><nexa-icon name="lock" />{{ 'purchaseRequests.states.readOnly' | translate }}</p> }
+        <label class="note-field">
+          <span>{{ 'purchaseRequests.detail.note' | translate }}</span>
+          <textarea [formControl]="note" rows="4" [readonly]="!canWrite()" [placeholder]="'purchaseRequests.detail.notePlaceholder' | translate"></textarea>
+        </label>
+
+        @if (canWrite()) {
+          <div class="action-row">
+            @if (request.status === 'SUBMITTED') {
+              <nexa-button variant="secondary" (click)="review('reviews')"><nexa-icon name="schedule" />{{ 'purchaseRequests.actions.startReview' | translate }}</nexa-button>
+            }
+            @if (request.status === 'IN_REVIEW') {
+              <nexa-button variant="secondary" (click)="review('adjustment-requests')"><nexa-icon name="edit" />{{ 'purchaseRequests.actions.requestAdjustment' | translate }}</nexa-button>
+              <nexa-button variant="primary" (click)="review('approvals')"><nexa-icon name="check" />{{ 'purchaseRequests.actions.approve' | translate }}</nexa-button>
+              <nexa-button variant="danger" (click)="review('rejections')"><nexa-icon name="cancel" />{{ 'purchaseRequests.actions.reject' | translate }}</nexa-button>
+            }
+            @if (request.status === 'APPROVED' && canConvert()) {
+              <nexa-button variant="primary" (click)="convert()"><nexa-icon name="receipt_long" />{{ 'purchaseRequests.actions.convert' | translate }}</nexa-button>
+            }
+          </div>
+        }
+      </nexa-section-panel>
+
+      <nexa-section-panel [title]="'purchaseRequests.detail.timeline' | translate" [description]="'purchaseRequests.detail.timelineDescription' | translate" appearance="subtle">
+        @if (facade.state().events.length) {
+          <ol class="timeline">
+            @for (event of facade.state().events; track event.id; let first = $first) {
+              <li class="timeline-item">
+                <span class="timeline-marker" [class.current]="first"><nexa-icon [name]="first ? 'schedule' : 'check'" /></span>
+                <div class="timeline-copy">
+                  <div class="timeline-head"><strong>{{ event.type }}</strong><time [attr.datetime]="event.occurredAt">{{ event.occurredAt }}</time></div>
+                  <span>{{ event.actorDisplayName || ('purchaseRequests.detail.system' | translate) }}</span>
+                  @if (event.note) { <p>{{ event.note }}</p> }
+                </div>
+              </li>
+            }
+          </ol>
+        } @else {
+          <nexa-empty-state icon="schedule" [title]="'purchaseRequests.detail.noEvents' | translate" />
+        }
+      </nexa-section-panel>
+    </div>
+  }
+</section>

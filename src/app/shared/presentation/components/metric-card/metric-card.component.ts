@@ -1,9 +1,11 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import { NexaIconComponent } from '../nexa-icon/nexa-icon.component';
 
 export type MetricTone = 'neutral' | 'info' | 'success' | 'warning' | 'danger';
 
 @Component({
   selector: 'nexa-metric-card',
+  imports: [NexaIconComponent],
   host: { '[class]': "'tone-' + tone()" },
   templateUrl: './metric-card.component.html',
   styleUrl: './metric-card.component.scss',

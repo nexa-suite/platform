@@ -1,6 +1,6 @@
 import { Injectable, inject, signal } from '@angular/core';
-import { Observable, catchError, forkJoin, tap, throwError } from 'rxjs';
-import { SalesCommitmentAddressCommand, SalesCommitmentAddressReference, SalesCommitmentCustomerReference, DEFAULT_SALES_COMMITMENT_CUSTOMER_FILTERS } from '../../domain/customer-reference.models';
+import { Observable, catchError, forkJoin, map, of, switchMap, tap, throwError } from 'rxjs';
+import { SalesCommitmentAddressCommand, SalesCommitmentAddressReference, SalesCommitmentCustomerReference, SalesCommitmentReferenceOption, DEFAULT_SALES_COMMITMENT_CUSTOMER_FILTERS } from '../../domain/customer-reference.models';
 import { SalesCommitmentCatalogItem } from '../../domain/sales-commitment-catalog.models';
 import { SalesCommitmentCatalogPort, SalesCommitmentCustomerPort } from '../../domain/ports/sales-commitment-cross-context.ports';
 import { SalesCommitmentApiPort } from '../../domain/ports/sales-commitment-api.port';
@@ -61,8 +61,16 @@ export class ManualOrderWizardFacade {
     forkJoin({
       clients: this.customer.clientAccounts({ ...DEFAULT_SALES_COMMITMENT_CUSTOMER_FILTERS, size: 100 }),
       catalog: this.catalog.search()
-    }).subscribe({
-      next: ({ clients, catalog }) => this.stateSignal.update((state) => ({ ...state, clients: clients.items, catalogItems: catalog.items, message: null })),
+    }).pipe(
+      switchMap(({ clients, catalog }) => {
+        const detailedClients$ = clients.items.length
+          ? forkJoin(clients.items.map((client) => this.customer.clientAccount(client.id).pipe(catchError(() => of(client)))))
+            .pipe(map((detailedClients) => detailedClients as readonly SalesCommitmentCustomerReference[]))
+          : of([] as readonly SalesCommitmentCustomerReference[]);
+        return detailedClients$.pipe(map((detailedClients) => ({ clients: detailedClients, catalog })));
+      })
+    ).subscribe({
+      next: ({ clients, catalog }) => this.stateSignal.update((state) => ({ ...state, clients, catalogItems: catalog.items, message: null })),
       error: () => this.failMessage('MANUAL_ORDER_REFERENCES_FAILED')
     });
   }
@@ -79,6 +87,10 @@ export class ManualOrderWizardFacade {
       next: (addresses) => this.stateSignal.update((state) => ({ ...state, addresses, message: null })),
       error: () => this.failMessage('MANUAL_ORDER_ADDRESSES_FAILED')
     });
+  }
+
+  reference(resource: 'departments' | 'provinces' | 'districts' | 'road-types', parentCode?: string): Observable<readonly SalesCommitmentReferenceOption[]> {
+    return this.customer.reference(resource, parentCode);
   }
 
   createAddress(clientId: string, command: SalesCommitmentAddressCommand): Observable<SalesCommitmentAddressReference> {

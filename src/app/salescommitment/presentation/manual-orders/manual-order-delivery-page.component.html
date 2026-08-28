@@ -1,0 +1,122 @@
+<section class="manual-order-page" aria-labelledby="manual-order-title">
+  <header class="manual-order-header">
+    <a class="back-link" [routerLink]="itemsPath()">
+      <nexa-icon name="arrow_back" />
+      <span>{{ 'manualOrder.back' | translate }}</span>
+    </a>
+    <div class="manual-order-heading">
+      <h1 id="manual-order-title">{{ 'manualOrder.title' | translate }}</h1>
+      <p>{{ clientName() }}</p>
+    </div>
+  </header>
+
+  <ol class="manual-order-stepper" [attr.aria-label]="'manualOrder.steps.label' | translate">
+    <li class="step is-done"><span class="step-circle"><nexa-icon name="check" /></span><span>{{ 'manualOrder.steps.client' | translate }}</span></li>
+    <li class="step-connector is-done" aria-hidden="true"></li>
+    <li class="step is-done"><span class="step-circle"><nexa-icon name="check" /></span><span>{{ 'manualOrder.steps.products' | translate }}</span></li>
+    <li class="step-connector is-done" aria-hidden="true"></li>
+    <li class="step is-active" aria-current="step"><span class="step-circle">3</span><span>{{ 'manualOrder.steps.delivery' | translate }}</span></li>
+    <li class="step-connector" aria-hidden="true"></li>
+    <li class="step is-pending"><span class="step-circle">4</span><span>{{ 'manualOrder.steps.confirm' | translate }}</span></li>
+  </ol>
+
+  <section class="delivery-step" aria-labelledby="delivery-information-title">
+    <div class="delivery-grid">
+      <section class="delivery-form-card">
+        <h2 id="delivery-information-title">{{ 'manualOrder.deliveryInformation' | translate }}</h2>
+        <form [formGroup]="form" (ngSubmit)="save()">
+          <label class="field field-wide">
+            <span class="field-label">{{ 'manualOrder.deliveryDate' | translate }}</span>
+            <span class="input-shell"><nexa-icon name="schedule" /><input type="date" formControlName="requestedDeliveryDate" [min]="minDeliveryDate()" /></span>
+            @if (dateWarning(); as warning) { <small class="field-error">{{ warning | translate }}</small> }
+          </label>
+
+          <div class="location-grid">
+            <label class="field">
+              <span class="field-label">{{ 'manualOrder.city' | translate }}</span>
+              <select formControlName="departmentCode" (change)="departmentChanged()">
+                <option value="">{{ 'manualOrder.selectCity' | translate }}</option>
+                @for (item of departments(); track item.code) { <option [value]="item.code">{{ item.label }}</option> }
+              </select>
+            </label>
+            <label class="field">
+              <span class="field-label">{{ 'manualOrder.province' | translate }}</span>
+              <select formControlName="provinceCode" [disabled]="!form.controls.departmentCode.value" (change)="provinceChanged()">
+                <option value="">{{ 'manualOrder.selectProvince' | translate }}</option>
+                @for (item of provinces(); track item.code) { <option [value]="item.code">{{ item.label }}</option> }
+              </select>
+            </label>
+            <label class="field">
+              <span class="field-label">{{ 'manualOrder.district' | translate }}</span>
+              <select formControlName="districtCode" [disabled]="!form.controls.provinceCode.value" (change)="markAddressAsManual()">
+                <option value="">{{ 'manualOrder.selectDistrict' | translate }}</option>
+                @for (item of districts(); track item.code) { <option [value]="item.code">{{ item.label }}</option> }
+              </select>
+            </label>
+            <label class="field">
+              <span class="field-label">{{ 'manualOrder.reference' | translate }}</span>
+              <span class="input-shell"><input formControlName="reference" [placeholder]="'manualOrder.referencePlaceholder' | translate" (input)="markAddressAsManual()" /></span>
+            </label>
+          </div>
+
+          <label class="field field-wide">
+            <span class="field-label">{{ 'manualOrder.streetAddress' | translate }}</span>
+            <span class="address-line">
+              <select class="address-type" formControlName="roadType" (change)="markAddressAsManual()">
+                @for (item of roadTypes(); track item.code) { <option [value]="item.code">{{ item.label }}</option> }
+                @if (!roadTypes().length) { <option value="AV">Av.</option> }
+              </select>
+              <span class="input-shell"><nexa-icon name="location_on" /><input formControlName="addressLine" [placeholder]="'manualOrder.streetPlaceholder' | translate" (input)="markAddressAsManual()" /></span>
+            </span>
+          </label>
+
+          <div class="field field-wide">
+            <span class="field-label">{{ 'manualOrder.priority.label' | translate }}</span>
+            <div class="priority-grid">
+              <button class="priority-card" [class.is-selected]="selectedPriority() === 'LOW'" type="button" (click)="selectPriority('LOW')">
+                <nexa-icon name="schedule" /><span><strong>{{ 'manualOrder.priority.low' | translate }}</strong><small>{{ 'manualOrder.priority.lowDesc' | translate }}</small></span>
+              </button>
+              <button class="priority-card" [class.is-selected]="selectedPriority() === 'MEDIUM'" type="button" (click)="selectPriority('MEDIUM')">
+                <nexa-icon name="local_shipping" /><span><strong>{{ 'manualOrder.priority.medium' | translate }}</strong><small>{{ 'manualOrder.priority.mediumDesc' | translate }}</small></span>
+              </button>
+              <button class="priority-card" [class.is-selected]="selectedPriority() === 'HIGH'" type="button" (click)="selectPriority('HIGH')">
+                <nexa-icon name="warning" /><span><strong>{{ 'manualOrder.priority.high' | translate }}</strong><small>{{ 'manualOrder.priority.highDesc' | translate }}</small></span>
+              </button>
+            </div>
+          </div>
+
+          <label class="field field-wide">
+            <span class="field-label">{{ 'manualOrder.notesOptional' | translate }}</span>
+            <span class="input-shell textarea-shell"><nexa-icon name="edit" /><textarea rows="3" formControlName="deliveryNotes" [placeholder]="'manualOrder.driverInstructions' | translate"></textarea></span>
+          </label>
+
+          <div class="form-actions">
+            <a class="secondary-button" [routerLink]="itemsPath()"><nexa-icon name="arrow_back" /><span>{{ 'manualOrder.backToProducts' | translate }}</span></a>
+            <button class="primary-button" type="submit" [disabled]="!canContinue()"><span>{{ saving() ? ('manualOrder.saving' | translate) : ('manualOrder.continueReview' | translate) }}</span><nexa-icon name="arrow_forward" /></button>
+          </div>
+        </form>
+      </section>
+
+      <aside class="route-preview-card" aria-labelledby="route-preview-title">
+        <header class="route-head">
+          <div><h2 id="route-preview-title">{{ 'manualOrder.routePreview' | translate }}</h2><p>{{ 'manualOrder.routePreviewDesc' | translate }}</p></div>
+          @if (openMapUrl(); as url) { <a class="map-button" [href]="url" target="_blank" rel="noopener noreferrer"><nexa-icon name="open_in_new" /><span>{{ 'manualOrder.openMap' | translate }}</span></a> }
+        </header>
+        <div class="route-summary">
+          <span><nexa-icon name="warehouse" />{{ warehouseLabel() }}</span>
+          <span><nexa-icon name="location_on" />{{ destinationLabel() }}</span>
+        </div>
+        @if (facade.state().draft?.delivery; as delivery) {
+          <nexa-manual-order-route-preview [routeSnapshot]="delivery.routeSnapshot" [warehouseSnapshot]="delivery.warehouseSnapshot" [addressSnapshot]="delivery.addressSnapshot" [routeProvider]="delivery.routeProvider" />
+        } @else if (mapEmbedUrl(); as mapUrl) {
+          <iframe class="route-map-frame" [src]="trustedMapUrl(mapUrl)" [title]="'manualOrder.mapTitle' | translate" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+        } @else {
+          <div class="map-empty"><nexa-icon name="location_on" /><span>{{ 'manualOrder.completeAddress' | translate }}</span></div>
+        }
+        <p class="flow-note">{{ 'manualOrder.mapNotice' | translate }}</p>
+      </aside>
+    </div>
+  </section>
+
+  @if (facade.state().message; as message) { <p class="manual-order-error" role="alert">{{ message }}</p> }
+</section>

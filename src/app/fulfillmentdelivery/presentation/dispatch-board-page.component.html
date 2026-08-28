@@ -1,0 +1,128 @@
+<section class="dispatch-board-page" (keydown)="keyboardBoard($event)">
+  <nexa-page-header
+    [title]="'logistics.board' | translate"
+    [subtitle]="'logistics.boardUi.subtitle' | translate: { count: facade.dispatches().length }">
+    <div page-header-actions>
+      <nexa-button variant="primary" size="standard" [routerLink]="'/ops/operations/proof-of-delivery'">
+        <nexa-icon name="camera_alt" />
+        {{ 'logistics.boardUi.proofOfDelivery' | translate }}
+      </nexa-button>
+    </div>
+  </nexa-page-header>
+
+  <div class="filter-bar" role="search">
+    <label class="search-field">
+      <nexa-icon name="search" />
+      <span class="visually-hidden">{{ 'logistics.boardUi.searchPlaceholder' | translate }}</span>
+      <input
+        type="search"
+        [value]="search()"
+        [placeholder]="'logistics.boardUi.searchPlaceholder' | translate"
+        (input)="setSearch($any($event.target).value)" />
+    </label>
+    <label class="dispatch-filter-select">
+      <span>{{ 'logistics.boardUi.route' | translate }}</span>
+      <select [value]="routeFilter()" [attr.aria-label]="'logistics.boardUi.route' | translate" (change)="setRoute($any($event.target).value)">
+        @for (route of routes(); track route) {
+          <option [value]="route">{{ route === 'all' ? ('logistics.boardUi.allRoutes' | translate) : route }}</option>
+        }
+      </select>
+    </label>
+    <label class="dispatch-filter-select sort-select">
+      <span>{{ 'logistics.boardUi.sort' | translate }}</span>
+      <select [value]="sortMode()" [attr.aria-label]="'logistics.boardUi.sort' | translate" (change)="setSort($any($event.target).value)">
+        <option value="priority">{{ 'logistics.boardUi.sortOptions.priority' | translate }}</option>
+        <option value="eta">{{ 'logistics.boardUi.sortOptions.eta' | translate }}</option>
+        <option value="route">{{ 'logistics.boardUi.sortOptions.route' | translate }}</option>
+        <option value="client">{{ 'logistics.boardUi.sortOptions.client' | translate }}</option>
+        <option value="status">{{ 'logistics.boardUi.sortOptions.status' | translate }}</option>
+        <option value="newest">{{ 'logistics.boardUi.sortOptions.newest' | translate }}</option>
+      </select>
+    </label>
+  </div>
+
+  @if (facade.loading() && !facade.dispatches().length) {
+    <nexa-loading-state [label]="'logistics.loading' | translate" [lines]="5" />
+  } @else if (facade.error() && !facade.dispatches().length) {
+    <nexa-error-state
+      [title]="'logistics.unavailable' | translate"
+      [description]="facade.error()!"
+      (retry)="facade.retry()" />
+  } @else {
+    @if (facade.error(); as error) {
+      <div class="action-error" role="alert">
+        <nexa-icon name="warning" />
+        <span>{{ error }}</span>
+      </div>
+    }
+    @if (!facade.canWrite()) {
+      <p class="read-only" role="status">{{ 'logistics.readOnly' | translate }}</p>
+    }
+
+    <div class="kanban-board" [attr.aria-label]="'logistics.boardUi.ariaLabel' | translate">
+      @for (column of columns(); track column.key) {
+        <section class="kanban-column" [attr.data-column]="column.key" [attr.data-status]="column.statuses[0]">
+          <header class="kanban-column-head">
+            <h2>{{ column.labelKey | translate }}</h2>
+            <span class="flow-pill">{{ column.items.length }}</span>
+          </header>
+
+          <div class="column-items kanban-items">
+            @for (item of column.items; track item.id) {
+              <article
+                class="dispatch-card"
+                tabindex="0"
+                (click)="openDetail(item)"
+                (keydown)="keyboard($event, item)">
+                <div class="card-top">
+                  <a class="mono" [routerLink]="['/ops/operations/dispatch-orders', item.id]" (click)="$event.stopPropagation()">{{ item.dispatchNumber }}</a>
+                  <div class="card-badges">
+                    @if (item.status === 'READY_FOR_OPERATIONS' && item.version <= 1) {
+                      <span class="badge badge-new">{{ 'logistics.boardUi.new' | translate }}</span>
+                    }
+                    <span class="priority-badge" [class]="'priority-' + priorityKey(item)">{{ ('logistics.boardUi.priority.' + priorityKey(item)) | translate }}</span>
+                  </div>
+                </div>
+                <h3>{{ clientName(item) }}</h3>
+                <p class="order-reference">{{ 'logistics.boardUi.salesOrder' | translate }} <span class="mono">{{ item.salesOrderNumber }}</span></p>
+
+                <div class="flow-row badge-row">
+                  <span class="badge badge-cold"><span class="badge-dot"></span>{{ ('logistics.boardUi.cold.' + (item.temperatureMax !== null && item.temperatureMax <= 0 ? 'frozen' : 'chilled')) | translate }}</span>
+                  <span class="badge" [class]="statusTone(item)"><span class="badge-dot"></span>{{ ('logistics.status.' + item.status) | translate }}</span>
+                </div>
+
+                <div class="divider"></div>
+                <dl class="dispatch-meta">
+                  <div><dt>{{ 'logistics.fields.destination' | translate }}</dt><dd>{{ destinationLabel(item) }}</dd></div>
+                  <div><dt>{{ 'logistics.boardUi.route' | translate }}</dt><dd>{{ routeName(item) }}</dd></div>
+                  <div><dt>{{ 'logistics.boardUi.eta' | translate }}</dt><dd>{{ dateValue(item) ? (dateValue(item) | date: 'MMM d, y, h:mm a') : ('logistics.boardUi.notScheduled' | translate) }}</dd></div>
+                  <div><dt>{{ 'logistics.boardUi.responsible' | translate }}</dt><dd>{{ responsible(item) }}</dd></div>
+                  <div><dt>{{ 'logistics.boardUi.temperature' | translate }}</dt><dd>{{ temperatureRange(item) }}</dd></div>
+                </dl>
+
+                @if (isDelayed(item)) {
+                  <div class="notice notice-warning"><nexa-icon name="schedule" /><span>{{ 'logistics.boardUi.etaReview' | translate }}</span></div>
+                }
+                @if (item.alerts.length) {
+                  <div class="notice notice-danger"><nexa-icon name="warning" /><span>{{ item.alerts[0] }}</span></div>
+                }
+
+                <button
+                  class="move-forward"
+                  type="button"
+                  [disabled]="!canAdvance(item) || facade.loading()"
+                  [attr.title]="canAdvance(item) ? null : ('logistics.boardUi.detailRequired' | translate)"
+                  (click)="moveForward(item, $event)">
+                  <nexa-icon name="arrow_forward" />
+                  <span>{{ moveLabel(item) | translate }}</span>
+                </button>
+              </article>
+            } @empty {
+                  <p class="column-empty">{{ 'logistics.boardUi.emptyColumn' | translate }}</p>
+            }
+          </div>
+        </section>
+      }
+    </div>
+  }
+</section>

@@ -85,11 +85,15 @@ describe('PlatformShellComponent', () => {
   });
 
   it('exposes every authorized internal work area without changing authentication state', () => {
-    const auth = TestBed.inject(PlatformAuthenticationBoundary) as unknown as { currentUser: ReturnType<typeof signal> };
+    const auth = TestBed.inject(PlatformAuthenticationBoundary) as unknown as {
+      currentUser: ReturnType<typeof signal>;
+      hasPermission: ReturnType<typeof vi.fn>;
+    };
     auth.currentUser.set({ subject: 'u1', identifier: 'owner@nexa.test', displayName: 'Owner', workspaceSlug: 'icisa', roles: ['COMPANY_OWNER', 'SALES'], permissions: ['sales:read'] });
+    auth.hasPermission.mockImplementation((permission: string) => ['owner:dashboard:read', 'sales:read'].includes(permission));
     fixture.detectChanges();
 
-    expect(fixture.nativeElement.querySelector('select')).toBeTruthy();
+    expect(fixture.nativeElement.querySelector('.workspace-area-selector')).toBeTruthy();
   });
 
   it('uses backend permissions as the navigation authority instead of role labels', () => {

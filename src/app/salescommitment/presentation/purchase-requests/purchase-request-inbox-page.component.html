@@ -1,4 +1,131 @@
-<section class="page"><nexa-page-header [eyebrow]="'purchaseRequests.eyebrow' | translate" [title]="'purchaseRequests.title' | translate" [subtitle]="'purchaseRequests.description' | translate" /><mat-card class="filters"><mat-form-field appearance="outline"><mat-label>{{ 'purchaseRequests.filters.search' | translate }}</mat-label><input #query matInput (keyup.enter)="search(query.value)" /></mat-form-field><mat-form-field appearance="outline"><mat-label>{{ 'purchaseRequests.filters.status' | translate }}</mat-label><mat-select [value]="filters().status" (selectionChange)="filterStatus($event.value)"><mat-option value="">{{ 'purchaseRequests.filters.all' | translate }}</mat-option><mat-option value="SUBMITTED">{{ 'purchaseRequests.status.SUBMITTED' | translate }}</mat-option><mat-option value="IN_REVIEW">{{ 'purchaseRequests.status.IN_REVIEW' | translate }}</mat-option><mat-option value="NEEDS_ADJUSTMENT">{{ 'purchaseRequests.status.NEEDS_ADJUSTMENT' | translate }}</mat-option><mat-option value="APPROVED">{{ 'purchaseRequests.status.APPROVED' | translate }}</mat-option><mat-option value="REJECTED">{{ 'purchaseRequests.status.REJECTED' | translate }}</mat-option></mat-select></mat-form-field><mat-form-field appearance="outline"><mat-label>{{ 'purchaseRequests.filters.priority' | translate }}</mat-label><mat-select [value]="filters().priority" (selectionChange)="filterPriority($event.value)"><mat-option value="">{{ 'purchaseRequests.filters.all' | translate }}</mat-option><mat-option value="NORMAL">NORMAL</mat-option><mat-option value="HIGH">HIGH</mat-option><mat-option value="URGENT">URGENT</mat-option></mat-select></mat-form-field><button mat-flat-button color="primary" type="button" (click)="search(query.value)">{{ 'purchaseRequests.filters.apply' | translate }}</button></mat-card>
-  @if (facade.state().status === 'loading') { <nexa-loading-state [lines]="5" [label]="'purchaseRequests.states.loading' | translate" /> } @else if (facade.state().status === 'retrying') { <nexa-loading-state [compact]="true" [lines]="1" [label]="'purchaseRequests.states.refreshing' | translate" /> } @else if (facade.state().status === 'error') { <nexa-error-state [title]="'purchaseRequests.states.errorTitle' | translate" [description]="'purchaseRequests.states.errorDescription' | translate" [retryLabel]="'purchaseRequests.actions.retry' | translate" (retry)="retry()" /> } @else if (facade.state().status === 'empty') { <nexa-empty-state [title]="'purchaseRequests.states.emptyTitle' | translate" [description]="'purchaseRequests.states.emptyDescription' | translate" /> } @else { <mat-card><div class="list" matSort (matSortChange)="onSort($event)">@for (request of facade.state().page?.items ?? []; track request.id) { <article class="request-row"><div><span class="code">{{ request.code }} · {{ request.priority }}</span><h3>{{ request.clientAccountId }}</h3><p>{{ request.lineCount }} · {{ request.requestedDeliveryDate || ('purchaseRequests.detail.deliveryPending' | translate) }}</p></div><div class="row-meta"><mat-chip-set><mat-chip>{{ 'purchaseRequests.status.' + request.status | translate }}</mat-chip></mat-chip-set><a mat-button [routerLink]="['/ops/commercial/purchase-requests', request.id]">{{ 'purchaseRequests.actions.review' | translate }}</a></div></article> }</div><mat-paginator [length]="facade.state().page?.totalItems ?? 0" [pageIndex]="filters().page" [pageSize]="filters().size" [pageSizeOptions]="[10, 25, 50]" (page)="onPage($event)" /></mat-card> }
+<section class="page purchase-request-inbox">
+  <header class="page-header">
+    <div>
+          <h1 class="page-title">{{ 'purchaseRequests.title' | translate }}</h1>
+      <div class="page-subtitle">{{ 'commercialDashboard.requestInboxSub' | translate }}</div>
+    </div>
+  </header>
+
+  @if (facade.state().status === 'loading') {
+    <nexa-loading-state [lines]="5" [label]="'purchaseRequests.states.loading' | translate" />
+  } @else if (facade.state().status === 'retrying') {
+    <nexa-loading-state [compact]="true" [lines]="1" [label]="'purchaseRequests.states.refreshing' | translate" />
+  } @else if (facade.state().status === 'error') {
+    <nexa-error-state
+      [title]="'purchaseRequests.states.errorTitle' | translate"
+      [description]="'purchaseRequests.states.errorDescription' | translate"
+      [retryLabel]="'purchaseRequests.actions.retry' | translate"
+      (retry)="retry()" />
+  } @else {
+    <section class="scenario-card">
+      <div class="scenario-icon" aria-hidden="true"><nexa-icon name="inbox" /></div>
+      <div>
+        <strong>{{ 'purchaseRequests.progressTitle' | translate }}</strong>
+        <p>{{ 'purchaseRequests.progressDescription' | translate }}</p>
+      </div>
+    </section>
+
+    @if (facade.state().status === 'empty') {
+      <section class="empty-state" aria-live="polite">
+        <div class="empty-state-icon" aria-hidden="true"><nexa-icon name="inbox" /></div>
+        <div class="empty-state-title">{{ 'purchaseRequests.states.emptyTitle' | translate }}</div>
+        <div class="empty-state-desc">{{ 'purchaseRequests.states.emptyDescription' | translate }}</div>
+      </section>
+    } @else {
+      <div class="flow-stack request-list">
+        @for (request of facade.state().page?.items ?? []; track request.id) {
+          <article class="flow-panel flow-panel-pad request-card">
+            <div class="flow-row-between request-card-head">
+              <div class="request-card-copy">
+                <div class="flow-row request-code-row">
+                  <span class="mono request-code">{{ displayCode(request) }}</span>
+                  <span class="badge" [class]="requestBadge(request.status)">{{ requestStatusLabel(request.status) }}</span>
+                </div>
+                <h2>{{ clientName(request.clientAccountId) }}</h2>
+                <p class="muted-text">{{ request.comment || ('purchaseRequests.detail.noComment' | translate) }}</p>
+              </div>
+              <span class="badge" [class]="priorityBadge(request.priority)">{{ requestPriorityLabel(request.priority) }}</span>
+            </div>
+
+            <div class="divider request-divider"></div>
+
+            <div class="request-meta-row">
+              <span>{{ 'purchaseRequests.detail.created' | translate }}: <strong>—</strong></span>
+              <span>{{ 'purchaseRequests.detail.requestedDelivery' | translate }}: <strong>{{ formatDate(request.requestedDeliveryDate) }}</strong></span>
+              <span>{{ 'purchaseRequests.detail.items' | translate }}: <strong>{{ request.lineCount }}</strong></span>
+              <span>{{ 'purchaseRequests.detail.destination' | translate }}: <strong>{{ request.deliveryProfileSnapshot || ('purchaseRequests.detail.deliveryPending' | translate) }}</strong></span>
+            </div>
+
+            <div class="doc-chip-row">
+              @for (doc of docsFor(); track doc) { <span class="badge badge-blue">{{ doc }}</span> }
+            </div>
+
+            <div class="form-actions">
+              @if (canRespond(request)) {
+                <a class="btn btn-primary" [attr.aria-label]="'purchaseRequests.actions.review' | translate" [routerLink]="['/ops/commercial/purchase-requests', request.id]">
+                  <nexa-icon name="chat" />
+                  {{ 'purchaseRequests.actions.review' | translate }}
+                </a>
+              } @else {
+                <span class="badge" [class]="requestBadge(request.status)">{{ requestStatusLabel(request.status) }}</span>
+              }
+              <button class="btn btn-secondary" type="button" [attr.aria-label]="'purchaseRequests.actions.quickView' | translate" (click)="openQuickView(request)">
+                <nexa-icon name="visibility" />
+                {{ 'purchaseRequests.actions.quickView' | translate }}
+              </button>
+            </div>
+          </article>
+        }
+      </div>
+    }
+  }
+
+  @if (selectedRequest(); as selected) {
+    <div class="request-modal-backdrop" role="presentation" (click)="closeQuickView()">
+      <section
+        class="request-detail-modal"
+        role="dialog"
+        aria-modal="true"
+        [attr.aria-labelledby]="'request-detail-title-' + selected.id"
+        (click)="$event.stopPropagation()">
+        <header class="request-detail-head">
+          <div>
+            <div class="mono request-detail-code">{{ displayCode(selected) }}</div>
+            <h2 [id]="'request-detail-title-' + selected.id">{{ clientName(selected.clientAccountId) }}</h2>
+            <p>{{ selected.comment || ('purchaseRequests.detail.noComment' | translate) }}</p>
+          </div>
+          <button class="btn btn-ghost btn-sm" type="button" (click)="closeQuickView()" [attr.aria-label]="'purchaseRequests.actions.close' | translate">
+            <nexa-icon name="close" />
+          </button>
+        </header>
+
+        <div class="request-detail-meta">
+          <div><span>{{ 'purchaseRequests.detail.status' | translate }}</span><strong>{{ requestStatusLabel(selected.status) }}</strong></div>
+          <div><span>{{ 'purchaseRequests.detail.created' | translate }}</span><strong>—</strong></div>
+          <div><span>{{ 'purchaseRequests.detail.requestedDelivery' | translate }}</span><strong>{{ formatDate(selected.requestedDeliveryDate) }}</strong></div>
+          <div><span>{{ 'purchaseRequests.detail.priority' | translate }}</span><strong>{{ requestPriorityLabel(selected.priority) }}</strong></div>
+          <div><span>{{ 'purchaseRequests.detail.documents' | translate }}</span><strong>{{ docsFor().length }}</strong></div>
+        </div>
+
+        <div class="request-product-grid">
+          @for (line of selected.lines; track line.id || line.catalogItemId) {
+            <article class="request-product-card">
+              <div class="request-product-image" aria-hidden="true"><nexa-icon name="inventory_2" /></div>
+              <div>
+                <strong>{{ line.itemName || line.catalogItemId }}</strong>
+                <span>{{ line.presentation || line.catalogItemId }}</span>
+                <small>{{ line.quantity }} {{ line.unit }} · {{ linePrice(line) }}</small>
+              </div>
+            </article>
+          } @empty {
+            <div class="empty-state compact-empty">
+              <div class="empty-state-icon" aria-hidden="true"><nexa-icon name="inventory_2" /></div>
+              <div class="empty-state-title">{{ 'purchaseRequests.detail.lines' | translate }}</div>
+              <div class="empty-state-desc">{{ 'purchaseRequests.detail.emptyDraft' | translate }}</div>
+            </div>
+          }
+        </div>
+      </section>
+    </div>
+  }
 </section>
-<div class="page-actions"><button mat-stroked-button type="button" (click)="exportCsv()" [disabled]="!(facade.state().page?.items?.length)">{{ 'purchaseRequests.actions.exportCsv' | translate }}</button><button mat-stroked-button type="button" (click)="print()">{{ 'purchaseRequests.actions.print' | translate }}</button></div>

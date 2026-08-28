@@ -1,8 +1,8 @@
 {
   "source": "nexa-design-lab",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "ref": "main",
-  "commit": "d27e158569211a3afec171b1c9606f06906fc99a",
+  "commit": "04e2e4ea83b88792b4dc462d7edb700eb8d3faca",
   "assets": {
     "primary": {
       "path": "assets/branding/nexa.svg",

@@ -1,0 +1,226 @@
+<section class="page dispatch-detail">
+  <a class="back-link" routerLink="/ops/operations/dispatch-orders">
+    <nexa-icon name="arrow_back" />
+    {{ 'logistics.detailUi.back' | translate }}
+  </a>
+
+  <nexa-page-header
+    [eyebrow]="'logistics.pod' | translate"
+    [title]="'logistics.detail' | translate"
+    [subtitle]="'logistics.detailSubtitle' | translate">
+    <div page-header-actions>
+      <nexa-button variant="secondary" size="compact" (click)="exportCsv()">
+        <nexa-icon name="description" />
+        {{ 'logistics.actions.exportCsv' | translate }}
+      </nexa-button>
+      <nexa-button variant="secondary" size="compact" (click)="print()">
+        <nexa-icon name="receipt_long" />
+        {{ 'logistics.actions.print' | translate }}
+      </nexa-button>
+    </div>
+  </nexa-page-header>
+
+  @if (facade.loading() && !facade.selected()) {
+    <nexa-loading-state [label]="'logistics.loading' | translate" [lines]="5" />
+  } @else if (facade.error() && !facade.selected()) {
+    <nexa-error-state
+      [title]="'logistics.unavailable' | translate"
+      [description]="facade.error()!"
+      (retry)="retry()" />
+  } @else if (facade.selected(); as item) {
+    <div class="detail-grid">
+      <nexa-section-panel class="summary-panel" [title]="item.dispatchNumber" [description]="'logistics.detailUi.summaryDescription' | translate">
+        <div class="summary-heading">
+          <div>
+            <span class="mono">{{ item.dispatchNumber }}</span>
+            <h2>{{ item.clientName || item.clientCode || item.clientAccountId || '—' }}</h2>
+            <p>{{ item.salesOrderNumber }} · {{ destinationLabel(item) }}</p>
+          </div>
+          <nexa-status-badge
+            [label]="('logistics.status.' + item.status) | translate"
+            [tone]="statusTone(item.status)"
+            emphasis="standard" />
+        </div>
+
+        <div class="badge-row">
+          <nexa-status-badge [label]="item.priority || '—'" tone="accent" />
+          <nexa-status-badge
+            [label]="('logistics.status.' + item.temperatureStatus) | translate"
+            [tone]="temperatureTone(item.temperatureStatus)" />
+          <nexa-status-badge
+            [label]="item.podStatus || ('logistics.states.pending' | translate)"
+            [tone]="item.podStatus === 'COMPLETED' ? 'success' : 'warning'" />
+        </div>
+
+        <dl class="facts-grid">
+          <div>
+            <dt>{{ 'logistics.fields.route' | translate }}</dt>
+            <dd>{{ item.assignment?.routeName || '—' }}</dd>
+          </div>
+          <div>
+            <dt>{{ 'logistics.forms.vehicle' | translate }}</dt>
+            <dd>{{ item.assignment?.vehicleReference || '—' }}</dd>
+          </div>
+          <div>
+            <dt>{{ 'logistics.forms.membership' | translate }}</dt>
+            <dd>{{ item.assignment?.responsibleDisplayName || '—' }}</dd>
+          </div>
+          <div>
+            <dt>{{ 'logistics.fields.window' | translate }}</dt>
+            <dd>{{ item.deliveryWindowStart || '—' }}<br>{{ item.eta || '—' }}</dd>
+          </div>
+          <div>
+            <dt>{{ 'logistics.fields.temperature' | translate }}</dt>
+            <dd>{{ item.temperatureMin ?? '—' }} – {{ item.temperatureMax ?? '—' }} {{ item.temperatureUnit || '' }}</dd>
+          </div>
+          <div>
+            <dt>{{ 'logistics.fields.alerts' | translate }}</dt>
+            <dd>{{ item.alerts.length || '—' }}</dd>
+          </div>
+        </dl>
+      </nexa-section-panel>
+
+      <nexa-section-panel class="timeline-panel" [title]="'logistics.fields.timeline' | translate" [description]="'logistics.detailUi.timelineDescription' | translate">
+        <ol class="timeline">
+          @for (event of facade.events(); track event.id) {
+            <li class="timeline-item">
+              <span class="timeline-marker"><nexa-icon name="schedule" /></span>
+              <div class="timeline-copy">
+                <div class="timeline-meta">
+                  <strong>{{ ('logistics.status.' + (event.toStatus || 'UNKNOWN')) | translate }}</strong>
+                  <time>{{ event.occurredAt | date: 'medium' }}</time>
+                </div>
+                <p>
+                  @if (event.fromStatus) { {{ ('logistics.status.' + event.fromStatus) | translate }} → }
+                  {{ event.summary || ('logistics.detailSubtitle' | translate) }}
+                </p>
+                @if (event.buyerVisible) {
+                  <nexa-status-badge [label]="'logistics.fields.buyerVisibleHandoff' | translate" tone="info" />
+                }
+              </div>
+            </li>
+          } @empty {
+            <li class="timeline-empty">{{ 'logistics.states.noEvents' | translate }}</li>
+          }
+        </ol>
+        @if (facade.handoffs().length) {
+          <div class="handoff-list">
+            <span class="section-kicker">{{ 'logistics.forms.handoff' | translate }}</span>
+            @for (handoff of facade.handoffs(); track handoff.id) {
+              <article class="handoff-note">
+                <p>{{ handoff.note }}</p>
+                <time>{{ handoff.occurredAt | date: 'medium' }}</time>
+              </article>
+            }
+          </div>
+        }
+      </nexa-section-panel>
+    </div>
+
+    <nexa-section-panel class="actions-panel" [title]="'logistics.fields.action' | translate" [description]="'logistics.detailUi.actionsDescription' | translate">
+      @if (!facade.canWrite()) {
+        <p class="read-only" role="status">
+          <nexa-icon name="lock" />
+          {{ 'logistics.readOnly' | translate }}
+        </p>
+      }
+
+      <fieldset [disabled]="!facade.canWrite()">
+        @if (item.status === 'PREPARING') {
+          <form class="operation-form" [formGroup]="assignment" (ngSubmit)="assign(item)">
+            <div class="form-heading"><nexa-icon name="handshake" /><div><h3>{{ 'logistics.forms.assignment' | translate }}</h3><p>{{ 'logistics.detailUi.assignmentDescription' | translate }}</p></div></div>
+            <div class="form-grid">
+              <label class="field field-wide">{{ 'logistics.forms.membership' | translate }}
+                <select formControlName="responsibleMembershipId">
+                  <option value="">{{ 'logistics.detailUi.selectAssignee' | translate }}</option>
+                  @for (assignee of assignees(); track assignee.id) { <option [value]="assignee.id">{{ assignee.displayName }} · {{ assignee.email }}</option> }
+                  @if (item.assignment?.responsibleMembershipId && !hasAssignee(item.assignment.responsibleMembershipId)) { <option [value]="item.assignment.responsibleMembershipId">{{ item.assignment.responsibleDisplayName || '—' }}</option> }
+                </select>
+              </label>
+              <label class="field">{{ 'logistics.forms.vehicle' | translate }}<input formControlName="vehicleReference"></label>
+              <label class="field">{{ 'logistics.forms.route' | translate }}<input formControlName="routeName"></label>
+            </div>
+            @if (assigneeError(); as error) { <p class="form-error" role="alert">{{ error }}</p> }
+            <nexa-button type="submit" [disabled]="assignment.invalid || !assignees().length"><nexa-icon name="check" />{{ 'logistics.forms.assign' | translate }}</nexa-button>
+          </form>
+        }
+
+        @if (item.status === 'ASSIGNED' || item.status === 'REPROGRAMMED') {
+          <form class="operation-form" [formGroup]="schedule" (ngSubmit)="scheduleDispatch(item)">
+            <div class="form-heading"><nexa-icon name="schedule" /><div><h3>{{ 'logistics.forms.schedule' | translate }}</h3><p>{{ 'logistics.detailUi.scheduleDescription' | translate }}</p></div></div>
+            <div class="form-grid">
+              <label class="field">{{ 'logistics.fields.window' | translate }}<input type="datetime-local" formControlName="deliveryWindowStart"></label>
+              <label class="field">{{ 'logistics.detailUi.windowEnd' | translate }}<input type="datetime-local" formControlName="deliveryWindowEnd"></label>
+              <label class="field">{{ 'logistics.detailUi.eta' | translate }}<input type="datetime-local" formControlName="eta"></label>
+            </div>
+            <nexa-button type="submit" [disabled]="schedule.invalid"><nexa-icon name="check" />{{ 'logistics.forms.schedule' | translate }}</nexa-button>
+          </form>
+        }
+
+        @if (item.status === 'SCHEDULED') {
+          <div class="command-row"><p>{{ 'logistics.actions.ready' | translate }}</p><nexa-button (click)="facade.ready(item)"><nexa-icon name="check" />{{ 'logistics.actions.ready' | translate }}</nexa-button></div>
+        }
+        @if (item.status === 'READY_FOR_ROUTE') {
+          <div class="command-row"><p>{{ 'logistics.actions.startRoute' | translate }}</p><nexa-button (click)="facade.startRoute(item)"><nexa-icon name="play" />{{ 'logistics.actions.startRoute' | translate }}</nexa-button></div>
+        }
+
+        @if (item.status === 'READY_FOR_ROUTE' || item.status === 'IN_ROUTE' || item.status === 'INCIDENT') {
+          <form class="operation-form" [formGroup]="temperature" (ngSubmit)="recordTemperature(item)">
+            <div class="form-heading"><nexa-icon name="thermostat" /><div><h3>{{ 'logistics.forms.reading' | translate }}</h3><p>{{ 'logistics.detailUi.temperatureDescription' | translate }}</p></div></div>
+            <div class="form-grid">
+              <label class="field">{{ 'logistics.forms.value' | translate }}<input type="number" step="0.1" formControlName="value"></label>
+              <label class="field">{{ 'logistics.detailUi.unit' | translate }}<select formControlName="unit"><option value="CELSIUS">{{ 'logistics.forms.celsius' | translate }}</option><option value="FAHRENHEIT">{{ 'logistics.forms.fahrenheit' | translate }}</option></select></label>
+              <label class="field">{{ 'logistics.forms.source' | translate }}<input formControlName="source"></label>
+            </div>
+            <nexa-button type="submit" [disabled]="temperature.invalid"><nexa-icon name="check" />{{ 'logistics.actions.record' | translate }}</nexa-button>
+          </form>
+        }
+
+        @if (item.status === 'IN_ROUTE') {
+          <form class="operation-form" [formGroup]="incident" (ngSubmit)="recordIncident(item)">
+            <div class="form-heading"><nexa-icon name="warning" /><div><h3>{{ 'logistics.forms.incident' | translate }}</h3><p>{{ 'logistics.detailUi.incidentDescription' | translate }}</p></div></div>
+            <div class="form-grid">
+              <label class="field">{{ 'logistics.forms.incident' | translate }}<select formControlName="type"><option value="DELAY">{{ 'logistics.forms.delay' | translate }}</option><option value="VEHICLE_ISSUE">{{ 'logistics.forms.vehicleIssue' | translate }}</option><option value="DELIVERY_REFUSED">{{ 'logistics.forms.deliveryRefused' | translate }}</option><option value="ADDRESS_ISSUE">{{ 'logistics.forms.addressIssue' | translate }}</option><option value="OTHER">{{ 'logistics.forms.other' | translate }}</option></select></label>
+              <label class="field">{{ 'logistics.detailUi.severity' | translate }}<select formControlName="severity"><option value="LOW">{{ 'logistics.forms.low' | translate }}</option><option value="MEDIUM">{{ 'logistics.forms.medium' | translate }}</option><option value="HIGH">{{ 'logistics.forms.high' | translate }}</option><option value="CRITICAL">{{ 'logistics.forms.critical' | translate }}</option></select></label>
+              <label class="field field-wide">{{ 'logistics.forms.description' | translate }}<textarea rows="3" formControlName="description"></textarea></label>
+            </div>
+            <label class="checkbox-field"><input type="checkbox" formControlName="buyerVisible">{{ 'logistics.forms.buyerVisible' | translate }}</label>
+            <nexa-button type="submit" variant="danger" [disabled]="incident.invalid"><nexa-icon name="warning" />{{ 'logistics.forms.recordIncident' | translate }}</nexa-button>
+          </form>
+
+          <form class="operation-form" [formGroup]="pod" (ngSubmit)="complete(item)">
+            <div class="form-heading"><nexa-icon name="verified" /><div><h3>{{ 'logistics.forms.podMetadata' | translate }}</h3><p>{{ 'logistics.states.metadataOnly' | translate }}</p></div></div>
+            <div class="form-grid">
+              <label class="field">{{ 'logistics.forms.receiver' | translate }}<input formControlName="receiverName"></label>
+              <label class="field">{{ 'logistics.fields.completed' | translate }}<input type="datetime-local" formControlName="completedAt"></label>
+              <label class="field field-wide">{{ 'logistics.forms.notes' | translate }}<textarea rows="3" formControlName="notes"></textarea></label>
+            </div>
+            <div class="checkbox-row"><label class="checkbox-field"><input type="checkbox" formControlName="photoEvidenceDeclared">{{ 'logistics.forms.photo' | translate }}</label><label class="checkbox-field"><input type="checkbox" formControlName="signatureEvidenceDeclared">{{ 'logistics.forms.signature' | translate }}</label></div>
+            <nexa-button type="submit" [disabled]="pod.invalid"><nexa-icon name="check" />{{ 'logistics.forms.completeDelivery' | translate }}</nexa-button>
+          </form>
+        }
+
+        @if (item.status === 'INCIDENT') {
+          <form class="operation-form" [formGroup]="reprogram" (ngSubmit)="reprogramDispatch(item)">
+            <div class="form-heading"><nexa-icon name="swap_vert" /><div><h3>{{ 'logistics.forms.reprogramRoute' | translate }}</h3><p>{{ 'logistics.detailUi.reprogramDescription' | translate }}</p></div></div>
+            <div class="form-grid">
+              <label class="field">{{ 'logistics.fields.window' | translate }}<input type="datetime-local" formControlName="deliveryWindowStart"></label>
+              <label class="field">{{ 'logistics.detailUi.windowEnd' | translate }}<input type="datetime-local" formControlName="deliveryWindowEnd"></label>
+              <label class="field">{{ 'logistics.detailUi.eta' | translate }}<input type="datetime-local" formControlName="eta"></label>
+              <label class="field field-wide">{{ 'logistics.forms.reason' | translate }}<textarea rows="3" formControlName="reason"></textarea></label>
+            </div>
+            <nexa-button type="submit" [disabled]="reprogram.invalid"><nexa-icon name="check" />{{ 'logistics.actions.reprogram' | translate }}</nexa-button>
+          </form>
+        }
+
+        <form class="operation-form" [formGroup]="handoff" (ngSubmit)="appendHandoff(item)">
+          <div class="form-heading"><nexa-icon name="send" /><div><h3>{{ 'logistics.forms.handoff' | translate }}</h3><p>{{ 'logistics.detailUi.handoffDescription' | translate }}</p></div></div>
+          <label class="field field-wide">{{ 'logistics.forms.handoffNote' | translate }}<textarea rows="3" formControlName="note"></textarea></label>
+          <nexa-button type="submit" variant="secondary" [disabled]="handoff.invalid"><nexa-icon name="send" />{{ 'logistics.forms.recordHandoff' | translate }}</nexa-button>
+        </form>
+      </fieldset>
+    </nexa-section-panel>
+  } @else {
+    <nexa-error-state [title]="'logistics.unavailable' | translate" [description]="'logistics.empty' | translate" (retry)="retry()" />
+  }
+</section>

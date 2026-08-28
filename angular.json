@@ -38,8 +38,8 @@
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "791kB",
-                  "maximumError": "791kB"
+                  "maximumWarning": "880kB",
+                  "maximumError": "920kB"
                 },
                 {
                   "type": "anyComponentStyle",
@@ -64,7 +64,8 @@
               "buildTarget": "nexa-platform:build:production"
             },
             "development": {
-              "buildTarget": "nexa-platform:build:development"
+              "buildTarget": "nexa-platform:build:development",
+              "proxyConfig": "e2e/proxy.conf.json"
             }
           },
           "defaultConfiguration": "development"

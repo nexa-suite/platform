@@ -17,6 +17,7 @@ import { LoadingStateComponent } from '../../../shared/presentation/components/l
 import { PageHeaderComponent } from '../../../shared/presentation/components/page-header/page-header.component';
 import { SectionPanelComponent } from '../../../shared/presentation/components/section-panel/section-panel.component';
 import { CatalogStateService } from '../../application/catalog-state.service';
+import { PlatformCatalogCartFacade } from '../../../core/presentation/catalog-cart/platform-catalog-cart.facade';
 import {
   CatalogFilters,
   DEFAULT_CATALOG_FILTERS,
@@ -65,9 +66,11 @@ export class ProductCatalogPageComponent {
   readonly state = this.catalog.viewState;
   readonly items = computed(() => this.state().items);
   readonly totalItems = computed(() => this.state().page?.totalItems ?? 0);
+  readonly cart = inject(PlatformCatalogCartFacade);
   readonly displayedColumns = ['name', 'brand', 'category', 'presentation', 'coldChain', 'unitPrice', 'actions'];
 
   constructor() {
+    this.cart.activate(this.queryParamMap().get('draftId'));
     effect(() => {
       const filters = this.filters();
       untracked(() => this.catalog.load(filters));
@@ -103,7 +106,24 @@ export class ProductCatalogPageComponent {
   }
 
   detailQueryParams(): Record<string, string | number> {
-    return this.serializeFilters(this.filters());
+    const draftId = this.queryParamMap().get('draftId');
+    return {
+      ...this.serializeFilters(this.filters()),
+      ...(draftId ? { draftId } : {}),
+    };
+  }
+
+  manualOrderPath(): string {
+    const draftId = this.queryParamMap().get('draftId');
+    return draftId ? `/ops/commercial/manual-orders/${draftId}/items` : '/ops/commercial/manual-order-entry';
+  }
+
+  toggleCart(item: ProductCatalogItem): void {
+    this.cart.toggle(item);
+  }
+
+  isUnavailable(item: ProductCatalogItem): boolean {
+    return ['OUT_OF_STOCK', 'UNAVAILABLE', 'OUT'].includes(item.availabilityStatus.trim().toUpperCase());
   }
 
   coldChainVariant(value: ProductCatalogItem['coldChain']): ColdChainVariant {

@@ -4,6 +4,11 @@
     [title]="'catalog.title' | translate"
     [subtitle]="'catalog.description' | translate">
     <div page-header-actions>
+      <a mat-flat-button color="primary" [routerLink]="manualOrderPath()">
+        <nexa-icon name="shopping_cart" />
+        {{ 'requestBuilder.actions.createOrder' | translate }}
+        @if (cart.count()) { ({{ cart.count() }}) }
+      </a>
       <button mat-stroked-button type="button" (click)="clearFilters()">
         <nexa-icon name="filter_alt_off" />
         {{ 'catalog.clearFilters' | translate }}
@@ -83,7 +88,13 @@
               <p class="catalog-availability" [class.near-expiry]="item.nearExpiry">{{ item.availabilityStatus }}</p>
               <div class="catalog-card-footer">
                 <strong>{{ formatPrice(item) }}</strong>
-                <a [routerLink]="['/ops/product-catalog', item.id]" [queryParams]="detailQueryParams()">{{ 'catalog.viewDetail' | translate }}</a>
+                <div class="catalog-card-actions">
+                  <button mat-stroked-button type="button" [disabled]="isUnavailable(item)" (click)="toggleCart(item)">
+                    <nexa-icon [name]="cart.has(item.id) ? 'remove_shopping_cart' : 'add_shopping_cart'" />
+                    {{ cart.has(item.id) ? 'Quitar' : 'Agregar' }}
+                  </button>
+                  <a [routerLink]="['/ops/product-catalog', item.id]" [queryParams]="detailQueryParams()">{{ 'catalog.viewDetail' | translate }}</a>
+                </div>
               </div>
             </div>
           </article>
