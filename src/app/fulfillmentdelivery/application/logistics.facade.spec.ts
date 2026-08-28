@@ -56,4 +56,15 @@ describe('LogisticsFacade', () => {
     expect(api.dispatches).toHaveBeenCalled();
     expect(facade.error()).toBe('LOGISTICS_CONCURRENCY_CONFLICT');
   });
+
+  it('keeps dashboard failures attributable to the dashboard source', () => {
+    const api = { dashboard: vi.fn(() => throwError(() => new Error('unavailable'))) };
+    TestBed.configureTestingModule({ providers: [LogisticsFacade, { provide: LogisticsApiPort, useValue: api }, { provide: PlatformAuthenticationBoundary, useValue: { hasPermission: vi.fn(() => true) } }] });
+    const facade = TestBed.inject(LogisticsFacade);
+
+    facade.loadDashboard();
+
+    expect(facade.dashboardError()).toBe('No se pudo cargar el dashboard operativo.');
+    expect(facade.dispatchesError()).toBeNull();
+  });
 });

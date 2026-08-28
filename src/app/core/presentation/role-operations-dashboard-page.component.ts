@@ -44,16 +44,20 @@ export class RoleOperationsDashboardPageComponent {
   readonly warehouse = inject(WarehouseOperationsFacade);
   readonly delivery = inject(LogisticsFacade);
   readonly catalogItems = signal<readonly InventoryCatalogReference[]>([]);
+  readonly catalogUnavailable = signal(false);
 
-  readonly isDeliveryCoordination = computed(() =>
-    this.auth.currentUser()?.roles.includes('LOGISTICS') ?? false,
-  );
   readonly canReadInventory = computed(() =>
     this.auth.hasPermission(PLATFORM_PERMISSIONS.warehouseRead),
   );
   readonly canReadDelivery = computed(() =>
     this.auth.hasPermission(PLATFORM_PERMISSIONS.logisticsRead),
   );
+  readonly isDeliveryCoordination = computed(() => {
+    const user = this.auth.currentUser();
+    if (user?.roles.includes('LOGISTICS')) return true;
+    if (user?.roles.includes('WAREHOUSE')) return false;
+    return this.canReadDelivery() && !this.canReadInventory();
+  });
   readonly activeDispatches = computed(() =>
     this.delivery.dispatches().filter((item) => !['DELIVERED', 'CANCELLED'].includes(this.normalized(item.status))),
   );
@@ -79,7 +83,7 @@ export class RoleOperationsDashboardPageComponent {
   constructor() {
     if (this.canReadInventory()) {
       this.warehouse.load();
-      this.warehouse.activeCatalogItems().subscribe({ next: (items) => this.catalogItems.set(items) });
+      this.warehouse.activeCatalogItems().subscribe({ next: (items) => { this.catalogUnavailable.set(false); this.catalogItems.set(items); }, error: () => this.catalogUnavailable.set(true) });
     }
     if (this.canReadDelivery()) {
       this.delivery.loadDashboard();

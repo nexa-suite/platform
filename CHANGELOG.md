@@ -3,6 +3,35 @@
 All notable changes to this project are documented in this file.
 The project uses Semantic Versioning.
 
+## [0.19.0] - 2026-08-28
+
+API-backed continuity across internal operational roles.
+
+### Added
+
+- Source-specific operational error signals and explicit partial-data notices so successful API projections are not presented as complete when another source is unavailable.
+- Release documentation for the canonical `COMPANY_OWNER`, `SALES`, `WAREHOUSE` and `LOGISTICS`/Dispatch role boundaries.
+
+### Changed
+
+- Sales Dashboard KPI cards now use API-backed pending and confirmed Sales Order metrics instead of fabricated credit-request and blocked-order counters.
+- Operations Dashboard role selection respects the canonical `LOGISTICS` role and effective permissions while preserving the Warehouse surface for `WAREHOUSE`.
+- Catalog lookup failures keep the inventory identifier visible and explain the degraded product-name projection.
+
+### Boundary
+
+- Dispatch remains a capability of canonical `LOGISTICS`; no separate `DISPATCH` role was introduced.
+- `BOM` remains `OPEN`/`DEFERRED` because the accepted API and Blueprint expose no canonical role, endpoint, entity or lifecycle contract.
+- API, Blueprint, Design Lab and legacy repositories were not modified; mock adapters remain available only for explicit mock mode.
+
+### Validation
+
+- Platform unit suite: 167 tests across 81 files passed.
+- Design Lab v1.0.2 foundation, catalog asset and bounded-context validators passed.
+- Production build passed with existing style budget warnings.
+- Authenticated Logistics E2E against Docker: 2/2 passed.
+- `npm audit --omit=dev`: 0 vulnerabilities.
+
 ## [0.18.0] - 2026-08-28
 
 API continuity and role-separated operational landings.
