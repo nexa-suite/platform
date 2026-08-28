@@ -1,0 +1,50 @@
+<section class="page owner-overview">
+  <nexa-page-header
+    [eyebrow]="'companyOwnerOverview.eyebrow' | translate"
+    [title]="'companyOwnerOverview.title' | translate"
+    [subtitle]="'companyOwnerOverview.subtitle' | translate" />
+
+  @if (facade.loading()) {
+    <nexa-loading-state [label]="'companyOwnerOverview.loading' | translate" [lines]="4" />
+  } @else if (facade.error()) {
+    <nexa-error-state
+      [title]="'companyOwnerOverview.errorTitle' | translate"
+      [description]="'companyOwnerOverview.errorDescription' | translate"
+      [retryLabel]="'companyOwnerOverview.retry' | translate"
+      (retry)="facade.retry()" />
+  } @else {
+    <section class="metric-grid" [attr.aria-label]="'companyOwnerOverview.metricsLabel' | translate">
+      @for (metric of metrics; track metric.key) {
+        <nexa-metric-card
+          [label]="metric.label | translate"
+          [value]="metricValue(metric.key)"
+          [hint]="metricHint(metric) | translate"
+          [icon]="metric.icon"
+          [tone]="metric.tone" />
+      }
+    </section>
+
+    <nexa-section-panel
+      [title]="'companyOwnerOverview.activity.title' | translate"
+      [description]="'companyOwnerOverview.activity.description' | translate">
+      @if (facade.activity().length) {
+        <div class="activity-list" aria-live="polite">
+          @for (event of facade.activity(); track event.id) {
+            <article class="activity-row">
+              <span class="activity-mark" aria-hidden="true"><nexa-icon name="history" /></span>
+              <div>
+                <strong>{{ eventLabel(event) }}</strong>
+                <small>{{ event.occurredAt | date: 'medium' }}</small>
+              </div>
+            </article>
+          }
+        </div>
+      } @else {
+        <nexa-empty-state
+          icon="history"
+          [title]="'companyOwnerOverview.activity.emptyTitle' | translate"
+          [description]="'companyOwnerOverview.activity.emptyDescription' | translate" />
+      }
+    </nexa-section-panel>
+  }
+</section>

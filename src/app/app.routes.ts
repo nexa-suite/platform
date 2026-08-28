@@ -4,6 +4,7 @@ import { PlatformAuthenticationBoundary } from './core/security/platform-authent
 import { anonymousGuard, authGuard } from './core/security/auth.guard';
 import { platformSurfaceGuard } from './core/security/platform-surface.guard';
 import { PlatformShellComponent } from './core/layout/platform-shell/platform-shell.component';
+import { CompanyOwnerExecutiveOverviewFacade } from './core/presentation/company-owner-executive-overview.facade';
 import { anyPermissionGuard, permissionGuard } from './core/security/permission.guard';
 import { platformLandingForUser, PLATFORM_PERMISSIONS } from './core/security/platform-permissions';
 import { SalesCommitmentApiService } from './salescommitment/infrastructure/http/sales-commitment-api.service';
@@ -109,7 +110,7 @@ export const routes: Routes = [
       { path: 'iam/security/password', loadComponent: () => import('./tenantaccessgovernance/iam/presentation/change-password-page/change-password-page.component').then((module) => module.ChangePasswordPageComponent) },
       { path: 'iam/security/sessions', loadComponent: () => import('./tenantaccessgovernance/iam/presentation/sessions-page/sessions-page.component').then((module) => module.SessionsPageComponent) },
       { path: 'ops/overview', loadComponent: () => import('./core/presentation/overview-page/overview-page.component').then((module) => module.OverviewPageComponent), canActivate: [permissionGuard(PLATFORM_PERMISSIONS.fulfillmentRead)] },
-      { path: 'ops/executive-overview', loadComponent: () => import('./core/presentation/company-owner-executive-overview-page.component').then((module) => module.CompanyOwnerExecutiveOverviewPageComponent), canActivate: [permissionGuard(PLATFORM_PERMISSIONS.ownerDashboardRead)] },
+      { path: 'ops/executive-overview', loadComponent: () => import('./core/presentation/company-owner-executive-overview-page.component').then((module) => module.CompanyOwnerExecutiveOverviewPageComponent), canActivate: [permissionGuard(PLATFORM_PERMISSIONS.ownerDashboardRead)], providers: [...warehouseProviders, CompanyOwnerExecutiveOverviewFacade] },
       { path: 'ops/operations/audit', loadComponent: () => import('./tenantaccessgovernance/iam/presentation/audit-viewer-page.component').then((module) => module.AuditViewerPageComponent), canActivate: [permissionGuard(PLATFORM_PERMISSIONS.tenantRead)] },
       { path: 'ops/commercial/dashboard', loadComponent: () => import('./salescommitment/presentation/dashboard/sales-dashboard-page.component').then((module) => module.SalesDashboardPageComponent), canActivate: [permissionGuard(PLATFORM_PERMISSIONS.salesRead)], providers: salesCommitmentProviders },
       {

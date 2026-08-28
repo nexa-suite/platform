@@ -1,32 +1,72 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { DatePipe } from '@angular/common';
+import { TranslatePipe } from '@ngx-translate/core';
+import { CompanyOwnerExecutiveOverviewFacade, CompanyOwnerExecutiveOverviewSnapshot } from './company-owner-executive-overview.facade';
+import { EmptyStateComponent } from '../../shared/presentation/components/empty-state/empty-state.component';
+import { ErrorStateComponent } from '../../shared/presentation/components/error-state/error-state.component';
+import { LoadingStateComponent } from '../../shared/presentation/components/loading-state/loading-state.component';
+import { MetricCardComponent, MetricTone } from '../../shared/presentation/components/metric-card/metric-card.component';
+import { NexaIconComponent } from '../../shared/presentation/components/nexa-icon/nexa-icon.component';
 import { PageHeaderComponent } from '../../shared/presentation/components/page-header/page-header.component';
+import { SectionPanelComponent } from '../../shared/presentation/components/section-panel/section-panel.component';
 
-/** Read-only Company Owner landing assembled from the already available projections. */
+type OwnerMetricKey = keyof CompanyOwnerExecutiveOverviewSnapshot;
+
+interface OwnerMetricDefinition {
+  readonly key: OwnerMetricKey;
+  readonly label: string;
+  readonly hint: string;
+  readonly icon: string;
+  readonly tone: MetricTone;
+}
+
+/** Company Owner read-only landing backed by authorized server projections. */
 @Component({
   selector: 'nexa-company-owner-executive-overview',
-  imports: [PageHeaderComponent],
-  template: `
-    <section class="owner-overview">
-      <nexa-page-header eyebrow="Company Owner" title="Executive overview" subtitle="Read-only business health for this workspace" />
-      <div class="overview-grid">
-        @for (card of cards; track card.title) {
-          <article class="overview-card"><p class="card-label">{{ card.title }}</p><strong>{{ card.value }}</strong><p>{{ card.description }}</p></article>
-        }
-      </div>
-      <article class="overview-card"><h2>Recent business activity</h2><p>Activity is read from the existing change feed for the authorized workspace.</p></article>
-    </section>
-  `,
-  styles: [`:host{display:block}.owner-overview{display:grid;gap:var(--nexa-space-8)}.overview-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(14rem,1fr));gap:var(--nexa-space-4)}.overview-card{display:grid;gap:var(--nexa-space-2);padding:var(--nexa-space-5);border:1px solid var(--nexa-color-border);border-radius:var(--nexa-radius-lg);background:var(--nexa-color-surface)}.overview-card p{color:var(--nexa-color-text-secondary);margin:0}.card-label{font-size:.8rem;text-transform:uppercase;letter-spacing:.06em}`],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  imports: [
+    DatePipe,
+    EmptyStateComponent,
+    ErrorStateComponent,
+    LoadingStateComponent,
+    MetricCardComponent,
+    NexaIconComponent,
+    PageHeaderComponent,
+    SectionPanelComponent,
+    TranslatePipe,
+  ],
+  templateUrl: './company-owner-executive-overview-page.component.html',
+  styleUrl: './company-owner-executive-overview-page.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CompanyOwnerExecutiveOverviewPageComponent {
-  readonly cards = [
-    { title: 'Sales overview', value: 'Read-only', description: 'Sales dashboard projection.' },
-    { title: 'Purchase Request summary', value: 'Read-only', description: 'Purchase request projection.' },
-    { title: 'Sales Order summary', value: 'Read-only', description: 'Sales order projection.' },
-    { title: 'Client Account summary', value: 'Read-only', description: 'Client account projection.' },
-    { title: 'Inventory overview', value: 'Read-only', description: 'Inventory projection.' },
-    { title: 'Warehouse summary', value: 'Read-only', description: 'Warehouse projection.' },
-    { title: 'Dispatch summary', value: 'Read-only', description: 'Dispatch projection.' }
-  ] as const;
+  readonly facade = inject(CompanyOwnerExecutiveOverviewFacade);
+  readonly metrics: readonly OwnerMetricDefinition[] = [
+    { key: 'salesOrders', label: 'companyOwnerOverview.metrics.salesOrders', hint: 'companyOwnerOverview.hints.salesOrders', icon: 'receipt_long', tone: 'info' },
+    { key: 'purchaseRequests', label: 'companyOwnerOverview.metrics.purchaseRequests', hint: 'companyOwnerOverview.hints.purchaseRequests', icon: 'request_quote', tone: 'neutral' },
+    { key: 'clientAccounts', label: 'companyOwnerOverview.metrics.clientAccounts', hint: 'companyOwnerOverview.hints.clientAccounts', icon: 'groups', tone: 'neutral' },
+    { key: 'warehouses', label: 'companyOwnerOverview.metrics.warehouses', hint: 'companyOwnerOverview.hints.warehouses', icon: 'warehouse', tone: 'success' },
+    { key: 'inventoryLots', label: 'companyOwnerOverview.metrics.inventoryLots', hint: 'companyOwnerOverview.hints.inventoryLots', icon: 'inventory_2', tone: 'warning' },
+    { key: 'activeDispatches', label: 'companyOwnerOverview.metrics.activeDispatches', hint: 'companyOwnerOverview.hints.activeDispatches', icon: 'local_shipping', tone: 'info' },
+    { key: 'dispatchIncidents', label: 'companyOwnerOverview.metrics.dispatchIncidents', hint: 'companyOwnerOverview.hints.dispatchIncidents', icon: 'report_problem', tone: 'danger' },
+    { key: 'deliveredToday', label: 'companyOwnerOverview.metrics.deliveredToday', hint: 'companyOwnerOverview.hints.deliveredToday', icon: 'task_alt', tone: 'success' },
+  ];
+
+  constructor() {
+    this.facade.startActivity();
+    this.facade.load();
+  }
+
+  metricValue(key: OwnerMetricKey): number | string {
+    return this.facade.snapshot()[key] ?? '—';
+  }
+
+  metricHint(metric: OwnerMetricDefinition): string {
+    return this.facade.snapshot()[metric.key] === null
+      ? 'companyOwnerOverview.accessNotGranted'
+      : metric.hint;
+  }
+
+  eventLabel(event: { readonly eventType: string; readonly resourceType: string; readonly resourceId: string | null }): string {
+    return [event.eventType, event.resourceType, event.resourceId].filter(Boolean).join(' · ');
+  }
 }
