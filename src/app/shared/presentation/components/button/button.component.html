@@ -5,10 +5,7 @@
     [attr.aria-label]="ariaLabel() ?? null"
     [attr.aria-disabled]="linkDisabled()"
     (click)="guardLink($event)">
-    @if (loading()) {
-      <span class="button-spinner" aria-hidden="true"></span>
-    }
-    <ng-content />
+    <ng-container [ngTemplateOutlet]="buttonContent"></ng-container>
   </a>
 } @else {
   <button
@@ -17,9 +14,12 @@
     [disabled]="disabled() || loading()"
     [attr.aria-label]="ariaLabel() ?? null"
     [attr.aria-busy]="loading()">
-    @if (loading()) {
-      <span class="button-spinner" aria-hidden="true"></span>
-    }
-    <ng-content />
+    <ng-container [ngTemplateOutlet]="buttonContent"></ng-container>
   </button>
 }
+<ng-template #buttonContent>
+  @if (loading()) {
+    <span class="button-spinner" aria-hidden="true"></span>
+  }
+  <ng-content></ng-content>
+</ng-template>

@@ -1,0 +1,76 @@
+<section class="page analytics-page">
+  <nexa-page-header
+    [eyebrow]="'logistics.analyticsUi.eyebrow' | translate"
+    [title]="'logistics.analytics' | translate"
+    [subtitle]="'logistics.analyticsUi.description' | translate">
+    <div page-header-actions>
+      <nexa-button variant="secondary" size="compact" routerLink="/ops/operations/dispatch-orders">
+        <nexa-icon name="local_shipping" />
+        {{ 'logistics.board' | translate }}
+      </nexa-button>
+    </div>
+  </nexa-page-header>
+
+  @if (facade.loading() && !facade.analytics()) {
+    <nexa-loading-state [label]="'logistics.loading' | translate" [lines]="5" />
+  } @else if (facade.error() && !facade.analytics()) {
+    <nexa-error-state
+      [title]="'logistics.unavailable' | translate"
+      [description]="facade.error()!"
+      (retry)="retry()" />
+  } @else if (facade.analytics(); as data) {
+    <section class="analytics-hero" aria-labelledby="analytics-hero-title">
+      <div class="hero-copy">
+        <span class="hero-eyebrow">{{ 'logistics.analyticsUi.period' | translate }}</span>
+        <h2 id="analytics-hero-title">{{ 'logistics.analyticsUi.performance' | translate }}</h2>
+        <p>{{ 'logistics.analyticsUi.performanceDescription' | translate }}</p>
+      </div>
+      <div class="hero-rates">
+        <div class="hero-rate"><strong>{{ rateLabel(data.onTimeRate) }}</strong><span>{{ 'logistics.fields.onTime' | translate }}</span></div>
+        <div class="hero-rate"><strong>{{ fulfillmentLabel(data.delivered, data.dispatches) }}</strong><span>{{ 'logistics.fields.delivered' | translate }}</span></div>
+      </div>
+    </section>
+
+    <section class="metric-grid" [attr.aria-label]="'logistics.analytics' | translate">
+      <nexa-metric-card [label]="'logistics.fields.dispatches' | translate" [value]="data.dispatches" [hint]="'logistics.analyticsUi.period' | translate" icon="local_shipping" tone="info" />
+      <nexa-metric-card [label]="'logistics.fields.delivered' | translate" [value]="data.delivered" [hint]="'logistics.analyticsUi.deliveryDetail' | translate" icon="verified" tone="success" />
+      <nexa-metric-card [label]="'logistics.fields.incidents' | translate" [value]="data.incidents" [hint]="'logistics.analyticsUi.incidentDetail' | translate" icon="warning" tone="danger" />
+      <nexa-metric-card [label]="'logistics.fields.excursions' | translate" [value]="data.temperatureExcursions" [hint]="'logistics.analyticsUi.temperatureDetail' | translate" icon="thermostat" tone="warning" />
+    </section>
+
+    <div class="analytics-grid">
+      <nexa-section-panel [title]="'logistics.analyticsUi.performance' | translate" [description]="'logistics.analyticsUi.performanceDescription' | translate">
+        <div class="progress-list">
+          <div class="progress-row">
+            <div class="progress-copy"><strong>{{ 'logistics.fields.onTime' | translate }}</strong><span>{{ 'logistics.analyticsUi.onTimeDetail' | translate }}</span></div>
+            <strong>{{ rateLabel(data.onTimeRate) }}</strong>
+            <div class="progress-track"><span [style.width.%]="rateValue(data.onTimeRate)"></span></div>
+          </div>
+          <div class="progress-row">
+            <div class="progress-copy"><strong>{{ 'logistics.fields.delivered' | translate }}</strong><span>{{ 'logistics.analyticsUi.deliveryDetail' | translate }}</span></div>
+            <strong>{{ fulfillmentLabel(data.delivered, data.dispatches) }}</strong>
+            <div class="progress-track"><span [style.width.%]="ratio(data.delivered, data.dispatches)"></span></div>
+          </div>
+          <div class="progress-row">
+            <div class="progress-copy"><strong>{{ 'logistics.fields.podCompleted' | translate }}</strong><span>{{ 'logistics.podUi.completedDescription' | translate }}</span></div>
+            <strong>{{ fulfillmentLabel(data.podCompleted, data.dispatches) }}</strong>
+            <div class="progress-track"><span [style.width.%]="ratio(data.podCompleted, data.dispatches)"></span></div>
+          </div>
+        </div>
+      </nexa-section-panel>
+
+      <nexa-section-panel [title]="'logistics.analyticsUi.workload' | translate" [description]="'logistics.analyticsUi.workloadDescription' | translate">
+        <dl class="workload-grid">
+          <div><dt>{{ 'logistics.fields.incidents' | translate }}</dt><dd>{{ data.incidents }}</dd></div>
+          <div><dt>{{ 'logistics.fields.excursions' | translate }}</dt><dd>{{ data.temperatureExcursions }}</dd></div>
+          <div><dt>{{ 'logistics.fields.preparation' | translate }}</dt><dd>{{ data.averagePreparationMinutes | number: '1.0-1' }} {{ 'logistics.analyticsUi.minutes' | translate }}</dd></div>
+          <div><dt>{{ 'logistics.fields.routeDuration' | translate }}</dt><dd>{{ data.averageRouteMinutes | number: '1.0-1' }} {{ 'logistics.analyticsUi.minutes' | translate }}</dd></div>
+        </dl>
+        <div class="status-callout" [class.healthy]="data.incidents === 0 && data.temperatureExcursions === 0">
+          <nexa-icon [name]="data.incidents === 0 && data.temperatureExcursions === 0 ? 'verified' : 'warning'" />
+          <div><strong>{{ data.incidents === 0 && data.temperatureExcursions === 0 ? ('logistics.status.WITHIN_RANGE' | translate) : ('logistics.status.TEMPERATURE_ALERT' | translate) }}</strong><span>{{ 'logistics.analyticsUi.temperatureDetail' | translate }}</span></div>
+        </div>
+      </nexa-section-panel>
+    </div>
+  }
+</section>

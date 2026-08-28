@@ -6,6 +6,7 @@ export type SalesDashboardLoadStatus = 'idle' | 'loading' | 'success' | 'empty' 
 export interface SalesDashboardMetrics {
   readonly submittedPurchaseRequests: number;
   readonly purchaseRequestsUnderReview: number;
+  readonly purchaseRequestsNeedsAdjustment: number;
   readonly approvedPurchaseRequests: number;
   readonly pendingSalesOrders: number;
   readonly confirmedSalesOrders: number;
@@ -21,7 +22,7 @@ export interface SalesDashboardState {
 
 export const EMPTY_SALES_DASHBOARD: SalesDashboardState = {
   status: 'idle',
-  metrics: { submittedPurchaseRequests: 0, purchaseRequestsUnderReview: 0, approvedPurchaseRequests: 0, pendingSalesOrders: 0, confirmedSalesOrders: 0 },
+  metrics: { submittedPurchaseRequests: 0, purchaseRequestsUnderReview: 0, purchaseRequestsNeedsAdjustment: 0, approvedPurchaseRequests: 0, pendingSalesOrders: 0, confirmedSalesOrders: 0 },
   recentPurchaseRequests: [],
   recentSalesOrders: [],
   message: null

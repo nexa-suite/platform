@@ -13,6 +13,8 @@ export type AuthStatus =
   | 'restoring'
   | 'anonymous'
   | 'authenticating'
+  | 'two-factor-challenge'
+  | 'verifying-two-factor'
   | 'authenticated'
   | 'forbidden'
   | 'error'
@@ -22,6 +24,28 @@ export interface SignInCommand {
   readonly identifier: string;
   readonly password: string;
   readonly workspaceSlug: string;
+}
+
+export interface WorkspacePreview {
+  readonly recognized: boolean;
+  readonly displayName: string | null;
+  readonly workspaceUrl: string | null;
+  readonly logoUrl: string | null;
+  readonly loginAvailable: boolean;
+}
+
+export type TwoFactorChannel = 'email' | 'authenticator';
+
+export interface TwoFactorChallenge {
+  readonly challengeId: string;
+  readonly channel: TwoFactorChannel;
+  readonly maskedDestination: string;
+  readonly expiresInSeconds: number;
+}
+
+export interface TwoFactorChallengeResult {
+  readonly twoFactorRequired: true;
+  readonly challenge: TwoFactorChallenge;
 }
 
 export interface AuthenticatedUser {
@@ -44,6 +68,12 @@ export interface AuthenticatedUser {
 export interface AuthSession {
   readonly accessToken: string;
   readonly user: AuthenticatedUser;
+}
+
+export type AuthenticationResult = AuthSession | TwoFactorChallengeResult;
+
+export function isTwoFactorChallenge(value: AuthenticationResult): value is TwoFactorChallengeResult {
+  return 'twoFactorRequired' in value && value.twoFactorRequired === true;
 }
 
 export interface AuthState {

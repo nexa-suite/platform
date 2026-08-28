@@ -16,6 +16,7 @@ export class SalesDashboardFacade {
     forkJoin({
       submitted: this.countRequests('SUBMITTED'),
       underReview: this.countRequests('IN_REVIEW'),
+      needsAdjustment: this.countRequests('NEEDS_ADJUSTMENT'),
       approved: this.countRequests('APPROVED'),
       pending: this.countOrders('PENDING'),
       confirmed: this.countOrders('CONFIRMED'),
@@ -26,7 +27,7 @@ export class SalesDashboardFacade {
         const hasRows = data.recentPurchaseRequests.items.length > 0 || data.recentSalesOrders.items.length > 0;
         this.stateSignal.set({
           status: hasRows ? 'success' : 'empty',
-          metrics: { submittedPurchaseRequests: data.submitted, purchaseRequestsUnderReview: data.underReview, approvedPurchaseRequests: data.approved, pendingSalesOrders: data.pending, confirmedSalesOrders: data.confirmed },
+          metrics: { submittedPurchaseRequests: data.submitted, purchaseRequestsUnderReview: data.underReview, purchaseRequestsNeedsAdjustment: data.needsAdjustment, approvedPurchaseRequests: data.approved, pendingSalesOrders: data.pending, confirmedSalesOrders: data.confirmed },
           recentPurchaseRequests: data.recentPurchaseRequests.items,
           recentSalesOrders: data.recentSalesOrders.items,
           message: null

@@ -1,77 +1,142 @@
 <main class="auth-page" aria-labelledby="sign-in-title">
-  <section class="auth-pattern">
-    <aside class="auth-brand-plane">
-      <nexa-brand-logo variant="inverse" [width]="150" accessibleLabel="Nexa" />
-      <div class="auth-brand-message">
-        <h2>{{ 'auth.signIn.heroTitle' | translate }}</h2>
-        <p class="brand-copy">{{ 'auth.signIn.heroDescription' | translate }}</p>
-        <ul class="auth-capabilities" aria-label="Nexa Platform">
-          <li>{{ 'auth.signIn.heroPills.catalog' | translate }}</li>
-          <li>{{ 'auth.signIn.heroPills.stock' | translate }}</li>
-          <li>{{ 'auth.signIn.heroPills.orders' | translate }}</li>
-          <li>{{ 'auth.signIn.heroPills.delivery' | translate }}</li>
-        </ul>
-      </div>
-      <small class="auth-brand-footer">{{ 'auth.signIn.heroFooter' | translate }}</small>
-    </aside>
-
-    <section class="auth-form-panel">
-      <div class="auth-form-heading">
-        <p class="proof-label">{{ 'auth.signIn.accessKicker' | translate }}</p>
-        <div class="language-switcher" role="group" [attr.aria-label]="'shell.language' | translate">
-          <button type="button" [class.active]="languageService.currentLanguage() === 'es'" [attr.aria-pressed]="languageService.currentLanguage() === 'es'" (click)="setLanguage('es')">ES</button>
-          <button type="button" [class.active]="languageService.currentLanguage() === 'en'" [attr.aria-pressed]="languageService.currentLanguage() === 'en'" (click)="setLanguage('en')">EN</button>
+  <div class="auth-wrap">
+    <aside class="auth-left">
+      <div class="auth-left-content">
+        <div class="auth-logo">
+          <nexa-brand-logo variant="inverse" [width]="136" accessibleLabel="Nexa" />
+        </div>
+        <div class="auth-tagline">{{ 'auth.signIn.heroTitle' | translate }}</div>
+        <div class="auth-desc">{{ 'auth.signIn.heroDescription' | translate }}</div>
+        <div class="auth-pills" aria-label="Nexa Platform">
+          <span class="auth-pill">{{ 'auth.signIn.heroPills.catalog' | translate }}</span>
+          <span class="auth-pill">{{ 'auth.signIn.heroPills.stock' | translate }}</span>
+          <span class="auth-pill">{{ 'auth.signIn.heroPills.orders' | translate }}</span>
+          <span class="auth-pill">{{ 'auth.signIn.heroPills.delivery' | translate }}</span>
         </div>
       </div>
 
-      <div class="form-copy">
-        <p class="eyebrow">{{ 'auth.platformSurface' | translate }}</p>
-        <h1 id="sign-in-title">{{ 'auth.signIn.title' | translate }}</h1>
-        <p>{{ 'auth.signIn.description' | translate }}</p>
+      <div class="auth-footer-left">
+        <a class="auth-back-link" href="https://upc-pre-202610-1asi0730-12242-king.github.io/nexa-website/">
+          ← {{ 'auth.signIn.backToSite' | translate }}
+        </a>
+        <span>{{ 'auth.signIn.heroFooter' | translate }}</span>
+      </div>
+    </aside>
+
+    <section class="auth-right">
+      <div class="lang-selector" role="group" [attr.aria-label]="'shell.language' | translate">
+        <button class="lang-opt" type="button" [class.active]="languageService.currentLanguage() === 'es'" [attr.aria-pressed]="languageService.currentLanguage() === 'es'" [attr.aria-label]="'auth.signIn.switchToSpanish' | translate" (click)="setLanguage('es')">ES</button>
+        <button class="lang-opt" type="button" [class.active]="languageService.currentLanguage() === 'en'" [attr.aria-pressed]="languageService.currentLanguage() === 'en'" [attr.aria-label]="'auth.signIn.switchToEnglish' | translate" (click)="setLanguage('en')">EN</button>
       </div>
 
-      <form (submit)="submit($event)" novalidate>
-        <label class="text-field" [class.invalid]="signInForm.workspaceSlug().touched() && signInForm.workspaceSlug().invalid()" for="workspace-slug">
-          <span>{{ 'auth.signIn.workspace' | translate }}<sup>*</sup></span>
-          <input id="workspace-slug" autocomplete="organization" [attr.aria-invalid]="signInForm.workspaceSlug().invalid()" [attr.aria-describedby]="signInForm.workspaceSlug().invalid() ? 'workspace-error' : 'workspace-hint'" [formField]="signInForm.workspaceSlug" />
-          <small id="workspace-hint">{{ 'auth.signIn.workspaceHint' | translate }}</small>
-          @if (signInForm.workspaceSlug().touched() && signInForm.workspaceSlug().invalid()) {
-            <small class="field-error" id="workspace-error">{{ signInForm.workspaceSlug().errors()[0]?.message }}</small>
-          }
-        </label>
+      <h1 id="sign-in-title" class="auth-form-title">{{ 'auth.signIn.title' | translate }}</h1>
+      <p class="auth-form-sub">{{ 'auth.signIn.description' | translate }}</p>
 
-        <label class="text-field" [class.invalid]="signInForm.identifier().touched() && signInForm.identifier().invalid()" for="identifier">
-          <span>{{ 'auth.signIn.identifier' | translate }}<sup>*</sup></span>
-          <input id="identifier" autocomplete="username" [attr.aria-invalid]="signInForm.identifier().invalid()" [attr.aria-describedby]="signInForm.identifier().invalid() ? 'identifier-error' : null" [formField]="signInForm.identifier" />
-          @if (signInForm.identifier().touched() && signInForm.identifier().invalid()) {
-            <small class="field-error" id="identifier-error">{{ signInForm.identifier().errors()[0]?.message }}</small>
+      <form class="workspace-login-form" (submit)="submit($event)" novalidate>
+        @if (status() !== 'two-factor-challenge' && status() !== 'verifying-two-factor') {
+          @if (!previewLoading() && preview(); as workspace) {
+            <section class="tenant-preview" aria-live="polite">
+              <div class="tenant-preview-mark">{{ workspace.displayName ? workspace.displayName.slice(0, 2).toUpperCase() : 'NX' }}</div>
+              <div class="tenant-preview-body">
+                <div class="tenant-preview-eyebrow">{{ 'auth.signIn.workspacePreview.label' | translate }}</div>
+                <div class="tenant-preview-name">{{ workspace.displayName ?? ('auth.signIn.workspacePreview.notFound' | translate) }}</div>
+                <div class="tenant-preview-meta">
+                  @if (workspace.workspaceUrl) { <span>{{ workspace.workspaceUrl }}</span> }
+                  <span class="status-badge" [class.status-badge--inactive]="!workspace.loginAvailable">
+                    {{ workspace.loginAvailable ? ('auth.signIn.workspacePreview.active' | translate) : ('auth.signIn.workspacePreview.notFound' | translate) }}
+                  </span>
+                </div>
+              </div>
+            </section>
           }
-        </label>
 
-        <label class="text-field" [class.invalid]="signInForm.password().touched() && signInForm.password().invalid()" for="password">
-          <span>{{ 'auth.signIn.password' | translate }}<sup>*</sup></span>
-          <input id="password" type="password" autocomplete="current-password" [attr.aria-invalid]="signInForm.password().invalid()" [attr.aria-describedby]="signInForm.password().invalid() ? 'password-error' : null" [formField]="signInForm.password" />
-          @if (signInForm.password().touched() && signInForm.password().invalid()) {
-            <small class="field-error" id="password-error">{{ signInForm.password().errors()[0]?.message }}</small>
+          @if (previewLoading()) {
+            <p class="workspace-status" role="status">{{ 'auth.signIn.workspacePreview.loading' | translate }}</p>
           }
-        </label>
+          @if (!previewLoading() && previewError(); as errorCode) {
+            <p class="form-error" role="alert">{{ ('auth.signIn.workspacePreview.' + errorCode) | translate }}</p>
+          }
 
-        @if (status() === 'error') {
-          <p class="form-error" role="alert">{{ 'auth.signIn.error' | translate }}</p>
+          <div class="field workspace-field">
+            <label class="workspace-label" for="workspace-slug">{{ 'auth.signIn.workspaceLabel' | translate }}</label>
+            <div class="field-input" [class.error]="signInForm.workspaceSlug().touched() && signInForm.workspaceSlug().invalid()">
+              <nexa-icon name="business" />
+              <input id="workspace-slug" type="text" inputmode="text" autocomplete="organization" autocapitalize="none" spellcheck="false" [formField]="signInForm.workspaceSlug" [attr.aria-invalid]="signInForm.workspaceSlug().invalid()" [attr.aria-describedby]="signInForm.workspaceSlug().invalid() ? 'workspace-error' : 'workspace-hint'" [placeholder]="'auth.signIn.workspacePlaceholder' | translate" (input)="onWorkspaceInput($event)" />
+            </div>
+            <div class="workspace-helper" id="workspace-hint">{{ 'auth.signIn.workspaceHint' | translate }}</div>
+            @if (signInForm.workspaceSlug().touched() && signInForm.workspaceSlug().invalid()) {
+              <small class="field-error" id="workspace-error">{{ signInForm.workspaceSlug().errors()[0]?.message }}</small>
+            }
+          </div>
+
+          <div class="field workspace-field">
+            <label class="workspace-label" for="identifier">{{ 'auth.signIn.identifierLabel' | translate }}</label>
+            <div class="field-input" [class.error]="signInForm.identifier().touched() && signInForm.identifier().invalid() || status() === 'error'">
+              <nexa-icon name="mail" />
+              <input id="identifier" type="email" autocomplete="email" autocapitalize="none" spellcheck="false" [formField]="signInForm.identifier" [attr.aria-invalid]="signInForm.identifier().invalid()" [attr.aria-describedby]="signInForm.identifier().invalid() ? 'identifier-error' : null" [placeholder]="'auth.signIn.identifierPlaceholder' | translate" />
+            </div>
+            @if (signInForm.identifier().touched() && signInForm.identifier().invalid()) {
+              <small class="field-error" id="identifier-error">{{ signInForm.identifier().errors()[0]?.message }}</small>
+            }
+          </div>
+
+          <div class="field workspace-field">
+            <label class="workspace-label" for="password">{{ 'auth.signIn.passwordLabel' | translate }}</label>
+            <div class="field-input" [class.error]="signInForm.password().touched() && signInForm.password().invalid() || status() === 'error'">
+              <nexa-icon name="lock" />
+              <input id="password" [type]="passwordVisible() ? 'text' : 'password'" autocomplete="current-password" placeholder="********" [formField]="signInForm.password" [attr.aria-invalid]="signInForm.password().invalid()" [attr.aria-describedby]="signInForm.password().invalid() ? 'password-error' : null" />
+              <button class="password-toggle" type="button" [attr.aria-label]="(passwordVisible() ? 'auth.signIn.hidePassword' : 'auth.signIn.showPassword') | translate" (click)="togglePassword()">
+                <nexa-icon [name]="passwordVisible() ? 'visibility_off' : 'visibility'" />
+              </button>
+            </div>
+            @if (signInForm.password().touched() && signInForm.password().invalid()) {
+              <small class="field-error" id="password-error">{{ signInForm.password().errors()[0]?.message }}</small>
+            }
+          </div>
+
+          @if (formErrorMessage(); as message) {
+            <div class="state-alert" role="alert">
+              <nexa-icon name="cancel" />
+              <div><strong>{{ message | translate }}</strong><br />{{ 'auth.signIn.tryAgain' | translate }}</div>
+            </div>
+          }
+
+          <div class="workspace-form-links">
+            <a class="auth-link" routerLink="/auth/recover">{{ 'auth.signIn.forgot' | translate }}</a>
+          </div>
+
+          <button class="btn-full btn-primary-full" type="submit" [disabled]="status() === 'authenticating'">
+            @if (status() === 'authenticating') {
+              <span class="spinner" aria-hidden="true"></span>{{ 'auth.signIn.authenticating' | translate }}
+            } @else {
+              {{ 'auth.signIn.submit' | translate }}
+            }
+          </button>
+
+          <div class="register-company-cta">
+            <span>{{ 'auth.signIn.registerPrompt' | translate }}</span>
+            <a routerLink="/tenant-management/register-organization">{{ 'iamSecurity.onboardingTitle' | translate }}</a>
+          </div>
+        } @else {
+          <section class="two-factor-panel" aria-labelledby="two-factor-title">
+            <p class="eyebrow">{{ 'auth.signIn.twoFactor.kicker' | translate }}</p>
+            <h2 id="two-factor-title">{{ 'auth.signIn.twoFactor.title' | translate }}</h2>
+            <p>{{ 'auth.signIn.twoFactor.description' | translate: { destination: twoFactorChallenge()?.maskedDestination } }}</p>
+            <label class="workspace-label" for="two-factor-code">{{ 'auth.signIn.twoFactor.code' | translate }}<sup>*</sup></label>
+            <div class="field-input">
+              <nexa-icon name="verified" />
+              <input id="two-factor-code" inputmode="numeric" autocomplete="one-time-code" maxlength="6" [value]="twoFactorCode()" (input)="onTwoFactorInput($event)" />
+            </div>
+            @if (state().message === 'TWO_FACTOR_FAILED') { <p class="form-error" role="alert">{{ 'auth.signIn.twoFactor.error' | translate }}</p> }
+            <div class="two-factor-actions">
+              <button class="btn-full btn-primary-full" type="submit" [disabled]="!twoFactorCanSubmit()">
+                @if (status() === 'verifying-two-factor') { <span class="spinner" aria-hidden="true"></span>{{ 'auth.signIn.twoFactor.verifying' | translate }} } @else { {{ 'auth.signIn.twoFactor.verify' | translate }} }
+              </button>
+              <button class="secondary-action" type="button" (click)="cancelTwoFactor()">{{ 'auth.signIn.twoFactor.cancel' | translate }}</button>
+            </div>
+          </section>
         }
-
-        <button class="primary-action" type="submit" [disabled]="status() === 'authenticating'">
-          @if (status() === 'authenticating') {
-            <span class="loading-dot" aria-hidden="true"></span>{{ 'auth.signIn.authenticating' | translate }}
-          } @else {
-            {{ 'auth.signIn.submit' | translate }}
-          }
-        </button>
-        <nav class="auth-links" [attr.aria-label]="'auth.signIn.supportLinks' | translate">
-          <a routerLink="/forgot-password">{{ 'iamSecurity.forgotTitle' | translate }}</a>
-          <a routerLink="/tenant-management/register-organization">{{ 'iamSecurity.onboardingTitle' | translate }}</a>
-        </nav>
       </form>
     </section>
-  </section>
+  </div>
 </main>

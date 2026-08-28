@@ -1,115 +1,124 @@
-import { ChangeDetectionStrategy, Component, effect, inject, signal } from '@angular/core';
-import { DecimalPipe } from '@angular/common';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
-import { PageHeaderComponent } from '../../../shared/presentation/components/page-header/page-header.component';
-import { SalesCommitmentCatalogItem } from '../../domain/sales-commitment-catalog.models';
+import { TranslatePipe } from '@ngx-translate/core';
+import { NexaIconComponent } from '../../../shared/presentation/components/nexa-icon/nexa-icon.component';
+import { PlatformCatalogCartFacade } from '../../../core/presentation/catalog-cart/platform-catalog-cart.facade';
 import { ManualOrderWizardFacade } from '../../application/manual-orders/manual-order-wizard.facade';
 import { ManualOrderLineCommand } from '../../domain/manual-orders/manual-order.models';
+import type { ManualOrderCartItem } from '../../domain/manual-orders/manual-order-cart.models';
 
 @Component({
   selector: 'nexa-manual-order-items-page',
   standalone: true,
-  imports: [DecimalPipe, MatButtonModule, MatCardModule, MatFormFieldModule, MatInputModule, MatSelectModule, PageHeaderComponent, ReactiveFormsModule, RouterLink],
-  template: `
-    <section class="page">
-      <a mat-button [routerLink]="clientPath()">← Cliente</a>
-      <nexa-page-header eyebrow="VENTAS · PASO 2/4" title="Ítems y cantidades" subtitle="El servidor devuelve precio y disponibilidad autoritativos." />
-      <nav class="steps" aria-label="Pasos de orden manual"><a [routerLink]="clientPath()">Cliente</a><a class="active">Ítems</a><a [routerLink]="deliveryPath()">Entrega</a><a [routerLink]="reviewPath()">Revisión</a></nav>
-      <mat-card>
-        <mat-card-content>
-          <div class="search"><mat-form-field appearance="outline"><mat-label>Buscar catálogo</mat-label><input matInput #query (keyup.enter)="search(query.value)" /></mat-form-field><button mat-stroked-button type="button" (click)="search(query.value)">Buscar</button></div>
-          <form [formGroup]="form" (ngSubmit)="addLine()" class="line-form">
-            <mat-form-field appearance="outline"><mat-label>SKU / catálogo</mat-label><mat-select formControlName="catalogItemId"><mat-option value="">Seleccionar ítem</mat-option>@for (item of facade.state().catalogItems; track item.id) { <mat-option [value]="item.id">{{ item.productFamilyName }} · {{ item.skuCode || item.name }} · {{ item.presentation }}</mat-option> }</mat-select></mat-form-field>
-            <mat-form-field appearance="outline"><mat-label>Cantidad</mat-label><input matInput type="number" min="0.01" step="0.01" formControlName="quantity" /></mat-form-field>
-            <mat-form-field appearance="outline"><mat-label>Unidad</mat-label><input matInput formControlName="unit" /></mat-form-field>
-            <mat-form-field appearance="outline"><mat-label>Nota de línea</mat-label><input matInput formControlName="notes" /></mat-form-field>
-            <button mat-stroked-button type="submit">Agregar</button>
-          </form>
-          @if (selectedCatalogItem(); as item) {
-            <div class="catalog-preview">
-              @if (item.image.url; as imageUrl) { <img [src]="imageUrl" [alt]="item.productFamilyName" /> } @else { <span class="image-placeholder" aria-hidden="true">SKU</span> }
-              <div>
-                <strong>{{ item.productFamilyName }}</strong>
-                <span>{{ item.brand }} · {{ item.category }}</span>
-                <span>SKU {{ item.skuCode || 'No informado' }} · {{ item.presentation }}</span>
-                <span>U/M {{ item.unitOfMeasure || 'No informada' }} · {{ item.packagingType || 'Empaque no informado' }}</span>
-                <span>Peso neto {{ item.netWeight ?? '—' }} · bruto {{ item.grossWeight ?? '—' }}</span>
-                <span>Precio base {{ item.unitPrice.amount | number:'1.2-2' }} {{ item.unitPrice.currency }} · disponibilidad {{ item.availabilityStatus }}</span>
-              </div>
-            </div>
-          }
-          <div class="lines">
-            @for (line of lines(); track $index) { <div class="line"><span><strong>{{ itemName(line.catalogItemId) }}</strong> · {{ line.quantity }} {{ line.unit }}</span><button mat-button type="button" (click)="removeLine($index)">Quitar</button></div> }
-            @if (!lines().length) { <p>No hay ítems agregados.</p> }
-          </div>
-          @if (serverLines().length) {
-            <h3>Resultado del servidor</h3>
-            @for (line of serverLines(); track line.id) { <div class="server-line"><span><strong>{{ line.productFamily }}</strong> · {{ line.familyCode }} · SKU {{ line.skuCode }} · {{ line.presentation }} · {{ line.quantity }} {{ line.unit }}</span><span>Base {{ line.baseUnitPrice | number:'1.2-2' }} · efectivo {{ line.effectiveUnitPrice | number:'1.2-2' }} · descuento {{ line.discountAmount | number:'1.2-2' }} {{ line.currency }} · {{ line.availabilityStatus }}</span></div> }
-          }
-          @if (facade.state().message; as message) { <p role="alert">{{ message }}</p> }
-        </mat-card-content>
-        <mat-card-actions><button mat-flat-button color="primary" type="button" [disabled]="saving() || !lines().length" (click)="save()">{{ saving() ? 'Validando…' : 'Guardar y continuar' }}</button></mat-card-actions>
-      </mat-card>
-    </section>
-  `,
-  styleUrl: './manual-order-wizard.scss',
+  imports: [NexaIconComponent, RouterLink, TranslatePipe],
+  templateUrl: './manual-order-items-page.component.html',
+  styleUrl: './manual-order-items-page.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ManualOrderItemsPageComponent {
   readonly facade = inject(ManualOrderWizardFacade);
+  readonly cart = inject(PlatformCatalogCartFacade);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
-  private readonly fb = inject(FormBuilder);
+
   readonly draftId = this.route.snapshot.paramMap.get('draftId') ?? '';
   readonly saving = signal(false);
-  readonly lines = signal<readonly ManualOrderLineCommand[]>([]);
-  readonly form = this.fb.nonNullable.group({
-    catalogItemId: ['', Validators.required], quantity: [1, [Validators.required, Validators.min(0.01)]], unit: ['UNIT', Validators.required], notes: ['']
-  });
+  readonly lines = computed<readonly ManualOrderLineCommand[]>(() => this.cart.items().map((item) => ({
+    catalogItemId: item.catalogItemId,
+    skuId: item.skuId,
+    quantity: item.quantity,
+    unit: item.unit,
+    notes: item.notes || null,
+  })));
 
   constructor() {
+    this.cart.activate(this.draftId);
     this.facade.loadReferences();
     if (this.draftId) this.facade.loadDraft(this.draftId);
+
     effect(() => {
       const draft = this.facade.state().draft;
-      if (draft?.id === this.draftId && draft.lines.length) this.lines.set(draft.lines.map((line) => ({ skuId: line.skuId, catalogItemId: line.catalogItemId, quantity: line.quantity, unit: line.unit, notes: line.notes })));
+      const catalogItems = this.facade.state().catalogItems;
+      if (draft?.id !== this.draftId || !draft.lines.length || this.cart.items().length || !catalogItems.length) return;
+
+      this.cart.replace(draft.lines.map((line) => {
+        const catalogItem = catalogItems.find((item) => item.id === line.catalogItemId);
+        return {
+          catalogItemId: line.catalogItemId ?? line.skuId ?? '',
+          skuId: line.skuId ?? null,
+          productFamilyName: catalogItem?.productFamilyName ?? line.productFamily,
+          name: catalogItem?.name ?? line.productFamily,
+          presentation: catalogItem?.presentation ?? line.presentation,
+          unit: line.unit || catalogItem?.unitOfMeasure || 'UNIT',
+          quantity: line.quantity,
+          unitPriceAmount: catalogItem?.unitPrice.amount ?? line.baseUnitPrice ?? null,
+          currency: catalogItem?.unitPrice.currency ?? line.currency ?? 'PEN',
+          imageUrl: catalogItem?.image.url ?? null,
+          availabilityStatus: catalogItem?.availabilityStatus ?? line.availabilityStatus,
+          notes: line.notes ?? '',
+        };
+      }));
     });
   }
 
   clientPath(): string { return `/ops/commercial/manual-orders/${this.draftId}/client`; }
   deliveryPath(): string { return `/ops/commercial/manual-orders/${this.draftId}/delivery`; }
-  reviewPath(): string { return `/ops/commercial/manual-orders/${this.draftId}/review`; }
-  serverLines() { return this.facade.state().draft?.lines ?? []; }
-  selectedCatalogItem(): SalesCommitmentCatalogItem | null {
-    const id = this.form.controls.catalogItemId.value;
-    return this.facade.state().catalogItems.find((item) => item.id === id) ?? null;
-  }
-  itemName(id: string | null | undefined): string { return this.facade.state().catalogItems.find((item) => item.id === id)?.name ?? id ?? 'Ítem'; }
-  search(query: string): void { this.facade.searchCatalog(query); }
+  catalogPath(): string { return '/ops/product-catalog'; }
+  catalogQueryParams(): Record<string, string> { return { draftId: this.draftId }; }
 
-  addLine(): void {
-    if (this.form.invalid) { this.form.markAllAsTouched(); return; }
-    const value = this.form.getRawValue();
-    const next = this.lines().filter((line) => line.catalogItemId !== value.catalogItemId);
-    next.push({ catalogItemId: value.catalogItemId, quantity: value.quantity, unit: value.unit, notes: value.notes || null });
-    this.lines.set(next);
-    this.form.reset({ catalogItemId: '', quantity: 1, unit: 'UNIT', notes: '' });
+  clientName(): string {
+    const client = this.facade.state().draft?.client;
+    return client?.commercialName || client?.businessName || 'B2B client';
   }
 
-  removeLine(index: number): void { this.lines.update((items) => items.filter((_, position) => position !== index)); }
+  lineItem(line: ManualOrderLineCommand): ManualOrderCartItem | null {
+    return this.cart.items().find((item) => item.catalogItemId === line.catalogItemId) ?? null;
+  }
+
+  formatPrice(item: ManualOrderCartItem | null): string {
+    if (!item || item.unitPriceAmount === null) return '—';
+    return `${item.currency === 'PEN' ? 'S/' : item.currency} ${item.unitPriceAmount.toFixed(2)}`;
+  }
+
+  unitLabel(unit: string): string { return unit.trim().toUpperCase() === 'UNIT' ? 'UN' : unit; }
+
+  lineTotal(line: ManualOrderLineCommand): number {
+    const item = this.lineItem(line);
+    return (item?.unitPriceAmount ?? 0) * line.quantity;
+  }
+
+  formatLineTotal(line: ManualOrderLineCommand, item: ManualOrderCartItem): string {
+    const amount = this.lineTotal(line);
+    return `${item.currency === 'PEN' ? 'S/' : item.currency} ${amount.toFixed(2)}`;
+  }
+
+  total(): string {
+    const currency = this.cart.items()[0]?.currency === 'PEN' ? 'S/' : this.cart.items()[0]?.currency ?? 'PEN';
+    return `${currency} ${this.cart.subtotal().toFixed(2)}`;
+  }
+
+  removeLine(line: ManualOrderLineCommand): void {
+    if (line.catalogItemId) this.cart.remove(line.catalogItemId);
+  }
+
+  adjustQuantity(line: ManualOrderLineCommand, delta: number): void {
+    if (!line.catalogItemId) return;
+    this.cart.setQuantity(line.catalogItemId, Math.max(1, Math.round(line.quantity + delta)));
+  }
+
+  setQuantity(line: ManualOrderLineCommand, value: string): void {
+    if (!line.catalogItemId) return;
+    const quantity = Number(value);
+    this.cart.setQuantity(line.catalogItemId, Number.isFinite(quantity) ? Math.max(1, Math.round(quantity)) : 1);
+  }
 
   save(): void {
     if (!this.draftId || !this.lines().length) return;
+
     this.saving.set(true);
     this.facade.saveItems(this.draftId, this.lines()).subscribe({
       next: () => void this.router.navigate(['/ops/commercial/manual-orders', this.draftId, 'delivery']),
-      error: () => this.saving.set(false)
+      error: () => this.saving.set(false),
     });
   }
 }

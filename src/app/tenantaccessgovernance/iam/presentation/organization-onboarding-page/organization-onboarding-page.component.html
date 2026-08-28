@@ -44,104 +44,147 @@
           @case (1) {
             <div class="field-grid">
               <label class="field" for="legal-name">
-                <span>{{ 'iamSecurity.legalName' | translate }}<sup>*</sup></span>
+                <span>{{ 'iamSecurity.onboarding.fields.legalName' | translate }}<sup>*</sup></span>
                 <input id="legal-name" formControlName="legalName" autocomplete="organization" [attr.aria-invalid]="showError(form.controls.legalName)" />
-                @if (showError(form.controls.legalName)) { <small class="field-error">{{ 'iamSecurity.onboarding.required' | translate }}</small> }
+                @if (showError(form.controls.legalName)) { <small class="field-error">{{ 'iamSecurity.onboarding.requiredLegalName' | translate }}</small> }
               </label>
               <label class="field" for="display-name">
-                <span>{{ 'iamSecurity.displayName' | translate }}<sup>*</sup></span>
+                <span>{{ 'iamSecurity.onboarding.fields.tradeName' | translate }}<sup>*</sup></span>
                 <input id="display-name" formControlName="displayName" autocomplete="organization" [attr.aria-invalid]="showError(form.controls.displayName)" />
                 @if (showError(form.controls.displayName)) { <small class="field-error">{{ 'iamSecurity.onboarding.required' | translate }}</small> }
               </label>
+              <label class="field" for="business-identifier">
+                <span>{{ 'iamSecurity.onboarding.fields.taxId' | translate }}<sup>*</sup></span>
+                <input id="business-identifier" formControlName="businessIdentifier" inputmode="numeric" maxlength="14" autocomplete="off" [attr.aria-invalid]="showError(form.controls.businessIdentifier) || taxIdError()" aria-describedby="tax-id-hint" />
+                <small id="tax-id-hint">{{ 'iamSecurity.onboarding.taxIdHint' | translate }}</small>
+                @if (showError(form.controls.businessIdentifier) || taxIdError()) { <small class="field-error">{{ 'iamSecurity.onboarding.invalidTaxId' | translate }}</small> }
+              </label>
+              <label class="field" for="industry-sector">
+                <span>{{ 'iamSecurity.onboarding.fields.industry' | translate }}<sup>*</sup></span>
+                <select id="industry-sector" formControlName="industrySector">
+                  <option value="" disabled>{{ 'iamSecurity.onboarding.select' | translate }}</option>
+                  @for (industry of industrySectors; track industry) { <option [value]="industry">{{ optionKey(industry) | translate }}</option> }
+                </select>
+                @if (showError(form.controls.industrySector)) { <small class="field-error">{{ 'iamSecurity.onboarding.required' | translate }}</small> }
+              </label>
+              <div class="field full-width company-size-field">
+                <label for="company-members"><span>{{ 'iamSecurity.onboarding.fields.companySize' | translate }}<sup>*</sup></span></label>
+                <div class="field-inline"><strong>{{ form.controls.companyMemberCount.value }} {{ 'iamSecurity.onboarding.members' | translate }}</strong><span>{{ optionKey(companySizeKey()) | translate }}</span></div>
+                <input id="company-members" type="range" min="1" max="100" step="1" formControlName="companyMemberCount" />
+                <div class="range-marks"><span>1</span><span>25</span><span>50</span><span>75</span><span>100</span></div>
+                <small>{{ 'iamSecurity.onboarding.companySizeHint' | translate }}</small>
+              </div>
+              <label class="field" for="company-country">
+                <span>{{ 'iamSecurity.onboarding.fields.country' | translate }}<sup>*</sup></span>
+                <select id="company-country" formControlName="country">
+                  @for (country of countries; track country) { <option [value]="country">{{ optionKey(country) | translate }}</option> }
+                </select>
+              </label>
+              <label class="field" for="company-website">
+                <span>{{ 'iamSecurity.onboarding.fields.website' | translate }}</span>
+                <input id="company-website" type="url" formControlName="website" placeholder="https://empresa.pe" autocomplete="url" [attr.aria-invalid]="showError(form.controls.website)" />
+                <small>{{ 'iamSecurity.onboarding.websiteHint' | translate }}</small>
+                @if (showError(form.controls.website)) { <small class="field-error">{{ 'iamSecurity.onboarding.invalidWebsite' | translate }}</small> }
+              </label>
+              <div class="field full-width">
+                <label for="logo-file"><span>{{ 'iamSecurity.onboarding.fields.logo' | translate }}</span></label>
+                <input id="logo-file" type="file" accept="image/png,image/jpeg,image/webp" (change)="onLogoSelected($event)" />
+                <small>{{ form.controls.logoFileName.value || ('iamSecurity.onboarding.logoHint' | translate) }}</small>
+                @if (logoError()) { <small class="field-error">{{ logoError()! | translate }}</small> }
+              </div>
             </div>
           }
           @case (2) {
             <div class="field-grid">
-              <label class="field" for="operation-category">
-                <span>{{ 'iamSecurity.operation' | translate }}<sup>*</sup></span>
-                <select id="operation-category" formControlName="operationCategory">
-                  <option value="b2bColdChainDistributor">{{ 'iamSecurityOperationOptions.distributor' | translate }}</option>
-                  <option value="refrigeratedWarehouseOperator">{{ 'iamSecurityOperationOptions.warehouse' | translate }}</option>
-                  <option value="foodServiceSupplier">{{ 'iamSecurityOperationOptions.foodService' | translate }}</option>
-                  <option value="thirdPartyColdStorage">{{ 'iamSecurityOperationOptions.thirdPartyStorage' | translate }}</option>
-                </select>
+              <label class="field" for="operation-type">
+                <span>{{ 'iamSecurity.onboarding.fields.operationType' | translate }}<sup>*</sup></span>
+                <select id="operation-type" formControlName="operationType"><option value="" disabled>{{ 'iamSecurity.onboarding.select' | translate }}</option>@for (operation of operationTypes; track operation) { <option [value]="operation">{{ optionKey(operation) | translate }}</option> }</select>
+                @if (showError(form.controls.operationType)) { <small class="field-error">{{ 'iamSecurity.onboarding.required' | translate }}</small> }
               </label>
-              <label class="field" for="storage-site">
-                <span>{{ 'iamSecurity.storageSite' | translate }}<sup>*</sup></span>
-                <input id="storage-site" formControlName="storageSiteName" autocomplete="organization" [attr.aria-invalid]="showError(form.controls.storageSiteName)" />
-                @if (showError(form.controls.storageSiteName)) { <small class="field-error">{{ 'iamSecurity.onboarding.required' | translate }}</small> }
+              <label class="field" for="monthly-volume">
+                <span>{{ 'iamSecurity.onboarding.fields.monthlyVolume' | translate }}<sup>*</sup></span>
+                <select id="monthly-volume" formControlName="monthlyVolume"><option value="" disabled>{{ 'iamSecurity.onboarding.select' | translate }}</option>@for (volume of volumeRanges; track volume) { <option [value]="volume">{{ optionKey(volume) | translate }}</option> }</select>
+                @if (showError(form.controls.monthlyVolume)) { <small class="field-error">{{ 'iamSecurity.onboarding.required' | translate }}</small> }
               </label>
-              <label class="field full-width" for="storage-address">
-                <span>{{ 'iamSecurity.address' | translate }}<sup>*</sup></span>
-                <input id="storage-address" formControlName="storageSiteAddress" autocomplete="street-address" [attr.aria-invalid]="showError(form.controls.storageSiteAddress)" />
-                @if (showError(form.controls.storageSiteAddress)) { <small class="field-error">{{ 'iamSecurity.onboarding.required' | translate }}</small> }
+              <label class="field full-width" for="delivery-coverage">
+                <span>{{ 'iamSecurity.onboarding.fields.deliveryCoverage' | translate }}<sup>*</sup></span>
+                <select id="delivery-coverage" formControlName="deliveryCoverage"><option value="" disabled>{{ 'iamSecurity.onboarding.select' | translate }}</option>@for (coverage of deliveryCoverages; track coverage) { <option [value]="coverage">{{ optionKey(coverage) | translate }}</option> }</select>
+                @if (showError(form.controls.deliveryCoverage)) { <small class="field-error">{{ 'iamSecurity.onboarding.required' | translate }}</small> }
               </label>
+              <label class="field" for="min-temperature"><span>{{ 'iamSecurity.onboarding.fields.minTemperature' | translate }}<sup>*</sup></span><span class="input-with-suffix"><input id="min-temperature" type="number" min="-30" max="20" formControlName="minTemperature" /><span>°C</span></span></label>
+              <label class="field" for="max-temperature"><span>{{ 'iamSecurity.onboarding.fields.maxTemperature' | translate }}<sup>*</sup></span><span class="input-with-suffix"><input id="max-temperature" type="number" min="-30" max="20" formControlName="maxTemperature" /><span>°C</span></span></label>
+              @if (temperatureRangeError()) { <p class="field-error full-width" role="alert">{{ 'iamSecurity.onboarding.temperatureRange' | translate }}</p> }
+              <fieldset class="choice-field full-width">
+                <legend>{{ 'iamSecurity.onboarding.fields.productCategories' | translate }}<sup>*</sup></legend>
+                <small>{{ 'iamSecurity.onboarding.categoryHint' | translate }}</small>
+                <div class="choice-grid">
+                  @for (category of productCategories; track category) {
+                    <label class="choice-card" [class.selected]="form.controls.categories.value.includes(category)"><input type="checkbox" [checked]="form.controls.categories.value.includes(category)" (change)="toggleCategory(category, $event)" />{{ optionKey(category) | translate }}</label>
+                  }
+                </div>
+                @if (showError(form.controls.categories)) { <small class="field-error">{{ 'iamSecurity.onboarding.productCategoriesRequired' | translate }}</small> }
+              </fieldset>
+              <div class="choice-grid full-width">
+                <label class="choice-card" [class.selected]="form.controls.refrigeratedStorage.value"><input type="checkbox" formControlName="refrigeratedStorage" />{{ 'iamSecurity.onboarding.fields.refrigeratedStorage' | translate }}</label>
+                <label class="choice-card" [class.selected]="form.controls.requiresTraceability.value"><input type="checkbox" formControlName="requiresTraceability" />{{ 'iamSecurity.onboarding.fields.requiresTraceability' | translate }}</label>
+                <label class="choice-card" [class.selected]="form.controls.requiresTemperatureAlerts.value"><input type="checkbox" formControlName="requiresTemperatureAlerts" />{{ 'iamSecurity.onboarding.fields.requiresTemperatureAlerts' | translate }}</label>
+              </div>
             </div>
           }
           @case (3) {
             <div class="field-grid">
-              <label class="field" for="founder-name">
-                <span>{{ 'iamSecurity.founder' | translate }}<sup>*</sup></span>
-                <input id="founder-name" formControlName="founderDisplayName" autocomplete="name" [attr.aria-invalid]="showError(form.controls.founderDisplayName)" />
-                @if (showError(form.controls.founderDisplayName)) { <small class="field-error">{{ 'iamSecurity.onboarding.required' | translate }}</small> }
-              </label>
-              <label class="field" for="founder-email">
-                <span>{{ 'iamSecurity.email' | translate }}<sup>*</sup></span>
-                <input id="founder-email" type="email" formControlName="founderEmail" autocomplete="email" [attr.aria-invalid]="showError(form.controls.founderEmail)" />
-                @if (showError(form.controls.founderEmail)) { <small class="field-error">{{ form.controls.founderEmail.hasError('email') ? ('iamSecurity.onboarding.invalidEmail' | translate) : ('iamSecurity.onboarding.required' | translate) }}</small> }
-              </label>
+              <label class="field" for="storage-site"><span>{{ 'iamSecurity.onboarding.fields.facilityName' | translate }}<sup>*</sup></span><input id="storage-site" formControlName="storageSiteName" autocomplete="organization" />@if (showError(form.controls.storageSiteName)) { <small class="field-error">{{ 'iamSecurity.onboarding.required' | translate }}</small> }</label>
+              <label class="field" for="location-city"><span>{{ 'iamSecurity.onboarding.fields.city' | translate }}<sup>*</sup></span><select id="location-city" formControlName="city"><option value="" disabled>{{ 'iamSecurity.onboarding.select' | translate }}</option>@for (city of cities; track city) { <option [value]="city">{{ optionKey(city) | translate }}</option> }</select>@if (showError(form.controls.city)) { <small class="field-error">{{ 'iamSecurity.onboarding.required' | translate }}</small> }</label>
+              <label class="field full-width" for="storage-address"><span>{{ 'iamSecurity.onboarding.fields.address' | translate }}<sup>*</sup></span><input id="storage-address" formControlName="storageSiteAddress" autocomplete="street-address" />@if (showError(form.controls.storageSiteAddress)) { <small class="field-error">{{ 'iamSecurity.onboarding.required' | translate }}</small> }</label>
+              <label class="field" for="location-district"><span>{{ 'iamSecurity.onboarding.fields.district' | translate }}<sup>*</sup></span><select id="location-district" formControlName="district"><option value="" disabled>{{ 'iamSecurity.onboarding.select' | translate }}</option>@for (district of districts; track district) { <option [value]="district">{{ optionKey(district) | translate }}</option> }</select>@if (showError(form.controls.district)) { <small class="field-error">{{ 'iamSecurity.onboarding.required' | translate }}</small> }</label>
+              <label class="field" for="location-country"><span>{{ 'iamSecurity.onboarding.fields.country' | translate }}<sup>*</sup></span><select id="location-country" formControlName="locationCountry">@for (country of countries; track country) { <option [value]="country">{{ optionKey(country) | translate }}</option> }</select></label>
+              <label class="field full-width" for="location-reference"><span>{{ 'iamSecurity.onboarding.fields.reference' | translate }}</span><input id="location-reference" formControlName="locationReference" autocomplete="off" /></label>
+              <label class="field" for="warehouse-count"><span>{{ 'iamSecurity.onboarding.fields.warehouseCount' | translate }}<sup>*</sup></span><input id="warehouse-count" type="number" min="1" max="10" formControlName="warehouseCount" />@if (showError(form.controls.warehouseCount)) { <small class="field-error">{{ 'iamSecurity.onboarding.warehouseCount' | translate }}</small> }</label>
+              <label class="field" for="cold-rooms-count"><span>{{ 'iamSecurity.onboarding.fields.coldRoomsCount' | translate }}<sup>*</sup></span><input id="cold-rooms-count" type="number" min="0" max="50" formControlName="coldRoomsCount" />@if (showError(form.controls.coldRoomsCount)) { <small class="field-error">{{ 'iamSecurity.onboarding.coldRoomsCount' | translate }}</small> }</label>
+              <label class="field" for="capacity-estimate"><span>{{ 'iamSecurity.onboarding.fields.capacityEstimate' | translate }}<sup>*</sup></span><select id="capacity-estimate" formControlName="capacityEstimate"><option value="" disabled>{{ 'iamSecurity.onboarding.select' | translate }}</option>@for (capacity of capacities; track capacity) { <option [value]="capacity">{{ optionKey(capacity) | translate }}</option> }</select>@if (showError(form.controls.capacityEstimate)) { <small class="field-error">{{ 'iamSecurity.onboarding.required' | translate }}</small> }</label>
+              <label class="choice-card" [class.selected]="form.controls.fefoEnabled.value"><input type="checkbox" formControlName="fefoEnabled" />{{ 'iamSecurity.onboarding.fields.fefoEnabled' | translate }}</label>
             </div>
           }
           @case (4) {
             <div class="field-grid">
-              <label class="field" for="workspace-name">
-                <span>{{ 'iamSecurity.workspace' | translate }}<sup>*</sup></span>
-                <input id="workspace-name" formControlName="workspaceName" autocomplete="organization" [attr.aria-invalid]="showError(form.controls.workspaceName)" />
-                @if (showError(form.controls.workspaceName)) { <small class="field-error">{{ 'iamSecurity.onboarding.required' | translate }}</small> }
-              </label>
-              <label class="field" for="workspace-slug">
-                <span>{{ 'iamSecurity.slug' | translate }}<sup>*</sup></span>
-                <input id="workspace-slug" formControlName="workspaceSlug" autocomplete="off" pattern="[A-Za-z0-9-]{3,80}" [attr.aria-invalid]="showError(form.controls.workspaceSlug)" aria-describedby="workspace-slug-hint" />
-                <small id="workspace-slug-hint">{{ 'iamSecurity.onboarding.slugHint' | translate }}</small>
-                @if (showError(form.controls.workspaceSlug)) { <small class="field-error">{{ form.controls.workspaceSlug.hasError('pattern') ? ('iamSecurity.onboarding.invalidSlug' | translate) : ('iamSecurity.onboarding.required' | translate) }}</small> }
-              </label>
+              <label class="field" for="first-name"><span>{{ 'iamSecurity.onboarding.fields.firstName' | translate }}<sup>*</sup></span><input id="first-name" formControlName="firstName" autocomplete="given-name" />@if (showError(form.controls.firstName)) { <small class="field-error">{{ 'iamSecurity.onboarding.required' | translate }}</small> }</label>
+              <label class="field" for="last-name"><span>{{ 'iamSecurity.onboarding.fields.lastName' | translate }}<sup>*</sup></span><input id="last-name" formControlName="lastName" autocomplete="family-name" />@if (showError(form.controls.lastName)) { <small class="field-error">{{ 'iamSecurity.onboarding.required' | translate }}</small> }</label>
+              <label class="field" for="job-title"><span>{{ 'iamSecurity.onboarding.fields.jobTitle' | translate }}<sup>*</sup></span><input id="job-title" formControlName="jobTitle" autocomplete="organization-title" />@if (showError(form.controls.jobTitle)) { <small class="field-error">{{ 'iamSecurity.onboarding.required' | translate }}</small> }</label>
+              <label class="field" for="founder-email"><span>{{ 'iamSecurity.onboarding.fields.email' | translate }}<sup>*</sup></span><input id="founder-email" type="email" formControlName="founderEmail" autocomplete="email" />@if (showError(form.controls.founderEmail)) { <small class="field-error">{{ form.controls.founderEmail.hasError('personalEmail') ? ('iamSecurity.onboarding.personalEmail' | translate) : ('iamSecurity.onboarding.invalidEmail' | translate) }}</small> }</label>
+              <label class="field" for="phone-prefix"><span>{{ 'iamSecurity.onboarding.fields.phonePrefix' | translate }}<sup>*</sup></span><select id="phone-prefix" formControlName="phonePrefix">@for (prefix of phonePrefixes; track prefix) { <option [value]="prefix">{{ prefix }}</option> }</select></label>
+              <label class="field" for="phone"><span>{{ 'iamSecurity.onboarding.fields.phone' | translate }}<sup>*</sup></span><input id="phone" formControlName="phone" inputmode="tel" autocomplete="tel" />@if (showError(form.controls.phone)) { <small class="field-error">{{ 'iamSecurity.onboarding.invalidPhone' | translate }}</small> }</label>
+              <label class="field" for="preferred-language"><span>{{ 'iamSecurity.onboarding.fields.preferredLanguage' | translate }}<sup>*</sup></span><select id="preferred-language" formControlName="preferredLanguage"><option value="es">ES</option><option value="en">EN</option></select></label>
+              <div class="field full-width"><span>{{ 'iamSecurity.onboarding.fields.roleAfterApproval' | translate }}</span><output class="locked-value">{{ 'iamSecurity.onboarding.companyOwner' | translate }}</output><small>{{ 'iamSecurity.onboarding.roleHint' | translate }}</small></div>
             </div>
           }
           @case (5) {
-            <fieldset class="plan-options">
-              <legend>{{ 'iamSecurity.plan' | translate }}<sup>*</sup></legend>
-              @for (plan of plans; track plan) {
-                <label class="plan-option" [class.selected]="form.controls.referencePlan.value === plan">
-                  <input type="radio" formControlName="referencePlan" [value]="plan" />
-                  <span>{{ planLabelKey(plan) | translate }}</span>
-                </label>
-              }
-            </fieldset>
+            <div class="field-grid">
+              <label class="field" for="workspace-name"><span>{{ 'iamSecurity.onboarding.fields.workspaceName' | translate }}<sup>*</sup></span><input id="workspace-name" formControlName="workspaceName" autocomplete="organization" (input)="deriveWorkspaceSlug()" />@if (showError(form.controls.workspaceName)) { <small class="field-error">{{ 'iamSecurity.onboarding.required' | translate }}</small> }</label>
+              <label class="field" for="workspace-slug"><span>{{ 'iamSecurity.onboarding.fields.workspaceSlug' | translate }}<sup>*</sup></span><input id="workspace-slug" formControlName="workspaceSlug" autocomplete="off" (blur)="normalizeWorkspaceSlug()" aria-describedby="workspace-slug-hint" /> <small id="workspace-slug-hint">{{ 'iamSecurity.onboarding.slugHint' | translate }}</small>@if (showError(form.controls.workspaceSlug)) { <small class="field-error">{{ 'iamSecurity.onboarding.invalidSlug' | translate }}</small> }</label>
+              <div class="workspace-preview full-width"><span>{{ 'iamSecurity.onboarding.workspacePreview' | translate }}</span><strong>{{ workspaceUrl() }}</strong><small>{{ 'iamSecurity.onboarding.workspacePreviewHint' | translate }}</small></div>
+              <label class="field" for="workspace-display-name"><span>{{ 'iamSecurity.onboarding.fields.displayName' | translate }}<sup>*</sup></span><input id="workspace-display-name" formControlName="workspaceDisplayName" />@if (showError(form.controls.workspaceDisplayName)) { <small class="field-error">{{ 'iamSecurity.onboarding.required' | translate }}</small> }</label>
+              <label class="field" for="workspace-email-domain"><span>{{ 'iamSecurity.onboarding.fields.emailDomain' | translate }}</span><input id="workspace-email-domain" formControlName="emailDomain" [placeholder]="emailDomain() || 'empresa.pe'" /></label>
+              <fieldset class="plan-options full-width"><legend>{{ 'iamSecurity.onboarding.fields.plan' | translate }}<sup>*</sup></legend>@for (plan of plans; track plan) { <label class="plan-option" [class.selected]="form.controls.referencePlan.value === plan"><input type="radio" formControlName="referencePlan" [value]="plan" /><span><strong>{{ planLabelKey(plan) | translate }}</strong><small>{{ ('iamSecurity.onboarding.planDescriptions.' + plan) | translate }}</small><em>{{ 'iamSecurity.onboarding.planReference' | translate }}</em></span></label> }</fieldset>
+              <div class="capability-list full-width"><span>{{ 'iamSecurity.onboarding.capabilitiesLabel' | translate }}</span>@for (capability of planCapabilities(form.controls.referencePlan.value); track capability) { <b>{{ ('iamSecurity.onboarding.capabilities.' + capability) | translate }}</b> }</div>
+            </div>
           }
           @case (6) {
-            <div class="review-grid">
-              <div><dt>{{ 'iamSecurity.legalName' | translate }}</dt><dd>{{ form.controls.legalName.value }}</dd></div>
-              <div><dt>{{ 'iamSecurity.displayName' | translate }}</dt><dd>{{ form.controls.displayName.value }}</dd></div>
-              <div><dt>{{ 'iamSecurity.operation' | translate }}</dt><dd>{{ operationLabelKey(form.controls.operationCategory.value) | translate }}</dd></div>
-              <div><dt>{{ 'iamSecurity.storageSite' | translate }}</dt><dd>{{ form.controls.storageSiteName.value }}</dd></div>
-              <div><dt>{{ 'iamSecurity.founder' | translate }}</dt><dd>{{ form.controls.founderDisplayName.value }} · {{ form.controls.founderEmail.value }}</dd></div>
-              <div><dt>{{ 'iamSecurity.workspace' | translate }}</dt><dd>{{ form.controls.workspaceName.value }} · <code>{{ form.controls.workspaceSlug.value }}</code></dd></div>
-              <div><dt>{{ 'iamSecurity.plan' | translate }}</dt><dd>{{ planLabelKey(form.controls.referencePlan.value) | translate }}</dd></div>
-            </div>
-            <div class="terms-block">
-              <p>{{ 'iamSecurity.terms' | translate }} · {{ 'iamSecurity.onboarding.termsVersion' | translate }} {{ form.controls.termsVersion.value }}</p>
-              <label class="checkbox-field" for="terms-accepted">
-                <input id="terms-accepted" type="checkbox" formControlName="termsAccepted" />
-                <span>{{ 'iamSecurity.onboarding.acceptTerms' | translate }}</span>
-              </label>
-              @if (showError(form.controls.termsAccepted)) { <small class="field-error">{{ 'iamSecurity.onboarding.termsRequired' | translate }}</small> }
-            </div>
+            <div class="review-summary"><strong>{{ form.controls.displayName.value || form.controls.legalName.value }}</strong><span>{{ workspaceUrl() }}</span><p>{{ 'iamSecurity.onboarding.reviewDescription' | translate }}</p></div>
+            <dl class="review-grid">
+              <div><dt>{{ 'iamSecurity.onboarding.sections.organization' | translate }}</dt><dd>{{ form.controls.legalName.value }} · {{ form.controls.businessIdentifier.value }}</dd><small>{{ optionKey(form.controls.industrySector.value) | translate }} · {{ optionKey(form.controls.country.value) | translate }} · {{ form.controls.companyMemberCount.value }} {{ 'iamSecurity.onboarding.members' | translate }}</small></div>
+              <div><dt>{{ 'iamSecurity.onboarding.sections.operation' | translate }}</dt><dd>{{ optionKey(form.controls.operationType.value) | translate }}</dd><small>{{ optionKey(form.controls.monthlyVolume.value) | translate }} · {{ optionKey(form.controls.deliveryCoverage.value) | translate }} · {{ form.controls.minTemperature.value }}°C / {{ form.controls.maxTemperature.value }}°C</small></div>
+              <div><dt>{{ 'iamSecurity.onboarding.sections.location' | translate }}</dt><dd>{{ form.controls.storageSiteName.value }}</dd><small>{{ form.controls.storageSiteAddress.value }} · {{ optionKey(form.controls.district.value) | translate }}, {{ optionKey(form.controls.city.value) | translate }}</small><small>{{ form.controls.warehouseCount.value }} {{ 'iamSecurity.onboarding.warehouses' | translate }} · {{ form.controls.coldRoomsCount.value }} {{ 'iamSecurity.onboarding.coldRooms' | translate }} · {{ optionKey(form.controls.capacityEstimate.value) | translate }}</small></div>
+              <div><dt>{{ 'iamSecurity.onboarding.sections.administrator' | translate }}</dt><dd>{{ form.controls.firstName.value }} {{ form.controls.lastName.value }}</dd><small>{{ form.controls.jobTitle.value }} · {{ form.controls.founderEmail.value }}</small><small>{{ form.controls.phonePrefix.value }} {{ form.controls.phone.value }} · {{ 'iamSecurity.onboarding.companyOwner' | translate }}</small></div>
+              <div><dt>{{ 'iamSecurity.onboarding.sections.workspace' | translate }}</dt><dd>{{ form.controls.workspaceDisplayName.value }} · {{ workspaceUrl() }}</dd><small>{{ form.controls.emailDomain.value || emailDomain() }}</small><small>{{ 'iamSecurity.onboarding.workspacePreviewHint' | translate }}</small></div>
+              <div><dt>{{ 'iamSecurity.onboarding.sections.plan' | translate }}</dt><dd>{{ planLabelKey(form.controls.referencePlan.value) | translate }}</dd><small>{{ 'iamSecurity.onboarding.planReference' | translate }}</small></div>
+            </dl>
+            <div class="review-tags"><span>{{ 'iamSecurity.onboarding.fields.productCategories' | translate }}</span>@for (category of form.controls.categories.value; track category) { <b>{{ optionKey(category) | translate }}</b> }</div>
+            <div class="terms-block"><p>{{ 'iamSecurity.onboarding.termsDescription' | translate }}</p><label class="checkbox-field" for="terms-accepted"><input id="terms-accepted" type="checkbox" formControlName="termsAccepted" /><span>{{ 'iamSecurity.onboarding.acceptTerms' | translate }}</span></label>@if (showError(form.controls.termsAccepted)) { <small class="field-error">{{ 'iamSecurity.onboarding.termsRequired' | translate }}</small> }</div>
           }
         }
 
         @if (facade.error()) { <p class="form-alert" role="alert">{{ facade.error()! | translate }}</p> }
         @if (facade.busy()) { <p class="form-status" role="status">{{ 'iamSecurity.loading' | translate }}…</p> }
-
         <div class="step-actions">
           <a routerLink="/sign-in" class="quiet-action">{{ 'iamSecurity.onboarding.cancel' | translate }}</a>
           @if (currentStep() > 1) { <button type="button" class="secondary-action" (click)="previous()">{{ 'iamSecurity.onboarding.previous' | translate }}</button> }
@@ -150,7 +193,6 @@
         </div>
       </form>
     </section>
-
     <aside class="boundary-note"><strong>{{ 'iamSecurity.onboarding.reviewOnly' | translate }}</strong><span>{{ 'iamSecurity.onboarding.reviewNote' | translate }}</span></aside>
   </div>
 </main>

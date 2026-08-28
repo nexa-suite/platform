@@ -47,21 +47,17 @@ describe('OrganizationOnboardingPageComponent', () => {
 
   it('submits the real registration contract only from the review step', () => {
     component.form.patchValue({
-      legalName: 'Nexa Foods S.A.C.',
-      displayName: 'Nexa Foods',
-      storageSiteName: 'Central cold store',
-      storageSiteAddress: 'Av. Arnaldo Márquez 1772, Lima',
-      founderDisplayName: 'Ana Rivera',
-      founderEmail: 'ana@nexa.test',
-      workspaceName: 'Nexa Foods Workspace',
-      workspaceSlug: 'nexa-foods',
-      termsAccepted: true
+      legalName: 'Nexa Foods S.A.C.', displayName: 'Nexa Foods', businessIdentifier: '20123456789',
+      industrySector: 'coldChainDistribution', companyMemberCount: 25, country: 'peru',
+      operationType: 'b2bColdChainDistributor', monthlyVolume: '50to200', deliveryCoverage: 'limaCallao',
+      minTemperature: -18, maxTemperature: 4, categories: ['dairy'],
+      storageSiteName: 'Central cold store', storageSiteAddress: 'Av. Arnaldo Márquez 1772', city: 'lima', district: 'callao',
+      locationCountry: 'peru', warehouseCount: 1, coldRoomsCount: 2, capacityEstimate: '100to500Pallets',
+      firstName: 'Ana', lastName: 'Rivera', jobTitle: 'Gerente', founderEmail: 'ana@nexa.test', phone: '987654321',
+      workspaceName: 'Nexa Foods Workspace', workspaceSlug: 'nexa-foods', workspaceDisplayName: 'Nexa Foods',
+      referencePlan: 'Starter', termsAccepted: true
     });
-    component.next();
-    component.next();
-    component.next();
-    component.next();
-    component.next();
+    for (let step = 1; step < 6; step += 1) component.next();
     expect(component.currentStep()).toBe(6);
 
     facade.register.mockReturnValue(of({ registrationId: 'registration-1', statusToken: 'status-token' }));
@@ -72,7 +68,7 @@ describe('OrganizationOnboardingPageComponent', () => {
       legalName: 'Nexa Foods S.A.C.',
       workspaceSlug: 'nexa-foods',
       termsAccepted: true,
-      businessIdentifier: null
+      businessIdentifier: '20123456789'
     }));
     expect(navigate).toHaveBeenCalledWith(
       ['/tenant-management/registration-pending', 'registration-1'],

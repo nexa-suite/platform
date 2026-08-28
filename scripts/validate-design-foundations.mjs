@@ -5,7 +5,7 @@ import { pathToFileURL } from 'node:url';
 const platformRoot = new URL('../', import.meta.url);
 const sourceRoot = process.env.NEXA_DESIGN_LAB_REPO
   ? pathToFileURL(`${process.env.NEXA_DESIGN_LAB_REPO.replace(/\/$/, '')}/`)
-  : new URL('file:///Users/diegosandoval284/Developer/nexa-design-lab/');
+  : new URL('../../design-lab/', import.meta.url);
 const tokenFiles = [
   '_tokens-primitives.scss',
   '_tokens-semantic.scss',
@@ -24,7 +24,7 @@ const requiredTokensByFile = {
 const readPlatform = (relativePath) => readFileSync(new URL(relativePath, platformRoot), 'utf8');
 const manifest = JSON.parse(readPlatform('public/assets/branding/design-lab-source.json'));
 
-if (manifest.source !== 'nexa-design-lab' || manifest.version !== '1.0.1' || manifest.ref !== 'main') {
+if (manifest.source !== 'nexa-design-lab' || manifest.version !== '1.0.2' || manifest.ref !== 'main') {
   throw new Error('Design Lab branding provenance is invalid');
 }
 

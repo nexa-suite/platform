@@ -1,70 +1,188 @@
-<section class="page">
+<section class="page operations-dashboard">
   <nexa-page-header
     [eyebrow]="'operationsDashboard.eyebrow' | translate"
     [title]="(isDeliveryCoordination() ? 'operationsDashboard.delivery.title' : 'operationsDashboard.inventory.title') | translate"
-    [subtitle]="(isDeliveryCoordination() ? 'operationsDashboard.delivery.description' : 'operationsDashboard.inventory.description') | translate" />
+    [subtitle]="(isDeliveryCoordination() ? 'operationsDashboard.delivery.description' : 'operationsDashboard.inventory.description') | translate">
+    <div page-header-actions>
+      @if (canReadDelivery()) {
+        <nexa-button routerLink="/ops/operations/dispatch-orders" size="compact">
+          <nexa-icon name="local_shipping" />
+          {{ 'operationsDashboard.delivery.dispatchBoard' | translate }}
+        </nexa-button>
+      }
+    </div>
+  </nexa-page-header>
 
   @if (isDeliveryCoordination()) {
-    @if (delivery.loading()) {
-      <nexa-loading-state [label]="'operationsDashboard.loading' | translate" />
-    } @else if (delivery.error(); as error) {
+    @if (delivery.loading() && !delivery.dashboard() && !delivery.dispatches().length) {
+      <nexa-loading-state [label]="'operationsDashboard.loading' | translate" [lines]="4" />
+    } @else if (delivery.error() && !delivery.dashboard() && !delivery.dispatches().length) {
       <nexa-error-state
         [title]="'operationsDashboard.errorTitle' | translate"
-        [description]="error"
+        [description]="delivery.error()!"
         (retry)="delivery.loadDashboard()" />
-    } @else if (delivery.dashboard(); as data) {
-      <section class="metric-grid" [attr.aria-label]="'operationsDashboard.delivery.metricsLabel' | translate">
-        <nexa-metric-card [label]="'operationsDashboard.delivery.ready' | translate" [value]="data.readyForOperations" [hint]="'operationsDashboard.delivery.readyHint' | translate" tone="info" />
-        <nexa-metric-card [label]="'operationsDashboard.delivery.inRoute' | translate" [value]="data.inRoute" [hint]="'operationsDashboard.delivery.inRouteHint' | translate" tone="warning" />
-        <nexa-metric-card [label]="'operationsDashboard.delivery.incidents' | translate" [value]="data.incidents" [hint]="'operationsDashboard.delivery.incidentsHint' | translate" tone="danger" />
-        <nexa-metric-card [label]="'operationsDashboard.delivery.delivered' | translate" [value]="data.deliveredToday" [hint]="'operationsDashboard.delivery.deliveredHint' | translate" tone="success" />
+    } @else {
+      <section class="flow-banner" aria-labelledby="operations-banner-title">
+        <div>
+          <span class="flow-eyebrow">{{ 'operationsDashboard.bannerEyebrow' | translate }}</span>
+          <h2 id="operations-banner-title">
+            {{ 'operationsDashboard.bannerTitle' | translate: {
+              dispatches: activeDispatches().length,
+              pod: pendingProof().length,
+              lots: fefoLots().length
+            } }}
+          </h2>
+          <p>{{ 'operationsDashboard.bannerNote' | translate }}</p>
+        </div>
+        <nexa-button routerLink="/ops/operations/proof-of-delivery" variant="secondary" size="compact">
+          <nexa-icon name="verified" />
+          {{ 'operationsDashboard.delivery.proof' | translate }}
+        </nexa-button>
       </section>
-      <nexa-section-panel
-        [title]="'operationsDashboard.nextActions' | translate"
-        [description]="'operationsDashboard.delivery.actionsDescription' | translate">
-        <nav class="action-grid" [attr.aria-label]="'operationsDashboard.nextActions' | translate">
-          <a routerLink="/ops/operations/dispatch-orders">
-            <span>{{ 'operationsDashboard.delivery.dispatchBoard' | translate }}</span>
-            <small>{{ 'operationsDashboard.delivery.dispatchBoardHint' | translate }}</small>
+
+      <section class="metric-grid" [attr.aria-label]="'operationsDashboard.delivery.metricsLabel' | translate">
+        <nexa-metric-card
+          [label]="'operationsDashboard.criticalStock' | translate"
+          [value]="canReadInventory() ? criticalLots().length : '—'"
+          [hint]="'operationsDashboard.criticalStockSub' | translate"
+          icon="inventory_2"
+          tone="danger" />
+        <nexa-metric-card
+          [label]="'operationsDashboard.fefoLots' | translate"
+          [value]="canReadInventory() ? fefoLots().length : '—'"
+          [hint]="'operationsDashboard.fefoLotsSub' | translate"
+          icon="schedule"
+          tone="warning" />
+        <nexa-metric-card
+          [label]="'operationsDashboard.activeDispatches' | translate"
+          [value]="activeDispatches().length"
+          [hint]="'operationsDashboard.activeDispatchesSub' | translate"
+          icon="local_shipping"
+          tone="info" />
+        <nexa-metric-card
+          [label]="'operationsDashboard.pendingPod' | translate"
+          [value]="pendingProof().length"
+          [hint]="'operationsDashboard.openIncidents' | translate: { count: openIncidents().length }"
+          icon="verified"
+          tone="info" />
+      </section>
+
+      <div class="dashboard-grid">
+        <nexa-section-panel
+          class="dispatch-panel"
+          [title]="'operationsDashboard.dispatchBoard' | translate"
+          [description]="'operationsDashboard.dispatchBoardSub' | translate">
+          <a section-panel-actions class="panel-link" routerLink="/ops/operations/dispatch-orders">
+            {{ 'operationsDashboard.delivery.dispatchBoard' | translate }}
           </a>
-          <a routerLink="/ops/operations/proof-of-delivery">
-            <span>{{ 'operationsDashboard.delivery.proof' | translate }}</span>
-            <small>{{ 'operationsDashboard.delivery.proofHint' | translate }}</small>
-          </a>
-        </nav>
+          <div class="dispatch-list">
+            @for (item of delivery.dispatches().slice(0, 5); track item.id) {
+              <article class="dispatch-row">
+                <div class="dispatch-copy">
+                  <div class="dispatch-meta">
+                    <span class="mono">{{ item.dispatchNumber }}</span>
+                    <nexa-status-badge
+                      [label]="statusKey(item.status) | translate"
+                      [tone]="dispatchTone(item)" />
+                    @if (item.temperatureStatus) {
+                      <nexa-status-badge [label]="statusKey(item.temperatureStatus) | translate" tone="accent" />
+                    }
+                  </div>
+                  <strong>{{ item.clientName || item.clientCode || item.clientAccountId || '—' }}</strong>
+                  <small>
+                    {{ item.assignment?.routeName || ('operationsDashboard.routePending' | translate) }}
+                    · {{ item.eta ? (item.eta | date: 'short') : ('operationsDashboard.notScheduled' | translate) }}
+                    · {{ destinationLabel(item) }}
+                  </small>
+                </div>
+                <a class="open-link" [routerLink]="['/ops/operations/dispatch-orders', item.id]">
+                  {{ 'salesOrders.actions.open' | translate }}
+                </a>
+              </article>
+            } @empty {
+              <p class="empty-state">{{ 'operationsDashboard.noDispatches' | translate }}</p>
+            }
+          </div>
+        </nexa-section-panel>
+
+        <nexa-section-panel
+          class="alerts-panel"
+          [title]="'operationsDashboard.operationalAlerts' | translate">
+          <div class="alert-list">
+            @for (lot of criticalLots(); track lot.id) {
+              <article class="alert-row">
+                <div>
+                  <strong>{{ productName(lot) }}</strong>
+                  <small>{{ 'operationsDashboard.stockAvailability' | translate: { available: lot.available, unit: lot.unit } }}</small>
+                </div>
+                <nexa-status-badge [label]="lot.status" tone="danger" />
+              </article>
+            }
+            @for (lot of fefoLots().slice(0, 3); track lot.id) {
+              <article class="alert-row">
+                <div>
+                  <strong>{{ productName(lot) }}</strong>
+                  <small>{{ 'operationsDashboard.lotDue' | translate: { id: lot.id, date: lot.expirationDate } }}</small>
+                </div>
+                <nexa-status-badge [label]="'operationsDashboard.days' | translate: { count: daysUntilExpiry(lot.expirationDate) }" tone="warning" />
+              </article>
+            }
+            @if (!criticalLots().length && !fefoLots().length) {
+              <p class="empty-state">{{ 'operationsDashboard.noAlerts' | translate }}</p>
+            }
+          </div>
+        </nexa-section-panel>
+      </div>
+
+      <nexa-section-panel class="quick-actions-panel" [title]="'operationsDashboard.quickActions' | translate">
+        <div class="quick-action-grid">
+          @if (canReadInventory()) {
+            <nexa-button routerLink="/ops/operations/inventory" variant="secondary" size="compact">
+              <nexa-icon name="inventory_2" />
+              {{ 'operationsDashboard.inventory.title' | translate }}
+            </nexa-button>
+          }
+          @if (canReadDelivery()) {
+            <nexa-button routerLink="/ops/operations/dispatch-orders" size="compact">
+              <nexa-icon name="local_shipping" />
+              {{ 'operationsDashboard.delivery.dispatchBoard' | translate }}
+            </nexa-button>
+            <nexa-button routerLink="/ops/operations/proof-of-delivery" variant="secondary" size="compact">
+              <nexa-icon name="verified" />
+              {{ 'operationsDashboard.delivery.proof' | translate }}
+            </nexa-button>
+            <nexa-button routerLink="/ops/operations/operational-analytics" variant="secondary" size="compact">
+              <nexa-icon name="analytics" />
+              {{ 'operationsDashboard.operationalAnalytics' | translate }}
+            </nexa-button>
+            <nexa-button routerLink="/ops/operations/business-documents" variant="secondary" size="compact">
+              <nexa-icon name="description" />
+              {{ 'operationsDashboard.businessDocuments' | translate }}
+            </nexa-button>
+          }
+        </div>
       </nexa-section-panel>
     }
   } @else {
-    @if (warehouse.loading()) {
-      <nexa-loading-state [label]="'operationsDashboard.loading' | translate" />
-    } @else if (warehouse.error(); as error) {
+    @if (warehouse.loading() && !warehouse.warehouses().length && !warehouse.lots().length) {
+      <nexa-loading-state [label]="'operationsDashboard.loading' | translate" [lines]="4" />
+    } @else if (warehouse.error() && !warehouse.warehouses().length && !warehouse.lots().length) {
       <nexa-error-state
         [title]="'operationsDashboard.errorTitle' | translate"
-        [description]="error"
+        [description]="warehouse.error()!"
         (retry)="warehouse.retry()" />
     } @else {
       <section class="metric-grid" [attr.aria-label]="'operationsDashboard.inventory.metricsLabel' | translate">
-        <nexa-metric-card [label]="'operationsDashboard.inventory.warehouses' | translate" [value]="warehouse.metrics().warehouses" [hint]="'operationsDashboard.inventory.warehousesHint' | translate" />
-        <nexa-metric-card [label]="'operationsDashboard.inventory.available' | translate" [value]="warehouse.metrics().available" [hint]="'operationsDashboard.inventory.availableHint' | translate" tone="success" />
-        <nexa-metric-card [label]="'operationsDashboard.inventory.reserved' | translate" [value]="warehouse.metrics().reserved" [hint]="'operationsDashboard.inventory.reservedHint' | translate" tone="info" />
-        <nexa-metric-card [label]="'operationsDashboard.inventory.shortages' | translate" [value]="warehouse.metrics().shortages" [hint]="'operationsDashboard.inventory.shortagesHint' | translate" tone="danger" />
+        <nexa-metric-card [label]="'operationsDashboard.inventory.warehouses' | translate" [value]="warehouse.metrics().warehouses" [hint]="'operationsDashboard.inventory.warehousesHint' | translate" icon="business" />
+        <nexa-metric-card [label]="'operationsDashboard.inventory.available' | translate" [value]="warehouse.metrics().available" [hint]="'operationsDashboard.inventory.availableHint' | translate" icon="inventory_2" tone="success" />
+        <nexa-metric-card [label]="'operationsDashboard.inventory.reserved' | translate" [value]="warehouse.metrics().reserved" [hint]="'operationsDashboard.inventory.reservedHint' | translate" icon="lock" tone="info" />
+        <nexa-metric-card [label]="'operationsDashboard.inventory.shortages' | translate" [value]="warehouse.metrics().shortages" [hint]="'operationsDashboard.inventory.shortagesHint' | translate" icon="warning" tone="danger" />
       </section>
-      <nexa-section-panel
-        [title]="'operationsDashboard.nextActions' | translate"
-        [description]="'operationsDashboard.inventory.actionsDescription' | translate">
+      <nexa-section-panel [title]="'operationsDashboard.nextActions' | translate" [description]="'operationsDashboard.inventory.actionsDescription' | translate">
         <nav class="action-grid" [attr.aria-label]="'operationsDashboard.nextActions' | translate">
-          <a routerLink="/ops/operations/warehouses">
-            <span>{{ 'operationsDashboard.inventory.warehouseAction' | translate }}</span>
-            <small>{{ 'operationsDashboard.inventory.warehouseActionHint' | translate }}</small>
-          </a>
-          <a routerLink="/ops/operations/inventory/lots">
-            <span>{{ 'operationsDashboard.inventory.lotsAction' | translate }}</span>
-            <small>{{ 'operationsDashboard.inventory.lotsActionHint' | translate }}</small>
-          </a>
-          <a routerLink="/ops/operations/inventory/movements">
-            <span>{{ 'operationsDashboard.inventory.movementsAction' | translate }}</span>
-            <small>{{ 'operationsDashboard.inventory.movementsActionHint' | translate }}</small>
-          </a>
+          <a routerLink="/ops/operations/warehouses"><span>{{ 'operationsDashboard.inventory.warehouseAction' | translate }}</span><small>{{ 'operationsDashboard.inventory.warehouseActionHint' | translate }}</small></a>
+          <a routerLink="/ops/operations/inventory/lots"><span>{{ 'operationsDashboard.inventory.lotsAction' | translate }}</span><small>{{ 'operationsDashboard.inventory.lotsActionHint' | translate }}</small></a>
+          <a routerLink="/ops/operations/inventory/movements"><span>{{ 'operationsDashboard.inventory.movementsAction' | translate }}</span><small>{{ 'operationsDashboard.inventory.movementsActionHint' | translate }}</small></a>
         </nav>
       </nexa-section-panel>
     }

@@ -79,7 +79,7 @@ test('organization onboarding reaches ACTIVE only through the operator boundary 
 
     await page.goto('/sign-in');
     await page.locator('input[autocomplete="organization"]').fill(slug);
-    await page.locator('input[autocomplete="username"]').fill(founderEmail);
+    await page.locator('input[autocomplete="email"], input[autocomplete="username"]').first().fill(founderEmail);
     await page.locator('input[autocomplete="current-password"]').fill(founderPassword);
     await page.getByRole('button', { name: /sign in|ingresar/i }).click();
     await expect(page).not.toHaveURL(/\/sign-in/);

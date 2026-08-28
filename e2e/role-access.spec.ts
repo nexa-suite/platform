@@ -255,7 +255,7 @@ test('pure BUYER is denied before Platform landing because BUYER belongs to Port
   await page
     .locator('input[autocomplete="organization"]')
     .fill(workspace);
-  await page.locator('input[autocomplete="username"]').fill(buyerEmail!);
+  await page.locator('input[autocomplete="email"], input[autocomplete="username"]').first().fill(buyerEmail!);
   await page.locator('input[autocomplete="current-password"]').fill(buyerPassword!);
   await page.getByRole('button', { name: /sign in|ingresar/i }).click();
   const loginResponse = await loginResponsePromise;
