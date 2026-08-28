@@ -1,0 +1,151 @@
+<section class="manual-order-page" aria-labelledby="manual-order-title">
+  <header class="manual-order-header">
+    <a class="back-link" [routerLink]="purchaseOrdersPath()">
+      <nexa-icon name="arrow_back" />
+      <span>{{ 'manualOrder.back' | translate }}</span>
+    </a>
+    <div class="manual-order-heading">
+      <h1 id="manual-order-title">{{ 'manualOrder.title' | translate }}</h1>
+      <p>{{ companyName() }}</p>
+    </div>
+  </header>
+
+  <ol class="manual-order-stepper" [attr.aria-label]="'manualOrder.steps.label' | translate">
+    <li class="step is-active" aria-current="step">
+      <span class="step-circle">1</span>
+      <span>{{ 'manualOrder.steps.client' | translate }}</span>
+    </li>
+    <li class="step-connector" aria-hidden="true"></li>
+    <li class="step is-pending">
+      <span class="step-circle">2</span>
+      <span>{{ 'manualOrder.steps.products' | translate }}</span>
+    </li>
+    <li class="step-connector" aria-hidden="true"></li>
+    <li class="step is-pending">
+      <span class="step-circle">3</span>
+      <span>{{ 'manualOrder.steps.delivery' | translate }}</span>
+    </li>
+    <li class="step-connector" aria-hidden="true"></li>
+    <li class="step is-pending">
+      <span class="step-circle">4</span>
+      <span>{{ 'manualOrder.steps.confirm' | translate }}</span>
+    </li>
+  </ol>
+
+  <section class="client-step" aria-labelledby="select-client-title">
+    <h2 id="select-client-title">{{ 'manualOrder.selectClient' | translate }}</h2>
+
+    <div class="client-selection-grid">
+      <div class="client-list-column">
+        <label class="client-search">
+          <nexa-icon name="search" />
+          <input
+            type="search"
+            [attr.aria-label]="'manualOrder.searchPlaceholder' | translate"
+            [value]="query()"
+            [placeholder]="'manualOrder.searchPlaceholder' | translate"
+            (input)="setQuery($any($event.target).value)" />
+        </label>
+
+        @if (facade.state().status === 'loading' && !facade.state().clients.length) {
+          <p class="client-list-state" role="status">{{ 'manualOrder.loading' | translate }}</p>
+        } @else if (!filteredClients().length) {
+          <p class="client-list-state" role="status">{{ 'manualOrder.noClientsFound' | translate }}</p>
+        } @else {
+          <div class="client-list" role="list" [attr.aria-label]="'manualOrder.clientListLabel' | translate">
+            @for (client of filteredClients(); track client.id) {
+              <button
+                class="client-card"
+                [class.is-selected]="selectedClientId() === client.id"
+                type="button"
+                role="listitem"
+                [attr.aria-pressed]="selectedClientId() === client.id"
+                (click)="selectClient(client)">
+                <span class="client-card-icon" aria-hidden="true"><nexa-icon name="business" /></span>
+                <span class="client-card-body">
+                  <span class="client-card-heading">
+                    <strong>{{ client.commercialName || client.businessName || client.code }}</strong>
+                    @if (selectedClientId() === client.id) { <nexa-icon name="check" /> }
+                  </span>
+                  <span class="client-subtitle">{{ client.taxValue || client.code }} · {{ clientType(client) | translate }}</span>
+                  <span class="client-meta">
+                    <span><nexa-icon name="person" />{{ client.contactPerson || ('manualOrder.contactPending' | translate) }}</span>
+                    <span><nexa-icon name="phone" />{{ client.phone || ('manualOrder.phonePending' | translate) }}</span>
+                    <span><nexa-icon name="location_on" />{{ clientAddress(client)?.line || ('manualOrder.addressPending' | translate) }}</span>
+                  </span>
+                  <span class="client-footer">
+                    <span class="status-pill" [class.is-warning]="client.status.trim().toUpperCase() !== 'ACTIVE'">
+                      <span class="status-dot" aria-hidden="true"></span>{{ statusKey(client) | translate }}
+                    </span>
+                    <span class="status-pill is-ready" [class.is-warning]="client.status.trim().toUpperCase() !== 'ACTIVE'">
+                      {{ client.status.trim().toUpperCase() === 'ACTIVE' ? ('manualOrder.ready' | translate) : ('manualOrder.observed' | translate) }}
+                    </span>
+                  </span>
+                </span>
+              </button>
+            }
+          </div>
+        }
+      </div>
+
+      <aside class="conditions-column" aria-live="polite">
+        @if (selectedClient(); as client) {
+          <section class="conditions-card">
+            <header class="conditions-heading">
+              <nexa-icon name="file_edit" />
+              <span>{{ 'manualOrder.salesConditions' | translate }}</span>
+            </header>
+
+            <div class="condition-banner" [class.is-warning]="conditionTone(client) === 'warning'">
+              <nexa-icon [name]="conditionIcon(client)" />
+              <p>
+                <strong>{{ conditionTone(client) === 'success' ? ('manualOrder.validated' | translate) : ('manualOrder.observed' | translate) }}.</strong>
+                {{ statusMessageKey(client) | translate }}
+              </p>
+            </div>
+
+            <dl class="conditions-list">
+              <div>
+                <dt>{{ 'manualOrder.paymentCondition' | translate }}</dt>
+                <dd>{{ paymentConditionKey(client) | translate }}</dd>
+              </div>
+              <div>
+                <dt>{{ 'manualOrder.clientType' | translate }}</dt>
+                <dd>{{ clientType(client) | translate }}</dd>
+              </div>
+            </dl>
+
+            <div class="payment-selection">
+              <label for="manual-order-payment-preference">{{ 'manualOrder.paymentCondition' | translate }}</label>
+              <select
+                id="manual-order-payment-preference"
+                [value]="form.controls.paymentPreference.value"
+                (change)="setPaymentPreference($any($event.target).value)">
+                <option value="CREDIT_LINE">{{ 'requestBuilder.payment.CREDIT_LINE' | translate }}</option>
+                <option value="BANK_TRANSFER">{{ 'requestBuilder.payment.BANK_TRANSFER' | translate }}</option>
+                <option value="CASH">{{ 'requestBuilder.payment.CASH' | translate }}</option>
+                <option value="CASH_ON_DELIVERY">{{ 'requestBuilder.payment.CASH_ON_DELIVERY' | translate }}</option>
+              </select>
+              <p>{{ 'manualOrder.serverCreditPending' | translate }}</p>
+            </div>
+
+          </section>
+
+          <button class="continue-button" type="button" [disabled]="!canContinue()" (click)="save()">
+            <span>{{ saving() ? ('manualOrder.saving' | translate) : ('manualOrder.continue' | translate) }}</span>
+            <nexa-icon name="arrow_forward" />
+          </button>
+        } @else {
+          <section class="conditions-card conditions-empty">
+            <nexa-icon name="person" />
+            <p>{{ 'manualOrder.selectClientHelp' | translate }}</p>
+          </section>
+        }
+      </aside>
+    </div>
+  </section>
+
+  @if (facade.state().message; as message) {
+    <p class="manual-order-error" role="alert">{{ message === 'MANUAL_ORDER_REFERENCES_FAILED' ? ('manualOrder.loadError' | translate) : ('manualOrder.saveError' | translate) }}</p>
+  }
+</section>

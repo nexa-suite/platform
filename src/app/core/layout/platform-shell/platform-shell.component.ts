@@ -11,33 +11,33 @@ import {
   signal,
   viewChild
 } from '@angular/core';
-import { MatButtonModule } from '@angular/material/button';
-import { MatListModule } from '@angular/material/list';
 import { MatSidenavModule } from '@angular/material/sidenav';
-import { MatToolbarModule } from '@angular/material/toolbar';
-import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { NavigationEnd, Router, RouterLink, RouterOutlet } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { map } from 'rxjs';
+import { filter, map, of, startWith } from 'rxjs';
 import { BrandLogoComponent } from '../../../shared/presentation/components/brand-logo/brand-logo.component';
 import { LanguageSwitcherComponent } from '../../i18n/language-switcher/language-switcher.component';
 import { PlatformAuthenticationBoundary } from '../../security/platform-authentication.boundary';
-import { PLATFORM_NAVIGATION_GROUPS } from '../../navigation/navigation.registry';
+import { PLATFORM_NAVIGATION_GROUPS, PlatformNavigationItem } from '../../navigation/navigation.registry';
 import { PLATFORM_AREAS, PLATFORM_PERMISSION_WORK_AREAS, PlatformWorkArea } from '../../security/platform-permissions';
 import { NexaIconComponent } from '../../../shared/presentation/components/nexa-icon/nexa-icon.component';
 import { PlatformNotificationsService } from '../../../notifications/application/platform-notifications.service';
+import { PlatformNavigationBadgePort, PlatformNavigationBadges } from '../../navigation/platform-navigation-badge.port';
+
+interface PlatformNavigationSection {
+  readonly id: string;
+  readonly labelKey: string;
+  readonly items: readonly PlatformNavigationItem[];
+}
 
 @Component({
   selector: 'nexa-platform-shell',
   imports: [
     BrandLogoComponent,
     LanguageSwitcherComponent,
-    MatButtonModule,
-    MatListModule,
     MatSidenavModule,
-    MatToolbarModule,
     RouterLink,
-    RouterLinkActive,
     RouterOutlet,
     NexaIconComponent,
     TranslatePipe
@@ -60,9 +60,45 @@ export class PlatformShellComponent {
   private readonly mobileNavigationClose = viewChild<ElementRef<HTMLButtonElement>>('mobileNavigationClose');
   private readonly notificationPanel = viewChild<ElementRef<HTMLElement>>('notificationPanel');
   readonly notifications = inject(PlatformNotificationsService);
+  private readonly navigationBadges = inject(PlatformNavigationBadgePort, { optional: true });
+  readonly navigationBadgeValues = toSignal(
+    this.navigationBadges ? this.navigationBadges.values : of({} as PlatformNavigationBadges),
+    { initialValue: {} as PlatformNavigationBadges }
+  );
+  readonly currentPath = toSignal(
+    this.router.events.pipe(
+      filter((event): event is NavigationEnd => event instanceof NavigationEnd),
+      map((event) => event.urlAfterRedirects),
+      startWith(this.router.url)
+    ),
+    { initialValue: this.router.url }
+  );
   readonly currentUser = this.authentication.currentUser;
   readonly displayName = computed(() => this.currentUser()?.displayName ?? '');
   readonly displayInitial = computed(() => this.displayName().trim().charAt(0).toLocaleUpperCase());
+  readonly primaryRole = computed(() => {
+    const roles = this.currentUser()?.roles ?? [];
+    if (roles.includes('COMPANY_OWNER')) return 'COMPANY_OWNER' as const;
+    if (roles.includes('TENANT_ADMIN')) return 'TENANT_ADMIN' as const;
+    if (roles.includes('LOGISTICS')) return 'LOGISTICS' as const;
+    if (roles.includes('WAREHOUSE')) return 'WAREHOUSE' as const;
+    if (roles.includes('SALES')) return 'SALES' as const;
+    return null;
+  });
+  readonly roleLabel = computed(() => {
+    const role = this.primaryRole();
+    return role ? `shell.roles.${role}` : 'shell.platformLabel';
+  });
+  readonly companyLegalName = computed(() => {
+    const tenant = this.currentUser()?.tenantSlug ?? this.currentUser()?.workspaceSlug ?? '';
+    if (tenant.toLowerCase() === 'icisa') return 'ICISA Distribuciones';
+    return tenant ? tenant.replace(/[-_]+/g, ' ').replace(/\b\w/g, (letter) => letter.toUpperCase()) : 'Nexa';
+  });
+  readonly companyInitials = computed(() => this.companyLegalName().trim().slice(0, 2).toUpperCase() || 'NX');
+  readonly workspaceUrl = computed(() => {
+    const workspace = this.currentUser()?.workspaceSlug ?? this.currentUser()?.tenantSlug ?? '';
+    return workspace ? `${workspace}.nexa.com.pe` : '';
+  });
   readonly workspaceContext = computed(() => {
     const user = this.currentUser();
     if (!user) return null;
@@ -78,6 +114,26 @@ export class PlatformShellComponent {
       .filter((group) => group.items.length > 0)
     : []);
   readonly navigation = computed(() => this.navigationGroups().flatMap((group) => group.items));
+  readonly navigationSections = computed<readonly PlatformNavigationSection[]>(() => {
+    const groups = this.navigationGroups();
+    const group = (id: string) => groups.find((candidate) => candidate.id === id)?.items ?? [];
+    const commercial = group('commercial').map((item) => this.withNavigationBadge(item));
+    const workspace = [
+      ...commercial.filter((item) => item.path.endsWith('/dashboard')),
+      ...group('catalog').map((item) => item.path === '/ops/catalog'
+        ? { ...item, labelKey: 'shell.navigation.productCatalog', path: '/ops/product-catalog' }
+        : item).map((item) => this.withNavigationBadge(item)),
+      ...group('warehouse'),
+      ...group('logistics')
+    ];
+    const company = [...group('administration'), ...group('finance')];
+    const sections: PlatformNavigationSection[] = [
+      { id: 'workspace', labelKey: 'shell.sections.workspace', items: workspace },
+      { id: 'commercial', labelKey: 'shell.sections.commercial', items: commercial.filter((item) => !item.path.endsWith('/dashboard')) },
+      { id: 'company', labelKey: 'shell.sections.company', items: company }
+    ];
+    return sections.filter((section) => section.items.length > 0);
+  });
   readonly availableAreas = computed<readonly PlatformWorkArea[]>(() => {
     const user = this.currentUser();
     if (!user) return [];
@@ -164,8 +220,25 @@ export class PlatformShellComponent {
     });
   }
 
+  isNavigationItemActive(path: string): boolean {
+    const currentPath = this.currentPath().split(/[?#]/, 1)[0];
+    const exactMatch = path === '/ops/commercial/dashboard' || path === '/ops/operations/dashboard';
+    return exactMatch ? currentPath === path : currentPath === path || currentPath.startsWith(`${path}/`);
+  }
+
   private activeElement(): HTMLElement | null {
     return this.document.activeElement instanceof HTMLElement ? this.document.activeElement : null;
+  }
+
+  private withNavigationBadge(item: PlatformNavigationItem): PlatformNavigationItem {
+    const key = item.path === '/ops/commercial/purchase-requests'
+      ? 'purchaseRequests'
+      : item.path === '/ops/commercial/purchase-orders'
+        ? 'purchaseOrders'
+        : null;
+    const values = this.navigationBadgeValues();
+    const badge = key ? values[key] : undefined;
+    return badge && badge > 0 ? { ...item, badge } : item;
   }
 
   private afterRender(callback: () => void): void {

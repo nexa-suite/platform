@@ -15,10 +15,11 @@ describe('Platform catalog route matrix', () => {
     ]));
   });
 
-  it('keeps the legacy catalog alias as a compatibility redirect only', () => {
+  it('keeps the operational catalog entry point separate from the administration list', () => {
     const shell = routes.find((route) => route.path === '');
     const alias = shell?.children?.find((route) => route.path === 'ops/product-catalog');
-    expect(alias?.redirectTo).toBe('ops/catalog/products');
+    expect(alias?.loadComponent).toBeTypeOf('function');
+    expect(alias?.redirectTo).toBeUndefined();
     expect(alias?.pathMatch).toBe('full');
   });
 

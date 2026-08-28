@@ -44,6 +44,15 @@
     var(--nexa-color-cold-refrigerated-soft);
 }
 
+.route-map-embed {
+  display: block;
+  width: 100%;
+  min-height: 280px;
+  border: 1px solid var(--nexa-color-cold-refrigerated-border);
+  border-radius: var(--nexa-radius-card);
+  background: var(--nexa-color-cold-refrigerated-soft);
+}
+
 .route-map::before,
 .route-map::after {
   position: absolute;

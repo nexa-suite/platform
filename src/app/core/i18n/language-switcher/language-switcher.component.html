@@ -1,7 +1,4 @@
-<label class="language-control">
-  <span>{{ 'shell.language' | translate }}</span>
-  <select [value]="languageService.currentLanguage()" (change)="onSelect($event)" [attr.aria-label]="'shell.language' | translate">
-    <option value="en">EN</option>
-    <option value="es">ES</option>
-  </select>
-</label>
+<div class="lang-group" role="group" [attr.aria-label]="'shell.language' | translate">
+  <button class="lang-opt" type="button" [class.active]="languageService.currentLanguage() === 'es'" [attr.aria-pressed]="languageService.currentLanguage() === 'es'" [attr.aria-label]="'auth.signIn.switchToSpanish' | translate" (click)="setLanguage('es')">ES</button>
+  <button class="lang-opt" type="button" [class.active]="languageService.currentLanguage() === 'en'" [attr.aria-pressed]="languageService.currentLanguage() === 'en'" [attr.aria-label]="'auth.signIn.switchToEnglish' | translate" (click)="setLanguage('en')">EN</button>
+</div>

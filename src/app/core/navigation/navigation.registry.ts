@@ -5,6 +5,7 @@ export interface PlatformNavigationItem {
   readonly path: string;
   readonly icon: string;
   readonly permission: PlatformPermission;
+  readonly badge?: number;
 }
 
 export type PlatformNavigationGroupId = 'administration' | 'commercial' | 'catalog' | 'warehouse' | 'logistics' | 'finance';
@@ -23,11 +24,12 @@ const ADMINISTRATION_ITEMS: readonly PlatformNavigationItem[] = [
 ];
 
 const COMMERCIAL_ITEMS: readonly PlatformNavigationItem[] = [
-  { labelKey: 'shell.navigation.salesDashboard', path: '/ops/commercial/dashboard', icon: 'monitoring', permission: PLATFORM_PERMISSIONS.salesRead },
-  { labelKey: 'shell.navigation.clientAccounts', path: '/ops/commercial/client-accounts', icon: 'handshake', permission: PLATFORM_PERMISSIONS.salesRead },
-  { labelKey: 'shell.navigation.manualSalesOrder', path: '/ops/commercial/manual-orders/new', icon: 'add_shopping_cart', permission: PLATFORM_PERMISSIONS.salesWrite },
-  { labelKey: 'shell.navigation.purchaseRequests', path: '/ops/commercial/purchase-requests', icon: 'request_quote', permission: PLATFORM_PERMISSIONS.salesRead },
-  { labelKey: 'shell.navigation.salesOrders', path: '/ops/commercial/sales-orders', icon: 'receipt_long', permission: PLATFORM_PERMISSIONS.salesRead }
+  { labelKey: 'shell.navigation.salesDashboard', path: '/ops/commercial/dashboard', icon: 'dashboard', permission: PLATFORM_PERMISSIONS.salesRead },
+  { labelKey: 'shell.navigation.purchaseRequests', path: '/ops/commercial/purchase-requests', icon: 'inbox', permission: PLATFORM_PERMISSIONS.salesRead },
+  { labelKey: 'shell.navigation.purchaseOrders', path: '/ops/commercial/purchase-orders', icon: 'file_edit', permission: PLATFORM_PERMISSIONS.salesRead },
+  { labelKey: 'shell.navigation.manualOrderEntry', path: '/ops/commercial/manual-order-entry', icon: 'add_circle', permission: PLATFORM_PERMISSIONS.salesWrite },
+  { labelKey: 'shell.navigation.b2bClients', path: '/ops/commercial/client-accounts', icon: 'groups', permission: PLATFORM_PERMISSIONS.salesRead },
+  { labelKey: 'shell.navigation.businessDocuments', path: '/ops/commercial/business-documents', icon: 'file_check', permission: PLATFORM_PERMISSIONS.documentRead }
 ];
 
 const CATALOG_ITEMS: readonly PlatformNavigationItem[] = [

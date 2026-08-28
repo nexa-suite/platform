@@ -25,6 +25,6 @@ describe('SalesDashboardFacade', () => {
     TestBed.configureTestingModule({ providers: [SalesDashboardFacade, { provide: SalesCommitmentApiPort, useValue: api }] });
     const facade = TestBed.inject(SalesDashboardFacade); facade.load();
     expect(facade.state().status).toBe('error');
-    facade.retry(); expect(api.purchaseRequests).toHaveBeenCalledTimes(8);
+    facade.retry(); expect(api.purchaseRequests).toHaveBeenCalledTimes(10);
   });
 });

@@ -226,7 +226,7 @@ test('founder multi-role exposes both assigned areas without a Forbidden sidebar
 }) => {
   requiresCredentials('OWNER');
   await signInAndAssertRoles(page, 'OWNER', ['TENANT_ADMIN', 'COMPANY_OWNER']);
-  const areaSelector = page.locator('.workspace-card select[aria-label]');
+  const areaSelector = page.locator('.workspace-area-selector[aria-label]');
   if (!(await areaSelector.isVisible())) {
     const menuButton = page.getByRole('button', { name: /open operations navigation|abrir navegación de operaciones|abrir navegacion de operaciones/i });
     await expect(menuButton).toBeVisible();
@@ -255,8 +255,9 @@ test('pure BUYER is denied before Platform landing because BUYER belongs to Port
   await page
     .locator('input[autocomplete="organization"]')
     .fill(workspace);
-  await page.locator('input[autocomplete="username"]').fill(buyerEmail!);
+  await page.locator('input[autocomplete="email"], input[autocomplete="username"]').first().fill(buyerEmail!);
   await page.locator('input[autocomplete="current-password"]').fill(buyerPassword!);
+  await expect(page.locator('.tenant-preview')).toContainText(/active|activo/i, { timeout: 10_000 });
   await page.getByRole('button', { name: /sign in|ingresar/i }).click();
   const loginResponse = await loginResponsePromise;
   expect(loginResponse.ok()).toBeFalsy();

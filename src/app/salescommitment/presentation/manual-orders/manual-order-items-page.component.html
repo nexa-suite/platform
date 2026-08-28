@@ -1,0 +1,136 @@
+<section class="manual-order-page" aria-labelledby="manual-order-title">
+  <header class="manual-order-header">
+    <a class="back-link" [routerLink]="clientPath()">
+      <nexa-icon name="arrow_back" />
+      <span>{{ 'manualOrder.back' | translate }}</span>
+    </a>
+    <div class="manual-order-heading">
+      <h1 id="manual-order-title">{{ 'manualOrder.title' | translate }}</h1>
+      <p>{{ clientName() }}</p>
+    </div>
+  </header>
+
+  <ol class="manual-order-stepper" [attr.aria-label]="'manualOrder.steps.label' | translate">
+    <li class="step is-done">
+      <span class="step-circle"><nexa-icon name="check" /></span>
+      <span>{{ 'manualOrder.steps.client' | translate }}</span>
+    </li>
+    <li class="step-connector is-done" aria-hidden="true"></li>
+    <li class="step is-active" aria-current="step">
+      <span class="step-circle">2</span>
+      <span>{{ 'manualOrder.steps.products' | translate }}</span>
+    </li>
+    <li class="step-connector" aria-hidden="true"></li>
+    <li class="step is-pending">
+      <span class="step-circle">3</span>
+      <span>{{ 'manualOrder.steps.delivery' | translate }}</span>
+    </li>
+    <li class="step-connector" aria-hidden="true"></li>
+    <li class="step is-pending">
+      <span class="step-circle">4</span>
+      <span>{{ 'manualOrder.steps.confirm' | translate }}</span>
+    </li>
+  </ol>
+
+  <section class="items-step" aria-labelledby="add-products-title">
+    <h2 id="add-products-title">
+      {{ 'manualOrder.addProducts' | translate }} <span>{{ clientName() }}</span>
+    </h2>
+
+    <div class="items-selection-grid">
+      <section class="catalog-picker-card" aria-labelledby="catalog-selector-title">
+        <div class="catalog-picker-icon" aria-hidden="true"><nexa-icon name="cube" /></div>
+        <div class="catalog-picker-copy">
+          <h3 id="catalog-selector-title">{{ 'manualOrder.catalogSelector' | translate }}</h3>
+          <p>{{ 'manualOrder.catalogSelectorDescription' | translate }}</p>
+        </div>
+        <a
+          class="primary-button catalog-button"
+          [routerLink]="catalogPath()"
+          [queryParams]="catalogQueryParams()">
+          <nexa-icon name="open_in_new" />
+          <span>{{ 'manualOrder.openCatalog' | translate }}</span>
+        </a>
+      </section>
+
+      <aside class="summary-card" aria-live="polite" aria-labelledby="summary-title">
+        <header class="summary-heading">
+          <h3 id="summary-title">
+            {{ 'manualOrder.summary' | translate }}
+            <span>({{ lines().length }})</span>
+          </h3>
+        </header>
+
+        @if (!lines().length) {
+          <div class="summary-empty">
+            <div class="summary-empty-icon" aria-hidden="true"><nexa-icon name="shopping_cart" /></div>
+            <strong>{{ 'manualOrder.noProducts' | translate }}</strong>
+            <p>{{ 'manualOrder.noProductsDescription' | translate }}</p>
+          </div>
+        } @else {
+          <div class="summary-lines">
+            @for (line of lines(); track line.catalogItemId) {
+              @if (lineItem(line); as item) {
+                <div class="summary-line">
+                  @if (item.imageUrl) {
+                    <img class="line-image" [src]="item.imageUrl" [alt]="item.name" loading="lazy" />
+                  } @else {
+                    <span class="line-image line-image-empty" aria-hidden="true"><nexa-icon name="cube" /></span>
+                  }
+
+                  <div class="line-copy">
+                    <strong>{{ item.name }}</strong>
+                    <span>{{ formatPrice(item) }} / {{ unitLabel(item.unit) }}</span>
+                  </div>
+
+                  <div class="line-controls" [attr.aria-label]="'manualOrder.quantityFor' | translate: { name: item.name }">
+                    <button
+                      class="icon-button"
+                      type="button"
+                      [disabled]="line.quantity <= 1"
+                      [attr.aria-label]="'manualOrder.decreaseItem' | translate: { name: item.name }"
+                      (click)="adjustQuantity(line, -1)">−</button>
+                    <input
+                      class="quantity-input"
+                      type="number"
+                      min="1"
+                      step="1"
+                      [value]="line.quantity"
+                      [attr.aria-label]="'manualOrder.quantityFor' | translate: { name: item.name }"
+                      (change)="setQuantity(line, $any($event.target).value)" />
+                    <button
+                      class="icon-button"
+                      type="button"
+                      [attr.aria-label]="'manualOrder.increaseItem' | translate: { name: item.name }"
+                      (click)="adjustQuantity(line, 1)">+</button>
+                  </div>
+
+                  <strong class="line-total">{{ formatLineTotal(line, item) }}</strong>
+                  <button
+                    class="icon-button remove-button"
+                    type="button"
+                    [attr.aria-label]="'manualOrder.removeItem' | translate: { name: item.name }"
+                    (click)="removeLine(line)">
+                    <nexa-icon name="delete" />
+                  </button>
+                </div>
+              }
+            }
+          </div>
+          <div class="summary-total">
+            <span>{{ 'manualOrder.total' | translate }}</span>
+            <strong>{{ total() }}</strong>
+          </div>
+          <button class="primary-button continue-button" type="button" [disabled]="saving()" (click)="save()">
+            <span>{{ saving() ? ('manualOrder.saving' | translate) : ('manualOrder.continueDelivery' | translate) }}</span>
+            <nexa-icon name="arrow_forward" />
+          </button>
+        }
+      </aside>
+    </div>
+  </section>
+
+  @if (facade.state().message; as message) {
+    <p class="manual-order-error" role="alert">{{ message }}</p>
+  }
+</section>

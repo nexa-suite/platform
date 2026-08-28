@@ -1,44 +1,18 @@
-import { ChangeDetectionStrategy, Component, effect, inject, signal } from '@angular/core';
-import { DecimalPipe } from '@angular/common';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
-import { PageHeaderComponent } from '../../../shared/presentation/components/page-header/page-header.component';
+import { TranslatePipe } from '@ngx-translate/core';
+import { NexaIconComponent } from '../../../shared/presentation/components/nexa-icon/nexa-icon.component';
+import { PLATFORM_RUNTIME_CONFIG } from '../../../core/security/runtime-config';
+import { SalesCommitmentAddressReference, SalesCommitmentCustomerReference } from '../../domain/customer-reference.models';
 import { ManualOrderWizardFacade } from '../../application/manual-orders/manual-order-wizard.facade';
 
 @Component({
   selector: 'nexa-manual-order-client-page',
   standalone: true,
-  imports: [DecimalPipe, MatButtonModule, MatCardModule, MatFormFieldModule, MatInputModule, MatSelectModule, PageHeaderComponent, ReactiveFormsModule, RouterLink],
-  template: `
-    <section class="page">
-      <a mat-button routerLink="/ops/commercial/purchase-requests">Volver a solicitudes</a>
-      <nexa-page-header eyebrow="VENTAS · PASO 1/4" title="Cliente y condiciones" subtitle="El servidor conserva el borrador y valida la condición comercial." />
-      <nav class="steps" aria-label="Pasos de orden manual"><a class="active">Cliente</a><a [routerLink]="itemsPath()">Ítems</a><a [routerLink]="deliveryPath()">Entrega</a><a [routerLink]="reviewPath()">Revisión</a></nav>
-      <mat-card>
-        <mat-card-content>
-          <form [formGroup]="form" (ngSubmit)="save()" class="form-grid">
-            <mat-form-field appearance="outline"><mat-label>Cliente</mat-label><mat-select formControlName="clientAccountId" (selectionChange)="clientChanged($event.value)"><mat-option value="">Seleccionar cliente</mat-option>@for (client of facade.state().clients; track client.id) { <mat-option [value]="client.id">{{ client.commercialName || client.businessName }} · {{ client.code }}</mat-option> }</mat-select></mat-form-field>
-            <mat-form-field appearance="outline"><mat-label>Fecha solicitada</mat-label><input matInput type="date" formControlName="requestedDeliveryDate" /></mat-form-field>
-            <mat-form-field appearance="outline"><mat-label>Prioridad</mat-label><mat-select formControlName="priority"><mat-option value="NORMAL">Normal</mat-option><mat-option value="HIGH">Alta</mat-option><mat-option value="URGENT">Urgente</mat-option></mat-select></mat-form-field>
-            <mat-form-field appearance="outline"><mat-label>Condición de pago</mat-label><mat-select formControlName="paymentPreference"><mat-option value="CREDIT_LINE">Línea de crédito</mat-option><mat-option value="BANK_TRANSFER">Transferencia bancaria</mat-option><mat-option value="CASH">Contado</mat-option><mat-option value="CASH_ON_DELIVERY">Contra entrega</mat-option></mat-select></mat-form-field>
-            <mat-form-field appearance="outline"><mat-label>Moneda</mat-label><input matInput maxlength="3" formControlName="currency" /></mat-form-field>
-            <mat-form-field appearance="outline" class="wide"><mat-label>Notas comerciales</mat-label><textarea matInput rows="3" formControlName="notes"></textarea></mat-form-field>
-          </form>
-          @if (selectedClient(); as client) { <div class="client-summary"><strong>{{ client.commercialName || client.businessName }}</strong><span>{{ client.code }} · {{ client.taxType }} {{ client.taxValue }}</span><span>Condición comercial: {{ client.paymentCondition || 'No definida' }}</span><span>Direcciones activas: {{ facade.state().addresses.length }}</span></div> }
-          @if (facade.state().draft?.client; as client) { <div class="server-summary"><span>Estado: {{ client.status }}</span><span>Términos: {{ client.paymentTerms || 'No definidos' }}</span><span>Límite: {{ client.creditLimit | number:'1.2-2' }} · Exposición: {{ client.currentExposure | number:'1.2-2' }} · Disponible: {{ client.availableCredit | number:'1.2-2' }}</span></div> }
-          @if (facade.state().addresses.length) { <div class="address-list"><strong>Direcciones disponibles</strong>@for (address of facade.state().addresses; track address.id) { <span>{{ address.label }} · {{ address.line }}</span> }</div> }
-          @if (facade.state().message; as message) { <p role="alert">{{ message }}</p> }
-        </mat-card-content>
-        <mat-card-actions><button mat-stroked-button type="button" (click)="abandon()">Abandonar</button><button mat-flat-button color="primary" type="button" [disabled]="saving()" (click)="save()">{{ saving() ? 'Guardando…' : 'Guardar y continuar' }}</button></mat-card-actions>
-      </mat-card>
-    </section>
-  `,
-  styleUrl: './manual-order-wizard.scss',
+  imports: [NexaIconComponent, ReactiveFormsModule, RouterLink, TranslatePipe],
+  templateUrl: './manual-order-client-page.component.html',
+  styleUrl: './manual-order-client-page.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ManualOrderClientPageComponent {
@@ -46,10 +20,29 @@ export class ManualOrderClientPageComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly fb = inject(FormBuilder);
+  private readonly runtime = inject(PLATFORM_RUNTIME_CONFIG);
+
   readonly draftId = this.route.snapshot.paramMap.get('draftId') ?? '';
   readonly saving = signal(false);
-  private loadedClientId: string | null = null;
-  private hydratedDraftId: string | null = null;
+  readonly query = signal('');
+  readonly selectedClientId = signal('');
+  readonly companyName = computed(() => this.runtime.tenantProfile === 'icisa' ? 'ICISA Distribuciones' : 'Nexa');
+  readonly selectedClient = computed(() => this.facade.state().clients.find((client) => client.id === this.selectedClientId()) ?? null);
+  readonly filteredClients = computed(() => {
+    const query = this.query().trim().toLocaleLowerCase();
+    if (!query) return this.facade.state().clients;
+    return this.facade.state().clients.filter((client) => [
+      client.code,
+      client.businessName,
+      client.commercialName,
+      client.taxValue,
+      client.segment,
+      client.contactPerson,
+      client.contactEmail,
+      client.phone,
+    ].filter((value): value is string => Boolean(value)).some((value) => value.toLocaleLowerCase().includes(query)));
+  });
+
   readonly form = this.fb.nonNullable.group({
     clientAccountId: ['', Validators.required],
     requestedDeliveryDate: [tomorrow(), Validators.required],
@@ -59,32 +52,100 @@ export class ManualOrderClientPageComponent {
     notes: ['']
   });
 
+  private loadedClientId: string | null = null;
+  private hydratedDraftId: string | null = null;
+
   constructor() {
     this.facade.loadReferences();
     if (this.draftId) this.facade.loadDraft(this.draftId);
+
     effect(() => {
       const draft = this.facade.state().draft;
       if (draft?.id === this.draftId && this.hydratedDraftId !== draft.id) {
+        const clientId = draft.client?.id ?? '';
+        this.selectedClientId.set(clientId);
         this.form.patchValue({
-          clientAccountId: draft.client?.id ?? '', requestedDeliveryDate: draft.requestedDeliveryDate ?? tomorrow(),
-          priority: draft.priority || 'NORMAL', paymentPreference: draft.paymentPreference ?? 'CREDIT_LINE',
-          currency: draft.currency || 'PEN', notes: draft.notes ?? ''
+          clientAccountId: clientId,
+          requestedDeliveryDate: draft.requestedDeliveryDate ?? tomorrow(),
+          priority: draft.priority || 'NORMAL',
+          paymentPreference: draft.paymentPreference ?? 'CREDIT_LINE',
+          currency: draft.currency || 'PEN',
+          notes: draft.notes ?? ''
         }, { emitEvent: false });
         this.hydratedDraftId = draft.id;
       }
+
       const clientId = draft?.client?.id ?? null;
-      if (clientId && clientId !== this.loadedClientId) { this.loadedClientId = clientId; this.facade.loadAddresses(clientId); }
+      if (clientId && clientId !== this.loadedClientId) {
+        this.loadedClientId = clientId;
+        this.facade.loadAddresses(clientId);
+      }
     });
   }
 
-  selectedClient() { return this.facade.state().clients.find((client) => client.id === this.form.controls.clientAccountId.value) ?? null; }
-  clientChanged(clientId: string): void { if (clientId) this.facade.loadAddresses(clientId); }
+  purchaseOrdersPath(): string { return '/ops/commercial/purchase-orders'; }
   itemsPath(): string { return `/ops/commercial/manual-orders/${this.draftId}/items`; }
-  deliveryPath(): string { return `/ops/commercial/manual-orders/${this.draftId}/delivery`; }
-  reviewPath(): string { return `/ops/commercial/manual-orders/${this.draftId}/review`; }
+
+  selectClient(client: SalesCommitmentCustomerReference): void {
+    this.selectedClientId.set(client.id);
+    this.form.controls.clientAccountId.setValue(client.id);
+    this.form.controls.clientAccountId.markAsDirty();
+    this.form.controls.paymentPreference.setValue(this.paymentPreference(client));
+    if (client.id !== this.loadedClientId) {
+      this.loadedClientId = client.id;
+      this.facade.loadAddresses(client.id);
+    }
+  }
+
+  setQuery(value: string): void { this.query.set(value); }
+
+  setPaymentPreference(value: string): void {
+    if (['CREDIT_LINE', 'BANK_TRANSFER', 'CASH', 'CASH_ON_DELIVERY'].includes(value)) {
+      this.form.controls.paymentPreference.setValue(value);
+    }
+  }
+
+  clientAddress(client: SalesCommitmentCustomerReference): SalesCommitmentAddressReference | null {
+    if (client.id !== this.selectedClientId()) return null;
+    const addresses = this.facade.state().addresses.filter((address) => address.active && address.clientAccountId === client.id);
+    return addresses.find((address) => address.defaultAddress) ?? addresses[0] ?? null;
+  }
+
+  conditionTone(client: SalesCommitmentCustomerReference): 'success' | 'warning' {
+    return client.status.trim().toUpperCase() === 'ACTIVE' ? 'success' : 'warning';
+  }
+
+  conditionIcon(client: SalesCommitmentCustomerReference): 'check' | 'warning' {
+    return this.conditionTone(client) === 'success' ? 'check' : 'warning';
+  }
+
+  statusKey(client: SalesCommitmentCustomerReference): string {
+    return client.status.trim().toUpperCase() === 'ACTIVE' ? 'manualOrder.active' : 'manualOrder.observed';
+  }
+
+  statusMessageKey(client: SalesCommitmentCustomerReference): string {
+    return client.status.trim().toUpperCase() === 'ACTIVE' ? 'manualOrder.validatedMessage' : 'manualOrder.observedMessage';
+  }
+
+  clientType(client: SalesCommitmentCustomerReference): string {
+    return client.segment?.trim() || 'manualOrder.clientTypeFallback';
+  }
+
+  paymentConditionKey(client: SalesCommitmentCustomerReference): string {
+    return `manualOrder.paymentConditions.${client.paymentCondition?.trim().toUpperCase() || 'UNKNOWN'}`;
+  }
+
+  canContinue(): boolean {
+    return this.selectedClient()?.status.trim().toUpperCase() === 'ACTIVE' && this.form.valid && !this.saving();
+  }
 
   save(): void {
-    if (this.form.invalid || !this.draftId) { this.form.markAllAsTouched(); return; }
+    const client = this.selectedClient();
+    if (!client || !this.draftId || !this.canContinue()) {
+      this.form.markAllAsTouched();
+      return;
+    }
+
     this.saving.set(true);
     this.facade.saveClient(this.draftId, this.form.getRawValue()).subscribe({
       next: () => void this.router.navigate(['/ops/commercial/manual-orders', this.draftId, 'items']),
@@ -94,7 +155,14 @@ export class ManualOrderClientPageComponent {
 
   abandon(): void {
     if (!this.draftId) return;
-    this.facade.abandon(this.draftId).subscribe({ next: () => void this.router.navigate(['/ops/commercial/purchase-requests']) });
+    this.facade.abandon(this.draftId).subscribe({ next: () => void this.router.navigate([this.purchaseOrdersPath()]) });
+  }
+
+  private paymentPreference(client: SalesCommitmentCustomerReference): string {
+    const condition = client.paymentCondition.trim().toUpperCase();
+    if (condition.includes('CASH')) return 'CASH_ON_DELIVERY';
+    if (condition.includes('PREPAID')) return 'CASH';
+    return 'CREDIT_LINE';
   }
 }
 

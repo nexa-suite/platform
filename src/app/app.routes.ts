@@ -4,11 +4,9 @@ import { PlatformAuthenticationBoundary } from './core/security/platform-authent
 import { anonymousGuard, authGuard } from './core/security/auth.guard';
 import { platformSurfaceGuard } from './core/security/platform-surface.guard';
 import { PlatformShellComponent } from './core/layout/platform-shell/platform-shell.component';
-import { permissionGuard } from './core/security/permission.guard';
+import { anyPermissionGuard, permissionGuard } from './core/security/permission.guard';
 import { platformLandingForUser, PLATFORM_PERMISSIONS } from './core/security/platform-permissions';
-import { CustomerRelationshipsApiPort } from './customerbuyerrelationships/domain/ports/customer-relationships-api.port';
 import { SalesCommitmentApiService } from './salescommitment/infrastructure/http/sales-commitment-api.service';
-import { SalesCommitmentApiPort } from './salescommitment/domain/ports/sales-commitment-api.port';
 import { ClientAccountsFacade } from './customerbuyerrelationships/application/client-accounts.facade';
 import { PurchaseRequestOperationsFacade } from './salescommitment/application/purchase-requests/purchase-request-operations.facade';
 import { ManualOrderWizardFacade } from './salescommitment/application/manual-orders/manual-order-wizard.facade';
@@ -16,17 +14,24 @@ import { manualOrderStepGuard } from './salescommitment/presentation/manual-orde
 import { createManualOrderDraftGuard } from './salescommitment/presentation/manual-orders/create-manual-order-draft.guard';
 import { SalesOrdersFacade } from './salescommitment/application/sales-orders/sales-orders.facade';
 import { CustomerRelationshipsApiService } from './customerbuyerrelationships/infrastructure/http/customer-relationships-api.service';
+import { customerRelationshipsApiPortProvider } from './customerbuyerrelationships/infrastructure/mock/customer-relationships-api-port.provider';
 import { SalesCommitmentCatalogGateway } from './salescommitment/infrastructure/catalog/sales-commitment-catalog.gateway';
 import { SalesCommitmentCatalogPort, SalesCommitmentCustomerPort } from './salescommitment/domain/ports/sales-commitment-cross-context.ports';
 import { SalesCommitmentCustomerGateway } from './salescommitment/infrastructure/customer/sales-commitment-customer.gateway';
+import { salesCommitmentApiPortProvider } from './salescommitment/infrastructure/mock/sales-commitment-api-port.provider';
+import { GoogleMapsRoutePort } from './salescommitment/domain/ports/google-maps-route.port';
+import { GoogleMapsRouteAdapter } from './salescommitment/infrastructure/maps/google-maps-route.adapter';
 import { CatalogPromotionTargetsGateway } from './catalogcommercialpolicy/infrastructure/http/catalog-promotion-targets.gateway';
-import { CatalogPromotionTargetsPort } from './catalogcommercialpolicy/domain/ports/catalog-promotion-targets.port';
+import { MockCatalogPromotionTargetsGateway } from './catalogcommercialpolicy/infrastructure/mock/mock-catalog-promotion-targets.gateway';
+import { catalogPromotionTargetsPortProvider } from './catalogcommercialpolicy/infrastructure/mock/catalog-promotion-targets-port.provider';
 import { WarehouseOperationsApiService } from './inventoryavailability/infrastructure/warehouse-operations-api.service';
-import { WarehouseOperationsApiPort } from './inventoryavailability/domain/ports/warehouse-operations-api.port';
 import { WarehouseOperationsFacade } from './inventoryavailability/application/warehouse-operations.facade';
-import { InventoryCatalogPort, SalesOrderVersionPort } from './inventoryavailability/domain/ports/inventory-cross-context.ports';
 import { InventoryCatalogGateway } from './inventoryavailability/infrastructure/catalog/inventory-catalog.gateway';
 import { SalesOrderVersionGateway } from './inventoryavailability/infrastructure/sales/sales-order-version.gateway';
+import { MockWarehouseOperationsApiService } from './inventoryavailability/infrastructure/mock/mock-warehouse-operations-api.service';
+import { warehouseOperationsApiPortProvider } from './inventoryavailability/infrastructure/mock/warehouse-operations-api-port.provider';
+import { MockInventoryCatalogGateway, MockSalesOrderVersionGateway } from './inventoryavailability/infrastructure/mock/mock-inventory-cross-context';
+import { inventoryCatalogPortProvider, salesOrderVersionPortProvider } from './inventoryavailability/infrastructure/mock/inventory-cross-context.providers';
 import { catalogReadGuard, catalogManageGuard, promotionReadGuard, promotionManageGuard } from './core/security/catalog-access.guard';
 import { tenantManagementRoutes } from './tenantaccessgovernance/tenantmanagement/presentation/tenant-management.routes';
 
@@ -46,11 +51,11 @@ const businessDocumentsOrderRedirect: RedirectFunction = (route) =>
 
 const salesCommitmentProviders = [
   SalesCommitmentApiService,
-  { provide: SalesCommitmentApiPort, useExisting: SalesCommitmentApiService }
+  salesCommitmentApiPortProvider
 ];
 const customerRelationshipProviders = [
   CustomerRelationshipsApiService,
-  { provide: CustomerRelationshipsApiPort, useExisting: CustomerRelationshipsApiService }
+  customerRelationshipsApiPortProvider
 ];
 const salesCommitmentReferenceProviders = [
   ...salesCommitmentProviders,
@@ -58,20 +63,26 @@ const salesCommitmentReferenceProviders = [
   SalesCommitmentCatalogGateway,
   { provide: SalesCommitmentCatalogPort, useExisting: SalesCommitmentCatalogGateway },
   SalesCommitmentCustomerGateway,
-  { provide: SalesCommitmentCustomerPort, useExisting: SalesCommitmentCustomerGateway }
+  { provide: SalesCommitmentCustomerPort, useExisting: SalesCommitmentCustomerGateway },
+  GoogleMapsRouteAdapter,
+  { provide: GoogleMapsRoutePort, useExisting: GoogleMapsRouteAdapter }
 ];
 const catalogPromotionProviders = [
   CatalogPromotionTargetsGateway,
-  { provide: CatalogPromotionTargetsPort, useExisting: CatalogPromotionTargetsGateway }
+  MockCatalogPromotionTargetsGateway,
+  catalogPromotionTargetsPortProvider
 ];
 const warehouseProviders = [
   ...salesCommitmentProviders,
   WarehouseOperationsApiService,
-  { provide: WarehouseOperationsApiPort, useExisting: WarehouseOperationsApiService },
+  MockWarehouseOperationsApiService,
+  warehouseOperationsApiPortProvider,
   InventoryCatalogGateway,
-  { provide: InventoryCatalogPort, useExisting: InventoryCatalogGateway },
+  MockInventoryCatalogGateway,
+  inventoryCatalogPortProvider,
   SalesOrderVersionGateway,
-  { provide: SalesOrderVersionPort, useExisting: SalesOrderVersionGateway },
+  MockSalesOrderVersionGateway,
+  salesOrderVersionPortProvider,
   WarehouseOperationsFacade
 ];
 
@@ -104,7 +115,7 @@ export const routes: Routes = [
       {
         path: 'ops/operations/dashboard', data: { mode: 'dashboard' },
         loadComponent: () => import('./core/presentation/role-operations-dashboard-page.component').then((module) => module.RoleOperationsDashboardPageComponent),
-        canActivate: [permissionGuard(PLATFORM_PERMISSIONS.warehouseRead)], providers: warehouseProviders
+        canActivate: [anyPermissionGuard([PLATFORM_PERMISSIONS.warehouseRead, PLATFORM_PERMISSIONS.logisticsRead])], providers: warehouseProviders
       },
       {
         path: 'ops/operations/inventory', data: { mode: 'inventory' },
@@ -174,7 +185,7 @@ export const routes: Routes = [
       { path: 'ops/catalog/promotions', loadComponent: () => import('./catalogcommercialpolicy/presentation/catalog-promotions-page/catalog-promotions-page.component').then((module) => module.CatalogPromotionsPageComponent), canActivate: [promotionReadGuard] },
       { path: 'ops/catalog/promotions/new', loadComponent: () => import('./catalogcommercialpolicy/presentation/catalog-promotion-form-page/catalog-promotion-form-page.component').then((module) => module.CatalogPromotionFormPageComponent), canActivate: [promotionManageGuard], providers: catalogPromotionProviders },
       { path: 'ops/catalog/promotions/:promotionId', loadComponent: () => import('./catalogcommercialpolicy/presentation/catalog-promotion-form-page/catalog-promotion-form-page.component').then((module) => module.CatalogPromotionFormPageComponent), canActivate: [promotionReadGuard], providers: catalogPromotionProviders },
-      { path: 'ops/product-catalog', pathMatch: 'full', redirectTo: 'ops/catalog/products' },
+      { path: 'ops/product-catalog', pathMatch: 'full', loadComponent: () => import('./catalogcommercialpolicy/presentation/product-catalog-page/product-catalog-page.component').then((module) => module.ProductCatalogPageComponent), canActivate: [catalogReadGuard] },
       { path: 'ops/product-catalog/:catalogItemId', loadComponent: () => import('./catalogcommercialpolicy/presentation/product-catalog-detail-page/product-catalog-detail-page.component').then((module) => module.ProductCatalogDetailPageComponent), canActivate: [catalogReadGuard] },
       { path: 'ops/commercial/promotions', pathMatch: 'full', redirectTo: 'ops/catalog/promotions' },
       { path: 'ops/commercial/manual-order-entry', pathMatch: 'full', redirectTo: 'ops/commercial/manual-orders/new' },

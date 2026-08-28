@@ -1,0 +1,17 @@
+:host { display: block; }
+.incidents-page { gap: var(--nexa-space-5); }
+.metric-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--nexa-space-4); }
+.incident-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--nexa-space-4); }
+.incident-card { display: grid; gap: var(--nexa-space-4); min-width: 0; padding: var(--nexa-space-5); border: 1px solid var(--nexa-color-border-default); border-radius: var(--nexa-radius-lg); background: var(--nexa-surface-card); box-shadow: var(--nexa-shadow-xs); }
+.incident-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--nexa-space-3); padding-bottom: var(--nexa-space-3); border-bottom: 1px solid var(--nexa-color-border-decorative); }
+.mono { color: var(--nexa-color-text-muted); font-family: var(--nexa-font-family-mono); font-size: var(--nexa-font-size-xs); }
+.incident-heading h3 { margin: var(--nexa-space-1) 0; font-size: var(--nexa-font-size-lg); overflow-wrap: anywhere; }
+.incident-heading p { margin: 0; color: var(--nexa-color-text-secondary); font-size: var(--nexa-font-size-sm); overflow-wrap: anywhere; }
+.incident-facts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--nexa-space-3); }
+.incident-facts div { display: grid; gap: var(--nexa-space-1); min-width: 0; }
+.incident-facts span { color: var(--nexa-color-text-muted); font-size: var(--nexa-font-size-xs); font-weight: var(--nexa-font-weight-bold); letter-spacing: var(--nexa-letter-spacing-wide); text-transform: uppercase; }
+.incident-facts strong { font-size: var(--nexa-font-size-sm); overflow-wrap: anywhere; }
+.alert-row { display: flex; flex-wrap: wrap; gap: var(--nexa-space-2); }
+.incident-actions { display: flex; justify-content: flex-end; padding-top: var(--nexa-space-2); border-top: 1px solid var(--nexa-color-border-decorative); }
+@media (max-width: 900px) { .incident-list { grid-template-columns: 1fr; } }
+@media (max-width: 600px) { .metric-grid { grid-template-columns: 1fr; } .incident-heading { flex-direction: column; } .incident-facts { grid-template-columns: 1fr; } .incident-actions { justify-content: flex-start; } }

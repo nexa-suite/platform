@@ -5,5 +5,5 @@ import { LanguageSwitcherComponent } from './language-switcher.component';
 describe('LanguageSwitcherComponent', () => {
   let fixture: ComponentFixture<LanguageSwitcherComponent>;
   beforeEach(async () => { await TestBed.configureTestingModule({ imports: [LanguageSwitcherComponent], providers: [provideTranslateService()] }).compileComponents(); fixture = TestBed.createComponent(LanguageSwitcherComponent); fixture.detectChanges(); });
-  it('provides keyboard-accessible language selection', () => { expect(fixture.nativeElement.querySelector('select')).toBeTruthy(); expect(fixture.nativeElement.querySelector('label')).toBeTruthy(); });
+  it('provides keyboard-accessible language buttons', () => { expect(fixture.nativeElement.querySelectorAll('button')).toHaveLength(2); expect(fixture.nativeElement.querySelector('[role="group"]')).toBeTruthy(); });
 });

@@ -7,61 +7,44 @@ test('Sales completes the four-step manual order flow with server route preview'
   await signIn(page, 'SALES');
 
   await page.goto('/ops/commercial/manual-orders/new');
-  const draftLoad = page.waitForResponse((response) => response.request().method() === 'GET' && /\/api\/v1\/sales-orders\/manual-drafts\/[0-9a-f-]+$/.test(new URL(response.url()).pathname));
-  await page.getByRole('button', { name: /iniciar orden manual/i }).click();
   await expect(page).toHaveURL(/\/ops\/commercial\/manual-orders\/[^/]+\/client$/);
-  await draftLoad;
-  await expect(page.getByRole('heading', { name: /cliente y condiciones/i })).toBeVisible();
+  await expect(page.getByRole('heading', { name: /select client|selecciona cliente/i })).toBeVisible();
 
-  const clientSelect = page.locator('mat-select[formcontrolname="clientAccountId"]');
-  await clientSelect.click();
-  await page.getByRole('listbox', { name: 'Cliente' }).getByRole('option', { name: /La Cava Fría.*CLI-001/i }).click();
-  await expect(clientSelect).toHaveAttribute('aria-invalid', 'false');
-  await page.getByRole('button', { name: /guardar y continuar/i }).click();
+  const clientCard = page.locator('button.client-card').filter({ hasText: /La Cava Fría|CLI-001/i }).first();
+  await expect(clientCard).toBeVisible();
+  await clientCard.click();
+  await page.locator('#manual-order-payment-preference').selectOption('CASH');
+  await expect(page.getByRole('button', { name: /continue|continuar/i })).toBeEnabled();
+  await page.getByRole('button', { name: /continue|continuar/i }).click();
   await expect(page).toHaveURL(/\/items$/);
-  await expect(page.getByRole('heading', { name: /ítems y cantidades/i })).toBeVisible();
+  await expect(page.getByRole('heading', { name: /add products|agregar productos/i })).toBeVisible();
 
-  const itemSelect = page.locator('mat-select[formcontrolname="catalogItemId"]');
-  await itemSelect.click();
-  await page.getByRole('listbox', { name: 'SKU / catálogo' }).getByRole('option').nth(1).click();
-  await expect(itemSelect).not.toContainText(/seleccionar ítem/i);
-  await page.getByRole('button', { name: /^agregar$/i }).click();
-  await page.getByRole('button', { name: /guardar y continuar/i }).click();
+  const draftItemsPath = new URL(page.url()).pathname;
+  await page.getByRole('link', { name: /open product catalog|abrir catálogo|abrir catalogo/i }).click();
+  await expect(page).toHaveURL(/\/ops\/product-catalog/);
+  const productCard = page.locator('.catalog-card').filter({ hasText: /COPPA/i }).first();
+  await expect(productCard).toBeVisible();
+  await productCard.getByRole('button', { name: /agregar|add/i }).click();
+  await page.getByRole('link', { name: /create sales order|crear sales order/i }).click();
+  await expect(page).toHaveURL(new RegExp(`${draftItemsPath}$`));
+  await expect(page.getByText(/COPPA/i).first()).toBeVisible();
+  await page.getByRole('button', { name: /continue to delivery|continuar a entrega/i }).click();
   await expect(page).toHaveURL(/\/delivery$/);
-  await expect(page.getByRole('heading', { name: /entrega y servicio/i })).toBeVisible();
+  await expect(page.getByRole('heading', { name: /delivery information|entrega y servicio/i })).toBeVisible();
+  await expect(page.locator('.route-preview-card')).toBeVisible();
+  await expect(page.locator('.route-summary')).toContainText(/Av\. Sucre 1992/i);
 
-  const addressSelect = page.locator('mat-select[formcontrolname="addressId"]');
-  await addressSelect.click();
-  const addressOption = page.getByRole('listbox', { name: 'Dirección guardada' }).getByRole('option').filter({ hasText: /Av\. Sucre 1992/i }).first();
-  if (await addressOption.count()) {
-    await addressOption.click();
-  } else {
-    await page.keyboard.press('Escape');
-    await page.getByRole('textbox', { name: /tipo de vía/i }).fill('AVENUE');
-    await page.getByRole('textbox', { name: /destinatario/i }).fill('Carlos Mendoza');
-    await page.getByRole('textbox', { name: /teléfono/i }).fill('+51999999999');
-    await page.getByRole('textbox', { name: /nombre de vía/i }).fill('Av. Sucre');
-    await page.getByRole('textbox', { name: /^número$/i }).fill('1992');
-    await page.getByRole('textbox', { name: /referencia/i }).fill('Puerta principal');
-    await page.locator('[formcontrolname="departmentCode"]').fill('15');
-    await page.locator('[formcontrolname="provinceCode"]').fill('1501');
-    // The pinned API v0.9.0 fixture only contains Lima (150101). V82 seeds
-    // Pueblo Libre (150121) and the normal path selects that saved address.
-    await page.locator('[formcontrolname="districtCode"]').fill('150101');
-    await page.locator('[formcontrolname="postalCode"]').fill('150121');
-    await page.locator('[formcontrolname="latitude"]').fill('-12.0725');
-    await page.locator('[formcontrolname="longitude"]').fill('-77.0685');
-  }
-  await page.getByRole('button', { name: /guardar y continuar/i }).click();
+  const continueReview = page.getByRole('button', { name: /continue to review|guardar y continuar/i });
+  await expect(continueReview).toBeEnabled();
+  const deliverySave = page.waitForResponse((response) => response.request().method() === 'PUT' && /\/api\/v1\/sales-orders\/manual-drafts\/[^/]+\/delivery$/.test(new URL(response.url()).pathname));
+  await continueReview.click();
+  expect((await deliverySave).status()).toBe(200);
   await expect(page).toHaveURL(/\/review$/);
-  await expect(page.getByRole('heading', { name: /revisión/i })).toBeVisible();
-
-  await expect(page.locator('.route-preview')).toBeVisible();
-  await expect(page.locator('.route-preview')).toContainText(/Av\. Sucre 1992/i);
-  await expect(page.locator('.route-preview')).toContainText(/LOCAL_DETERMINISTIC|LOCAL_ESTIMATE/i);
+  await expect(page.getByRole('heading', { name: /confirm cold-chain purchase order|revisión/i })).toBeVisible();
+  await expect(page.locator('main')).toContainText(/Av\. Sucre 1992/i);
 
   const submission = page.waitForResponse((response) => response.request().method() === 'POST' && /\/api\/v1\/sales-orders\/manual-drafts\/[^/]+\/submissions$/.test(new URL(response.url()).pathname));
-  await page.getByRole('button', { name: /crear sales order/i }).click();
+  await page.getByRole('button', { name: /confirm order|crear sales order/i }).click();
   const submissionResponse = await submission;
   expect([200, 201]).toContain(submissionResponse.status());
   await expect(page).toHaveURL(/\/ops\/commercial\/sales-orders\/[^/]+$/);

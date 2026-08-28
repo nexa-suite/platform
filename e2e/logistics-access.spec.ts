@@ -380,8 +380,8 @@ test('LOGISTICS performs supported dispatch lifecycle actions against the server
     let mutation: DispatchMutation;
     if (status === 'READY_FOR_OPERATIONS') {
       await page.goto('/ops/operations/dispatch-orders');
-      const row = page.locator(`a[href="/ops/operations/dispatch-orders/${dispatchId}"]`).locator('xpath=ancestor::tr');
-      mutation = await mutateDispatch(page, logisticsSession.accessToken, dispatchId, 'preparation-starts', () => row.getByRole('button', { name: /start preparation|iniciar preparación/i }).click(), 'PREPARING', version);
+      const card = page.locator(`[data-status="READY_FOR_OPERATIONS"] article`).filter({ has: page.locator(`a[href$="/${dispatchId}"]`) });
+      mutation = await mutateDispatch(page, logisticsSession.accessToken, dispatchId, 'preparation-starts', () => card.getByRole('button', { name: /start preparation|move(?: dispatch)? forward|iniciar preparación|avanzar/i }).click(), 'PREPARING', version);
     } else {
       await page.goto(`/ops/operations/dispatch-orders/${dispatchId}`);
       await expect(page.locator('h1')).toContainText(/dispatch detail|detalle del despacho/i);

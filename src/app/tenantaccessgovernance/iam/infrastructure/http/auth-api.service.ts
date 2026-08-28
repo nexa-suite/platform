@@ -1,14 +1,16 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { Observable, map } from 'rxjs';
+import { Observable, map, throwError } from 'rxjs';
 import {
   AuthSession,
+  AuthenticationResult,
   AuthenticatedUser,
   InternalRole,
   normalizeInternalRoles,
   normalizePermissions,
   normalizeRoleCodes,
-  SignInCommand
+  SignInCommand,
+  WorkspacePreview
 } from '../../domain/models/auth.models';
 import { AuthApiPort } from '../../domain/ports/auth-api.port';
 import { PLATFORM_RUNTIME_CONFIG, platformApiUrl } from '../../../../core/security/runtime-config';
@@ -47,11 +49,20 @@ export class AuthApiService implements AuthApiPort {
   private readonly http = inject(HttpClient);
   private readonly config = inject(PLATFORM_RUNTIME_CONFIG);
 
-  login(command: SignInCommand): Observable<AuthSession> {
+  login(command: SignInCommand): Observable<AuthenticationResult> {
     return this.http
       .post<AuthApiSessionResponse>(platformApiUrl(this.config, '/api/v1/authentication/sign-in'),
         { ...command, surface: this.config.surface }, { withCredentials: true })
       .pipe(map((response) => this.toSession(response, command)));
+  }
+
+  verifyTwoFactor(_challengeId: string, _code: string): Observable<AuthSession> {
+    // The current API contract does not publish a second-factor endpoint yet.
+    return throwError(() => new Error('TWO_FACTOR_BACKEND_UNAVAILABLE'));
+  }
+
+  workspacePreview(workspaceSlug: string): Observable<WorkspacePreview> {
+    return this.http.post<WorkspacePreview>(platformApiUrl(this.config, '/api/v1/auth/workspace-previews'), { workspaceSlug });
   }
 
   refresh(): Observable<AuthSession> {

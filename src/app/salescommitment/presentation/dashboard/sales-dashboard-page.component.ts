@@ -1,40 +1,111 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { TranslatePipe } from '@ngx-translate/core';
 import { ErrorStateComponent } from '../../../shared/presentation/components/error-state/error-state.component';
 import { EmptyStateComponent } from '../../../shared/presentation/components/empty-state/empty-state.component';
 import { LoadingStateComponent } from '../../../shared/presentation/components/loading-state/loading-state.component';
-import { MetricCardComponent } from '../../../shared/presentation/components/metric-card/metric-card.component';
-import { PageHeaderComponent } from '../../../shared/presentation/components/page-header/page-header.component';
-import { SectionPanelComponent } from '../../../shared/presentation/components/section-panel/section-panel.component';
+import { NexaIconComponent } from '../../../shared/presentation/components/nexa-icon/nexa-icon.component';
+import { ChangeFeedService } from '../../../core/change-feed/application/change-feed.service';
+import { ChangeEvent } from '../../../core/change-feed/domain/change-feed.models';
 import { SalesDashboardFacade } from '../../application/dashboard/sales-dashboard.facade';
+import { DEFAULT_SALES_COMMITMENT_CUSTOMER_FILTERS } from '../../domain/customer-reference.models';
+import { SalesCommitmentCustomerPort } from '../../domain/ports/sales-commitment-cross-context.ports';
+import { SalesDashboardBusinessDocument, SalesDashboardSupportingDataPort } from '../../domain/ports/sales-dashboard-supporting-data.port';
 
 @Component({
   selector: 'nexa-sales-dashboard-page',
   standalone: true,
   providers: [SalesDashboardFacade],
-  imports: [RouterLink, TranslatePipe, ErrorStateComponent, EmptyStateComponent, LoadingStateComponent, MetricCardComponent, PageHeaderComponent, SectionPanelComponent],
-  template: `<section class="page">
-    <nexa-page-header [eyebrow]="'salesDashboard.eyebrow' | translate" [title]="'salesDashboard.title' | translate" [subtitle]="'salesDashboard.description' | translate" />
-    @if (facade.state().status === 'loading') { <nexa-loading-state [lines]="4" [label]="'salesDashboard.states.loading' | translate" /> }
-    @else if (facade.state().status === 'error') { <nexa-error-state [title]="'salesDashboard.states.errorTitle' | translate" [description]="'salesDashboard.states.errorDescription' | translate" [retryLabel]="'salesDashboard.actions.retry' | translate" (retry)="facade.retry()" /> }
-    @else if (facade.state().status === 'empty') { <nexa-empty-state [title]="'salesDashboard.states.emptyTitle' | translate" [description]="'salesDashboard.states.emptyDescription' | translate" /> }
-    @else {
-      <div class="metric-grid">
-        <nexa-metric-card [label]="'salesDashboard.metrics.submitted' | translate" [value]="facade.state().metrics.submittedPurchaseRequests" />
-        <nexa-metric-card [label]="'salesDashboard.metrics.underReview' | translate" [value]="facade.state().metrics.purchaseRequestsUnderReview" />
-        <nexa-metric-card [label]="'salesDashboard.metrics.approved' | translate" [value]="facade.state().metrics.approvedPurchaseRequests" />
-        <nexa-metric-card [label]="'salesDashboard.metrics.pendingOrders' | translate" [value]="facade.state().metrics.pendingSalesOrders" />
-        <nexa-metric-card [label]="'salesDashboard.metrics.confirmedOrders' | translate" [value]="facade.state().metrics.confirmedSalesOrders" />
-      </div>
-      <div class="panels">
-        <nexa-section-panel [title]="'salesDashboard.recentRequests' | translate"><ul>@for (request of facade.state().recentPurchaseRequests; track request.id) { <li><a [routerLink]="['/ops/commercial/purchase-requests', request.id]">{{ request.code }}</a><span>{{ 'purchaseRequests.status.' + request.status | translate }}</span></li> }</ul></nexa-section-panel>
-        <nexa-section-panel [title]="'salesDashboard.recentOrders' | translate"><ul>@for (order of facade.state().recentSalesOrders; track order.id) { <li><a [routerLink]="['/ops/commercial/sales-orders', order.id]">{{ order.number }}</a><span>{{ 'salesOrders.status.' + order.status | translate }}</span></li> }</ul></nexa-section-panel>
-      </div>
-    }
-    <nexa-section-panel [title]="'salesDashboard.links.title' | translate"><nav class="links"><a routerLink="/ops/product-catalog">{{ 'salesDashboard.links.catalog' | translate }}</a><a routerLink="/ops/commercial/purchase-requests">{{ 'salesDashboard.links.requests' | translate }}</a><a routerLink="/ops/commercial/sales-orders">{{ 'salesDashboard.links.orders' | translate }}</a><a routerLink="/ops/commercial/client-accounts">{{ 'salesDashboard.links.clients' | translate }}</a></nav></nexa-section-panel>
-  </section>`,
-  styles: [`.metric-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:1rem;margin-bottom:1rem}.panels{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem;margin-bottom:1rem}ul{list-style:none;padding:0;margin:0}li{display:flex;justify-content:space-between;padding:.6rem 0;border-bottom:1px solid var(--nexa-border,#ddd)}a{color:inherit}.links{display:flex;flex-wrap:wrap;gap:1rem}@media(max-width:900px){.metric-grid,.panels{grid-template-columns:1fr 1fr}}@media(max-width:600px){.metric-grid,.panels{grid-template-columns:1fr}}`],
+  imports: [RouterLink, TranslatePipe, ErrorStateComponent, EmptyStateComponent, LoadingStateComponent, NexaIconComponent],
+  templateUrl: './sales-dashboard-page.component.html',
+  styleUrl: './sales-dashboard-page.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class SalesDashboardPageComponent { readonly facade = inject(SalesDashboardFacade); constructor() { this.facade.load(); } }
+export class SalesDashboardPageComponent {
+  readonly facade = inject(SalesDashboardFacade);
+  private readonly supportingData = inject(SalesDashboardSupportingDataPort);
+  private readonly changeFeed = inject(ChangeFeedService);
+  private readonly customersApi = inject(SalesCommitmentCustomerPort);
+  private readonly destroyRef = inject(DestroyRef);
+  readonly documents = signal<readonly SalesDashboardBusinessDocument[]>([]);
+  readonly activityEvents = signal<readonly ChangeEvent[]>([]);
+  readonly clientNames = signal<ReadonlyMap<string, string>>(new Map());
+
+  readonly newRequestCount = computed(() => {
+    const metrics = this.facade.state().metrics;
+    return metrics.submittedPurchaseRequests + metrics.purchaseRequestsUnderReview + metrics.purchaseRequestsNeedsAdjustment;
+  });
+  readonly requestPreview = computed(() => {
+    const requests = this.facade.state().recentPurchaseRequests;
+    const active = requests.filter((request) => ['SUBMITTED', 'IN_REVIEW', 'NEEDS_ADJUSTMENT'].includes(request.status));
+    return (active.length ? active : requests).slice(0, 5);
+  });
+  readonly pendingDocuments = computed(() => this.documents().filter((document) => ['PENDING', 'GENERATING', 'OBSERVED', 'FAILED', 'REJECTED'].includes(document.status.toUpperCase())).slice(0, 6));
+  readonly pendingDocumentCount = computed(() => this.pendingDocuments().length);
+  readonly pendingCreditRequestCount = signal(0);
+  readonly blockedOrderCount = signal(0);
+  readonly activityPreview = computed(() => this.activityEvents().slice(0, 7));
+
+  constructor() {
+    this.facade.load();
+    this.supportingData.pendingBusinessDocuments().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: (documents) => this.documents.set(documents),
+      error: () => this.documents.set([]),
+    });
+    this.customersApi.clientAccounts({ ...DEFAULT_SALES_COMMITMENT_CUSTOMER_FILTERS, size: 50 }).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: (page) => this.clientNames.set(new Map(page.items.map((client) => [client.id, client.businessName]))),
+      error: () => this.clientNames.set(new Map()),
+    });
+    this.changeFeed.events.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((event) => {
+      this.activityEvents.update((current) => [event, ...current.filter((item) => item.id !== event.id)].slice(0, 7));
+    });
+    this.changeFeed.connect();
+  }
+
+  requestBadge(status: string): string {
+    if (status === 'APPROVED' || status === 'CONVERTED_TO_ORDER') return 'badge-green';
+    if (status === 'REJECTED' || status === 'CANCELLED') return 'badge-red';
+    if (status === 'DRAFT' || status === 'NEEDS_ADJUSTMENT') return 'badge-amber';
+    return 'badge-blue';
+  }
+
+  requestStatusLabel(status: string): string {
+    return status.toLowerCase().replaceAll('_', ' ').replace(/\b\w/g, (character) => character.toUpperCase());
+  }
+
+  requestPriority(priority: string): string {
+    if (priority === 'URGENT') return 'priority-urgent';
+    if (priority === 'HIGH') return 'priority-high';
+    return 'priority-medium';
+  }
+
+  documentLabel(document: SalesDashboardBusinessDocument): string {
+    return document.documentType.toLowerCase().split('_').map((part) => part.charAt(0).toUpperCase() + part.slice(1)).join(' ');
+  }
+
+  clientName(clientAccountId: string): string {
+    return this.clientNames().get(clientAccountId) ?? clientAccountId;
+  }
+
+  documentStatusLabel(status: string): string {
+    return status.toLowerCase().replaceAll('_', ' ').replace(/\b\w/g, (character) => character.toUpperCase());
+  }
+
+  documentBadge(status: string): string {
+    const normalized = status.toUpperCase();
+    if (normalized === 'FAILED' || normalized === 'REJECTED') return 'badge-red';
+    if (normalized === 'GENERATING' || normalized === 'OBSERVED') return 'badge-amber';
+    return 'badge-blue';
+  }
+
+  eventSummary(event: ChangeEvent): string {
+    return [event.eventType, event.resourceType].filter(Boolean).join(' · ') || 'Workspace activity';
+  }
+
+  eventTime(event: ChangeEvent): string {
+    if (!event.occurredAt) return '—';
+    const date = new Date(event.occurredAt);
+    return Number.isNaN(date.getTime()) ? event.occurredAt : new Intl.DateTimeFormat(undefined, { dateStyle: 'medium', timeStyle: 'short' }).format(date);
+  }
+}

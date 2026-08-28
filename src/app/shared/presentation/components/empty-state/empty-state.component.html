@@ -1,5 +1,5 @@
 <section class="empty-state" [class.compact]="compact()" aria-live="polite">
-  @if (icon()) { <span class="icon" aria-hidden="true">{{ icon() }}</span> }
+  @if (icon()) { <span class="icon" aria-hidden="true"><nexa-icon [name]="icon() ?? 'check'" /></span> }
   <h2>{{ title() }}</h2>
   @if (description()) { <p>{{ description() }}</p> }
   <div class="action"><ng-content select="[empty-state-action]" /></div>
