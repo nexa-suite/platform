@@ -1,0 +1,178 @@
+<section class="page commercial-dashboard">
+  <header class="page-header">
+    <div>
+      <h1 class="page-title">{{ 'commercialDashboard.title' | translate }}</h1>
+      <div class="page-subtitle">{{ 'commercialDashboard.subtitle' | translate }}</div>
+    </div>
+    <div class="flow-row dashboard-header-actions">
+      <a class="btn btn-secondary" routerLink="/ops/commercial/purchase-requests">
+        <nexa-icon name="inbox" />
+        {{ 'commercialDashboard.requestsButton' | translate }}
+      </a>
+      <a class="btn btn-primary" routerLink="/ops/commercial/manual-order-entry">
+        <nexa-icon name="add" />
+        {{ 'commercialDashboard.manualOrder' | translate }}
+      </a>
+    </div>
+  </header>
+
+  @if (facade.state().status === 'loading') {
+    <nexa-loading-state [lines]="4" [label]="'salesDashboard.states.loading' | translate" />
+  } @else if (facade.state().status === 'error') {
+    <nexa-error-state
+      [title]="'salesDashboard.states.errorTitle' | translate"
+      [description]="'salesDashboard.states.errorDescription' | translate"
+      [retryLabel]="'salesDashboard.actions.retry' | translate"
+      (retry)="facade.retry()" />
+  } @else if (facade.state().status === 'empty') {
+    <nexa-empty-state [title]="'salesDashboard.states.emptyTitle' | translate" [description]="'salesDashboard.states.emptyDescription' | translate" />
+  } @else {
+    <section class="flow-action-banner" aria-labelledby="sales-dashboard-banner-title">
+      <div>
+        <div class="flow-eyebrow">{{ 'commercialDashboard.bannerEyebrow' | translate }}</div>
+        <div class="flow-title" id="sales-dashboard-banner-title">
+          {{ 'commercialDashboard.bannerTitle' | translate: { requests: newRequestCount(), credit: pendingCreditRequestCount(), documents: pendingDocumentCount() } }}
+        </div>
+        <div class="flow-note">{{ 'commercialDashboard.bannerNote' | translate }}</div>
+      </div>
+      <a class="btn btn-primary" routerLink="/ops/commercial/business-documents">
+        <nexa-icon name="file_check" />
+        {{ 'commercialDashboard.businessDocuments' | translate }}
+      </a>
+    </section>
+
+    <section class="grid-4" [attr.aria-label]="'commercialDashboard.title' | translate">
+      <article class="card kpi-card">
+        <div class="flow-row-between">
+          <div class="kpi-label"><nexa-icon name="inbox" />{{ 'commercialDashboard.newRequests' | translate }}</div>
+          <div class="flow-kpi-icon"><nexa-icon name="inbox" /></div>
+        </div>
+        <div class="flow-metric metric-blue">{{ newRequestCount() }}</div>
+        <div class="kpi-sub">{{ 'commercialDashboard.newRequestsSub' | translate }}</div>
+      </article>
+
+      <article class="card kpi-card">
+        <div class="flow-row-between">
+          <div class="kpi-label"><nexa-icon name="search" />{{ 'commercialDashboard.inValidation' | translate }}</div>
+          <div class="flow-kpi-icon kpi-icon-amber"><nexa-icon name="search" /></div>
+        </div>
+        <div class="flow-metric metric-amber">{{ facade.state().metrics.pendingSalesOrders }}</div>
+        <div class="kpi-sub">{{ 'commercialDashboard.inValidationSub' | translate }}</div>
+      </article>
+
+      <article class="card kpi-card">
+        <div class="flow-row-between">
+          <div class="kpi-label"><nexa-icon name="description" />{{ 'commercialDashboard.pendingDocs' | translate }}</div>
+          <div class="flow-kpi-icon kpi-icon-cyan"><nexa-icon name="description" /></div>
+        </div>
+        <div class="flow-metric metric-cyan">{{ pendingDocumentCount() }}</div>
+        <div class="kpi-sub">{{ 'commercialDashboard.pendingDocsSub' | translate }}</div>
+      </article>
+
+      <article class="card kpi-card">
+        <div class="flow-row-between">
+          <div class="kpi-label"><nexa-icon name="ban" />{{ 'commercialDashboard.blocked' | translate }}</div>
+          <div class="flow-kpi-icon kpi-icon-red"><nexa-icon name="ban" /></div>
+        </div>
+        <div class="flow-metric metric-red">{{ blockedOrderCount() }}</div>
+        <div class="kpi-sub">{{ 'commercialDashboard.blockedSub' | translate }}</div>
+      </article>
+    </section>
+
+    <div class="flow-grid-12">
+      <section class="flow-panel span-7" aria-labelledby="request-inbox-title">
+        <div class="flow-panel-head">
+          <div>
+            <div class="flow-title" id="request-inbox-title">{{ 'commercialDashboard.requestInbox' | translate }}</div>
+            <div class="flow-subtitle">{{ 'commercialDashboard.requestInboxSub' | translate }}</div>
+          </div>
+          <a class="btn btn-ghost btn-sm" routerLink="/ops/commercial/purchase-requests">{{ 'commercialDashboard.viewAll' | translate }}</a>
+        </div>
+        <div class="flow-panel-pad">
+          @for (request of requestPreview(); track request.id) {
+            <div class="flow-list-item">
+              <div>
+                <div class="flow-row request-meta">
+                  <span class="mono">{{ request.code }}</span>
+                  <span class="badge" [class]="requestBadge(request.status)">{{ requestStatusLabel(request.status) }}</span>
+                  <span class="badge-priority" [class]="requestPriority(request.priority)">{{ request.priority }}</span>
+                </div>
+                <div class="request-client">{{ clientName(request.clientAccountId) }}</div>
+                <div class="flow-note">{{ request.comment || '—' }}</div>
+              </div>
+              <a class="btn btn-primary btn-sm" [routerLink]="['/ops/commercial/purchase-requests', request.id]">{{ 'purchaseRequests.actions.review' | translate }}</a>
+            </div>
+          } @empty {
+            <div class="empty-panel-note">
+              <nexa-icon name="inbox" />
+              <span>{{ 'commercialDashboard.noPendingRequests' | translate }}</span>
+            </div>
+          }
+        </div>
+      </section>
+
+      <section class="flow-panel span-5" aria-labelledby="pending-documents-title">
+        <div class="flow-panel-head">
+          <div>
+            <div class="flow-title" id="pending-documents-title">{{ 'commercialDashboard.pendingBusinessDocs' | translate }}</div>
+            <div class="flow-subtitle">{{ 'commercialDashboard.pendingBusinessDocsSub' | translate }}</div>
+          </div>
+        </div>
+        <div class="flow-panel-pad">
+          @for (document of pendingDocuments(); track document.id) {
+            <div class="document-check">
+              <div>
+                <div class="document-name">{{ documentLabel(document) }}</div>
+                <div class="flow-note">{{ document.documentNumber || document.subjectId }}<span aria-hidden="true"> · </span>{{ document.clientAccountId || document.subjectType }}</div>
+              </div>
+              <span class="badge" [class]="documentBadge(document.status)">{{ documentStatusLabel(document.status) }}</span>
+            </div>
+          } @empty {
+            <div class="flow-note empty-panel-note">{{ 'commercialDashboard.noPendingDocuments' | translate }}</div>
+          }
+        </div>
+      </section>
+
+      <section class="flow-panel span-8" aria-labelledby="credit-requests-title">
+        <div class="flow-panel-head">
+          <div>
+            <div class="flow-title" id="credit-requests-title">{{ 'commercialDashboard.creditRequests' | translate }}</div>
+            <div class="flow-subtitle">{{ 'commercialDashboard.creditRequestsSub' | translate }}</div>
+          </div>
+        </div>
+        <div class="flow-panel-pad flow-stack">
+          <div class="flow-note empty-panel-note">{{ 'commercialDashboard.noCreditRequests' | translate }}</div>
+        </div>
+      </section>
+
+      <section class="flow-panel span-4" aria-labelledby="quick-actions-title">
+        <div class="flow-panel-head"><div class="flow-title" id="quick-actions-title">{{ 'commercialDashboard.quickActions' | translate }}</div></div>
+        <div class="flow-panel-pad flow-stack">
+          <a class="btn btn-primary" routerLink="/ops/commercial/manual-order-entry"><nexa-icon name="add" />{{ 'commercialDashboard.manualOrder' | translate }}</a>
+          <a class="btn btn-secondary" routerLink="/ops/commercial/purchase-requests"><nexa-icon name="inbox" />{{ 'commercialDashboard.requestsButton' | translate }}</a>
+          <a class="btn btn-secondary" routerLink="/ops/commercial/purchase-orders"><nexa-icon name="file_edit" />{{ 'shell.navigation.purchaseOrders' | translate }}</a>
+          <a class="btn btn-secondary" routerLink="/ops/commercial/client-accounts"><nexa-icon name="groups" />{{ 'shell.navigation.b2bClients' | translate }}</a>
+          <a class="btn btn-secondary" routerLink="/ops/commercial/business-documents"><nexa-icon name="file_check" />{{ 'commercialDashboard.businessDocuments' | translate }}</a>
+        </div>
+      </section>
+
+      <section class="flow-panel span-12" aria-labelledby="recent-activity-title">
+        <div class="flow-panel-head">
+          <div class="flow-title" id="recent-activity-title">{{ 'commercialDashboard.recentActivity' | translate }}</div>
+          <span class="status-label">{{ 'commercialDashboard.operationalActivity' | translate }}</span>
+        </div>
+        <div class="flow-panel-pad">
+          @for (event of activityPreview(); track event.id) {
+            <div class="activity-item">
+              <span class="activity-dot" aria-hidden="true"></span>
+              <span class="activity-text">{{ eventSummary(event) }}</span>
+              <time class="activity-time" [attr.datetime]="event.occurredAt">{{ eventTime(event) }}</time>
+            </div>
+          } @empty {
+            <div class="flow-note empty-panel-note">{{ 'commercialDashboard.noRecentActivity' | translate }}</div>
+          }
+        </div>
+      </section>
+    </div>
+  }
+</section>

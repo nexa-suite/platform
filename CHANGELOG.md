@@ -3,6 +3,76 @@
 All notable changes to this project are documented in this file.
 The project uses Semantic Versioning.
 
+## [0.15.0] - 2026-08-28
+
+IAM and Sales flow hardening for the canonical frontend boundaries.
+
+### Added
+
+- Workspace preview and recognized-tenant gating before Platform and Portal credentials are submitted.
+- Explicit two-factor challenge boundary in both frontends, with deterministic mock verification and an API-mode capability error when the backend contract does not expose a second-factor endpoint.
+- Canonical six-step organization registration in Platform: company, operation, location, administrator, workspace and review.
+- Google Maps direction adapter behind the BC-04 application port, using server route snapshots and coordinates without coupling the domain to a provider SDK.
+- Design provenance synchronized to Nexa Design Lab v1.0.2 with source-checked consumer tokens.
+- Quantity controls and catalog-based subtotal preview for manual Sales orders.
+- Catalog-owned cart shared by operational Catalog and manual-order Items, with draft-aware return navigation and an empty-cart handoff to Catalog.
+- Capability-scoped Sales mock navigation and embedded Google Maps route preview in the manual-order review.
+
+### Changed
+
+- Corrected the manual-order route guard for the API/mock availability vocabularies and the `DELIVERY_COMPLETE` transition.
+- Kept password recovery behind the existing unauthenticated API boundary for both surfaces; no email delivery implementation was invented in the frontend.
+
+### Validation
+
+- Platform: 161 unit tests across 80 files; bounded-context, catalog-asset and Design Lab foundation validators passed.
+- Portal: 113 unit tests across 58 files; bounded-context, catalog-asset and Design Lab foundation validators passed.
+- Platform and Portal production builds passed within their configured warning/error budgets.
+- Production dependency audits reported zero vulnerabilities.
+- Browser evidence: ICISA workspace preview, Platform 2FA mock login, catalog-backed manual order through route review, embedded Google Maps and zero console errors.
+
+### Boundary
+
+- No API, Blueprint canonical definition or Vue source was changed.
+- Platform registration currently submits the existing minimal API contract; richer Vue-parity fields are validated and reviewed in the frontend but are not persisted until the API contract supports them.
+- API mode remains the default. Mock state is in-memory and does not claim backend persistence, email delivery or production 2FA.
+- Blueprint marks detailed Web acceptance criteria as pending; this release does not claim 100% of those pending criteria.
+
+## [0.14.0] - 2026-08-26
+
+Runtime mock slices for generic and ICISA tenant profiles across the canonical frontend boundaries.
+
+### Added
+
+- Runtime-selectable `api` and local `mock` modes with deterministic `generic` and `icisa` fixtures.
+- Mock adapters behind application ports across BC-01 through BC-10, plus the
+  local BC-11 audit/change-feed projection: tenant administration, catalog
+  management, inventory, fulfillment, payments, documents and notifications
+  are available in the offline demo.
+- Offline no-op change-feed adapters for mock mode; the existing SSE stream remains the API-mode adapter.
+- Functional baseline and mock-mode documentation for the executable Platform
+  slices.
+
+### Changed
+
+- Preserved REST contracts and existing navigation while making the first Platform commercial flows executable without the API.
+- Kept tenant profile selection in runtime configuration and infrastructure composition, outside the domain layer.
+- Adjusted production bundle budgets to account for the explicitly included mock adapter baseline.
+
+### Validation
+
+- Bounded-context, catalog-asset and Design Lab foundation validators passed.
+- 156 unit tests passed across 78 test files.
+- Angular production build passed with an `853.29 kB` initial bundle and no budget warning under the `880 kB` warning / `920 kB` error budgets.
+- Production dependency audit reported zero vulnerabilities; `git diff --check` passed.
+
+### Boundary
+
+- No API endpoints, API contracts or Blueprint canonical definitions were changed.
+- Mock state is in-memory and intentionally does not simulate backend
+  persistence, authorization, jobs or webhooks.
+- This remains a PRE-V1 functional foundation; it does not claim complete product migration or Production Readiness.
+
 ## [0.13.0] - 2026-08-26
 
 Canonical bounded-context layering and Angular composition release for the internal operations workspace.

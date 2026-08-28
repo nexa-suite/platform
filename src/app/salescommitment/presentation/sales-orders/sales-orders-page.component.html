@@ -1,2 +1,103 @@
-<section class="page"><nexa-page-header [eyebrow]="'salesOrders.eyebrow' | translate" [title]="'salesOrders.title' | translate" [subtitle]="'salesOrders.description' | translate" /><mat-card class="filters"><mat-form-field appearance="outline"><mat-label>{{ 'salesOrders.filters.search' | translate }}</mat-label><input #query matInput (keyup.enter)="search(query.value)" /></mat-form-field><mat-form-field appearance="outline"><mat-label>{{ 'salesOrders.filters.status' | translate }}</mat-label><mat-select [value]="filters().status" (selectionChange)="filterStatus($event.value)"><mat-option value="">{{ 'salesOrders.filters.all' | translate }}</mat-option><mat-option value="PENDING">{{ 'salesOrders.status.PENDING' | translate }}</mat-option><mat-option value="CONFIRMED">{{ 'salesOrders.status.CONFIRMED' | translate }}</mat-option><mat-option value="REJECTED">{{ 'salesOrders.status.REJECTED' | translate }}</mat-option><mat-option value="CANCELLED">{{ 'salesOrders.status.CANCELLED' | translate }}</mat-option></mat-select></mat-form-field><button mat-flat-button color="primary" type="button" (click)="search(query.value)">{{ 'salesOrders.filters.apply' | translate }}</button></mat-card>@if (facade.state().status === 'loading') { <nexa-loading-state [lines]="5" [label]="'salesOrders.states.loading' | translate" /> } @else if (facade.state().status === 'retrying') { <nexa-loading-state [compact]="true" [lines]="1" [label]="'salesOrders.states.refreshing' | translate" /> } @else if (facade.state().status === 'error') { <nexa-error-state [title]="'salesOrders.states.errorTitle' | translate" [description]="'salesOrders.states.errorDescription' | translate" [retryLabel]="'salesOrders.actions.retry' | translate" (retry)="retry()" /> } @else if (facade.state().status === 'empty') { <nexa-empty-state [title]="'salesOrders.states.emptyTitle' | translate" [description]="'salesOrders.states.emptyDescription' | translate" /> } @else { <mat-card><div class="list" matSort (matSortChange)="onSort($event)">@for (order of facade.state().page?.items ?? []; track order.id) { <article class="row"><div><span class="code">{{ order.number }}</span><h3>{{ order.clientAccountName || order.clientAccountId }}</h3><p>{{ order.purchaseRequestId }} · {{ order.total | number:'1.2-2' }} {{ order.currency }}</p></div><div class="meta"><mat-chip-set><mat-chip>{{ 'salesOrders.status.' + order.status | translate }}</mat-chip></mat-chip-set><a mat-button [routerLink]="['/ops/commercial/sales-orders', order.id]">{{ 'salesOrders.actions.open' | translate }}</a></div></article> }</div><mat-paginator [length]="facade.state().page?.totalItems ?? 0" [pageIndex]="filters().page" [pageSize]="filters().size" [pageSizeOptions]="[10, 25, 50]" (page)="onPage($event)" /></mat-card> }</section>
-<div class="page-actions"><button mat-stroked-button type="button" (click)="exportCsv()" [disabled]="!(facade.state().page?.items?.length)">{{ 'salesOrders.actions.exportCsv' | translate }}</button><button mat-stroked-button type="button" (click)="print()">{{ 'salesOrders.actions.print' | translate }}</button></div>
+<section class="page">
+  <nexa-page-header [eyebrow]="'salesOrders.eyebrow' | translate" [title]="'salesOrders.title' | translate" [subtitle]="'salesOrders.description' | translate">
+    <div page-header-actions>
+      <nexa-button routerLink="/ops/commercial/manual-orders/new" variant="primary" size="compact">
+        <nexa-icon name="add_shopping_cart" />
+        {{ 'salesOrders.actions.manualOrder' | translate }}
+      </nexa-button>
+    </div>
+  </nexa-page-header>
+
+  @if (facade.state().status === 'loading') {
+    <nexa-loading-state [lines]="5" [label]="'salesOrders.states.loading' | translate" />
+  } @else if (facade.state().status === 'retrying') {
+    <nexa-loading-state [compact]="true" [lines]="1" [label]="'salesOrders.states.refreshing' | translate" />
+  } @else if (facade.state().status === 'error') {
+    <nexa-error-state [title]="'salesOrders.states.errorTitle' | translate" [description]="'salesOrders.states.errorDescription' | translate" [retryLabel]="'salesOrders.actions.retry' | translate" (retry)="retry()" />
+  } @else {
+    <section class="metrics-grid" [attr.aria-label]="'salesOrders.summary.label' | translate">
+      <nexa-metric-card icon="receipt_long" [label]="'salesOrders.summary.total' | translate" [value]="summary().total" [hint]="'salesOrders.summary.totalHint' | translate" tone="info" />
+      <nexa-metric-card icon="schedule" [label]="'salesOrders.summary.pending' | translate" [value]="summary().pending" [hint]="'salesOrders.summary.pendingHint' | translate" tone="warning" />
+      <nexa-metric-card icon="verified" [label]="'salesOrders.summary.confirmed' | translate" [value]="summary().confirmed" [hint]="'salesOrders.summary.confirmedHint' | translate" tone="success" />
+      <nexa-metric-card icon="account_balance" [label]="'salesOrders.summary.amount' | translate" [value]="(summary().amount | number:'1.2-2') + ' ' + summary().currency" [hint]="'salesOrders.summary.amountHint' | translate" tone="neutral" />
+    </section>
+
+    <nexa-section-panel [title]="'salesOrders.filters.title' | translate" [description]="'salesOrders.filters.description' | translate">
+      <form class="filter-bar" (submit)="$event.preventDefault(); search(query.value)">
+        <label class="field field-search">
+          <span>{{ 'salesOrders.filters.search' | translate }}</span>
+          <input #query type="search" [value]="filters().q" [placeholder]="'salesOrders.filters.searchPlaceholder' | translate" />
+        </label>
+        <label class="field">
+          <span>{{ 'salesOrders.filters.status' | translate }}</span>
+          <select [value]="filters().status" (change)="filterStatus($any($event.target).value)">
+            <option value="">{{ 'salesOrders.filters.all' | translate }}</option>
+            <option value="PENDING">{{ 'salesOrders.status.PENDING' | translate }}</option>
+            <option value="CONFIRMED">{{ 'salesOrders.status.CONFIRMED' | translate }}</option>
+            <option value="REJECTED">{{ 'salesOrders.status.REJECTED' | translate }}</option>
+            <option value="CANCELLED">{{ 'salesOrders.status.CANCELLED' | translate }}</option>
+          </select>
+        </label>
+        <nexa-button type="submit" variant="primary" [fullWidth]="true">
+          <nexa-icon name="filter_alt_off" />
+          {{ 'salesOrders.filters.apply' | translate }}
+        </nexa-button>
+      </form>
+    </nexa-section-panel>
+
+    @if (facade.state().status === 'empty') {
+      <nexa-empty-state icon="receipt_long" [title]="'salesOrders.states.emptyTitle' | translate" [description]="'salesOrders.states.emptyDescription' | translate" />
+    } @else {
+      <nexa-section-panel [title]="'salesOrders.list.title' | translate" [description]="'salesOrders.list.description' | translate">
+        <div class="list-toolbar" role="toolbar" [attr.aria-label]="'salesOrders.list.sortLabel' | translate">
+          <span>{{ 'salesOrders.list.sortBy' | translate }}</span>
+          <button type="button" class="sort-button" [class.active]="filters().sort === 'createdAt'" (click)="sortBy('createdAt')">{{ 'salesOrders.list.created' | translate }}<nexa-icon name="swap_vert" /></button>
+          <button type="button" class="sort-button" [class.active]="filters().sort === 'total'" (click)="sortBy('total')">{{ 'salesOrders.list.amount' | translate }}<nexa-icon name="swap_vert" /></button>
+          <button type="button" class="sort-button" [class.active]="filters().sort === 'priority'" (click)="sortBy('priority')">{{ 'salesOrders.list.priority' | translate }}<nexa-icon name="swap_vert" /></button>
+        </div>
+        <div class="order-list">
+          @for (order of facade.state().page?.items ?? []; track order.id) {
+            <article class="order-card">
+              <div class="order-head">
+                <div class="order-code-group">
+                  <span class="order-code">{{ order.number }}</span>
+                  <nexa-status-badge [label]="('salesOrders.status.' + order.status) | translate" [tone]="statusTone(order.status)" />
+                  <nexa-status-badge [label]="('purchaseRequests.priority.' + order.priority) | translate" [tone]="priorityTone(order.priority)" />
+                </div>
+                <span class="order-version">v{{ order.version }}</span>
+              </div>
+              <div class="order-body">
+                <div class="order-copy">
+                  <h3>{{ order.clientAccountName || order.clientAccountId }}</h3>
+                  <p>{{ 'salesOrders.detail.sourceRequest' | translate }}: {{ order.purchaseRequestId }}</p>
+                </div>
+                <dl class="order-meta">
+                  <div><dt>{{ 'salesOrders.detail.total' | translate }}</dt><dd>{{ order.total | number:'1.2-2' }} {{ order.currency }}</dd></div>
+                  <div><dt>{{ 'salesOrders.detail.delivery' | translate }}</dt><dd>{{ order.requestedDeliveryDate || ('salesOrders.detail.deliveryPending' | translate) }}</dd></div>
+                  <div><dt>{{ 'salesOrders.detail.payment' | translate }}</dt><dd>{{ order.paymentOption || '—' }}</dd></div>
+                </dl>
+              </div>
+              <div class="order-footer">
+                <span class="source-note"><nexa-icon name="verified" />{{ 'salesOrders.list.serverSource' | translate }}</span>
+                <nexa-button [routerLink]="'/ops/commercial/sales-orders/' + order.id" variant="secondary" size="compact" [ariaLabel]="('salesOrders.actions.open' | translate) + ' ' + order.number">
+                  <nexa-icon name="fact_check" />
+                  {{ 'salesOrders.actions.open' | translate }}
+                </nexa-button>
+              </div>
+            </article>
+          }
+        </div>
+        <div class="paginator-shell">
+          <mat-paginator [length]="facade.state().page?.totalItems ?? 0" [pageIndex]="filters().page" [pageSize]="filters().size" [pageSizeOptions]="[10, 25, 50]" (page)="onPage($event)" />
+        </div>
+      </nexa-section-panel>
+    }
+  }
+
+  @if (facade.state().item || facade.state().page?.items?.length) {
+    <div class="page-actions">
+      <nexa-button variant="secondary" size="compact" (click)="exportCsv()"><nexa-icon name="description" />{{ 'salesOrders.actions.exportCsv' | translate }}</nexa-button>
+      <nexa-button variant="secondary" size="compact" (click)="print()"><nexa-icon name="receipt_long" />{{ 'salesOrders.actions.print' | translate }}</nexa-button>
+    </div>
+  }
+</section>

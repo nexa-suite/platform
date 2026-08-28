@@ -1,89 +1,123 @@
-import { DecimalPipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { LowerCasePipe } from '@angular/common';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
-import { PageHeaderComponent } from '../../../shared/presentation/components/page-header/page-header.component';
+import { TranslatePipe } from '@ngx-translate/core';
+import { Observable, of, switchMap } from 'rxjs';
+import { NexaIconComponent } from '../../../shared/presentation/components/nexa-icon/nexa-icon.component';
 import { ManualOrderWizardFacade } from '../../application/manual-orders/manual-order-wizard.facade';
-import { ManualOrderRoutePreviewComponent } from './manual-order-route-preview.component';
+import { ManualOrderClientCommand, ManualOrderLine, ManualOrderLineCommand, ManualOrderReview } from '../../domain/manual-orders/manual-order.models';
+import { SalesCommitmentCatalogItem } from '../../domain/sales-commitment-catalog.models';
 
 @Component({
   selector: 'nexa-manual-order-review-page',
   standalone: true,
-  imports: [DecimalPipe, ManualOrderRoutePreviewComponent, MatButtonModule, MatCardModule, PageHeaderComponent, RouterLink],
-  template: `
-    <section class="page">
-      <a mat-button [routerLink]="deliveryPath()">← Entrega</a>
-      <nexa-page-header eyebrow="VENTAS · PASO 4/4" title="Revisión y creación" subtitle="Solo se crea el Sales Order cuando el servidor marca el draft como listo." />
-      <nav class="steps" aria-label="Pasos de orden manual"><a [routerLink]="clientPath()">Cliente</a><a [routerLink]="itemsPath()">Ítems</a><a [routerLink]="deliveryPath()">Entrega</a><a class="active">Revisión</a></nav>
-      @if (review(); as data) {
-        <mat-card><mat-card-header><mat-card-title>Estado: {{ data.draft.status }}</mat-card-title></mat-card-header><mat-card-content>
-          <div class="readiness"><span>Cliente: {{ data.clientComplete ? 'OK' : 'Pendiente' }}</span><span>Ítems: {{ data.itemsComplete ? 'OK' : 'Pendiente' }}</span><span>Entrega: {{ data.deliveryComplete ? 'OK' : 'Pendiente' }}</span></div>
-          @if (data.missing.length) { <p class="warning">Falta completar: {{ data.missing.join(', ') }}.</p> }
-          <h3>Cliente</h3><p>{{ data.draft.client?.commercialName || data.draft.client?.businessName }} · {{ data.draft.client?.code }}</p>
-          <p>Tax ID: {{ data.draft.client?.taxIdentifierType }} {{ data.draft.client?.taxIdentifierValue }} · estado {{ data.draft.client?.status }}</p>
-          <p>Fecha solicitada: {{ data.draft.requestedDeliveryDate }} · prioridad {{ data.draft.priority }} · pago {{ data.draft.paymentPreference }} · moneda {{ data.draft.currency }}</p>
-          <p>Crédito: {{ data.draft.creditResult || 'Pendiente' }} · disponible {{ data.draft.client?.availableCredit | number:'1.2-2' }}</p>
-          <h3>Ítems y precios autoritativos</h3>
-          @for (line of data.draft.lines; track line.id) { <div class="line"><span>{{ line.productFamily }} · {{ line.familyCode }} · SKU {{ line.skuCode }} · {{ line.presentation }} · {{ line.quantity }} {{ line.unit }}</span><span>Base {{ line.baseUnitPrice | number:'1.2-2' }} · efectivo {{ line.effectiveUnitPrice * line.quantity | number:'1.2-2' }} · descuento {{ line.discountAmount | number:'1.2-2' }} {{ line.currency }} · {{ line.availabilityStatus }}</span></div> }
-          <p class="total">Total estimado por líneas: {{ total() | number:'1.2-2' }} {{ data.draft.currency }}</p>
-          <h3>Entrega</h3><p>{{ addressLabel(data.draft.delivery?.addressSnapshot) || 'Pendiente' }}</p><p>Almacén y ruta: {{ warehouseLabel(data.draft.delivery?.warehouseSnapshot) || data.draft.delivery?.warehouseId || 'Pendiente' }} · {{ data.draft.delivery?.routeProvider || 'Pendiente' }}</p>
-          <p>Distancia: {{ routeValue(data.draft.delivery?.routeSnapshot, 'distanceKm') || '—' }} km · duración: {{ routeValue(data.draft.delivery?.routeSnapshot, 'durationSeconds') || '—' }} s</p>
-          <nexa-manual-order-route-preview [routeSnapshot]="data.draft.delivery?.routeSnapshot ?? null" [warehouseSnapshot]="data.draft.delivery?.warehouseSnapshot ?? null" [addressSnapshot]="data.draft.delivery?.addressSnapshot ?? null" [routeProvider]="data.draft.delivery?.routeProvider ?? null" />
-          @if (facade.state().message; as message) { <p role="alert">{{ message }}</p> }
-        </mat-card-content><mat-card-actions><button mat-stroked-button type="button" (click)="abandon()">Abandonar</button><button mat-flat-button color="primary" type="button" [disabled]="submitting() || !data.readyToCreate" (click)="submit()">{{ submitting() ? 'Creando…' : 'Crear Sales Order' }}</button></mat-card-actions></mat-card>
-      } @else { <p>Cargando revisión del servidor…</p> }
-    </section>
-  `,
-  styleUrl: './manual-order-wizard.scss',
+  imports: [LowerCasePipe, NexaIconComponent, RouterLink, TranslatePipe],
+  templateUrl: './manual-order-review-page.component.html',
+  styleUrl: './manual-order-review-page.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ManualOrderReviewPageComponent {
   readonly facade = inject(ManualOrderWizardFacade);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+
   readonly draftId = this.route.snapshot.paramMap.get('draftId') ?? '';
   readonly submitting = signal(false);
-  readonly review = computed(() => this.facade.state().review);
+  readonly review = computed<ManualOrderReview | null>(() => this.facade.state().review);
+  readonly editedQuantities = signal<Readonly<Record<string, number>>>({});
+  readonly reviewPriority = signal<'NORMAL' | 'HIGH'>('NORMAL');
+  readonly dispatchNote = signal('');
+  private hydratedReviewId: string | null = null;
+  private loadedClientId: string | null = null;
 
-  constructor() { if (this.draftId) this.facade.loadReview(this.draftId); }
+  constructor() {
+    this.facade.loadReferences();
+    if (this.draftId) this.facade.loadReview(this.draftId);
+    effect(() => {
+      const review = this.facade.state().review;
+      if (!review || review.draft.id !== this.draftId || this.hydratedReviewId === review.draft.id) return;
+      this.reviewPriority.set(review.draft.priority === 'HIGH' ? 'HIGH' : 'NORMAL');
+      this.dispatchNote.set(review.draft.notes ?? '');
+      this.editedQuantities.set({});
+      this.hydratedReviewId = review.draft.id;
+    });
+    effect(() => {
+      const clientId = this.facade.state().review?.draft.client?.id ?? null;
+      if (clientId && clientId !== this.loadedClientId) {
+        this.loadedClientId = clientId;
+        this.facade.loadAddresses(clientId);
+      }
+    });
+  }
 
   clientPath(): string { return `/ops/commercial/manual-orders/${this.draftId}/client`; }
   itemsPath(): string { return `/ops/commercial/manual-orders/${this.draftId}/items`; }
   deliveryPath(): string { return `/ops/commercial/manual-orders/${this.draftId}/delivery`; }
-  total(): number { return this.review()?.draft.lines.reduce((sum, line) => sum + line.effectiveUnitPrice * line.quantity, 0) ?? 0; }
-  routeValue(snapshot: string | null | undefined, key: string): string {
-    if (!snapshot) return '';
-    try {
-      const value = JSON.parse(snapshot) as Record<string, unknown>;
-      return value[key] === null || value[key] === undefined ? '' : String(value[key]);
-    } catch {
-      return '';
+
+  clientName(): string {
+    const client = this.review()?.draft.client;
+    return client?.commercialName || client?.businessName || 'B2B client';
+  }
+
+  catalogItem(line: ManualOrderLine): SalesCommitmentCatalogItem | null {
+    const id = line.catalogItemId ?? line.skuId;
+    return this.facade.state().catalogItems.find((item) => item.id === id) ?? null;
+  }
+
+  lineName(line: ManualOrderLine): string { return this.catalogItem(line)?.name || line.productFamily || line.skuCode || 'Catalog item'; }
+  lineImage(line: ManualOrderLine): string | null { return this.catalogItem(line)?.image.url ?? null; }
+  lineQuantity(line: ManualOrderLine): number { return this.editedQuantities()[line.id] ?? line.quantity; }
+  lineTotal(line: ManualOrderLine): number { return line.effectiveUnitPrice * this.lineQuantity(line); }
+  total(): number { return this.review()?.draft.lines.reduce((sum, line) => sum + this.lineTotal(line), 0) ?? 0; }
+  totalUnits(): number { return this.review()?.draft.lines.reduce((sum, line) => sum + this.lineQuantity(line), 0) ?? 0; }
+
+  money(amount: number, currency = this.review()?.draft.currency ?? 'PEN'): string { return `${currency === 'PEN' ? 'S/' : currency} ${amount.toFixed(2)}`; }
+  unitLabel(unit: string): string { return unit.trim().toUpperCase() === 'UNIT' ? 'UN' : unit; }
+  availabilityLabel(line: ManualOrderLine): string { return line.availabilityStatus.replaceAll('_', ' ').toLowerCase(); }
+
+  changeQuantity(line: ManualOrderLine, delta: number): void { this.setQuantity(line, this.lineQuantity(line) + delta); }
+
+  setQuantity(line: ManualOrderLine, value: string | number): void {
+    const quantity = Number(value);
+    if (!Number.isFinite(quantity)) return;
+    this.editedQuantities.update((current) => ({ ...current, [line.id]: Math.max(1, Math.round(quantity)) }));
+  }
+
+  priorityLabel(): string { return this.reviewPriority() === 'HIGH' ? 'manualOrder.priority.high' : 'manualOrder.priority.medium'; }
+
+  deliveryDestination(): string {
+    const draft = this.review()?.draft;
+    const addressId = draft?.delivery?.addressId;
+    const reference = addressId ? this.facade.state().addresses.find((address) => address.id === addressId) : null;
+    if (reference?.line) return reference.line;
+    if (draft?.delivery?.addressSnapshot) {
+      const snapshot = this.snapshot(draft.delivery.addressSnapshot);
+      const value = [snapshot?.['roadType'], snapshot?.['street'], snapshot?.['number'], snapshot?.['district']].filter((item): item is string => typeof item === 'string' && item.trim().length > 0).join(' ');
+      if (value) return value;
     }
+    return 'Delivery route pending';
   }
 
-  addressLabel(snapshot: string | null | undefined): string {
-    return this.snapshotLabel(snapshot, ['roadType', 'street', 'number']);
-  }
+  priorityChanged(value: string): void { this.reviewPriority.set(value === 'HIGH' ? 'HIGH' : 'NORMAL'); }
+  noteChanged(value: string): void { this.dispatchNote.set(value); }
+  canConfirm(): boolean { return Boolean(this.review()?.readyToCreate) && !this.submitting(); }
 
-  warehouseLabel(snapshot: string | null | undefined): string {
-    return this.snapshotLabel(snapshot, ['name', 'address']);
-  }
+  confirm(): void {
+    const data = this.review();
+    if (!data?.readyToCreate || !this.draftId) return;
 
-  private snapshotLabel(snapshot: string | null | undefined, keys: readonly string[]): string {
-    if (!snapshot) return '';
-    try {
-      const value = JSON.parse(snapshot) as Record<string, unknown>;
-      return keys.map((key) => value[key]).filter((item): item is string => typeof item === 'string' && item.trim().length > 0).join(' · ');
-    } catch {
-      return '';
-    }
-  }
-
-  submit(): void {
-    if (!this.draftId || !this.review()?.readyToCreate) return;
     this.submitting.set(true);
-    this.facade.submit(this.draftId).subscribe({
+    const linesChanged = data.draft.lines.some((line) => this.lineQuantity(line) !== line.quantity);
+    const saveLines$: Observable<unknown> = linesChanged
+      ? this.facade.saveItems(this.draftId, this.lineCommands(data.draft.lines))
+      : of(data.draft);
+
+    saveLines$.pipe(
+      switchMap(() => this.reviewClientChanged(data.draft)
+        ? this.facade.saveClient(this.draftId, this.clientCommand(data.draft))
+        : of(data.draft)),
+      switchMap(() => this.facade.submit(this.draftId))
+    ).subscribe({
       next: (order) => void this.router.navigate(['/ops/commercial/sales-orders', order.id]),
       error: () => this.submitting.set(false)
     });
@@ -91,6 +125,23 @@ export class ManualOrderReviewPageComponent {
 
   abandon(): void {
     if (!this.draftId) return;
-    this.facade.abandon(this.draftId).subscribe({ next: () => void this.router.navigate(['/ops/commercial/purchase-requests']) });
+    this.facade.abandon(this.draftId).subscribe({ next: () => void this.router.navigate(['/ops/commercial/purchase-orders']) });
+  }
+
+  private lineCommands(lines: readonly ManualOrderLine[]): readonly ManualOrderLineCommand[] {
+    return lines.map((line) => ({ catalogItemId: line.catalogItemId, skuId: line.skuId, quantity: this.lineQuantity(line), unit: line.unit, notes: line.notes }));
+  }
+
+  private reviewClientChanged(draft: ManualOrderReview['draft']): boolean { return draft.priority !== this.reviewPriority() || (draft.notes ?? '') !== this.dispatchNote().trim(); }
+
+  private clientCommand(draft: ManualOrderReview['draft']): ManualOrderClientCommand {
+    return { clientAccountId: draft.client?.id ?? '', requestedDeliveryDate: draft.requestedDeliveryDate ?? '', priority: this.reviewPriority(), paymentPreference: draft.paymentPreference ?? 'CREDIT_LINE', currency: draft.currency || 'PEN', notes: this.dispatchNote().trim() || null };
+  }
+
+  private snapshot(value: string): Record<string, unknown> | null {
+    try {
+      const parsed: unknown = JSON.parse(value);
+      return parsed && typeof parsed === 'object' ? parsed as Record<string, unknown> : null;
+    } catch { return null; }
   }
 }

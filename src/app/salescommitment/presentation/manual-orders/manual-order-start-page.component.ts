@@ -28,7 +28,14 @@ export class ManualOrderStartPageComponent {
   readonly creating = signal(false);
   readonly message = signal<string | null>(null);
 
+  constructor() {
+    // Vue enters the first wizard step immediately. Keep the fallback copy
+    // available only when the server cannot create the draft.
+    this.start();
+  }
+
   start(): void {
+    if (this.creating()) return;
     this.creating.set(true);
     this.message.set(null);
     this.facade.createDraft().subscribe({

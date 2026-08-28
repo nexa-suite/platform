@@ -2,8 +2,10 @@
 
 Release notes are scoped to the Platform repository and distinguish the Angular shell from future internal workflows.
 
-| Published release | Summary |
+| Release | Summary |
 |---|---|
+| [v0.15.0](./v0.15.0.md) | IAM, catalog-backed manual Sales flow and route preview |
+| [v0.14.0](./v0.14.0.md) | Runtime mock slices for generic and ICISA tenants |
 | [v0.13.0](./v0.13.0.md) | Canonical bounded-context layering and Angular composition |
 | [v0.12.0](./v0.12.0.md) | Visual and interaction convergence baseline |
 | [v0.11.0](./v0.11.0.md) | PRE-V1 Architecture & Governance Foundation operations baseline |
@@ -22,4 +24,8 @@ Release notes are scoped to the Platform repository and distinguish the Angular 
 |---|---|
 | [UNRELEASED HISTORICAL CANDIDATE: v0.6.0](./v0.6.0.md) | Consolidated into later published work; no tag or GitHub Release |
 
-Current release is `0.13.0`. Structural parity has advanced for implemented surfaces; this does not claim full product migration or pixel-level parity with Vue.
+Current release is `0.15.0`. IAM and manual Sales boundaries now
+include workspace recognition, explicit two-factor challenge handling,
+catalog-backed items, capability-scoped navigation and server-backed route
+snapshots with an embedded map. This does not claim full product migration or
+pixel-level parity with Vue.

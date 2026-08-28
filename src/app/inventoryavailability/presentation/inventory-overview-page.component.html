@@ -1,0 +1,274 @@
+<section class="page inventory-page">
+  <nexa-page-header
+    [eyebrow]="'warehouse.inventoryUi.eyebrow' | translate"
+    [title]="'warehouse.inventoryUi.title' | translate"
+    [subtitle]="'warehouse.inventoryUi.description' | translate">
+    <nexa-button
+      page-header-actions
+      [disabled]="!facade.canWrite()"
+      [ariaLabel]="'warehouse.inventoryUi.registerMovement' | translate"
+      (click)="toggleMovement()">
+      <nexa-icon [name]="movementOpen() ? 'cancel' : 'add'" />
+      {{ movementOpen() ? ('warehouse.inventoryUi.closeMovement' | translate) : ('warehouse.inventoryUi.registerMovement' | translate) }}
+    </nexa-button>
+  </nexa-page-header>
+
+  @if (facade.loading()) {
+    <nexa-loading-state [label]="'warehouse.loading' | translate" />
+  } @else if (facade.error(); as error) {
+    <nexa-error-state
+      [title]="'warehouse.inventoryUi.errorTitle' | translate"
+      [description]="error"
+      (retry)="facade.retry()" />
+  } @else {
+    @if (fefoRiskLots().length) {
+      <aside class="fefo-alert" role="alert">
+        <nexa-icon name="warning" />
+        <div>
+          <strong>{{ fefoRiskLots().length }} {{ 'warehouse.inventoryUi.fefoCount' | translate }}</strong>
+          <p>{{ 'warehouse.inventoryUi.fefoAlert' | translate }}</p>
+          <ul>
+            @for (lot of fefoRiskLots(); track lot.id) {
+              <li>{{ catalogName(lot.catalogItemId) }} · {{ lot.batchNumber }} · {{ lot.expirationDate | date:'d MMM y' }}</li>
+            }
+          </ul>
+        </div>
+      </aside>
+    } @else {
+      <div class="operational-note operational-note--success" role="status">
+        <nexa-icon name="verified" />
+        <span>{{ 'warehouse.inventoryUi.noFefoRisk' | translate }}</span>
+      </div>
+    }
+
+    <section class="inventory-metrics" [attr.aria-label]="'warehouse.inventoryUi.metricsLabel' | translate">
+      <nexa-metric-card
+        [label]="'warehouse.inventoryUi.metrics.reserved' | translate"
+        [value]="reservedLots()"
+        [hint]="'warehouse.inventoryUi.metrics.reservedHint' | translate"
+        icon="lock"
+        tone="info" />
+      <nexa-metric-card
+        [label]="'warehouse.inventoryUi.metrics.unavailable' | translate"
+        [value]="unavailableLots()"
+        [hint]="'warehouse.inventoryUi.metrics.unavailableHint' | translate"
+        icon="inventory_2"
+        tone="danger" />
+      <nexa-metric-card
+        [label]="'warehouse.inventoryUi.metrics.fefo' | translate"
+        [value]="fefoRiskLots().length"
+        [hint]="'warehouse.inventoryUi.metrics.fefoHint' | translate"
+        icon="schedule"
+        tone="warning" />
+    </section>
+
+    <nav class="view-tabs" [attr.aria-label]="'warehouse.inventoryUi.tabsLabel' | translate">
+      <a
+        routerLink="/ops/operations/inventory"
+        routerLinkActive="active"
+        [routerLinkActiveOptions]="{ exact: true }">
+        {{ 'warehouse.inventoryUi.tabs.overview' | translate }}
+      </a>
+      <a routerLink="/ops/operations/inventory/lots" routerLinkActive="active">
+        {{ 'warehouse.inventoryUi.tabs.lots' | translate }}
+      </a>
+      <a routerLink="/ops/operations/inventory/movements" routerLinkActive="active">
+        {{ 'warehouse.inventoryUi.tabs.movements' | translate }}
+      </a>
+    </nav>
+
+    @if (movementOpen()) {
+      <section class="movement-panel surface-card" aria-labelledby="movement-title">
+        <div class="surface-heading">
+          <p class="section-eyebrow">{{ 'warehouse.inventoryUi.movementEyebrow' | translate }}</p>
+          <h2 id="movement-title">{{ 'warehouse.inventoryUi.movementTitle' | translate }}</h2>
+          <p>{{ 'warehouse.inventoryUi.movementDescription' | translate }}</p>
+        </div>
+        <form [formGroup]="receipt" (ngSubmit)="receive()">
+          <div class="form-grid">
+            <label>
+              <span>{{ 'warehouse.inventoryUi.form.warehouse' | translate }}</span>
+              <select formControlName="warehouseId" (change)="warehouseChanged()">
+                <option value="">{{ 'warehouse.inventoryUi.form.selectWarehouse' | translate }}</option>
+                @for (warehouse of facade.warehouses(); track warehouse.id) {
+                  <option [value]="warehouse.id">{{ warehouse.name }} · {{ warehouse.code }}</option>
+                }
+              </select>
+            </label>
+            <label>
+              <span>{{ 'warehouse.inventoryUi.form.zone' | translate }}</span>
+              <select formControlName="zoneId">
+                <option value="">{{ 'warehouse.inventoryUi.form.selectZone' | translate }}</option>
+                @for (zone of facade.zones(); track zone.id) {
+                  <option [value]="zone.id">{{ zone.name }} · {{ zone.code }}</option>
+                }
+              </select>
+            </label>
+            <label>
+              <span>{{ 'warehouse.inventoryUi.form.catalog' | translate }}</span>
+              <select formControlName="catalogItemId">
+                <option value="">{{ 'warehouse.inventoryUi.form.selectCatalog' | translate }}</option>
+                @for (item of catalogProducts(); track item.id) {
+                  <option [value]="item.catalogItemId">{{ item.name }} · {{ item.productCode }}</option>
+                }
+              </select>
+            </label>
+            <label>
+              <span>{{ 'warehouse.inventoryUi.form.batch' | translate }}</span>
+              <input formControlName="batchNumber" [placeholder]="'warehouse.inventoryUi.form.batchPlaceholder' | translate" />
+            </label>
+            <label>
+              <span>{{ 'warehouse.inventoryUi.form.expiration' | translate }}</span>
+              <input type="date" formControlName="expirationDate" />
+            </label>
+            <label>
+              <span>{{ 'warehouse.inventoryUi.form.quantity' | translate }}</span>
+              <input type="number" min="0.0001" formControlName="quantity" />
+            </label>
+            <label>
+              <span>{{ 'warehouse.inventoryUi.form.unit' | translate }}</span>
+              <input formControlName="unit" [placeholder]="'warehouse.inventoryUi.form.unitPlaceholder' | translate" />
+            </label>
+            <label>
+              <span>{{ 'warehouse.inventoryUi.form.temperature' | translate }}</span>
+              <input type="number" formControlName="temperatureValue" [placeholder]="'warehouse.inventoryUi.form.temperaturePlaceholder' | translate" />
+            </label>
+          </div>
+          <div class="form-actions">
+            <nexa-button type="button" variant="quiet" (click)="closeMovement()">
+              {{ 'warehouse.inventoryUi.cancel' | translate }}
+            </nexa-button>
+            <nexa-button type="submit" [disabled]="receipt.invalid || !facade.canWrite()">
+              <nexa-icon name="check" />
+              {{ 'warehouse.inventoryUi.form.submit' | translate }}
+            </nexa-button>
+          </div>
+        </form>
+      </section>
+    }
+
+    <section class="warehouse-context surface-card" aria-labelledby="warehouse-context-title">
+      <div class="surface-heading">
+        <p class="section-eyebrow">{{ 'warehouse.inventoryUi.warehouseEyebrow' | translate }}</p>
+        @if (primaryWarehouse(); as warehouse) {
+          <h2 id="warehouse-context-title">{{ warehouse.name }}</h2>
+          <p>{{ warehouse.code }} @if (warehouse.address) { · {{ warehouse.address }} }</p>
+        } @else {
+          <h2 id="warehouse-context-title">{{ 'warehouse.inventoryUi.warehouseEmpty' | translate }}</h2>
+        }
+      </div>
+      @if (primaryWarehouse(); as warehouse) {
+        <nexa-status-badge
+          [label]="('warehouse.status.' + warehouse.status) | translate"
+          [tone]="warehouseTone(warehouse.status)"
+          emphasis="standard" />
+      }
+      <div class="warehouse-facts">
+        <div><span>{{ 'warehouse.inventoryUi.warehouseFacts.warehouses' | translate }}</span><strong>{{ facade.warehouses().length }}</strong></div>
+        <div><span>{{ 'warehouse.inventoryUi.warehouseFacts.lots' | translate }}</span><strong>{{ facade.lots().length }}</strong></div>
+        <div><span>{{ 'warehouse.inventoryUi.warehouseFacts.movements' | translate }}</span><strong>{{ facade.movements().length }}</strong></div>
+      </div>
+      <nexa-button variant="quiet" size="compact" routerLink="/ops/operations/warehouses">
+        {{ 'warehouse.inventoryUi.openWarehouses' | translate }}
+      </nexa-button>
+    </section>
+
+    <section class="inventory-surface surface-card" aria-labelledby="stock-title">
+      <div class="surface-header">
+        <div class="surface-heading">
+          <h2 id="stock-title">{{ 'warehouse.inventoryUi.stockTitle' | translate }}</h2>
+          <p>{{ 'warehouse.inventoryUi.stockDescription' | translate }}</p>
+        </div>
+        <label class="search-field">
+          <span class="visually-hidden">{{ 'warehouse.inventoryUi.searchLabel' | translate }}</span>
+          <nexa-icon name="search" />
+          <input
+            type="search"
+            [value]="search()"
+            [placeholder]="'warehouse.inventoryUi.searchPlaceholder' | translate"
+            (input)="searchChanged($event)" />
+        </label>
+      </div>
+      <div class="table-toolbar">
+        <div class="filter-pills" role="group" [attr.aria-label]="'warehouse.inventoryUi.filtersLabel' | translate">
+          @for (option of filterOptions; track option.value) {
+            <button
+              type="button"
+              [class.active]="filter() === option.value"
+              [attr.aria-pressed]="filter() === option.value"
+              (click)="setFilter(option.value)">
+              {{ option.label | translate }}
+            </button>
+          }
+        </div>
+        <span class="result-count">{{ filteredRows().length }} / {{ productRows().length }}</span>
+      </div>
+
+      @if (filteredRows().length) {
+        <div class="table-shell">
+          <table>
+            <caption class="visually-hidden">{{ 'warehouse.inventoryUi.stockTitle' | translate }}</caption>
+            <thead>
+              <tr>
+                <th scope="col">{{ 'warehouse.inventoryUi.fields.product' | translate }}</th>
+                <th scope="col">{{ 'warehouse.inventoryUi.fields.lots' | translate }}</th>
+                <th scope="col">{{ 'warehouse.inventoryUi.fields.expiration' | translate }}</th>
+                <th scope="col">{{ 'warehouse.inventoryUi.fields.stock' | translate }}</th>
+                <th scope="col">{{ 'warehouse.inventoryUi.fields.reserved' | translate }}</th>
+                <th scope="col">{{ 'warehouse.inventoryUi.fields.available' | translate }}</th>
+                <th scope="col">{{ 'warehouse.inventoryUi.fields.warehouse' | translate }}</th>
+                <th scope="col">{{ 'warehouse.inventoryUi.fields.status' | translate }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (row of filteredRows(); track row.id) {
+                <tr>
+                  <td class="product-cell">
+                    @if (row.lots[0]; as firstLot) {
+                      <a [routerLink]="['/ops/operations/inventory/lots', firstLot.id]">{{ row.name }}</a>
+                    } @else {
+                      <strong>{{ row.name }}</strong>
+                    }
+                    <small>{{ row.productCode }}</small>
+                  </td>
+                  <td>
+                    <strong>{{ row.lots.length }}</strong>
+                    <small>{{ 'warehouse.inventoryUi.lotCount' | translate }}</small>
+                  </td>
+                  <td>
+                    @if (row.earliestExpiration; as expiration) {
+                      <time [attr.datetime]="expiration">{{ expiration | date:'d MMM y' }}</time>
+                    } @else {
+                      <span class="muted">{{ 'warehouse.inventoryUi.noExpiration' | translate }}</span>
+                    }
+                  </td>
+                  <td><strong>{{ row.onHand | number:'1.0-2' }}</strong> <small>{{ row.unit }}</small></td>
+                  <td><strong>{{ row.reserved | number:'1.0-2' }}</strong> <small>{{ row.unit }}</small></td>
+                  <td class="available-cell">
+                    <strong [class.is-alert]="row.status !== 'healthy'">{{ row.available | number:'1.0-2' }} {{ row.unit }}</strong>
+                    <span class="availability-track" aria-hidden="true"><span [style.width.%]="availablePercent(row)" [class.is-alert]="row.status !== 'healthy'"></span></span>
+                  </td>
+                  <td>{{ warehouseName(row) }}</td>
+                  <td>
+                    <nexa-status-badge
+                      [label]="('warehouse.inventoryUi.status.' + row.status) | translate"
+                      [tone]="statusTone(row.status)" />
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      } @else {
+        <nexa-empty-state
+          [title]="'warehouse.inventoryUi.emptyTitle' | translate"
+          [description]="'warehouse.inventoryUi.emptyDescription' | translate" />
+      }
+    </section>
+
+    <p class="boundary-note surface-card">
+      <strong>{{ 'warehouse.inventoryUi.boundaryTitle' | translate }}</strong>
+      <span>{{ 'warehouse.inventoryUi.boundary' | translate }}</span>
+    </p>
+  }
+</section>

@@ -16,6 +16,8 @@ mat-form-field { min-width: 0; }
 .catalog-card-footer { display: flex; align-items: center; justify-content: space-between; gap: var(--nexa-space-3); padding-top: var(--nexa-space-3); border-top: 1px solid var(--nexa-color-border-default); }
 .catalog-card-footer strong { color: var(--nexa-color-text-primary); }
 .catalog-card-footer a { color: var(--nexa-color-primary-700); font-weight: var(--nexa-font-weight-bold); text-decoration: none; }
+.catalog-card-actions { display: flex; align-items: center; flex-wrap: wrap; justify-content: flex-end; gap: var(--nexa-space-2); }
+.catalog-card-actions button { min-height: var(--nexa-target-size-min); }
 .retrying { margin-bottom: var(--nexa-space-3); }
 mat-paginator { margin-top: var(--nexa-space-4); }
 @media (max-width: 960px) { .filters { grid-template-columns: repeat(2, minmax(0, 1fr)); } .query-filter { grid-column: span 2; } }

@@ -1,0 +1,52 @@
+<section class="page incidents-page">
+  <nexa-page-header
+    [eyebrow]="'logistics.temperature' | translate"
+    [title]="'logistics.temperature' | translate"
+    [subtitle]="'logistics.detailSubtitle' | translate">
+    <div page-header-actions>
+      <nexa-button variant="secondary" size="compact" routerLink="/ops/operations/dispatch-orders">
+        <nexa-icon name="local_shipping" />
+        {{ 'logistics.board' | translate }}
+      </nexa-button>
+    </div>
+  </nexa-page-header>
+
+  @if (facade.loading() && !facade.dispatches().length) {
+    <nexa-loading-state [label]="'logistics.loading' | translate" [lines]="4" />
+  } @else if (facade.error() && !facade.dispatches().length) {
+    <nexa-error-state
+      [title]="'logistics.unavailable' | translate"
+      [description]="facade.error()!"
+      (retry)="facade.retry()" />
+  } @else {
+    <section class="metric-grid" [attr.aria-label]="'logistics.temperature' | translate">
+      <nexa-metric-card [label]="'logistics.fields.alerts' | translate" [value]="incidentDispatches().length" [hint]="'logistics.forms.incident' | translate" icon="warning" tone="danger" />
+      <nexa-metric-card [label]="'logistics.fields.temperature' | translate" [value]="outOfRange().length" [hint]="'logistics.status.OUT_OF_RANGE' | translate" icon="thermostat" tone="warning" />
+      <nexa-metric-card [label]="'logistics.fields.dispatches' | translate" [value]="facade.dispatches().length" [hint]="'logistics.board' | translate" icon="local_shipping" tone="info" />
+    </section>
+
+    <nexa-section-panel [title]="'logistics.temperature' | translate" [description]="'logistics.detailSubtitle' | translate">
+      <div class="incident-list">
+        @for (item of incidentDispatches(); track item.id) {
+          <article class="incident-card">
+            <div class="incident-heading">
+              <div><span class="mono">{{ item.dispatchNumber }}</span><h3>{{ item.clientName || item.clientCode || item.clientAccountId || '—' }}</h3><p>{{ item.salesOrderNumber }} · {{ destinationLabel(item) }}</p></div>
+              <nexa-status-badge [label]="('logistics.status.' + item.status) | translate" [tone]="item.status === 'INCIDENT' ? 'danger' : 'warning'" emphasis="standard" />
+            </div>
+            <div class="incident-facts">
+              <div><span>{{ 'logistics.fields.temperature' | translate }}</span><strong>{{ item.temperatureMin ?? '—' }} – {{ item.temperatureMax ?? '—' }} {{ item.temperatureUnit || '' }}</strong></div>
+              <div><span>{{ 'logistics.fields.status' | translate }}</span><strong>{{ ('logistics.status.' + item.temperatureStatus) | translate }}</strong></div>
+              <div><span>{{ 'logistics.fields.alerts' | translate }}</span><strong>{{ item.alerts.length || '—' }}</strong></div>
+            </div>
+            @if (item.alerts.length) {
+              <div class="alert-row">@for (alert of item.alerts; track alert) { <nexa-status-badge [label]="('logistics.status.' + alert) | translate" tone="danger" /> }</div>
+            }
+            <div class="incident-actions"><nexa-button variant="secondary" size="compact" [routerLink]="'/ops/operations/dispatch-orders/' + item.id"><nexa-icon name="arrow_forward" />{{ 'logistics.detail' | translate }}</nexa-button></div>
+          </article>
+        } @empty {
+          <nexa-empty-state [title]="'logistics.status.WITHIN_RANGE' | translate" [description]="'logistics.analyticsUi.temperatureDetail' | translate" icon="verified" />
+        }
+      </div>
+    </nexa-section-panel>
+  }
+</section>

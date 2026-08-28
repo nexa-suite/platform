@@ -13,10 +13,7 @@ import { SupportedLanguage } from '../supported-language';
 export class LanguageSwitcherComponent {
   readonly languageService = inject(LanguageService);
 
-  onSelect(event: Event): void {
-    const target = event.target;
-    if (target instanceof HTMLSelectElement) {
-      this.languageService.setLanguage(target.value as SupportedLanguage);
-    }
+  setLanguage(language: SupportedLanguage): void {
+    this.languageService.setLanguage(language);
   }
 }

@@ -24,17 +24,13 @@ export class SalesCommitmentCustomerGateway implements SalesCommitmentCustomerPo
     return this.customer.clientAccounts(filters).pipe(map((page) => ({
       ...page,
       items: page.items.map((account): SalesCommitmentCustomerReference => ({
-        id: account.id,
-        code: account.code,
-        businessName: account.businessName,
-        commercialName: account.commercialName,
-        taxType: account.taxType,
-        taxValue: account.taxValue,
-        deliveryProfile: account.deliveryProfile,
-        paymentCondition: account.paymentCondition,
-        status: account.status
+        ...this.customerReference(account)
       }))
     })));
+  }
+
+  clientAccount(id: string): Observable<SalesCommitmentCustomerReference> {
+    return this.customer.clientAccount(id).pipe(map((account) => this.customerReference(account)));
   }
 
   clientAccountAddresses(id: string): Observable<readonly SalesCommitmentAddressReference[]> {
@@ -53,6 +49,40 @@ export class SalesCommitmentCustomerGateway implements SalesCommitmentCustomerPo
       parentCode: item.parentCode,
       active: item.active
     }))));
+  }
+
+  private customerReference(account: {
+    readonly id: string;
+    readonly code: string;
+    readonly businessName: string;
+    readonly commercialName: string;
+    readonly countryCode: string;
+    readonly taxType: string;
+    readonly taxValue: string;
+    readonly segment: string;
+    readonly contactPerson: string;
+    readonly contactEmail: string;
+    readonly phone: string;
+    readonly deliveryProfile: string;
+    readonly paymentCondition: string;
+    readonly status: string;
+  }): SalesCommitmentCustomerReference {
+    return {
+      id: account.id,
+      code: account.code,
+      businessName: account.businessName,
+      commercialName: account.commercialName,
+      countryCode: account.countryCode,
+      taxType: account.taxType,
+      taxValue: account.taxValue,
+      segment: account.segment,
+      contactPerson: account.contactPerson,
+      contactEmail: account.contactEmail,
+      phone: account.phone,
+      deliveryProfile: account.deliveryProfile,
+      paymentCondition: account.paymentCondition,
+      status: account.status
+    };
   }
 
   private address(address: {

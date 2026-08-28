@@ -1,0 +1,110 @@
+<section class="page pod-page">
+  <nexa-page-header
+    [eyebrow]="'logistics.podUi.eyebrow' | translate"
+    [title]="'logistics.pod' | translate"
+    [subtitle]="'logistics.podUi.description' | translate">
+    <div page-header-actions>
+      <nexa-button variant="secondary" size="compact" routerLink="/ops/operations/dispatch-orders">
+        <nexa-icon name="local_shipping" />
+        {{ 'logistics.board' | translate }}
+      </nexa-button>
+    </div>
+  </nexa-page-header>
+
+  @if (facade.loading() && !facade.pendingProof().length && !facade.completedProof().length) {
+    <nexa-loading-state [label]="'logistics.loading' | translate" [lines]="4" />
+  } @else if (facade.error() && !facade.pendingProof().length && !facade.completedProof().length) {
+    <nexa-error-state
+      [title]="'logistics.unavailable' | translate"
+      [description]="facade.error()!"
+      (retry)="facade.loadProof()" />
+  } @else {
+    <section class="metric-grid" [attr.aria-label]="'logistics.pod' | translate">
+      <nexa-metric-card
+        [label]="'logistics.podUi.pendingMetric' | translate"
+        [value]="facade.pendingProof().length"
+        [hint]="'logistics.podUi.pendingDescription' | translate"
+        icon="schedule"
+        tone="warning" />
+      <nexa-metric-card
+        [label]="'logistics.podUi.completedMetric' | translate"
+        [value]="facade.completedProof().length"
+        [hint]="'logistics.podUi.completedDescription' | translate"
+        icon="verified"
+        tone="success" />
+      <nexa-metric-card
+        [label]="'logistics.podUi.totalMetric' | translate"
+        [value]="facade.pendingProof().length + facade.completedProof().length"
+        [hint]="'logistics.podUi.dispatchDescription' | translate"
+        icon="local_shipping"
+        tone="info" />
+    </section>
+
+    <nexa-section-panel
+      class="pending-panel"
+      [title]="'logistics.states.pending' | translate"
+      [description]="'logistics.podUi.pendingDescription' | translate">
+      <div class="pod-list">
+        @for (item of facade.pendingProof(); track item.dispatchOrderId) {
+          <article class="pod-card" [class.selected]="selected()?.dispatchOrderId === item.dispatchOrderId">
+            <div class="pod-card-heading">
+              <div>
+                <span class="mono">{{ item.dispatchNumber }}</span>
+                <h3>{{ item.dispatchNumber }}</h3>
+              </div>
+              <nexa-status-badge [label]="'logistics.podUi.evidencePending' | translate" tone="warning" />
+            </div>
+            <div class="pod-facts">
+              <div><span>{{ 'logistics.fields.status' | translate }}</span><strong>{{ ('logistics.status.' + item.status) | translate }}</strong></div>
+              <div><span>{{ 'logistics.fields.completed' | translate }}</span><strong>{{ item.updatedAt | date: 'medium' }}</strong></div>
+              <div><span>{{ 'logistics.fields.evidence' | translate }}</span><strong>{{ item.photoEvidenceDeclared ? ('logistics.states.photoDeclared' | translate) : ('logistics.states.photoNotDeclared' | translate) }} · {{ item.signatureEvidenceDeclared ? ('logistics.states.signatureDeclared' | translate) : ('logistics.states.signatureNotDeclared' | translate) }}</strong></div>
+            </div>
+            <div class="pod-card-actions">
+              <nexa-button variant="secondary" size="compact" (click)="select(item)"><nexa-icon name="edit" />{{ 'logistics.podUi.selectAction' | translate }}</nexa-button>
+              <nexa-button variant="quiet" size="compact" [routerLink]="'/ops/operations/dispatch-orders/' + item.dispatchOrderId"><nexa-icon name="arrow_forward" />{{ 'logistics.detail' | translate }}</nexa-button>
+            </div>
+          </article>
+        } @empty {
+          <nexa-empty-state [title]="'logistics.podUi.completedMetric' | translate" [description]="'logistics.podUi.completedDescription' | translate" icon="verified" />
+        }
+      </div>
+    </nexa-section-panel>
+
+    @if (selected(); as item) {
+      <nexa-section-panel class="form-panel" [title]="'logistics.forms.podMetadata' | translate" [description]="'logistics.states.metadataOnly' | translate">
+        <form [formGroup]="form" (ngSubmit)="complete(item)">
+          <div class="form-grid">
+            <label class="field">{{ 'logistics.forms.receiver' | translate }}<input formControlName="receiverName"></label>
+            <label class="field">{{ 'logistics.fields.completed' | translate }}<input type="datetime-local" formControlName="completedAt"></label>
+            <label class="field field-wide">{{ 'logistics.forms.notes' | translate }}<textarea rows="3" formControlName="notes"></textarea></label>
+          </div>
+          <div class="checkbox-row">
+            <label class="checkbox-field"><input type="checkbox" formControlName="photoEvidenceDeclared">{{ 'logistics.forms.photo' | translate }}</label>
+            <label class="checkbox-field"><input type="checkbox" formControlName="signatureEvidenceDeclared">{{ 'logistics.forms.signature' | translate }}</label>
+          </div>
+          <nexa-button type="submit" [disabled]="form.invalid || !facade.canWrite()"><nexa-icon name="check" />{{ 'logistics.forms.completeDelivery' | translate }}</nexa-button>
+        </form>
+      </nexa-section-panel>
+    }
+
+    <nexa-section-panel
+      class="completed-panel"
+      [title]="'logistics.fields.completed' | translate"
+      [description]="'logistics.podUi.completedDescription' | translate">
+      <div class="completed-list">
+        @for (item of facade.completedProof(); track item.dispatchOrderId) {
+          <article class="completed-row">
+            <div class="completed-icon"><nexa-icon name="verified" /></div>
+            <div class="completed-copy"><strong>{{ item.dispatchNumber }}</strong><span>{{ item.receiverName || '—' }}</span></div>
+            <time>{{ item.completedAt | date: 'medium' }}</time>
+            <nexa-status-badge [label]="'logistics.podUi.evidenceComplete' | translate" tone="success" />
+          </article>
+        } @empty {
+          <p class="empty-copy">{{ 'logistics.empty' | translate }}</p>
+        }
+      </div>
+    </nexa-section-panel>
+
+    <p class="boundary-note"><nexa-icon name="fact_check" />{{ 'logistics.podUi.boundary' | translate }}</p>
+  }
+</section>
