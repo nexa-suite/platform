@@ -3,6 +3,25 @@
 All notable changes to this project are documented in this file.
 The project uses Semantic Versioning.
 
+## [0.18.0] - 2026-08-28
+
+API continuity and role-separated operational landings.
+
+### Changed
+
+- Manual Sales Order items rehydrate a non-empty canonical server draft over any restored browser cart, while an empty draft remains available for unsaved catalog input until the explicit save command.
+- Pure `LOGISTICS` sessions land on Dispatch Orders instead of the Warehouse dashboard, preserving the backend permission boundary while making the operational role explicit.
+
+### Boundary
+
+- `COMPANY_OWNER`, `SALES`, `WAREHOUSE` and `LOGISTICS`/Dispatch remain the canonical internal roles.
+- `BOM` remains OPEN/DEFERRED; no role, endpoint or domain model is invented.
+
+### Validation
+
+- Role landing and navigation unit tests cover the separated Dispatch area and the absence of a BOM role.
+- Live role E2E remains credential-dependent; the existing pure `COMPANY_OWNER` fixture gap is documented separately.
+
 ## [0.17.0] - 2026-08-28
 
 Server-backed Sales and role-separated operations preparation.

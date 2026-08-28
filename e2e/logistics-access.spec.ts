@@ -262,7 +262,7 @@ test('pure LOGISTICS reaches operational reads and dispatch detail without promo
 }) => {
   requiresCredentials('LOGISTICS');
   await signInLogistics(page, request);
-  await expect.poll(() => new URL(page.url()).pathname).toBe('/ops/operations/dashboard');
+  await expect.poll(() => new URL(page.url()).pathname).toBe('/ops/operations/dispatch-orders');
   await assertNoForbiddenSidebarLink(page);
 
   await assertAllowedSurface(

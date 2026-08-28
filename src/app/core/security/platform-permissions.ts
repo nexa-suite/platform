@@ -73,9 +73,10 @@ export function platformLandingForUser(
   user: AuthenticatedUser | null,
   hasPermission: (permission: string) => boolean,
 ): PlatformArea | null {
-  if (user?.roles.length === 1 && user.roles[0] === 'COMPANY_OWNER') {
-    const owner = PLATFORM_LANDINGS.COMPANY_OWNER;
-    return hasPermission(owner.permission) ? owner : null;
+  if (user?.roles.length === 1) {
+    const role = user.roles[0];
+    const roleLanding = PLATFORM_LANDINGS[role];
+    if (roleLanding && hasPermission(roleLanding.permission)) return roleLanding;
   }
   return firstPermittedPlatformLanding(hasPermission);
 }
@@ -95,7 +96,7 @@ export const PLATFORM_LANDINGS: Readonly<Record<InternalRole, PlatformArea>> = {
   COMPANY_OWNER: { path: '/ops/executive-overview', permission: PLATFORM_PERMISSIONS.ownerDashboardRead },
   SALES: { path: '/ops/commercial/dashboard', permission: PLATFORM_PERMISSIONS.salesRead },
   WAREHOUSE: { path: '/ops/operations/dashboard', permission: PLATFORM_PERMISSIONS.warehouseRead },
-  LOGISTICS: { path: '/ops/operations/dashboard', permission: PLATFORM_PERMISSIONS.logisticsRead }
+  LOGISTICS: { path: '/ops/operations/dispatch-orders', permission: PLATFORM_PERMISSIONS.logisticsRead }
 };
 
 export const PLATFORM_ROLE_PRIORITY: readonly InternalRole[] = [
