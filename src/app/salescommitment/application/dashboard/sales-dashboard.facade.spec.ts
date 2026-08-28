@@ -15,9 +15,12 @@ describe('SalesDashboardFacade', () => {
     const facade = TestBed.inject(SalesDashboardFacade); facade.load();
     expect(facade.state().status).toBe('success');
     expect(facade.state().metrics.submittedPurchaseRequests).toBe(1);
+    expect(facade.state().metrics.pendingSalesOrders).toBe(1);
+    expect(facade.state().metrics.confirmedSalesOrders).toBe(1);
     expect(facade.state().recentSalesOrders[0].id).toBe('SO-1');
     expect(api.purchaseRequests).toHaveBeenCalledWith(expect.objectContaining({ ...DEFAULT_PURCHASE_REQUEST_FILTERS, size: 1, status: 'SUBMITTED' }));
     expect(api.salesOrders).toHaveBeenCalledWith(expect.objectContaining({ ...DEFAULT_SALES_ORDER_FILTERS, size: 1, status: 'PENDING' }));
+    expect(api.salesOrders).toHaveBeenCalledWith(expect.objectContaining({ ...DEFAULT_SALES_ORDER_FILTERS, size: 1, status: 'CONFIRMED' }));
   });
 
   it('keeps a recoverable error state and retries', () => {

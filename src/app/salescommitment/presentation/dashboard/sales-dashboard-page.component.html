@@ -31,7 +31,7 @@
       <div>
         <div class="flow-eyebrow">{{ 'commercialDashboard.bannerEyebrow' | translate }}</div>
         <div class="flow-title" id="sales-dashboard-banner-title">
-          {{ 'commercialDashboard.bannerTitle' | translate: { requests: newRequestCount(), credit: pendingCreditRequestCount(), documents: pendingDocumentCount() } }}
+          {{ 'commercialDashboard.bannerTitle' | translate: { requests: newRequestCount(), documents: pendingDocumentCount() } }}
         </div>
         <div class="flow-note">{{ 'commercialDashboard.bannerNote' | translate }}</div>
       </div>
@@ -53,11 +53,11 @@
 
       <article class="card kpi-card">
         <div class="flow-row-between">
-          <div class="kpi-label"><nexa-icon name="search" />{{ 'commercialDashboard.inValidation' | translate }}</div>
+          <div class="kpi-label"><nexa-icon name="search" />{{ 'commercialDashboard.pendingOrders' | translate }}</div>
           <div class="flow-kpi-icon kpi-icon-amber"><nexa-icon name="search" /></div>
         </div>
         <div class="flow-metric metric-amber">{{ facade.state().metrics.pendingSalesOrders }}</div>
-        <div class="kpi-sub">{{ 'commercialDashboard.inValidationSub' | translate }}</div>
+        <div class="kpi-sub">{{ 'commercialDashboard.pendingOrdersSub' | translate }}</div>
       </article>
 
       <article class="card kpi-card">
@@ -71,11 +71,11 @@
 
       <article class="card kpi-card">
         <div class="flow-row-between">
-          <div class="kpi-label"><nexa-icon name="ban" />{{ 'commercialDashboard.blocked' | translate }}</div>
-          <div class="flow-kpi-icon kpi-icon-red"><nexa-icon name="ban" /></div>
+          <div class="kpi-label"><nexa-icon name="verified" />{{ 'commercialDashboard.confirmedOrders' | translate }}</div>
+          <div class="flow-kpi-icon kpi-icon-green"><nexa-icon name="verified" /></div>
         </div>
-        <div class="flow-metric metric-red">{{ blockedOrderCount() }}</div>
-        <div class="kpi-sub">{{ 'commercialDashboard.blockedSub' | translate }}</div>
+        <div class="flow-metric metric-green">{{ facade.state().metrics.confirmedSalesOrders }}</div>
+        <div class="kpi-sub">{{ 'commercialDashboard.confirmedOrdersSub' | translate }}</div>
       </article>
     </section>
 
