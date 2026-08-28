@@ -61,13 +61,13 @@
 
     <div class="kanban-board" [attr.aria-label]="'logistics.boardUi.ariaLabel' | translate">
       @for (column of columns(); track column.key) {
-        <section class="kanban-column" [attr.data-column]="column.key">
+        <section class="kanban-column" [attr.data-column]="column.key" [attr.data-status]="column.statuses[0]">
           <header class="kanban-column-head">
             <h2>{{ column.labelKey | translate }}</h2>
             <span class="flow-pill">{{ column.items.length }}</span>
           </header>
 
-          <div class="column-items">
+          <div class="column-items kanban-items">
             @for (item of column.items; track item.id) {
               <article
                 class="dispatch-card"

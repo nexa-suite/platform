@@ -41,15 +41,17 @@
           </div>
         }
 
-        <select
-          class="workspace-area-selector"
-          [attr.aria-label]="'shell.areaSelector' | translate"
-          [value]="selectedArea()?.id ?? ''"
-          (change)="switchArea($any($event.target).value)">
-          @for (entry of availableAreas(); track entry.id) {
-            <option [value]="entry.id">{{ entry.labelKey | translate }}</option>
-          }
-        </select>
+        @if (availableAreas().length > 1) {
+          <select
+            class="workspace-area-selector"
+            [attr.aria-label]="'shell.areaSelector' | translate"
+            [value]="selectedArea()?.id ?? ''"
+            (change)="switchArea($any($event.target).value)">
+            @for (entry of availableAreas(); track entry.id) {
+              <option [value]="entry.id">{{ entry.labelKey | translate }}</option>
+            }
+          </select>
+        }
       </div>
 
       <nav class="platform-navigation workspace-nav" [attr.aria-label]="'shell.navigationLabel' | translate">

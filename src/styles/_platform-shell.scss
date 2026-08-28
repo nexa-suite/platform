@@ -751,14 +751,29 @@ nexa-platform-shell { display: block; height: 100dvh; min-height: 100dvh; }
 .platform-shell .workspace-role span { color: #15803d; font-size: 11px; font-weight: 800; }
 
 .platform-shell .workspace-area-selector {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  border: 0;
-  overflow: hidden;
-  clip: rect(0 0 0 0);
-  white-space: nowrap;
+  grid-column: 1 / -1;
+  width: 100%;
+  min-height: 36px;
+  margin-top: 2px;
+  padding: 0 10px;
+  border: 1px solid #dbe3ef;
+  border-radius: 10px;
+  color: #334155;
+  background: #ffffff;
+  cursor: pointer;
+  font: inherit;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.platform-shell .workspace-area-selector:hover {
+  border-color: #93c5fd;
+}
+
+.platform-shell .workspace-area-selector:focus-visible {
+  outline: 0;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, .18);
 }
 
 .platform-shell .platform-navigation.workspace-nav {

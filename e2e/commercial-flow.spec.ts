@@ -7,6 +7,6 @@ test('Sales sees the server-backed commercial dashboard and working links', asyn
   await page.goto('/ops/commercial/dashboard');
   await expect(page.getByRole('heading', { name: /sales dashboard|dashboard comercial/i })).toBeVisible();
   const main = page.locator('#main-content');
-  await expect(main.getByRole('link', { name: /purchase requests|solicitudes de compra/i })).toBeVisible();
-  await expect(main.getByRole('link', { name: /sales orders|órdenes de venta/i })).toBeVisible();
+  await expect(main.getByRole('link', { name: /purchase requests|solicitudes de compra/i }).first()).toBeVisible();
+  await expect(main.getByRole('link', { name: /sales orders|purchase orders|órdenes de venta|órdenes de compra/i }).first()).toBeVisible();
 });

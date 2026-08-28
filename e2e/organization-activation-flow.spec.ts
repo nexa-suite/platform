@@ -81,9 +81,10 @@ test('organization onboarding reaches ACTIVE only through the operator boundary 
     await page.locator('input[autocomplete="organization"]').fill(slug);
     await page.locator('input[autocomplete="email"], input[autocomplete="username"]').first().fill(founderEmail);
     await page.locator('input[autocomplete="current-password"]').fill(founderPassword);
+    await expect(page.locator('.tenant-preview')).toContainText(/active|activo/i, { timeout: 10_000 });
     await page.getByRole('button', { name: /sign in|ingresar/i }).click();
     await expect(page).not.toHaveURL(/\/sign-in/);
-    const switcher = page.locator('.workspace-card select');
+    const switcher = page.locator('.workspace-area-selector');
     if (!(await switcher.isVisible())) {
       const menuButton = page.getByRole('button', { name: /open operations navigation|abrir navegación de operaciones|abrir navegacion de operaciones/i });
       if (await menuButton.isVisible()) await menuButton.click();
