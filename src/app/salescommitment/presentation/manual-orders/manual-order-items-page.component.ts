@@ -24,6 +24,7 @@ export class ManualOrderItemsPageComponent {
 
   readonly draftId = this.route.snapshot.paramMap.get('draftId') ?? '';
   readonly saving = signal(false);
+  private hydratedDraftKey: string | null = null;
   readonly lines = computed<readonly ManualOrderLineCommand[]>(() => this.cart.items().map((item) => ({
     catalogItemId: item.catalogItemId,
     skuId: item.skuId,
@@ -40,7 +41,16 @@ export class ManualOrderItemsPageComponent {
     effect(() => {
       const draft = this.facade.state().draft;
       const catalogItems = this.facade.state().catalogItems;
-      if (draft?.id !== this.draftId || !draft.lines.length || this.cart.items().length || !catalogItems.length) return;
+      if (draft?.id !== this.draftId) return;
+
+      const draftKey = `${draft.id}:${draft.version}`;
+      if (this.hydratedDraftKey === draftKey) return;
+      this.hydratedDraftKey = draftKey;
+
+      // A non-empty server draft is authoritative over a restored browser
+      // cart. An empty draft is intentionally left untouched because catalog
+      // selections are still unsaved presentation input until saveItems().
+      if (!draft.lines.length) return;
 
       this.replaceCartFromDraft(draft, catalogItems);
     });
