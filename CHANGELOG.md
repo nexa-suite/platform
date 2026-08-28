@@ -3,6 +3,33 @@
 All notable changes to this project are documented in this file.
 The project uses Semantic Versioning.
 
+## [0.17.0] - 2026-08-28
+
+Server-backed Sales and role-separated operations preparation.
+
+### Added
+
+- Reconciled Manual Sales Order item state from the canonical server draft after the items mutation, preserving server-authoritative prices, availability and versioned values.
+- Added explicit authenticated E2E assertions for manual draft creation and item replacement against the existing API contract.
+- Added executable coverage for the canonical internal work areas: `COMPANY_OWNER`, `SALES`, `WAREHOUSE` and `LOGISTICS`/Dispatch.
+
+### Changed
+
+- Kept Platform navigation and area selection permission-backed, with the backend session remaining the authority for visibility and route access.
+- Prepared the next role-oriented increment without introducing a non-canonical `DISPATCH` or `BOM` role.
+
+### Boundary
+
+- `BOM` remains OPEN/DEFERRED: the current Blueprint/API baseline exposes no canonical role, endpoint or domain model, so this release does not invent one.
+- API, Blueprint, Design Lab and legacy repositories were not modified by this frontend release.
+
+### Validation
+
+- Platform unit tests passed: 165 tests across 81 files.
+- Platform production build passed; existing bundle/style budget warnings remain non-blocking.
+- Live Sales manual-order E2E passed against the Docker API.
+- The full role matrix passed 7/8 cases; the pure `COMPANY_OWNER` credential is not currently seeded consistently by the local API bootstrap and remains an environment fixture gap.
+
 ## [0.16.0] - 2026-08-28
 
 Server-backed executive projections and permission-aware operational surfaces.
