@@ -103,7 +103,7 @@ const ROLE_ACCESS_MATRIX: readonly RoleAccessCase[] = [
     label: 'pure LOGISTICS',
     credentialRole: 'LOGISTICS',
     expectedRoles: ['LOGISTICS'],
-    landing: '/ops/operations/dashboard',
+    landing: '/ops/operations/dispatch-orders',
     allowed: [
       '/ops/operations/dashboard',
       '/ops/operations/inventory',
