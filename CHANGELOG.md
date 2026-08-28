@@ -3,6 +3,31 @@
 All notable changes to this project are documented in this file.
 The project uses Semantic Versioning.
 
+## [0.16.0] - 2026-08-28
+
+Server-backed executive projections and permission-aware operational surfaces.
+
+### Added
+
+- Company Owner executive overview composed from the existing Sales, Client Account, Warehouse, Dispatch and change-feed ports.
+- Effective-permission checks that keep Warehouse and Dispatch projections unavailable unless the authenticated session grants `warehouse:read` or `logistics:read`.
+- Explicit role preparation for `COMPANY_OWNER`, `SALES`, `WAREHOUSE` and `LOGISTICS`/Dispatch without creating a non-canonical Dispatch role.
+
+### Changed
+
+- Replaced static Company Owner “Read-only” cards with live server totals and operational indicators.
+- Added live recent activity from the authorized workspace change-feed.
+
+### Boundary
+
+- BOM remains OPEN/DEFERRED: no canonical role, API endpoint or domain model exists yet, so no contract was invented.
+- API and Blueprint repositories were not changed; the existing API contracts were sufficient for this frontend composition.
+
+### Validation
+
+- Focused Company Owner facade tests passed (3/3).
+- Bounded-context, i18n and diff checks are required before publication.
+
 ## [0.15.0] - 2026-08-28
 
 IAM and Sales flow hardening for the canonical frontend boundaries.
