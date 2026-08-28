@@ -43,8 +43,6 @@ export class SalesDashboardPageComponent {
   });
   readonly pendingDocuments = computed(() => this.documents().filter((document) => ['PENDING', 'GENERATING', 'OBSERVED', 'FAILED', 'REJECTED'].includes(document.status.toUpperCase())).slice(0, 6));
   readonly pendingDocumentCount = computed(() => this.pendingDocuments().length);
-  readonly pendingCreditRequestCount = signal(0);
-  readonly blockedOrderCount = signal(0);
   readonly activityPreview = computed(() => this.activityEvents().slice(0, 7));
 
   constructor() {

@@ -22,6 +22,12 @@
         [description]="delivery.error()!"
         (retry)="delivery.loadDashboard()" />
     } @else {
+      @if (delivery.dashboardError() || delivery.dispatchesError() || delivery.proofError()) {
+        <p class="data-warning" role="status">
+          <nexa-icon name="warning" aria-hidden="true" />
+          {{ 'operationsDashboard.partialData' | translate }}
+        </p>
+      }
       <section class="flow-banner" aria-labelledby="operations-banner-title">
         <div>
           <span class="flow-eyebrow">{{ 'operationsDashboard.bannerEyebrow' | translate }}</span>
@@ -66,6 +72,13 @@
           icon="verified"
           tone="info" />
       </section>
+
+      @if (catalogUnavailable()) {
+        <p class="data-warning" role="status">
+          <nexa-icon name="warning" aria-hidden="true" />
+          {{ 'operationsDashboard.catalogUnavailable' | translate }}
+        </p>
+      }
 
       <div class="dashboard-grid">
         <nexa-section-panel
@@ -172,6 +185,12 @@
         [description]="warehouse.error()!"
         (retry)="warehouse.retry()" />
     } @else {
+      @if (catalogUnavailable()) {
+        <p class="data-warning" role="status">
+          <nexa-icon name="warning" aria-hidden="true" />
+          {{ 'operationsDashboard.catalogUnavailable' | translate }}
+        </p>
+      }
       <section class="metric-grid" [attr.aria-label]="'operationsDashboard.inventory.metricsLabel' | translate">
         <nexa-metric-card [label]="'operationsDashboard.inventory.warehouses' | translate" [value]="warehouse.metrics().warehouses" [hint]="'operationsDashboard.inventory.warehousesHint' | translate" icon="business" />
         <nexa-metric-card [label]="'operationsDashboard.inventory.available' | translate" [value]="warehouse.metrics().available" [hint]="'operationsDashboard.inventory.availableHint' | translate" icon="inventory_2" tone="success" />
