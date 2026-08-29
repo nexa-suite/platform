@@ -89,6 +89,15 @@
           <a class="btn btn-ghost btn-sm" routerLink="/ops/commercial/purchase-requests">{{ 'commercialDashboard.viewAll' | translate }}</a>
         </div>
         <div class="flow-panel-pad">
+          @if (clientNamesError()) {
+            <div class="data-warning" role="status">
+              <nexa-icon name="warning" aria-hidden="true" />
+              <span>{{ 'commercialDashboard.clientNamesUnavailable' | translate }}</span>
+              <nexa-button variant="quiet" size="compact" [loading]="clientNamesLoading()" (click)="retryClientNames()">
+                {{ 'commercialDashboard.retryClientNames' | translate }}
+              </nexa-button>
+            </div>
+          }
           @for (request of requestPreview(); track request.id) {
             <div class="flow-list-item">
               <div>
@@ -119,16 +128,31 @@
           </div>
         </div>
         <div class="flow-panel-pad">
-          @for (document of pendingDocuments(); track document.id) {
-            <div class="document-check">
-              <div>
-                <div class="document-name">{{ documentLabel(document) }}</div>
-                <div class="flow-note">{{ document.documentNumber || document.subjectId }}<span aria-hidden="true"> · </span>{{ document.clientAccountId || document.subjectType }}</div>
-              </div>
-              <span class="badge" [class]="documentBadge(document.status)">{{ documentStatusLabel(document.status) }}</span>
+          @if (documentsLoading()) {
+            <nexa-loading-state
+              [compact]="true"
+              [lines]="2"
+              [label]="'commercialDashboard.pendingBusinessDocsLoading' | translate" />
+          } @else if (documentsError()) {
+            <div class="data-warning" role="alert">
+              <nexa-icon name="warning" aria-hidden="true" />
+              <span>{{ 'commercialDashboard.pendingBusinessDocsUnavailable' | translate }}</span>
+              <nexa-button variant="quiet" size="compact" [loading]="documentsLoading()" (click)="retryDocuments()">
+                {{ 'commercialDashboard.retryDocuments' | translate }}
+              </nexa-button>
             </div>
-          } @empty {
-            <div class="flow-note empty-panel-note">{{ 'commercialDashboard.noPendingDocuments' | translate }}</div>
+          } @else {
+            @for (document of pendingDocuments(); track document.id) {
+              <div class="document-check">
+                <div>
+                  <div class="document-name">{{ documentLabel(document) }}</div>
+                  <div class="flow-note">{{ document.documentNumber || document.subjectId }}<span aria-hidden="true"> · </span>{{ document.clientAccountId || document.subjectType }}</div>
+                </div>
+                <span class="badge" [class]="documentBadge(document.status)">{{ documentStatusLabel(document.status) }}</span>
+              </div>
+            } @empty {
+              <div class="flow-note empty-panel-note">{{ 'commercialDashboard.noPendingDocuments' | translate }}</div>
+            }
           }
         </div>
       </section>
