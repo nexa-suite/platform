@@ -70,6 +70,7 @@
               <tr>
                 <th scope="col">{{ 'warehouse.lotsUi.fields.catalog' | translate }}</th>
                 <th scope="col">{{ 'warehouse.lotsUi.fields.batch' | translate }}</th>
+                <th scope="col">{{ 'warehouse.lotsUi.fields.warehouse' | translate }}</th>
                 <th scope="col">{{ 'warehouse.lotsUi.fields.expiration' | translate }}</th>
                 <th scope="col">{{ 'warehouse.lotsUi.fields.onHand' | translate }}</th>
                 <th scope="col">{{ 'warehouse.lotsUi.fields.reserved' | translate }}</th>
@@ -83,11 +84,15 @@
                 <tr>
                   <td>
                     <a class="table-link" [routerLink]="['/ops/operations/inventory/lots', lot.id]">
-                      {{ lot.catalogItemId }}
+                      {{ catalogName(lot.catalogItemId) }}
                     </a>
-                    <small class="secondary-value" [title]="lot.skuId ?? ''">{{ lot.skuId ? shortIdentifier(lot.skuId) : '—' }}</small>
+                    <small class="secondary-value" [title]="catalogCode(lot.catalogItemId)">{{ catalogCode(lot.catalogItemId) }}</small>
                   </td>
                   <td><strong>{{ lot.batchNumber }}</strong></td>
+                  <td>
+                    <span class="primary-value">{{ warehouseName(lot) }}</span>
+                    <small class="secondary-value">{{ warehouseCode(lot) }}</small>
+                  </td>
                   <td><time [attr.datetime]="lot.expirationDate">{{ lot.expirationDate | date:'mediumDate' }}</time></td>
                   <td class="numeric-value">{{ lot.onHand | number:'1.0-2' }} {{ lot.unit }}</td>
                   <td class="numeric-value">{{ lot.reserved | number:'1.0-2' }} {{ lot.unit }}</td>

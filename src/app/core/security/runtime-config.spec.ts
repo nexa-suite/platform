@@ -36,6 +36,14 @@ describe('platform runtime configuration', () => {
     expect(platformRuntimeConfigFactory()).toEqual({ apiBaseUrl: 'https://api.local', surface: 'PLATFORM', dataMode: 'mock', tenantProfile: 'icisa' });
   });
 
+  it('keeps only an accepted local demo persona', () => {
+    runtimeGlobal.__NEXA_RUNTIME_CONFIG__ = { dataMode: 'mock', tenantProfile: 'icisa', demoRoleProfile: 'warehouse' };
+    expect(platformRuntimeConfigFactory().demoRoleProfile).toBe('warehouse');
+
+    runtimeGlobal.__NEXA_RUNTIME_CONFIG__ = { dataMode: 'mock', tenantProfile: 'icisa', demoRoleProfile: 'bom' as never };
+    expect(platformRuntimeConfigFactory().demoRoleProfile).toBeUndefined();
+  });
+
   it('normalizes unsupported runtime values back to safe defaults', () => {
     runtimeGlobal.__NEXA_RUNTIME_CONFIG__ = {
       dataMode: 'fixture' as PlatformRuntimeConfig['dataMode'],
