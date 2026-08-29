@@ -43,11 +43,7 @@ test('Sales completes the four-step manual order flow with server route preview'
 
   const continueReview = page.getByRole('button', { name: /continue to review|guardar y continuar/i });
   await expect(continueReview).toBeEnabled();
-  const deliverySave = page.waitForResponse((response) => response.request().method() === 'PUT' && /\/api\/v1\/sales-orders\/manual-drafts\/[^/]+\/delivery$/.test(new URL(response.url()).pathname));
-  await continueReview.click();
-  const deliveryResponse = await deliverySave;
-  expect(deliveryResponse.status()).toBe(200);
-  const persistedDraft = await deliveryResponse.json() as {
+  type PersistedDraft = {
     readonly delivery?: {
       readonly addressSnapshot?: string | null;
       readonly routeSnapshot?: string | null;
@@ -55,10 +51,30 @@ test('Sales completes the four-step manual order flow with server route preview'
       readonly warehouseSnapshot?: string | null;
     } | null;
   };
-  expect(persistedDraft.delivery?.addressSnapshot).toBeTruthy();
-  expect(persistedDraft.delivery?.routeSnapshot).toBeTruthy();
-  expect(persistedDraft.delivery?.warehouseId).toBeTruthy();
-  expect(persistedDraft.delivery?.warehouseSnapshot).toBeTruthy();
+  let persistedDraft: PersistedDraft | undefined;
+  const deliveryPath = '**/api/v1/sales-orders/manual-drafts/*/delivery';
+  await page.route(deliveryPath, async (route) => {
+    if (route.request().method() !== 'PUT') {
+      await route.continue();
+      return;
+    }
+
+    const response = await route.fetch();
+    const body = await response.body();
+    persistedDraft = JSON.parse(body.toString()) as PersistedDraft;
+    await route.fulfill({ response, body });
+  });
+  const deliverySave = page.waitForResponse((response) => response.request().method() === 'PUT'
+    && /\/api\/v1\/sales-orders\/manual-drafts\/[^/]+\/delivery$/.test(new URL(response.url()).pathname));
+  await continueReview.click();
+  const deliveryResponse = await deliverySave;
+  await page.unroute(deliveryPath);
+  expect(deliveryResponse.status()).toBe(200);
+  expect(persistedDraft).toBeDefined();
+  expect(persistedDraft?.delivery?.addressSnapshot).toBeTruthy();
+  expect(persistedDraft?.delivery?.routeSnapshot).toBeTruthy();
+  expect(persistedDraft?.delivery?.warehouseId).toBeTruthy();
+  expect(persistedDraft?.delivery?.warehouseSnapshot).toBeTruthy();
   await expect(page).toHaveURL(/\/review$/);
   await expect(page.getByRole('heading', { name: /confirm cold-chain purchase order|revisión/i })).toBeVisible();
   const stableDestination = destinationLabel
