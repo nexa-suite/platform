@@ -57,7 +57,7 @@ export class MockLogisticsApiService extends LogisticsApiPort {
 
   analytics(from: string, to: string): Observable<OperationalAnalytics> {
     const values = [...this.dispatchStore.values()].filter((item) => item.updatedAt >= from && item.updatedAt <= to);
-    return of({ from, to, dispatches: values.length, delivered: values.filter((item) => item.status === 'DELIVERED').length, incidents: values.filter((item) => item.status === 'INCIDENT').length, temperatureExcursions: values.filter((item) => item.temperatureStatus !== 'NORMAL').length, podCompleted: [...this.proofStore.values()].filter((item) => item.status === 'COMPLETED').length, onTimeRate: values.length ? 100 : 0, averagePreparationMinutes: 18, averageRouteMinutes: 42 });
+    return of({ from, to, dispatches: values.length, delivered: values.filter((item) => item.status === 'DELIVERED').length, incidents: values.filter((item) => item.status === 'INCIDENT').length, temperatureExcursions: values.filter((item) => item.temperatureStatus !== 'NORMAL').length, podCompleted: [...this.proofStore.values()].filter((item) => item.status === 'COMPLETED').length, onTimeRate: values.length ? 1 : 0, averagePreparationMinutes: 18, averageRouteMinutes: 42 });
   }
 
   proof(status?: string): Observable<ApiPage<ProofOfDelivery>> { return of(this.page([...this.proofStore.values()].filter((item) => !status || item.status === status))); }

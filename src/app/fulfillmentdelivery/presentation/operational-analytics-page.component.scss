@@ -3,7 +3,9 @@
 .partial-notice { display:flex; gap:var(--nexa-space-3); padding:var(--nexa-space-4); border:1px solid var(--nexa-color-warning-border); border-radius:var(--nexa-radius-control); background:var(--nexa-surface-warning); color:var(--nexa-color-warning-text); }
 .partial-notice > div,.control-copy,.hero-copy,.score-copy,.status-list,.movement-list { display:grid; gap:var(--nexa-space-2); }
 .control-copy small,.score-copy p,.panel-header p,.empty-inline { color:var(--nexa-color-text-secondary); font-size:var(--nexa-font-size-sm); }
-.analytics-hero { display:grid; grid-template-columns:minmax(0,1.08fr) minmax(22rem,.92fr); gap:var(--nexa-space-5); align-items:stretch; padding:var(--nexa-space-6); border:1px solid var(--nexa-color-primary-200); border-radius:var(--nexa-radius-control); background:linear-gradient(135deg,var(--nexa-surface-info),var(--nexa-surface-card) 68%,var(--nexa-color-neutral-50)); }
+.period-controls label { display:grid; gap:var(--nexa-space-1); }
+.period-feedback { display:flex; flex-wrap:wrap; gap:var(--nexa-space-1); align-items:center; margin:var(--nexa-space-4) 0 0; color:var(--nexa-color-text-muted); font-size:var(--nexa-font-size-xs); }
+.analytics-hero { display:grid; grid-template-columns:minmax(0,1.08fr) minmax(22rem,.92fr); gap:var(--nexa-space-5); align-items:stretch; padding:var(--nexa-space-6); border:1px solid var(--nexa-color-primary-200); border-radius:var(--nexa-radius-control); background:var(--nexa-surface-info); }
 .hero-copy { align-content:center; min-width:0; }
 .hero-eyebrow,.section-kicker { color:var(--nexa-color-primary-600); font-size:var(--nexa-font-size-xs); font-weight:var(--nexa-font-weight-bold); letter-spacing:var(--nexa-letter-spacing-wider); text-transform:uppercase; }
 .hero-copy h2 { margin:0; color:var(--nexa-color-text-primary); font-family:var(--nexa-font-family-display); font-size:clamp(1.45rem,2.6vw,2.2rem); line-height:1.16; }
@@ -19,7 +21,7 @@
 .control-copy small { overflow-wrap:anywhere; color:var(--nexa-color-text-muted); font-size:var(--nexa-font-size-xs); }
 .metric-grid,.analytics-score-grid,.flow-grid { display:grid; gap:var(--nexa-space-3); }
 .metric-grid { grid-template-columns:repeat(4,minmax(0,1fr)); }
-.analytics-score-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+.analytics-score-grid { grid-template-columns:repeat(3,minmax(0,1fr)); }
 .analytics-score-card { display:grid; gap:var(--nexa-space-4); padding:var(--nexa-space-5); border:1px solid var(--nexa-color-primary-200); border-radius:var(--nexa-radius-control); background:var(--nexa-surface-card); }
 .score-copy { gap:var(--nexa-space-1); }
 .score-copy strong { color:var(--nexa-color-primary-700); font-family:var(--nexa-font-family-display); font-size:var(--nexa-font-size-3xl); line-height:1; }
@@ -56,7 +58,6 @@
 .route-grid,.workload-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:var(--nexa-space-3); }
 .route-card { display:grid; gap:var(--nexa-space-3); min-width:0; padding:var(--nexa-space-4); border:1px solid var(--nexa-color-border-default); border-radius:var(--nexa-radius-control); background:var(--nexa-surface-inset); }
 .route-heading strong,.workload-grid strong { color:var(--nexa-color-text-primary); font-family:var(--nexa-font-family-display); font-size:var(--nexa-font-size-xl); }
-.empty-inline { margin:0; }
 @media (max-width:1050px) { .metric-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } .route-grid,.workload-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } }
 @media (max-width:860px) { .analytics-hero { grid-template-columns:1fr; } .analytics-panel { grid-column:1/-1; } }
-@media (max-width:600px) { .analytics-hero { padding:var(--nexa-space-5); } .metric-grid,.analytics-score-grid,.route-grid,.workload-grid,.movement-summary { grid-template-columns:1fr; } .panel-header,.panel-content { padding-inline:var(--nexa-space-4); } .control-metric { grid-template-columns:3.25rem minmax(0,1fr); } }
+@media (max-width:600px) { .analytics-hero { padding:var(--nexa-space-5); } .metric-grid,.analytics-score-grid,.route-grid,.workload-grid,.movement-summary,.period-controls.form-grid { grid-template-columns:1fr; } .panel-header,.panel-content { padding-inline:var(--nexa-space-4); } .control-metric { grid-template-columns:3.25rem minmax(0,1fr); } }
