@@ -26,6 +26,10 @@ const REASON_COPY: Record<ForbiddenReason, RegExp> = {
   PERMISSION_NOT_GRANTED: /permission required|permiso requerido/i,
 };
 
+const hasDedicatedCompanyOwnerFixture = Boolean(
+  process.env.NEXA_E2E_COMPANY_OWNER_EMAIL && process.env.NEXA_E2E_COMPANY_OWNER_PASSWORD,
+);
+
 const ROLE_ACCESS_MATRIX: readonly RoleAccessCase[] = [
   {
     label: 'pure TENANT_ADMIN',
@@ -211,6 +215,9 @@ async function assertDeniedRoute(page: Page, denied: DeniedRoute): Promise<void>
 
 for (const roleCase of ROLE_ACCESS_MATRIX) {
   test(`${roleCase.label} landing and allowed/denied route matrix`, async ({ page }) => {
+    if (roleCase.credentialRole === 'COMPANY_OWNER' && !hasDedicatedCompanyOwnerFixture) {
+      test.skip(true, 'The local API bootstrap exposes COMPANY_OWNER through the founder multi-role fixture; CI provides a dedicated fixture.');
+    }
     requiresCredentials(roleCase.credentialRole);
     await signInAndAssertRoles(page, roleCase.credentialRole, roleCase.expectedRoles);
     await expect.poll(() => new URL(page.url()).pathname).toBe(roleCase.landing);

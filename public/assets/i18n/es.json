@@ -23,10 +23,11 @@
     "subtitle": "Salud comercial de solo lectura desde las proyecciones autorizadas del workspace.",
     "metricsLabel": "Indicadores comerciales del workspace",
     "loading": "Cargando indicadores del workspace…",
-    "errorTitle": "Resumen ejecutivo no disponible",
-    "errorDescription": "No se pudieron cargar las proyecciones autorizadas del workspace. Reintenta.",
+    "partialErrorTitle": "Algunos indicadores del workspace no están disponibles",
+    "partialErrorDescription": "Las fuentes autorizadas no disponibles se identifican en sus indicadores. Los demás indicadores del workspace permanecen disponibles. Reintentar consulta solo las fuentes no disponibles.",
     "retry": "Reintentar",
     "accessNotGranted": "Acceso no concedido para este workspace",
+    "sourceUnavailable": "Fuente de datos no disponible. Reintenta las fuentes no disponibles.",
     "metrics": { "salesOrders": "Órdenes de venta", "purchaseRequests": "Solicitudes de compra", "clientAccounts": "Cuentas cliente", "warehouses": "Almacenes", "inventoryLots": "Lotes de inventario", "activeDispatches": "Despachos activos", "dispatchIncidents": "Incidentes de despacho", "deliveredToday": "Entregados hoy" },
     "hints": { "salesOrders": "Órdenes visibles para Sales", "purchaseRequests": "Solicitudes visibles para Sales", "clientAccounts": "Cuentas visibles para Sales", "warehouses": "Almacenes visibles para Warehouse", "inventoryLots": "Lotes rastreados por Warehouse", "activeDispatches": "Carga operativa actual de despachos", "dispatchIncidents": "Incidentes reportados por operaciones", "deliveredToday": "Despachos entregados reportados hoy" },
     "activity": { "title": "Actividad comercial reciente", "description": "Eventos recibidos desde el change-feed autorizado del workspace.", "emptyTitle": "Sin actividad reciente", "emptyDescription": "Los nuevos eventos autorizados del workspace aparecerán aquí." }
@@ -360,6 +361,7 @@
   "operationsDashboard": {
     "eyebrow": "Operación de cadena de frío",
     "loading": "Cargando operación…",
+    "retry": "Reintentar",
     "errorTitle": "No pudimos cargar la operación",
     "partialData": "Algunos datos operativos no están disponibles temporalmente; los valores mostrados se limitan a las fuentes API exitosas.",
     "catalogUnavailable": "No se pudieron cargar los nombres de productos; los identificadores de inventario siguen visibles desde la API.",
@@ -390,7 +392,7 @@
       "proof": "Pruebas de entrega", "proofHint": "Completa receptor y evidencia declarada."
     },
     "bannerEyebrow": "S1 valida → S2 ejecuta",
-    "bannerTitle": "{{ dispatches }} despachos activos, {{ pod }} pruebas de entrega pendientes y {{ lots }} lotes prioritarios FEFO.",
+    "bannerTitle": "{{ dispatches }} despachos activos, {{ pod }} pruebas de entrega pendientes y {{ reservations }} reservas listas para despacho.",
     "bannerNote": "Usa el tablero para avanzar desde la preparación documental hasta la preparación, la ruta y la prueba de entrega.",
     "criticalStock": "Stock crítico",
     "criticalStockSub": "Lotes agotados o no disponibles",

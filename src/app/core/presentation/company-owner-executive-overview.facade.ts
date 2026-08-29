@@ -1,6 +1,6 @@
-import { Injectable, inject, signal } from '@angular/core';
+import { computed, Injectable, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { forkJoin, map, of, scan } from 'rxjs';
+import { catchError, forkJoin, map, Observable, of, scan } from 'rxjs';
 import { ChangeFeedService } from '../change-feed/application/change-feed.service';
 import type { ChangeEvent } from '../change-feed/domain/change-feed.models';
 import { CustomerRelationshipsApiPort } from '../../customerbuyerrelationships/domain/ports/customer-relationships-api.port';
@@ -24,6 +24,24 @@ export interface CompanyOwnerExecutiveOverviewSnapshot {
   readonly deliveredToday: number | null;
 }
 
+export type CompanyOwnerOverviewProjection =
+  | 'salesOrders'
+  | 'purchaseRequests'
+  | 'clientAccounts'
+  | 'warehouses'
+  | 'inventoryLots'
+  | 'logistics';
+
+export type CompanyOwnerOverviewProjectionState = 'ready' | 'notGranted' | 'failed';
+
+type CompanyOwnerOverviewProjectionStates = Record<CompanyOwnerOverviewProjection, CompanyOwnerOverviewProjectionState>;
+
+interface CompanyOwnerOverviewProjectionResult {
+  readonly projection: CompanyOwnerOverviewProjection;
+  readonly state: CompanyOwnerOverviewProjectionState;
+  readonly snapshot: Partial<CompanyOwnerExecutiveOverviewSnapshot>;
+}
+
 const EMPTY_SNAPSHOT: CompanyOwnerExecutiveOverviewSnapshot = {
   salesOrders: null,
   purchaseRequests: null,
@@ -33,6 +51,33 @@ const EMPTY_SNAPSHOT: CompanyOwnerExecutiveOverviewSnapshot = {
   activeDispatches: null,
   dispatchIncidents: null,
   deliveredToday: null,
+};
+
+const ALL_PROJECTIONS: readonly CompanyOwnerOverviewProjection[] = [
+  'salesOrders',
+  'purchaseRequests',
+  'clientAccounts',
+  'warehouses',
+  'inventoryLots',
+  'logistics',
+];
+
+const INITIAL_PROJECTION_STATES: CompanyOwnerOverviewProjectionStates = {
+  salesOrders: 'notGranted',
+  purchaseRequests: 'notGranted',
+  clientAccounts: 'notGranted',
+  warehouses: 'notGranted',
+  inventoryLots: 'notGranted',
+  logistics: 'notGranted',
+};
+
+const NOT_GRANTED_SNAPSHOT: Record<CompanyOwnerOverviewProjection, Partial<CompanyOwnerExecutiveOverviewSnapshot>> = {
+  salesOrders: { salesOrders: null },
+  purchaseRequests: { purchaseRequests: null },
+  clientAccounts: { clientAccounts: null },
+  warehouses: { warehouses: null },
+  inventoryLots: { inventoryLots: null },
+  logistics: { activeDispatches: null, dispatchIncidents: null, deliveredToday: null },
 };
 
 /**
@@ -52,8 +97,12 @@ export class CompanyOwnerExecutiveOverviewFacade {
   private readonly changeFeed = inject(ChangeFeedService);
 
   readonly loading = signal(false);
-  readonly error = signal<string | null>(null);
+  readonly hasLoaded = signal(false);
   readonly snapshot = signal<CompanyOwnerExecutiveOverviewSnapshot>(EMPTY_SNAPSHOT);
+  readonly projectionStates = signal<CompanyOwnerOverviewProjectionStates>(INITIAL_PROJECTION_STATES);
+  readonly failedSources = computed(() => ALL_PROJECTIONS.filter((projection) => this.projectionStates()[projection] === 'failed'));
+  readonly hasFailures = computed(() => this.failedSources().length > 0);
+  readonly error = computed(() => this.hasFailures() ? 'COMPANY_OWNER_OVERVIEW_PARTIAL_LOAD_FAILED' : null);
   readonly activity = toSignal(
     this.changeFeed.events.pipe(
       scan(
@@ -69,55 +118,118 @@ export class CompanyOwnerExecutiveOverviewFacade {
   }
 
   load(): void {
+    this.loadProjections(ALL_PROJECTIONS);
+  }
+
+  retry(): void {
+    this.load();
+  }
+
+  retryFailed(): void {
+    this.loadProjections(this.failedSources());
+  }
+
+  projectionState(projection: CompanyOwnerOverviewProjection): CompanyOwnerOverviewProjectionState {
+    return this.projectionStates()[projection];
+  }
+
+  private loadProjections(projections: readonly CompanyOwnerOverviewProjection[]): void {
+    if (!projections.length) return;
+
     this.loading.set(true);
-    this.error.set(null);
 
     const canReadSales = this.authentication.hasPermission(PLATFORM_PERMISSIONS.salesRead);
     const canReadInventory = this.authentication.hasPermission(PLATFORM_PERMISSIONS.warehouseRead);
     const canReadLogistics = this.authentication.hasPermission(PLATFORM_PERMISSIONS.logisticsRead);
 
-    forkJoin({
-      salesOrders: canReadSales
-        ? this.sales.salesOrders({ ...DEFAULT_SALES_ORDER_FILTERS, size: 1 }).pipe(map((page) => page.totalItems))
-        : of(null),
-      purchaseRequests: canReadSales
-        ? this.sales.purchaseRequests({ ...DEFAULT_PURCHASE_REQUEST_FILTERS, size: 1 }).pipe(map((page) => page.totalItems))
-        : of(null),
-      clientAccounts: canReadSales
-        ? this.customers.clientAccounts({ ...DEFAULT_CLIENT_ACCOUNT_FILTERS, size: 1 }).pipe(map((page) => page.totalItems))
-        : of(null),
-      warehouses: canReadInventory
-        ? this.warehouse.warehouses().pipe(map((page) => page.total))
-        : of(null),
-      inventoryLots: canReadInventory
-        ? this.warehouse.lots().pipe(map((page) => page.total))
-        : of(null),
-      logistics: canReadLogistics ? this.logistics.dashboard() : of(null),
-    }).subscribe({
-      next: ({ salesOrders, purchaseRequests, clientAccounts, warehouses, inventoryLots, logistics }) => {
-        const activeDispatches = logistics
-          ? logistics.readyForOperations + logistics.preparing + logistics.assigned + logistics.scheduled + logistics.readyForRoute + logistics.inRoute
-          : null;
-        this.snapshot.set({
-          salesOrders,
-          purchaseRequests,
-          clientAccounts,
-          warehouses,
-          inventoryLots,
-          activeDispatches,
-          dispatchIncidents: logistics?.incidents ?? null,
-          deliveredToday: logistics?.deliveredToday ?? null,
-        });
-        this.loading.set(false);
-      },
-      error: () => {
-        this.error.set('COMPANY_OWNER_OVERVIEW_LOAD_FAILED');
+    forkJoin(projections.map((projection) => this.requestProjection(projection, {
+      canReadSales,
+      canReadInventory,
+      canReadLogistics,
+    }))).subscribe({
+      next: (results) => {
+        this.snapshot.update((current) => results.reduce(
+          (snapshot, result) => ({ ...snapshot, ...result.snapshot }),
+          current,
+        ));
+        this.projectionStates.update((current) => results.reduce(
+          (states, result) => ({ ...states, [result.projection]: result.state }),
+          current,
+        ));
+        this.hasLoaded.set(true);
         this.loading.set(false);
       },
     });
   }
 
-  retry(): void {
-    this.load();
+  private requestProjection(
+    projection: CompanyOwnerOverviewProjection,
+    permissions: { readonly canReadSales: boolean; readonly canReadInventory: boolean; readonly canReadLogistics: boolean },
+  ) {
+    switch (projection) {
+      case 'salesOrders':
+        return this.request(
+          projection,
+          permissions.canReadSales,
+          () => this.sales.salesOrders({ ...DEFAULT_SALES_ORDER_FILTERS, size: 1 }).pipe(map((page) => ({ salesOrders: page.totalItems }))),
+        );
+      case 'purchaseRequests':
+        return this.request(
+          projection,
+          permissions.canReadSales,
+          () => this.sales.purchaseRequests({ ...DEFAULT_PURCHASE_REQUEST_FILTERS, size: 1 }).pipe(map((page) => ({ purchaseRequests: page.totalItems }))),
+        );
+      case 'clientAccounts':
+        return this.request(
+          projection,
+          permissions.canReadSales,
+          () => this.customers.clientAccounts({ ...DEFAULT_CLIENT_ACCOUNT_FILTERS, size: 1 }).pipe(map((page) => ({ clientAccounts: page.totalItems }))),
+        );
+      case 'warehouses':
+        return this.request(
+          projection,
+          permissions.canReadInventory,
+          () => this.warehouse.warehouses().pipe(map((page) => ({ warehouses: page.total }))),
+        );
+      case 'inventoryLots':
+        return this.request(
+          projection,
+          permissions.canReadInventory,
+          () => this.warehouse.lots().pipe(map((page) => ({ inventoryLots: page.total }))),
+        );
+      case 'logistics':
+        return this.request(
+          projection,
+          permissions.canReadLogistics,
+          () => this.logistics.dashboard().pipe(map((dashboard) => ({
+            activeDispatches: dashboard.readyForOperations + dashboard.preparing + dashboard.assigned + dashboard.scheduled + dashboard.readyForRoute + dashboard.inRoute,
+            dispatchIncidents: dashboard.incidents,
+            deliveredToday: dashboard.deliveredToday,
+          }))),
+        );
+    }
+  }
+
+  private request(
+    projection: CompanyOwnerOverviewProjection,
+    authorized: boolean,
+    request: () => Observable<Partial<CompanyOwnerExecutiveOverviewSnapshot>>,
+  ) {
+    if (!authorized) {
+      return of<CompanyOwnerOverviewProjectionResult>({
+        projection,
+        state: 'notGranted',
+        snapshot: NOT_GRANTED_SNAPSHOT[projection],
+      });
+    }
+
+    return request().pipe(
+      map((snapshot) => ({ projection, state: 'ready' as const, snapshot })),
+      catchError(() => of<CompanyOwnerOverviewProjectionResult>({
+        projection,
+        state: 'failed',
+        snapshot: NOT_GRANTED_SNAPSHOT[projection],
+      })),
+    );
   }
 }

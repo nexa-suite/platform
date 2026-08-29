@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { firstPermittedPlatformLanding, platformLandingForUser, PLATFORM_AREAS, PLATFORM_LANDINGS, PLATFORM_PERMISSIONS } from './platform-permissions';
+import { firstPermittedPlatformLanding, platformLandingForUser, platformOperationalRoleForUser, PLATFORM_AREAS, PLATFORM_LANDINGS, PLATFORM_PERMISSIONS } from './platform-permissions';
 
 describe('platform permission landings', () => {
   it('resolves a landing for a custom role from effective permissions', () => {
@@ -24,6 +24,20 @@ describe('platform permission landings', () => {
       (permission) => permission === PLATFORM_PERMISSIONS.logisticsRead || permission === PLATFORM_PERMISSIONS.warehouseRead,
     );
     expect(landing?.path).toBe('/ops/operations/dispatch-orders');
+  });
+
+  it('keeps a multi-role logistics session on the dispatch work area', () => {
+    expect(platformOperationalRoleForUser(
+      { subject: 'logistics', identifier: 'logistics@nexa.test', displayName: 'Logistics', workspaceSlug: 'icisa', roles: ['WAREHOUSE', 'LOGISTICS'], permissions: [PLATFORM_PERMISSIONS.logisticsRead, PLATFORM_PERMISSIONS.warehouseRead] },
+      () => true,
+    )).toBe('LOGISTICS');
+  });
+
+  it('uses the permission envelope only for custom operational sessions', () => {
+    expect(platformOperationalRoleForUser(
+      { subject: 'custom', identifier: 'custom@nexa.test', displayName: 'Custom', workspaceSlug: 'icisa', roles: [], permissions: [PLATFORM_PERMISSIONS.warehouseRead] },
+      (permission) => permission === PLATFORM_PERMISSIONS.warehouseRead,
+    )).toBe('WAREHOUSE');
   });
 
   it('keeps the canonical internal work areas explicit and leaves BOM outside the current contract', () => {
