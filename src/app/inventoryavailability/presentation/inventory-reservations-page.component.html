@@ -1,0 +1,119 @@
+<section class="page reservations-page">
+  <nexa-page-header
+    [eyebrow]="'warehouse.reservationsUi.eyebrow' | translate"
+    [title]="'warehouse.reservationsUi.title' | translate"
+    [subtitle]="'warehouse.reservationsUi.description' | translate" />
+
+  @if (facade.loading()) {
+    <nexa-loading-state [label]="'warehouse.reservationsUi.loading' | translate" />
+  } @else if (facade.error(); as error) {
+    <nexa-error-state
+      [title]="'warehouse.reservationsUi.errorTitle' | translate"
+      [description]="error"
+      (retry)="facade.retry()" />
+  } @else {
+    <section class="reservation-metrics" [attr.aria-label]="'warehouse.reservationsUi.title' | translate">
+      <nexa-metric-card
+        [label]="'warehouse.reservationsUi.metrics.total' | translate"
+        [value]="filteredReservations().length"
+        [hint]="'warehouse.reservationsUi.metrics.totalHint' | translate"
+        icon="fact_check" />
+      <nexa-metric-card
+        [label]="'warehouse.reservationsUi.metrics.active' | translate"
+        [value]="activeCount()"
+        [hint]="'warehouse.reservationsUi.metrics.activeHint' | translate"
+        icon="lock"
+        tone="info" />
+      <nexa-metric-card
+        [label]="'warehouse.reservationsUi.metrics.shortage' | translate"
+        [value]="shortageCount()"
+        [hint]="'warehouse.reservationsUi.metrics.shortageHint' | translate"
+        icon="warning"
+        tone="danger" />
+      <nexa-metric-card
+        [label]="'warehouse.reservationsUi.metrics.releasable' | translate"
+        [value]="releasableCount()"
+        [hint]="'warehouse.reservationsUi.metrics.releasableHint' | translate"
+        icon="check"
+        tone="success" />
+    </section>
+
+    <nexa-section-panel
+      [title]="'warehouse.reservationsUi.historyTitle' | translate"
+      [description]="'warehouse.reservationsUi.historyDescription' | translate">
+      <div class="reservations-toolbar" role="search">
+        <label class="search-field">
+          <span class="visually-hidden">{{ 'warehouse.reservationsUi.search' | translate }}</span>
+          <nexa-icon name="search" />
+          <input
+            type="search"
+            [value]="search()"
+            [placeholder]="'warehouse.reservationsUi.search' | translate"
+            (input)="setSearch($event)" />
+        </label>
+        <label class="status-field">
+          <span>{{ 'warehouse.reservationsUi.statusFilter' | translate }}</span>
+          <select [value]="status()" (change)="setStatus($event)">
+            <option value="">{{ 'warehouse.reservationsUi.allStatuses' | translate }}</option>
+            @for (option of statusOptions; track option) {
+              <option [value]="option">{{ ('warehouse.status.' + option) | translate }}</option>
+            }
+          </select>
+        </label>
+      </div>
+
+      @if (filteredReservations().length) {
+        <div class="results-note" role="status">
+          {{ filteredReservations().length }} {{ 'warehouse.reservationsUi.resultCount' | translate }}
+        </div>
+        <div class="table-shell">
+          <table>
+            <caption>{{ 'warehouse.reservationsUi.historyTitle' | translate }}</caption>
+            <thead>
+              <tr>
+                <th scope="col">{{ 'warehouse.reservationsUi.fields.order' | translate }}</th>
+                <th scope="col">{{ 'warehouse.reservationsUi.fields.client' | translate }}</th>
+                <th scope="col">{{ 'warehouse.reservationsUi.fields.status' | translate }}</th>
+                <th scope="col">{{ 'warehouse.reservationsUi.fields.created' | translate }}</th>
+                <th scope="col">{{ 'warehouse.reservationsUi.fields.expires' | translate }}</th>
+                <th scope="col">{{ 'warehouse.reservationsUi.fields.allocations' | translate }}</th>
+                <th scope="col">{{ 'warehouse.reservationsUi.fields.actions' | translate }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (reservation of filteredReservations(); track reservation.id) {
+                <tr>
+                  <td>
+                    <a class="table-link" [routerLink]="['/ops/operations/inventory/reservations', reservation.id]">
+                      {{ reservation.orderNumber }}
+                    </a>
+                    <small>{{ reservation.salesOrderId }}</small>
+                  </td>
+                  <td>{{ reservation.clientAccountId || '—' }}</td>
+                  <td><nexa-status-badge [label]="('warehouse.status.' + reservation.status) | translate" [tone]="statusTone(reservation.status)" /></td>
+                  <td><time [attr.datetime]="reservation.createdAt">{{ reservation.createdAt | date:'medium' }}</time></td>
+                  <td><time [attr.datetime]="reservation.expiresAt">{{ reservation.expiresAt | date:'medium' }}</time></td>
+                  <td class="allocation-value">{{ reservation.allocations?.length ?? 0 }}</td>
+                  <td>
+                    @if (reservation.status === 'RESERVED') {
+                      <button class="release-button" type="button" (click)="release(reservation.id, reservation.version)" [disabled]="!facade.canWrite()">
+                        {{ 'warehouse.reservationsUi.release' | translate }}
+                      </button>
+                    } @else {
+                      <span class="muted-action">{{ 'warehouse.reservationsUi.noAction' | translate }}</span>
+                    }
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      } @else {
+        <nexa-empty-state
+          icon="fact_check"
+          [title]="'warehouse.reservationsUi.emptyTitle' | translate"
+          [description]="'warehouse.reservationsUi.emptyDescription' | translate" />
+      }
+    </nexa-section-panel>
+  }
+</section>

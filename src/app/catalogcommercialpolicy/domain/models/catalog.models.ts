@@ -7,6 +7,13 @@ export interface CatalogMoney {
   readonly currency: string;
 }
 
+export interface CatalogAppliedPromotion {
+  readonly id: string;
+  readonly name: string | null;
+  readonly discountType: string | null;
+  readonly discountAmount: CatalogMoney;
+}
+
 export interface CatalogImage {
   readonly url: string | null;
   readonly fileName: string | null;
@@ -28,9 +35,19 @@ export interface ProductCatalogItem {
   readonly netWeight: number | null;
   readonly grossWeight: number | null;
   readonly unitPrice: CatalogMoney;
+  /** Effective server-calculated price. unitPrice remains for cart compatibility. */
+  readonly basePrice?: CatalogMoney | null;
+  readonly discountAmount?: CatalogMoney | null;
+  readonly promotionLabel?: string | null;
+  readonly appliedPromotions?: readonly CatalogAppliedPromotion[];
+  readonly pricingAsOf?: string | null;
   readonly coldChain: ColdChainRequirement;
+  readonly status?: string;
   readonly availabilityStatus: string;
   readonly nearExpiry: boolean;
+  readonly availabilityAsOf?: string | null;
+  readonly productVariantCode?: string | null;
+  readonly productVariantName?: string | null;
   readonly image: CatalogImage;
 }
 

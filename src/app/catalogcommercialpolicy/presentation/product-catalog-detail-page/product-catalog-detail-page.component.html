@@ -1,5 +1,5 @@
 <div class="catalog-detail-page">
-  <a mat-button routerLink="/ops/product-catalog">
+  <a class="back-link" routerLink="/ops/product-catalog">
     <nexa-icon name="arrow_back" />
     {{ 'catalog.backToCatalog' | translate }}
   </a>
@@ -27,27 +27,48 @@
     [eyebrow]="'catalog.detailEyebrow' | translate"
     [title]="product.productFamilyName"
     [subtitle]="product.brand" />
-  <mat-card class="detail-card">
+  <article class="detail-card">
     <div class="image-frame">
       @if (product.image.url) {
         <img [src]="product.image.url" [alt]="product.productFamilyName" />
       } @else {
         <nexa-icon name="image" />
       }
+      <span class="image-caption">{{ coldChainLabel(product.coldChain) | translate }}</span>
     </div>
     <div class="detail-copy">
+      <div class="detail-heading">
+        <div>
+          <span class="category">{{ product.category }}</span>
+          <h2>{{ product.productFamilyName }}</h2>
+          @if (product.name !== product.productFamilyName) { <p class="product-name">{{ product.name }}</p> }
+          <code>{{ product.skuCode || product.id }}</code>
+        </div>
+        <span class="brand-badge">{{ product.brand }}</span>
+      </div>
       <div class="badges">
         <nexa-cold-chain-badge [label]="coldChainLabel(product.coldChain) | translate" [variant]="coldChainVariant(product.coldChain)" />
+        <span class="availability-badge" [class.available]="!product.nearExpiry && !isUnavailable(product)" [class.warning]="product.nearExpiry" [class.unavailable]="isUnavailable(product)"><span aria-hidden="true"></span>{{ availabilityLabelKey(product) | translate }}</span>
       </div>
-      <p class="category">{{ product.category }} · {{ product.skuCode || product.id }}</p>
       <p class="description">{{ product.description }}</p>
       <dl class="commercial-details">
         <div><dt>{{ 'catalog.columns.presentation' | translate }}</dt><dd>{{ product.presentation }}</dd></div>
-        <div><dt>Product Family</dt><dd>{{ product.productFamilyName }}</dd></div>
-        <div><dt>Availability</dt><dd [class.near-expiry]="product.nearExpiry">{{ product.availabilityStatus }}</dd></div>
+        @if (product.productVariantName) { <div><dt>Variant</dt><dd>{{ product.productVariantName }}</dd></div> }
         @if (product.unitOfMeasure) { <div><dt>{{ 'catalog.fields.unitOfMeasure' | translate }}</dt><dd>{{ product.unitOfMeasure }}</dd></div> }
-        <div><dt>{{ 'catalog.columns.price' | translate }}</dt><dd>{{ formatPrice(product) }}</dd></div>
+        @if (product.packagingType) { <div><dt>Packaging</dt><dd>{{ product.packagingType }}</dd></div> }
       </dl>
+      <div class="commercial-price">
+        <span>{{ 'catalog.columns.price' | translate }}</span>
+        @if (hasDiscount(product)) { <del>{{ formatBasePrice(product) }}</del> }
+        <strong>{{ formatPrice(product) }}</strong>
+      </div>
+      <div class="detail-actions">
+        <button class="primary-action" type="button" [disabled]="isUnavailable(product)" (click)="toggleCart(product)">
+          <nexa-icon [name]="cart.has(product.id) ? 'remove' : 'add'" />
+          {{ (cart.has(product.id) ? 'catalog.removeFromDraft' : 'catalog.addToDraft') | translate }}
+        </button>
+        <a class="secondary-action" [routerLink]="manualOrderPath()">{{ 'requestBuilder.actions.createOrder' | translate }}</a>
+      </div>
     </div>
-  </mat-card>
+  </article>
 </ng-template>

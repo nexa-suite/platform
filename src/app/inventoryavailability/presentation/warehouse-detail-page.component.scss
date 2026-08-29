@@ -1,0 +1,203 @@
+:host {
+  display: block;
+}
+
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--nexa-space-2);
+  margin-bottom: var(--nexa-space-4);
+  color: var(--nexa-color-primary-700);
+  font-size: var(--nexa-font-size-sm);
+  font-weight: var(--nexa-font-weight-semibold);
+  text-decoration: none;
+}
+
+.back-link nexa-icon {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.back-link:hover {
+  text-decoration: underline;
+}
+
+.zone-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--nexa-space-4);
+  margin-bottom: var(--nexa-space-6);
+}
+
+.zone-form {
+  display: grid;
+  grid-template-columns: minmax(9rem, .8fr) minmax(12rem, 1.2fr) minmax(11rem, 1fr) minmax(8rem, .7fr) minmax(8rem, .7fr) auto;
+  gap: var(--nexa-space-4);
+  align-items: end;
+}
+
+.edit-form {
+  grid-template-columns: minmax(14rem, 1.4fr) minmax(8rem, .7fr) minmax(8rem, .7fr) minmax(10rem, .8fr) auto;
+}
+
+.field {
+  display: grid;
+  gap: var(--nexa-space-2);
+  color: var(--nexa-color-text-primary);
+  font-size: var(--nexa-font-size-sm);
+  font-weight: var(--nexa-font-weight-semibold);
+}
+
+input,
+select {
+  width: 100%;
+  min-height: 3rem;
+  padding: 0 var(--nexa-space-3);
+  border: 1px solid var(--nexa-color-border-default);
+  border-radius: var(--nexa-radius-control);
+  background: var(--nexa-surface-card);
+  color: var(--nexa-color-text-primary);
+  font: inherit;
+}
+
+input:focus-visible,
+select:focus-visible,
+button:focus-visible,
+a:focus-visible {
+  outline: 3px solid var(--nexa-color-primary-100);
+  outline-offset: 2px;
+}
+
+.primary-button,
+.secondary-button,
+.danger-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--nexa-space-2);
+  min-height: 3rem;
+  padding: 0 var(--nexa-space-4);
+  border-radius: var(--nexa-radius-control);
+  font: inherit;
+  font-weight: var(--nexa-font-weight-semibold);
+  cursor: pointer;
+}
+
+.primary-button {
+  border: 1px solid var(--nexa-color-primary-600);
+  background: var(--nexa-color-primary-600);
+  color: var(--nexa-color-text-inverse);
+}
+
+.primary-button:hover:not(:disabled) {
+  background: var(--nexa-color-primary-700);
+}
+
+.secondary-button {
+  border: 1px solid var(--nexa-color-primary-200);
+  background: var(--nexa-surface-card);
+  color: var(--nexa-color-primary-700);
+}
+
+.secondary-button:hover:not(:disabled) {
+  background: var(--nexa-surface-primary-soft);
+}
+
+.danger-button {
+  border: 1px solid var(--nexa-color-danger-200);
+  background: var(--nexa-surface-card);
+  color: var(--nexa-color-danger-text);
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: .5;
+}
+
+.form-actions,
+.row-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--nexa-space-3);
+}
+
+.compact {
+  min-height: 2.5rem;
+  padding-inline: var(--nexa-space-3);
+  font-size: var(--nexa-font-size-sm);
+}
+
+.table-shell {
+  overflow-x: auto;
+  border: 1px solid var(--nexa-color-border-default);
+  border-radius: var(--nexa-radius-lg);
+}
+
+table {
+  width: 100%;
+  min-width: 64rem;
+  border-collapse: collapse;
+}
+
+caption {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+}
+
+th,
+td {
+  padding: var(--nexa-space-4);
+  border-bottom: 1px solid var(--nexa-color-border-decorative);
+  text-align: left;
+  vertical-align: middle;
+}
+
+th {
+  background: var(--nexa-surface-inset);
+  color: var(--nexa-color-text-secondary);
+  font-size: var(--nexa-font-size-xs);
+  font-weight: var(--nexa-font-weight-semibold);
+  letter-spacing: .045em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+tbody tr:hover {
+  background: var(--nexa-surface-hover);
+}
+
+.zone-type {
+  color: var(--nexa-color-text-secondary);
+  font-size: var(--nexa-font-size-sm);
+}
+
+.muted-value {
+  color: var(--nexa-color-text-secondary);
+  font-size: var(--nexa-font-size-sm);
+}
+
+@media (max-width: 1120px) {
+  .zone-metrics {
+    grid-template-columns: 1fr;
+  }
+
+  .zone-form,
+  .edit-form {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 620px) {
+  .zone-form,
+  .edit-form {
+    grid-template-columns: 1fr;
+  }
+}

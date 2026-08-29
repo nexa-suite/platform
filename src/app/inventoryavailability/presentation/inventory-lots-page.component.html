@@ -1,0 +1,110 @@
+<section class="page lots-page">
+  <nexa-page-header
+    [eyebrow]="'warehouse.lotsUi.eyebrow' | translate"
+    [title]="'warehouse.lotsUi.title' | translate"
+    [subtitle]="'warehouse.lotsUi.description' | translate" />
+
+  @if (facade.loading()) {
+    <nexa-loading-state [label]="'warehouse.lotsUi.loading' | translate" />
+  } @else if (facade.error(); as error) {
+    <nexa-error-state
+      [title]="'warehouse.lotsUi.errorTitle' | translate"
+      [description]="error"
+      (retry)="facade.retry()" />
+  } @else {
+    <section class="lot-metrics" [attr.aria-label]="'warehouse.lotsUi.title' | translate">
+      <nexa-metric-card
+        [label]="'warehouse.lotsUi.historyTitle' | translate"
+        [value]="filteredLots().length"
+        [hint]="'warehouse.lotsUi.resultCount' | translate"
+        icon="inventory_2" />
+      <nexa-metric-card
+        [label]="'warehouse.inventoryUi.filters.available' | translate"
+        [value]="availableLots()"
+        [hint]="availableUnits() + ' ' + ('warehouse.inventoryUi.fields.available' | translate).toLowerCase()"
+        icon="verified"
+        tone="success" />
+      <nexa-metric-card
+        [label]="'warehouse.inventoryUi.filters.attention' | translate"
+        [value]="attentionLots()"
+        [hint]="'warehouse.inventoryUi.metrics.fefoHint' | translate"
+        icon="warning"
+        tone="warning" />
+    </section>
+
+    <nexa-section-panel
+      [title]="'warehouse.lotsUi.historyTitle' | translate"
+      [description]="'warehouse.lotsUi.historyDescription' | translate">
+      <div class="lots-toolbar" role="search">
+        <label class="search-field">
+          <span class="visually-hidden">{{ 'warehouse.lotsUi.search' | translate }}</span>
+          <nexa-icon name="search" />
+          <input
+            type="search"
+            [value]="search()"
+            [placeholder]="'warehouse.lotsUi.search' | translate"
+            (input)="setSearch($event)" />
+        </label>
+        <label class="status-field">
+          <span>{{ 'warehouse.lotsUi.statusFilter' | translate }}</span>
+          <select [value]="status()" (change)="setStatus($event)">
+            <option value="">{{ 'warehouse.lotsUi.allStatuses' | translate }}</option>
+            @for (option of statusOptions; track option) {
+              <option [value]="option">{{ ('warehouse.status.' + option) | translate }}</option>
+            }
+          </select>
+        </label>
+      </div>
+
+      @if (filteredLots().length) {
+        <div class="results-note" role="status">
+          <span>{{ filteredLots().length }} {{ 'warehouse.lotsUi.resultCount' | translate }}</span>
+          @if (search() || status()) {
+            <span class="filter-context">{{ search() || ('warehouse.lotsUi.allStatuses' | translate) }}</span>
+          }
+        </div>
+        <div class="table-shell">
+          <table>
+            <caption>{{ 'warehouse.lotsUi.historyTitle' | translate }}</caption>
+            <thead>
+              <tr>
+                <th scope="col">{{ 'warehouse.lotsUi.fields.catalog' | translate }}</th>
+                <th scope="col">{{ 'warehouse.lotsUi.fields.batch' | translate }}</th>
+                <th scope="col">{{ 'warehouse.lotsUi.fields.expiration' | translate }}</th>
+                <th scope="col">{{ 'warehouse.lotsUi.fields.onHand' | translate }}</th>
+                <th scope="col">{{ 'warehouse.lotsUi.fields.reserved' | translate }}</th>
+                <th scope="col">{{ 'warehouse.lotsUi.fields.available' | translate }}</th>
+                <th scope="col">{{ 'warehouse.lotsUi.fields.status' | translate }}</th>
+                <th scope="col">{{ 'warehouse.lotsUi.fields.actions' | translate }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (lot of filteredLots(); track lot.id) {
+                <tr>
+                  <td>
+                    <a class="table-link" [routerLink]="['/ops/operations/inventory/lots', lot.id]">
+                      {{ lot.catalogItemId }}
+                    </a>
+                    <small class="secondary-value" [title]="lot.skuId ?? ''">{{ lot.skuId ? shortIdentifier(lot.skuId) : '—' }}</small>
+                  </td>
+                  <td><strong>{{ lot.batchNumber }}</strong></td>
+                  <td><time [attr.datetime]="lot.expirationDate">{{ lot.expirationDate | date:'mediumDate' }}</time></td>
+                  <td class="numeric-value">{{ lot.onHand | number:'1.0-2' }} {{ lot.unit }}</td>
+                  <td class="numeric-value">{{ lot.reserved | number:'1.0-2' }} {{ lot.unit }}</td>
+                  <td class="numeric-value available-value">{{ lot.available | number:'1.0-2' }} {{ lot.unit }}</td>
+                  <td><nexa-status-badge [label]="('warehouse.status.' + lot.status) | translate" [tone]="statusTone(lot.status)" /></td>
+                  <td><a class="open-link" [routerLink]="['/ops/operations/inventory/lots', lot.id]">{{ 'warehouse.lotsUi.open' | translate }}</a></td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      } @else {
+        <nexa-empty-state
+          icon="inventory_2"
+          [title]="'warehouse.lotsUi.emptyTitle' | translate"
+          [description]="'warehouse.lotsUi.emptyDescription' | translate" />
+      }
+    </nexa-section-panel>
+  }
+</section>

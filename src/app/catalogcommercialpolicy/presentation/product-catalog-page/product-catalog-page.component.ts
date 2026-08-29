@@ -1,11 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, effect, inject, untracked } from '@angular/core';
-import { MatButtonModule } from '@angular/material/button';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
-import { MatSelectModule } from '@angular/material/select';
-import { MatSortModule, Sort } from '@angular/material/sort';
-import { MatTableModule } from '@angular/material/table';
 import { ActivatedRoute, ParamMap, Router, RouterLink } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { TranslatePipe } from '@ngx-translate/core';
@@ -15,7 +9,6 @@ import { EmptyStateComponent } from '../../../shared/presentation/components/emp
 import { ErrorStateComponent } from '../../../shared/presentation/components/error-state/error-state.component';
 import { LoadingStateComponent } from '../../../shared/presentation/components/loading-state/loading-state.component';
 import { PageHeaderComponent } from '../../../shared/presentation/components/page-header/page-header.component';
-import { SectionPanelComponent } from '../../../shared/presentation/components/section-panel/section-panel.component';
 import { CatalogStateService } from '../../application/catalog-state.service';
 import { PlatformCatalogCartFacade } from '../../../core/presentation/catalog-cart/platform-catalog-cart.facade';
 import {
@@ -30,7 +23,7 @@ import {
 } from '../../domain/models/catalog.models';
 
 type TextFilter = 'q' | 'category' | 'brand';
-type SelectFilter = 'coldChain' | 'status';
+type SelectFilter = 'coldChain';
 
 @Component({
   selector: 'nexa-product-catalog-page',
@@ -39,17 +32,10 @@ type SelectFilter = 'coldChain' | 'status';
     EmptyStateComponent,
     ErrorStateComponent,
     LoadingStateComponent,
-    MatButtonModule,
-    MatFormFieldModule,
     NexaIconComponent,
-    MatInputModule,
     MatPaginatorModule,
-    MatSelectModule,
-    MatSortModule,
-    MatTableModule,
     PageHeaderComponent,
     RouterLink,
-    SectionPanelComponent,
     TranslatePipe
   ],
   templateUrl: './product-catalog-page.component.html',
@@ -67,7 +53,6 @@ export class ProductCatalogPageComponent {
   readonly items = computed(() => this.state().items);
   readonly totalItems = computed(() => this.state().page?.totalItems ?? 0);
   readonly cart = inject(PlatformCatalogCartFacade);
-  readonly displayedColumns = ['name', 'brand', 'category', 'presentation', 'coldChain', 'unitPrice', 'actions'];
 
   constructor() {
     this.cart.activate(this.queryParamMap().get('draftId'));
@@ -81,16 +66,8 @@ export class ProductCatalogPageComponent {
     this.updateQuery({ [key]: (event.target as HTMLInputElement).value.trim(), page: 0 });
   }
 
-  onSelectFilter(key: SelectFilter, value: string): void {
+  onSelectFilter(key: SelectFilter, value: CatalogFilters['coldChain']): void {
     this.updateQuery({ [key]: value, page: 0 });
-  }
-
-  onSort(sort: Sort): void {
-    this.updateQuery({
-      sort: sort.direction ? sort.active : DEFAULT_CATALOG_FILTERS.sort,
-      direction: sort.direction === 'desc' ? 'desc' : 'asc',
-      page: 0
-    });
   }
 
   onPage(page: PageEvent): void {
@@ -134,8 +111,30 @@ export class ProductCatalogPageComponent {
     return `catalog.coldChain.${value.toLowerCase()}`;
   }
 
+  availabilityLabelKey(item: ProductCatalogItem): string {
+    const status = item.availabilityStatus.trim().toUpperCase().replaceAll('-', '_');
+    return `catalog.availability.${status}`;
+  }
+
+  availabilityTone(item: ProductCatalogItem): 'available' | 'low' | 'unavailable' | 'unknown' {
+    const status = item.availabilityStatus.trim().toUpperCase();
+    if (['OUT_OF_STOCK', 'UNAVAILABLE', 'OUT'].includes(status)) return 'unavailable';
+    if (['LOW_STOCK', 'LIMITED', 'NEAR_EXPIRY'].includes(status) || item.nearExpiry) return 'low';
+    if (['AVAILABLE', 'IN_STOCK', 'READY'].includes(status)) return 'available';
+    return 'unknown';
+  }
+
+  hasDiscount(item: ProductCatalogItem): boolean {
+    return Boolean(item.basePrice && item.discountAmount && item.discountAmount.amount > 0 && item.basePrice.amount > item.unitPrice.amount);
+  }
+
   formatPrice(item: ProductCatalogItem): string {
     return `${item.unitPrice.amount.toFixed(2)} ${item.unitPrice.currency}`;
+  }
+
+  formatBasePrice(item: ProductCatalogItem): string {
+    const basePrice = item.basePrice ?? item.unitPrice;
+    return `${basePrice.amount.toFixed(2)} ${basePrice.currency}`;
   }
 
   private readFilters(params: ParamMap): CatalogFilters {
