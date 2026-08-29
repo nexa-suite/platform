@@ -4,6 +4,7 @@ Release notes are scoped to the Platform repository and distinguish the Angular 
 
 | Release | Summary |
 |---|---|
+| [v0.20.0](./v0.20.0.md) | Role-separated API projections and explicit partial-source recovery |
 | [v0.19.0](./v0.19.0.md) | API-backed role continuity and explicit partial-data states |
 | [v0.16.0](./v0.16.0.md) | Live Company Owner projections and permission-aware role surfaces |
 | [v0.15.0](./v0.15.0.md) | IAM, catalog-backed manual Sales flow and route preview |
@@ -26,11 +27,9 @@ Release notes are scoped to the Platform repository and distinguish the Angular 
 |---|---|
 | [UNRELEASED HISTORICAL CANDIDATE: v0.6.0](./v0.6.0.md) | Consolidated into later published work; no tag or GitHub Release |
 
-Current release is `0.19.0`. Company Owner, Sales, Warehouse and
+Current release is `0.20.0`. Company Owner, Sales, Warehouse and
 Logistics/Dispatch remain separated by effective permissions, and operational
-projections now expose API continuity and partial-source states.
-IAM and manual Sales boundaries now
-include workspace recognition, explicit two-factor challenge handling,
-catalog-backed items, capability-scoped navigation and server-backed route
-snapshots with an embedded map. This does not claim full product migration or
-pixel-level parity with Vue.
+dashboards now load only the projections belonging to their primary role while
+preserving successful API data during partial failures. BOM remains
+OPEN/DEFERRED pending an accepted Product, Blueprint and API contract. This
+does not claim full product migration or pixel-level parity with Vue.
