@@ -8,6 +8,7 @@ import { CompanyOwnerExecutiveOverviewFacade } from './core/presentation/company
 import { anyPermissionGuard, permissionGuard } from './core/security/permission.guard';
 import { platformLandingForUser, PLATFORM_PERMISSIONS } from './core/security/platform-permissions';
 import { SalesCommitmentApiService } from './salescommitment/infrastructure/http/sales-commitment-api.service';
+import { SalesCommitmentApiPort } from './salescommitment/domain/ports/sales-commitment-api.port';
 import { ClientAccountsFacade } from './customerbuyerrelationships/application/client-accounts.facade';
 import { PurchaseRequestOperationsFacade } from './salescommitment/application/purchase-requests/purchase-request-operations.facade';
 import { ManualOrderWizardFacade } from './salescommitment/application/manual-orders/manual-order-wizard.facade';
@@ -15,24 +16,20 @@ import { manualOrderStepGuard } from './salescommitment/presentation/manual-orde
 import { createManualOrderDraftGuard } from './salescommitment/presentation/manual-orders/create-manual-order-draft.guard';
 import { SalesOrdersFacade } from './salescommitment/application/sales-orders/sales-orders.facade';
 import { CustomerRelationshipsApiService } from './customerbuyerrelationships/infrastructure/http/customer-relationships-api.service';
-import { customerRelationshipsApiPortProvider } from './customerbuyerrelationships/infrastructure/mock/customer-relationships-api-port.provider';
+import { CustomerRelationshipsApiPort } from './customerbuyerrelationships/domain/ports/customer-relationships-api.port';
 import { SalesCommitmentCatalogGateway } from './salescommitment/infrastructure/catalog/sales-commitment-catalog.gateway';
 import { SalesCommitmentCatalogPort, SalesCommitmentCustomerPort } from './salescommitment/domain/ports/sales-commitment-cross-context.ports';
 import { SalesCommitmentCustomerGateway } from './salescommitment/infrastructure/customer/sales-commitment-customer.gateway';
-import { salesCommitmentApiPortProvider } from './salescommitment/infrastructure/mock/sales-commitment-api-port.provider';
 import { GoogleMapsRoutePort } from './salescommitment/domain/ports/google-maps-route.port';
 import { GoogleMapsRouteAdapter } from './salescommitment/infrastructure/maps/google-maps-route.adapter';
 import { CatalogPromotionTargetsGateway } from './catalogcommercialpolicy/infrastructure/http/catalog-promotion-targets.gateway';
-import { MockCatalogPromotionTargetsGateway } from './catalogcommercialpolicy/infrastructure/mock/mock-catalog-promotion-targets.gateway';
-import { catalogPromotionTargetsPortProvider } from './catalogcommercialpolicy/infrastructure/mock/catalog-promotion-targets-port.provider';
+import { CatalogPromotionTargetsPort } from './catalogcommercialpolicy/domain/ports/catalog-promotion-targets.port';
 import { WarehouseOperationsApiService } from './inventoryavailability/infrastructure/warehouse-operations-api.service';
 import { WarehouseOperationsFacade } from './inventoryavailability/application/warehouse-operations.facade';
+import { WarehouseOperationsApiPort } from './inventoryavailability/domain/ports/warehouse-operations-api.port';
+import { InventoryCatalogPort, SalesOrderVersionPort } from './inventoryavailability/domain/ports/inventory-cross-context.ports';
 import { InventoryCatalogGateway } from './inventoryavailability/infrastructure/catalog/inventory-catalog.gateway';
 import { SalesOrderVersionGateway } from './inventoryavailability/infrastructure/sales/sales-order-version.gateway';
-import { MockWarehouseOperationsApiService } from './inventoryavailability/infrastructure/mock/mock-warehouse-operations-api.service';
-import { warehouseOperationsApiPortProvider } from './inventoryavailability/infrastructure/mock/warehouse-operations-api-port.provider';
-import { MockInventoryCatalogGateway, MockSalesOrderVersionGateway } from './inventoryavailability/infrastructure/mock/mock-inventory-cross-context';
-import { inventoryCatalogPortProvider, salesOrderVersionPortProvider } from './inventoryavailability/infrastructure/mock/inventory-cross-context.providers';
 import { catalogReadGuard, catalogManageGuard, promotionReadGuard, promotionManageGuard } from './core/security/catalog-access.guard';
 import { tenantManagementRoutes } from './tenantaccessgovernance/tenantmanagement/presentation/tenant-management.routes';
 import { OperationalAnalyticsFacade } from './fulfillmentdelivery/application/operational-analytics.facade';
@@ -41,7 +38,6 @@ import { LogisticsApiPort } from './fulfillmentdelivery/domain/ports/logistics-a
 import { CatalogApiPort } from './catalogcommercialpolicy/domain/ports/catalog-api.port';
 import { DEFAULT_CATALOG_FILTERS } from './catalogcommercialpolicy/domain/models/catalog.models';
 import { BusinessDocumentsApiPort } from './businessdocuments/domain/ports/business-documents-api.port';
-import { WarehouseOperationsApiPort } from './inventoryavailability/domain/ports/warehouse-operations-api.port';
 
 const roleLandingRedirect: RedirectFunction = () => {
   const auth = inject(PlatformAuthenticationBoundary);
@@ -59,11 +55,11 @@ const businessDocumentsOrderRedirect: RedirectFunction = (route) =>
 
 const salesCommitmentProviders = [
   SalesCommitmentApiService,
-  salesCommitmentApiPortProvider
+  { provide: SalesCommitmentApiPort, useExisting: SalesCommitmentApiService }
 ];
 const customerRelationshipProviders = [
   CustomerRelationshipsApiService,
-  customerRelationshipsApiPortProvider
+  { provide: CustomerRelationshipsApiPort, useExisting: CustomerRelationshipsApiService }
 ];
 const salesCommitmentReferenceProviders = [
   ...salesCommitmentProviders,
@@ -77,26 +73,21 @@ const salesCommitmentReferenceProviders = [
 ];
 const catalogPromotionProviders = [
   CatalogPromotionTargetsGateway,
-  MockCatalogPromotionTargetsGateway,
-  catalogPromotionTargetsPortProvider
+  { provide: CatalogPromotionTargetsPort, useExisting: CatalogPromotionTargetsGateway }
 ];
 const warehouseProviders = [
   ...salesCommitmentProviders,
   WarehouseOperationsApiService,
-  MockWarehouseOperationsApiService,
-  warehouseOperationsApiPortProvider,
+  { provide: WarehouseOperationsApiPort, useExisting: WarehouseOperationsApiService },
   InventoryCatalogGateway,
-  MockInventoryCatalogGateway,
-  inventoryCatalogPortProvider,
+  { provide: InventoryCatalogPort, useExisting: InventoryCatalogGateway },
   SalesOrderVersionGateway,
-  MockSalesOrderVersionGateway,
-  salesOrderVersionPortProvider,
+  { provide: SalesOrderVersionPort, useExisting: SalesOrderVersionGateway },
   WarehouseOperationsFacade
 ];
 const operationalAnalyticsProviders = [
   WarehouseOperationsApiService,
-  MockWarehouseOperationsApiService,
-  warehouseOperationsApiPortProvider,
+  { provide: WarehouseOperationsApiPort, useExisting: WarehouseOperationsApiService },
   {
     provide: OperationalAnalyticsSourcesPort,
     useFactory: () => {
