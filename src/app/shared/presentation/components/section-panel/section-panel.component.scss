@@ -1,5 +1,6 @@
 :host { display: block; min-width: 0; }
-.panel { padding: var(--nexa-space-6); border: 1px solid var(--nexa-color-border-default); border-radius: var(--nexa-radius-xl); background: var(--nexa-surface-card); box-shadow: var(--nexa-shadow-sm); }
+.panel { min-width: 0; padding: var(--nexa-space-6); border: 1px solid var(--nexa-color-border-default); border-radius: var(--nexa-radius-xl); background: var(--nexa-surface-card); box-shadow: var(--nexa-shadow-sm); }
+.content { min-width: 0; }
 :host.subtle .panel { background: var(--nexa-surface-inset); box-shadow: none; }
 .panel-header { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--nexa-space-4); margin-bottom: var(--nexa-space-5); }
 h2 { margin: 0; font-size: var(--nexa-font-size-2xl); }

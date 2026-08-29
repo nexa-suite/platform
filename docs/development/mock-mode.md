@@ -34,6 +34,23 @@ fixtures deterministas de demostración. No son credenciales ni datos de
 producción. El perfil ICISA reutiliza referencias a los assets catalogados en
 `public/catalog-items/`.
 
+Para revisar una superficie con la persona operativa correspondiente, el mock
+acepta además `nexaDemoRole`:
+
+| Persona local | `nexaDemoRole` | Rol de contrato | Identificador ICISA |
+|---|---|---|---|
+| Sales | `sales` | `SALES` | `carlos@icisa.pe` |
+| Warehouse | `warehouse` | `WAREHOUSE` | `warehouse@icisa.pe` |
+| Dispatch | `dispatch` | `LOGISTICS` | `dispatch@icisa.pe` |
+| Company Owner | `company-owner` | `COMPANY_OWNER` | `company-owner@icisa.pe` |
+| Tenant Admin | `tenant-admin` | `TENANT_ADMIN` | `tenant-admin@icisa.pe` |
+
+Todas usan `NexaDemo123!` y el segundo factor `135790`. Por ejemplo:
+`http://localhost:4200/ops/operations/inventory/lots?nexaDataMode=mock&nexaTenantProfile=icisa&nexaDemoRole=warehouse`.
+`dispatch` es únicamente el alias visual del rol de contrato existente
+`LOGISTICS`; no se crea un rol BOM porque el API actual no expone ese rol ni su
+contrato de permisos.
+
 ## Corte soportado
 
 Los providers seleccionan adaptadores mock dentro del bounded context dueño y
