@@ -3,6 +3,40 @@
 All notable changes to this project are documented in this file.
 The project uses Semantic Versioning.
 
+## [0.20.0] - 2026-08-28
+
+Role-separated API projections for internal operations.
+
+### Added
+
+- Explicit primary operational-role resolution for `WAREHOUSE` and `LOGISTICS` sessions, using backend role identity first and effective permissions only as the fallback.
+- Source-level warehouse failure state with partial-data preservation and retryable API projections.
+- Company Owner projection states that distinguish ready, not-granted and failed sources, with selective retry and stale-value clearing.
+- Authenticated E2E coverage proving that Warehouse and Logistics/Dispatch dashboards load only their respective API projection sets.
+
+### Changed
+
+- Warehouse operations no longer initialize Logistics/Dispatch projections on the role dashboard, and Logistics/Dispatch no longer initializes Warehouse projections there.
+- Company Owner metrics remain server-backed while exposing unavailable sources instead of silently presenting a complete overview.
+- Local E2E Company Owner credentials align with the authoritative founder seed when a dedicated fixture is not provided.
+
+### Boundary
+
+- Sales remains on its existing API-backed Sales Order and commercial projections.
+- Dispatch remains a capability of canonical `LOGISTICS`; no separate `DISPATCH` role was introduced.
+- `BOM` remains `OPEN`/`DEFERRED`: the accepted Blueprint/API expose no canonical role, endpoint, entity or lifecycle contract, so this release does not invent one.
+- API, Blueprint, Design Lab and Vue/legacy sources were not modified; mock adapters remain available only when `nexaDataMode=mock` is explicitly selected.
+
+### Validation
+
+- Platform unit suite: 173 tests across 82 files passed.
+- Design Lab v1.0.2 foundation, catalog asset and bounded-context validators passed.
+- Production build passed with existing SCSS budget warnings.
+- Local authenticated role separation E2E: 4/4 desktop/mobile passed against the Docker API.
+- Local regression E2E: 10/10 desktop/mobile passed; role access matrix: 14 passed and 2 skipped because the local API does not seed a dedicated pure Company Owner identity.
+- Mandatory GitHub CI browser E2E, unit/build checks and CodeQL passed on PR #47.
+- `npm audit --omit=dev`: 0 vulnerabilities.
+
 ## [0.19.0] - 2026-08-28
 
 API-backed continuity across internal operational roles.
