@@ -209,6 +209,11 @@
 .flow-panel-pad { padding: 22px 24px; }
 .flow-stack { display: flex; flex-direction: column; gap: 12px; }
 
+.data-warning { display: flex; align-items: center; flex-wrap: wrap; gap: var(--nexa-space-2); margin-bottom: 16px; padding: var(--nexa-space-3); border: 1px solid var(--nexa-color-warning-border); border-radius: var(--nexa-radius-control); background: var(--nexa-surface-warning); color: var(--nexa-color-warning-text); line-height: var(--nexa-line-height-relaxed); }
+.data-warning:last-child { margin-bottom: 0; }
+.data-warning nexa-icon { flex: 0 0 auto; }
+.data-warning nexa-button { margin-inline-start: auto; }
+
 .flow-list-item {
   display: flex;
   align-items: flex-start;
@@ -321,4 +326,5 @@
   .document-check { grid-template-columns: 1fr; align-items: flex-start; }
   .activity-item { align-items: flex-start; flex-wrap: wrap; }
   .activity-time { margin-left: 18px; }
+  .data-warning nexa-button { margin-inline-start: 0; }
 }

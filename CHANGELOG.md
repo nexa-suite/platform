@@ -3,6 +3,37 @@
 All notable changes to this project are documented in this file.
 The project uses Semantic Versioning.
 
+## [0.21.0] - 2026-08-29
+
+Sales dashboard source-state recovery.
+
+### Added
+
+- Explicit loading and error states for the API-backed pending business-document projection.
+- Independent retry actions for pending business documents and Sales client-name references.
+- Focused component coverage for partial API failures, recovery and preserved Sales request visibility.
+
+### Changed
+
+- The Sales dashboard no longer renders an unavailable document source as an empty list or a zero count.
+- Client reference failures keep the server-backed request inbox visible with identifiers and an explicit recovery notice.
+- Partial-source messaging uses the existing Nexa loading, button, icon, semantic tokens and responsive presentation primitives.
+
+### Boundary
+
+- `COMPANY_OWNER`, `SALES`, `WAREHOUSE` and `LOGISTICS`/Dispatch remain separated by the accepted role and permission model.
+- Dispatch remains a capability of canonical `LOGISTICS`; no separate `DISPATCH` role was introduced.
+- `BOM` remains `OPEN`/`DEFERRED`: no accepted role, endpoint, entity or lifecycle contract was invented.
+- API, Blueprint, Design Lab and Vue/legacy repositories were not modified; the existing API ports remain authoritative.
+
+### Validation
+
+- Platform unit suite: 175 tests across 83 files passed.
+- Design Lab v1.0.2 foundation, catalog asset and bounded-context validators passed.
+- Production build passed with pre-existing SCSS style-budget warnings.
+- `npm audit --omit=dev`: 0 vulnerabilities.
+- Local authenticated Sales E2E is blocked because this environment has no `NEXA_E2E_SALES_*` or `NEXA_DEV_SALES_*` fixture; GitHub CI remains the release gate.
+
 ## [0.20.0] - 2026-08-28
 
 Role-separated API projections for internal operations.
