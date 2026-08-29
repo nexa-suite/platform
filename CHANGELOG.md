@@ -3,6 +3,36 @@
 All notable changes to this project are documented in this file.
 The project uses Semantic Versioning.
 
+## [0.24.0] - 2026-08-29
+
+Operational role personas and readable inventory lots.
+
+### Added
+
+- Local-only mock personas for Sales, Warehouse, Dispatch, Company Owner and Tenant Admin using the accepted backend roles and permissions.
+- A documented `nexaDemoRole` selector for visual validation of role-separated Angular surfaces without changing API authentication.
+
+### Changed
+
+- Inventory Lots now resolves product and warehouse names/codes from the existing server-backed catalog and warehouse projections, keeps FEFO ordering in the presentation, and preserves internal table scrolling on narrow viewports.
+- Shared section panels now constrain wide table content so filters and selects remain inside the page canvas at desktop and mobile widths.
+- Dispatch remains the user-facing label for the canonical `LOGISTICS` capability.
+
+### Boundary
+
+- The default runtime remains API-backed; mock mode and demo personas are explicit local validation tools.
+- `BOM` remains `OPEN`/`DEFERRED`: no role, endpoint, entity, state or lifecycle contract was invented.
+- No API, Blueprint, Design Lab or legacy repository was modified.
+
+### Validation
+
+- Platform unit suite: 183 tests across 85 files passed.
+- Design Lab v1.0.2 foundation, catalog asset and bounded-context validators passed.
+- Production build passed with existing non-blocking SCSS style-budget warnings.
+- `npm audit --omit=dev`: 0 vulnerabilities.
+- Authenticated mock browser proof passed for Warehouse Lots at 1440px and 390px with no page overflow; Dispatch, Company Owner, Sales and Tenant Admin role navigation and target pages rendered without console errors.
+- GitHub PR checks passed, including CodeQL and both mandatory verification jobs.
+
 ## [0.22.0] - 2026-08-29
 
 Design Lab visual parity and API-backed operational surfaces.
