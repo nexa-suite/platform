@@ -4,6 +4,7 @@ Release notes are scoped to the Platform repository and distinguish the Angular 
 
 | Release | Summary |
 |---|---|
+| [v0.25.0](./v0.25.0.md) | API-backed operational analytics evidence and API-only runtime |
 | [v0.24.0](./v0.24.0.md) | Operational role personas and readable inventory lots |
 | [v0.22.0](./v0.22.0.md) | Design Lab visual parity and API-backed operational surfaces |
 | [v0.21.0](./v0.21.0.md) | Sales dashboard API-source recovery and retryable partial states |
@@ -30,12 +31,12 @@ Release notes are scoped to the Platform repository and distinguish the Angular 
 |---|---|
 | [UNRELEASED HISTORICAL CANDIDATE: v0.6.0](./v0.6.0.md) | Consolidated into later published work; no tag or GitHub Release |
 
-Current release is `0.24.0`. Platform visual/interaction parity work now covers
-the API-backed B2B client, catalog, warehouse, lots, reservations, movements,
-profile, business documents and operational analytics surfaces. Company Owner,
-Sales, Warehouse and Logistics/Dispatch remain separated by effective
-permissions. BOM remains OPEN/DEFERRED pending an accepted Product, Blueprint
-and API contract. This release adds explicit local validation personas for those
-accepted roles and makes inventory-lot references readable without changing the
-API contract. This does not claim full product migration or 100% pixel parity
-with Vue.
+Current release is `0.25.0`. Platform visual/interaction parity work covers the
+API-backed B2B client, catalog, warehouse, lots, reservations, movements,
+profile, business documents and operational analytics surfaces. This release
+adds period-scoped analytics evidence and makes browser runtime API-only while
+keeping fixture adapters isolated to tests. Company Owner, Sales, Warehouse and
+Logistics/Dispatch remain separated by effective permissions. BOM remains
+OPEN/DEFERRED pending an accepted Product, Blueprint and API contract. This is a
+stable incremental release, not a claim of full product migration or 100% pixel
+parity with Vue.
