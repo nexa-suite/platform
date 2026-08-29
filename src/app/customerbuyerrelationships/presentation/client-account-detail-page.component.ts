@@ -1,25 +1,20 @@
 import { ChangeDetectionStrategy, Component, computed, effect, inject, signal } from '@angular/core';
-import { DecimalPipe } from '@angular/common';
+import { DecimalPipe, NgTemplateOutlet } from '@angular/common';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
-import { MatChipsModule } from '@angular/material/chips';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 import { PlatformAuthenticationBoundary } from '../../core/security/platform-authentication.boundary';
 import { ChangeFeedService } from '../../core/change-feed/application/change-feed.service';
 import { ErrorStateComponent } from '../../shared/presentation/components/error-state/error-state.component';
 import { LoadingStateComponent } from '../../shared/presentation/components/loading-state/loading-state.component';
+import { NexaIconComponent } from '../../shared/presentation/components/nexa-icon/nexa-icon.component';
 import { PageHeaderComponent } from '../../shared/presentation/components/page-header/page-header.component';
 import { ClientAccountsFacade } from '../application/client-accounts.facade';
 import { BuyerMembershipCandidate, ClientAccountAddress, ClientAccountCreateCommand, ClientAccountUpdateCommand, PeruReferenceOption } from '../domain/client-account.models';
 import { ClientAccountAddressCommand, ClientAccountAddressUpdateCommand, DeliveryAddressCommand } from '../domain/client-account.models';
 import { printCurrentView } from '../../shared/application/utilities/export.util';
 
-@Component({ selector: 'nexa-client-account-detail-page', imports: [DecimalPipe, MatButtonModule, MatCardModule, MatChipsModule, MatFormFieldModule, MatInputModule, MatSelectModule, ReactiveFormsModule, RouterLink, TranslatePipe, ErrorStateComponent, LoadingStateComponent, PageHeaderComponent], templateUrl: './client-account-detail-page.component.html', styleUrl: './client-account-detail-page.component.scss', changeDetection: ChangeDetectionStrategy.OnPush })
+@Component({ selector: 'nexa-client-account-detail-page', imports: [DecimalPipe, NgTemplateOutlet, ReactiveFormsModule, RouterLink, TranslatePipe, ErrorStateComponent, LoadingStateComponent, NexaIconComponent, PageHeaderComponent], templateUrl: './client-account-detail-page.component.html', changeDetection: ChangeDetectionStrategy.OnPush })
 export class ClientAccountDetailPageComponent {
   readonly facade = inject(ClientAccountsFacade);
   private readonly authentication = inject(PlatformAuthenticationBoundary);
@@ -145,6 +140,17 @@ export class ClientAccountDetailPageComponent {
     if (!id) return '—';
     const candidate = this.buyerMembershipCandidates().find((item) => item.id === id);
     return candidate ? `${candidate.displayName} · ${candidate.email}` : 'Buyer membership asociada';
+  }
+  statusLabelKey(status: string): string {
+    const normalized = status.trim().toUpperCase();
+    return normalized === 'ACTIVE' ? 'clientAccounts.status.active' : normalized === 'SUSPENDED' ? 'clientAccounts.status.suspended' : 'clientAccounts.status.inactive';
+  }
+  statusTone(status: string): 'success' | 'warning' | 'neutral' {
+    const normalized = status.trim().toUpperCase();
+    return normalized === 'ACTIVE' ? 'success' : normalized === 'SUSPENDED' ? 'warning' : 'neutral';
+  }
+  paymentConditionKey(condition: string): string {
+    return `clientAccounts.paymentConditions.${condition.trim().toUpperCase()}`;
   }
   requestCurrentLocation(): void {
     if (typeof navigator === 'undefined' || !navigator.geolocation) { this.locationStatus.set('unsupported'); return; }

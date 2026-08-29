@@ -34,7 +34,7 @@
         <div class="activity-list" aria-live="polite">
           @for (event of facade.activity(); track event.id) {
             <article class="activity-row">
-              <span class="activity-mark" aria-hidden="true"><nexa-icon name="history" /></span>
+              <span class="activity-mark" aria-hidden="true"><nexa-icon name="schedule" /></span>
               <div>
                 <strong>{{ eventLabel(event) }}</strong>
                 <small>{{ event.occurredAt | date: 'medium' }}</small>
@@ -44,7 +44,7 @@
         </div>
       } @else {
         <nexa-empty-state
-          icon="history"
+          icon="schedule"
           [title]="'companyOwnerOverview.activity.emptyTitle' | translate"
           [description]="'companyOwnerOverview.activity.emptyDescription' | translate" />
       }

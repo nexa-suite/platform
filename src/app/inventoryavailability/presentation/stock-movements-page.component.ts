@@ -29,6 +29,8 @@ import { SectionPanelComponent } from '../../shared/presentation/components/sect
 })
 export class StockMovementsPageComponent {
   readonly facade = inject(WarehouseOperationsFacade);
+  readonly orderedMovements = computed(() => [...this.facade.movements()].sort((left, right) =>
+    Date.parse(right.occurredAt) - Date.parse(left.occurredAt)));
   readonly inboundCount = computed(() =>
     this.facade.movements().filter((movement) => movement.type === 'INBOUND_RECEIPT').length);
   readonly outboundCount = computed(() =>

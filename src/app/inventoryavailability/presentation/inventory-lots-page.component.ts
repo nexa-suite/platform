@@ -1,12 +1,77 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { DatePipe, DecimalPipe } from '@angular/common';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { TranslatePipe } from '@ngx-translate/core';
+import { StatusBadgeComponent, type StatusTone } from '../../shared/presentation/components/status-badge/status-badge.component';
+import { MetricCardComponent } from '../../shared/presentation/components/metric-card/metric-card.component';
+import { NexaIconComponent } from '../../shared/presentation/components/nexa-icon/nexa-icon.component';
 import { EmptyStateComponent } from '../../shared/presentation/components/empty-state/empty-state.component';
 import { ErrorStateComponent } from '../../shared/presentation/components/error-state/error-state.component';
 import { LoadingStateComponent } from '../../shared/presentation/components/loading-state/loading-state.component';
-import { DatePipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { PageHeaderComponent } from '../../shared/presentation/components/page-header/page-header.component';
 import { SectionPanelComponent } from '../../shared/presentation/components/section-panel/section-panel.component';
 import { WarehouseOperationsFacade } from '../application/warehouse-operations.facade';
 
-@Component({selector:'nexa-inventory-lots-page',standalone:true,imports:[DatePipe,RouterLink,PageHeaderComponent,SectionPanelComponent,LoadingStateComponent,ErrorStateComponent,EmptyStateComponent],template:`<section class="page"><nexa-page-header title="Inventory Lots" subtitle="FEFO order and lot status are authoritative server state" /> @if (facade.loading()){<nexa-loading-state label="Loading inventory lots" />} @else if (facade.error(); as error){<nexa-error-state title="Inventory lots unavailable" [description]="error" (retry)="facade.retry()" />} @else {<nexa-section-panel title="Lots"> @if (facade.lots().length){<div class="table-shell"><table><caption>Inventory lots</caption><thead><tr><th scope="col">Catalog</th><th scope="col">Batch</th><th scope="col">Expiration</th><th scope="col">Available</th><th scope="col">Status</th></tr></thead><tbody>@for(lot of facade.lots();track lot.id){<tr><td><a [routerLink]="['/ops/operations/inventory/lots',lot.id]">{{lot.catalogItemId}}</a></td><td>{{lot.batchNumber}}</td><td>{{lot.expirationDate|date:'mediumDate'}}</td><td>{{lot.available}} {{lot.unit}}</td><td>{{lot.status}}</td></tr>}</tbody></table></div>} @else {<nexa-empty-state title="No inventory lots" description="There are no lots to display for this workspace." />}</nexa-section-panel>}</section>`,styles:[`table{width:100%;border-collapse:collapse}th,td{padding:.65rem;text-align:left;border-bottom:1px solid var(--nexa-color-border-decorative)}`],changeDetection:ChangeDetectionStrategy.OnPush})
-export class InventoryLotsPageComponent {readonly facade=inject(WarehouseOperationsFacade);constructor(){this.facade.load();}}
+@Component({
+  selector: 'nexa-inventory-lots-page',
+  standalone: true,
+  imports: [
+    DatePipe,
+    DecimalPipe,
+    EmptyStateComponent,
+    ErrorStateComponent,
+    LoadingStateComponent,
+    MetricCardComponent,
+    NexaIconComponent,
+    PageHeaderComponent,
+    RouterLink,
+    SectionPanelComponent,
+    StatusBadgeComponent,
+    TranslatePipe,
+  ],
+  templateUrl: './inventory-lots-page.component.html',
+  styleUrl: './inventory-lots-page.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+export class InventoryLotsPageComponent {
+  readonly facade = inject(WarehouseOperationsFacade);
+  readonly search = signal('');
+  readonly status = signal('');
+  readonly statusOptions = ['AVAILABLE', 'BLOCKED', 'QUARANTINED', 'EXPIRED', 'DEPLETED'] as const;
+
+  readonly filteredLots = computed(() => {
+    const query = this.search().trim().toLowerCase();
+    const status = this.status();
+    return this.facade.lots().filter((lot) => {
+      const matchesQuery = !query || [lot.catalogItemId, lot.skuId, lot.batchNumber, lot.warehouseId, lot.zoneId]
+        .some((value) => value?.toLowerCase().includes(query));
+      return matchesQuery && (!status || lot.status === status);
+    });
+  });
+  readonly availableLots = computed(() => this.filteredLots().filter((lot) => lot.available > 0).length);
+  readonly attentionLots = computed(() => this.filteredLots().filter((lot) => ['BLOCKED', 'QUARANTINED', 'EXPIRED', 'DEPLETED'].includes(lot.status)).length);
+  readonly availableUnits = computed(() => this.filteredLots().reduce((total, lot) => total + lot.available, 0));
+
+  constructor() {
+    this.facade.load();
+  }
+
+  setSearch(event: Event): void {
+    this.search.set((event.target as HTMLInputElement).value);
+  }
+
+  setStatus(event: Event): void {
+    this.status.set((event.target as HTMLSelectElement).value);
+  }
+
+  shortIdentifier(value: string): string {
+    return value.length > 14 ? `${value.slice(0, 8).toUpperCase()}…${value.slice(-4).toUpperCase()}` : value;
+  }
+
+  statusTone(status: string): StatusTone {
+    if (status === 'AVAILABLE') return 'success';
+    if (status === 'BLOCKED') return 'danger';
+    if (status === 'QUARANTINED' || status === 'EXPIRED') return 'warning';
+    return 'neutral';
+  }
+}

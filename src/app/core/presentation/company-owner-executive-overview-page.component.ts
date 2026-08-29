@@ -52,8 +52,8 @@ export class CompanyOwnerExecutiveOverviewPageComponent {
     { key: 'warehouses', projection: 'warehouses', label: 'companyOwnerOverview.metrics.warehouses', hint: 'companyOwnerOverview.hints.warehouses', icon: 'warehouse', tone: 'success' },
     { key: 'inventoryLots', projection: 'inventoryLots', label: 'companyOwnerOverview.metrics.inventoryLots', hint: 'companyOwnerOverview.hints.inventoryLots', icon: 'inventory_2', tone: 'warning' },
     { key: 'activeDispatches', projection: 'logistics', label: 'companyOwnerOverview.metrics.activeDispatches', hint: 'companyOwnerOverview.hints.activeDispatches', icon: 'local_shipping', tone: 'info' },
-    { key: 'dispatchIncidents', projection: 'logistics', label: 'companyOwnerOverview.metrics.dispatchIncidents', hint: 'companyOwnerOverview.hints.dispatchIncidents', icon: 'report_problem', tone: 'danger' },
-    { key: 'deliveredToday', projection: 'logistics', label: 'companyOwnerOverview.metrics.deliveredToday', hint: 'companyOwnerOverview.hints.deliveredToday', icon: 'task_alt', tone: 'success' },
+    { key: 'dispatchIncidents', projection: 'logistics', label: 'companyOwnerOverview.metrics.dispatchIncidents', hint: 'companyOwnerOverview.hints.dispatchIncidents', icon: 'warning', tone: 'danger' },
+    { key: 'deliveredToday', projection: 'logistics', label: 'companyOwnerOverview.metrics.deliveredToday', hint: 'companyOwnerOverview.hints.deliveredToday', icon: 'verified', tone: 'success' },
   ];
 
   constructor() {
