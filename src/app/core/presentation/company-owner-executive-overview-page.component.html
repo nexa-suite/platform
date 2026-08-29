@@ -4,15 +4,18 @@
     [title]="'companyOwnerOverview.title' | translate"
     [subtitle]="'companyOwnerOverview.subtitle' | translate" />
 
-  @if (facade.loading()) {
+  @if (facade.loading() && !facade.hasLoaded()) {
     <nexa-loading-state [label]="'companyOwnerOverview.loading' | translate" [lines]="4" />
-  } @else if (facade.error()) {
-    <nexa-error-state
-      [title]="'companyOwnerOverview.errorTitle' | translate"
-      [description]="'companyOwnerOverview.errorDescription' | translate"
-      [retryLabel]="'companyOwnerOverview.retry' | translate"
-      (retry)="facade.retry()" />
   } @else {
+    @if (facade.hasFailures()) {
+      <nexa-error-state
+        [title]="'companyOwnerOverview.partialErrorTitle' | translate"
+        [description]="'companyOwnerOverview.partialErrorDescription' | translate"
+        [retryLabel]="'companyOwnerOverview.retry' | translate"
+        [showRetry]="!facade.loading()"
+        (retry)="facade.retryFailed()" />
+    }
+
     <section class="metric-grid" [attr.aria-label]="'companyOwnerOverview.metricsLabel' | translate">
       @for (metric of metrics; track metric.key) {
         <nexa-metric-card
