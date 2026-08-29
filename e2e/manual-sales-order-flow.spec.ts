@@ -43,22 +43,32 @@ test('Sales completes the four-step manual order flow with server route preview'
 
   const continueReview = page.getByRole('button', { name: /continue to review|guardar y continuar/i });
   await expect(continueReview).toBeEnabled();
-  const deliverySave = page.waitForResponse((response) => response.request().method() === 'PUT' && /\/api\/v1\/sales-orders\/manual-drafts\/[^/]+\/delivery$/.test(new URL(response.url()).pathname));
-  await continueReview.click();
-  const deliveryResponse = await deliverySave;
-  expect(deliveryResponse.status()).toBe(200);
-  const persistedDraft = await deliveryResponse.json() as {
+  let persistedDraft: {
     readonly delivery?: {
       readonly addressSnapshot?: string | null;
       readonly routeSnapshot?: string | null;
       readonly warehouseId?: string | null;
       readonly warehouseSnapshot?: string | null;
     } | null;
-  };
-  expect(persistedDraft.delivery?.addressSnapshot).toBeTruthy();
-  expect(persistedDraft.delivery?.routeSnapshot).toBeTruthy();
-  expect(persistedDraft.delivery?.warehouseId).toBeTruthy();
-  expect(persistedDraft.delivery?.warehouseSnapshot).toBeTruthy();
+  } | undefined;
+  const deliverySave = page.waitForResponse(async (response) => {
+    const isDeliverySave = response.request().method() === 'PUT'
+      && /\/api\/v1\/sales-orders\/manual-drafts\/[^/]+\/delivery$/.test(new URL(response.url()).pathname);
+    if (!isDeliverySave) {
+      return false;
+    }
+
+    persistedDraft = await response.json() as typeof persistedDraft;
+    return true;
+  });
+  await continueReview.click();
+  const deliveryResponse = await deliverySave;
+  expect(deliveryResponse.status()).toBe(200);
+  expect(persistedDraft).toBeDefined();
+  expect(persistedDraft?.delivery?.addressSnapshot).toBeTruthy();
+  expect(persistedDraft?.delivery?.routeSnapshot).toBeTruthy();
+  expect(persistedDraft?.delivery?.warehouseId).toBeTruthy();
+  expect(persistedDraft?.delivery?.warehouseSnapshot).toBeTruthy();
   await expect(page).toHaveURL(/\/review$/);
   await expect(page.getByRole('heading', { name: /confirm cold-chain purchase order|revisión/i })).toBeVisible();
   const stableDestination = destinationLabel
