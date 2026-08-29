@@ -10,6 +10,7 @@
 }
 
 .lots-toolbar {
+  min-width: 0;
   display: grid;
   grid-template-columns: minmax(18rem, 1.7fr) minmax(12rem, .8fr);
   gap: var(--nexa-space-4);
@@ -84,6 +85,8 @@ select:focus-visible {
 }
 
 .table-shell {
+  max-width: 100%;
+  min-width: 0;
   overflow-x: auto;
   border: 1px solid var(--nexa-color-border-default);
   border-radius: var(--nexa-radius-lg);
@@ -91,7 +94,7 @@ select:focus-visible {
 
 table {
   width: 100%;
-  min-width: 76rem;
+  min-width: 82rem;
   border-collapse: collapse;
 }
 
@@ -147,6 +150,15 @@ tbody tr:hover {
   margin-top: var(--nexa-space-1);
   color: var(--nexa-color-text-secondary);
   font-size: var(--nexa-font-size-xs);
+}
+
+.primary-value {
+  display: block;
+  max-width: 15rem;
+  overflow: hidden;
+  font-weight: var(--nexa-font-weight-semibold);
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .numeric-value {

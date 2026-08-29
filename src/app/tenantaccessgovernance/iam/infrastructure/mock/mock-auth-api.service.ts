@@ -3,7 +3,7 @@ import { Observable, of, throwError } from 'rxjs';
 import { PLATFORM_RUNTIME_CONFIG } from '../../../../core/security/runtime-config';
 import { AuthSession, AuthenticationResult, SignInCommand, WorkspacePreview } from '../../domain/models/auth.models';
 import { AuthApiPort } from '../../domain/ports/auth-api.port';
-import { MOCK_AUTH_FIXTURES } from './mock-auth.fixtures';
+import { MOCK_AUTH_FIXTURES, MOCK_AUTH_ROLE_FIXTURES, MockAuthFixture } from './mock-auth.fixtures';
 
 /** BC-01 demo adapter. It deliberately has no HTTP dependency. */
 @Injectable({ providedIn: 'root' })
@@ -13,7 +13,7 @@ export class MockAuthApiService implements AuthApiPort {
   private pendingChallengeId: string | null = null;
 
   login(command: SignInCommand): Observable<AuthenticationResult> {
-    const fixture = MOCK_AUTH_FIXTURES[this.config.tenantProfile];
+    const fixture = this.fixture();
     const matches = command.identifier.trim().toLowerCase() === fixture.identifier &&
       command.password === fixture.password &&
       command.workspaceSlug.trim().toLowerCase() === fixture.workspaceSlug;
@@ -64,8 +64,9 @@ export class MockAuthApiService implements AuthApiPort {
     return of(void 0);
   }
 
-  private fixture() {
-    return MOCK_AUTH_FIXTURES[this.config.tenantProfile];
+  private fixture(): MockAuthFixture {
+    const roleProfile = this.config.demoRoleProfile ?? 'sales';
+    return MOCK_AUTH_ROLE_FIXTURES[this.config.tenantProfile][roleProfile] ?? MOCK_AUTH_FIXTURES[this.config.tenantProfile];
   }
 
   private hasPersistedSession(): boolean {
