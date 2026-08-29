@@ -1,26 +1,12 @@
-# Runtime mock mode
+# Test-only fixture adapters
 
-Platform mantiene `api` como modo por defecto y el perfil `generic` como perfil
-por defecto. El mock sólo se activa cuando el host define explícitamente
-`globalThis.__NEXA_RUNTIME_CONFIG__` antes de `bootstrapApplication`:
+Platform usa API en todo runtime de navegador. No existe un interruptor de mock
+para la aplicación desplegada; `nexaDataMode=mock`, storage local y globals son
+ignorados. Los dobles permanecen en pruebas unitarias aisladas.
 
-```html
-<script>
-  globalThis.__NEXA_RUNTIME_CONFIG__ = {
-    dataMode: 'mock',
-    tenantProfile: 'icisa'
-  };
-</script>
-```
-
-Para una prueba local, el bloque puede inyectarse temporalmente en el host que
-sirve `index.html`, antes de `<app-root>`. No se debe dejar ese bloque en una
-configuración compartida: un build sin esa variable conserva el comportamiento
-API existente.
-
-Como atajo local, también se puede abrir
-`http://localhost:4200/sign-in?nexaDataMode=mock&nexaTenantProfile=icisa`. El
-override por query sólo se acepta en `localhost`, `127.0.0.1` o `::1`.
+Para validar la interfaz contra datos reales, inicia sesión con una identidad
+IAM válida y usa la API desplegada. Si backend no responde, Platform muestra
+estado de error; no sustituye respuesta con fixtures.
 
 ## Perfiles demo
 
@@ -29,13 +15,14 @@ override por query sólo se acepta en `localhost`, `127.0.0.1` o `::1`.
 | `generic` | `generic` | `demo@generic.nexa.test` | `NexaDemo123!` |
 | `icisa` | `icisa` | `carlos@icisa.pe` | `NexaDemo123!` |
 
-Las identidades, cuentas, catálogo, solicitudes, órdenes y direcciones son
-fixtures deterministas de demostración. No son credenciales ni datos de
-producción. El perfil ICISA reutiliza referencias a los assets catalogados en
-`public/catalog-items/`.
+Las identidades de fixtures son históricas y no funcionan en runtime API-only.
+Los datos mostrados en producción provienen del workspace autenticado. Assets
+de catálogo siguen siendo recursos visuales locales, no sustitutos de registros
+del API.
 
-Para revisar una superficie con la persona operativa correspondiente, el mock
-acepta además `nexaDemoRole`:
+La navegación por rol depende ahora de claims/permisos emitidos por API. El
+alias visual `Dispatch` representa rol contractual `LOGISTICS`; no existe rol
+BOM aceptado por backend.
 
 | Persona local | `nexaDemoRole` | Rol de contrato | Identificador ICISA |
 |---|---|---|---|
@@ -45,16 +32,13 @@ acepta además `nexaDemoRole`:
 | Company Owner | `company-owner` | `COMPANY_OWNER` | `company-owner@icisa.pe` |
 | Tenant Admin | `tenant-admin` | `TENANT_ADMIN` | `tenant-admin@icisa.pe` |
 
-Todas usan `NexaDemo123!` y el segundo factor `135790`. Por ejemplo:
-`http://localhost:4200/ops/operations/inventory/lots?nexaDataMode=mock&nexaTenantProfile=icisa&nexaDemoRole=warehouse`.
-`dispatch` es únicamente el alias visual del rol de contrato existente
-`LOGISTICS`; no se crea un rol BOM porque el API actual no expone ese rol ni su
-contrato de permisos.
+Las contraseñas de la tabla anterior son datos de fixtures, no credenciales
+reales. No se deben usar para certificar autorización o tenant isolation.
 
-## Corte soportado
+## Corte de pruebas
 
-Los providers seleccionan adaptadores mock dentro del bounded context dueño y
-mantienen los mismos application ports que usa el modo `api`:
+Los adaptadores mock conservan los mismos application ports para pruebas
+unitarias aisladas. Runtime navegador no los selecciona:
 
 - BC-01 Tenant Access & Governance: IAM, seguridad de perfil y administración
   de organización/workspace.
@@ -75,15 +59,13 @@ mantienen los mismos application ports que usa el modo `api`:
 - BC-11 Business Traceability: auditoría local y change-feed no-op para la
   demo offline.
 
-No se agregan rutas HTTP ni se modifica el contrato API. El estado mock vive en
-memoria y se reinicia al recargar la página. Los gateways ACL existentes siguen
-siendo los límites entre contextos; las composiciones consumen ports y no
-importan clientes HTTP desde presentation.
+No se agregan rutas HTTP ni se modifica el contrato API. Los gateways ACL
+existentes siguen siendo los límites entre contextos; las composiciones
+consumen ports y no importan clientes HTTP desde presentation.
 
-El corte no pretende simular persistencia, autorización real, jobs, webhooks ni
-la totalidad del backend de BC-11. El adapter mock permite validar navegación,
-estados, errores de concurrencia y flujos de UI sin depender de servicios
-externos.
+El corte de pruebas no pretende simular persistencia, autorización real, jobs,
+webhooks ni totalidad del backend de BC-11. No sirve para certificar runtime,
+autorización, tenant isolation o conexión API.
 
 Validación local esperada:
 
