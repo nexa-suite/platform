@@ -44,6 +44,30 @@ export interface PlatformWorkArea extends PlatformArea {
   readonly labelKey: string;
 }
 
+export type PlatformOperationalRole = 'WAREHOUSE' | 'LOGISTICS';
+
+/**
+ * Resolves the primary operational work area without broadening permissions.
+ * Explicit backend roles win over the effective permission fallback so a
+ * multi-role session still opens the work area selected by its role identity.
+ */
+export function platformOperationalRoleForUser(
+  user: AuthenticatedUser | null,
+  hasPermission: (permission: string) => boolean,
+): PlatformOperationalRole | null {
+  if (user?.roles.includes('LOGISTICS') && hasPermission(PLATFORM_PERMISSIONS.logisticsRead)) {
+    return 'LOGISTICS';
+  }
+  if (user?.roles.includes('WAREHOUSE') && hasPermission(PLATFORM_PERMISSIONS.warehouseRead)) {
+    return 'WAREHOUSE';
+  }
+  if (hasPermission(PLATFORM_PERMISSIONS.logisticsRead) && !hasPermission(PLATFORM_PERMISSIONS.warehouseRead)) {
+    return 'LOGISTICS';
+  }
+  if (hasPermission(PLATFORM_PERMISSIONS.warehouseRead)) return 'WAREHOUSE';
+  return null;
+}
+
 /** Ordered permission-backed destinations used for landing and custom-role sessions. */
 export const PLATFORM_PERMISSION_WORK_AREAS: readonly PlatformWorkArea[] = [
   { id: 'TENANT_ADMIN', path: '/ops/operations/company-administration', permission: PLATFORM_PERMISSIONS.tenantRead, labelKey: 'shell.roles.TENANT_ADMIN' },

@@ -64,7 +64,11 @@ const runtimeEnvironment =
 
 export function credentialEnvironment(role: CredentialRole): { readonly email?: string; readonly password?: string; readonly workspace: string } {
   const prefix = `NEXA_E2E_${role}`;
-  const developmentPrefix = `NEXA_DEV_${role}`;
+  // The local API bootstrap seeds the Company Owner together with the founder
+  // account under NEXA_DEV_OWNER_*. Keep an explicit E2E override available,
+  // while making the default fixture match the authoritative local seed.
+  const developmentRole = role === 'COMPANY_OWNER' ? 'OWNER' : role;
+  const developmentPrefix = `NEXA_DEV_${developmentRole}`;
   return {
     email: runtimeEnvironment[`${prefix}_EMAIL`] ?? runtimeEnvironment[`${developmentPrefix}_EMAIL`],
     password: runtimeEnvironment[`${prefix}_PASSWORD`] ?? runtimeEnvironment[`${developmentPrefix}_PASSWORD`],

@@ -4,7 +4,7 @@
     [title]="(isDeliveryCoordination() ? 'operationsDashboard.delivery.title' : 'operationsDashboard.inventory.title') | translate"
     [subtitle]="(isDeliveryCoordination() ? 'operationsDashboard.delivery.description' : 'operationsDashboard.inventory.description') | translate">
     <div page-header-actions>
-      @if (canReadDelivery()) {
+      @if (isDeliveryCoordination()) {
         <nexa-button routerLink="/ops/operations/dispatch-orders" size="compact">
           <nexa-icon name="local_shipping" />
           {{ 'operationsDashboard.delivery.dispatchBoard' | translate }}
@@ -16,16 +16,19 @@
   @if (isDeliveryCoordination()) {
     @if (delivery.loading() && !delivery.dashboard() && !delivery.dispatches().length) {
       <nexa-loading-state [label]="'operationsDashboard.loading' | translate" [lines]="4" />
-    } @else if (delivery.error() && !delivery.dashboard() && !delivery.dispatches().length) {
+    } @else if (delivery.error() && delivery.dashboardError() && delivery.dispatchesError() && delivery.proofError()) {
       <nexa-error-state
         [title]="'operationsDashboard.errorTitle' | translate"
         [description]="delivery.error()!"
-        (retry)="delivery.loadDashboard()" />
+        (retry)="retryDelivery()" />
     } @else {
       @if (delivery.dashboardError() || delivery.dispatchesError() || delivery.proofError()) {
         <p class="data-warning" role="status">
           <nexa-icon name="warning" aria-hidden="true" />
           {{ 'operationsDashboard.partialData' | translate }}
+          <nexa-button variant="quiet" size="compact" (click)="retryDelivery()">
+            {{ 'operationsDashboard.retry' | translate }}
+          </nexa-button>
         </p>
       }
       <section class="flow-banner" aria-labelledby="operations-banner-title">
@@ -35,7 +38,7 @@
             {{ 'operationsDashboard.bannerTitle' | translate: {
               dispatches: activeDispatches().length,
               pod: pendingProof().length,
-              lots: fefoLots().length
+              reservations: delivery.dashboard()?.reservationsReady ?? '—'
             } }}
           </h2>
           <p>{{ 'operationsDashboard.bannerNote' | translate }}</p>
@@ -48,37 +51,30 @@
 
       <section class="metric-grid" [attr.aria-label]="'operationsDashboard.delivery.metricsLabel' | translate">
         <nexa-metric-card
-          [label]="'operationsDashboard.criticalStock' | translate"
-          [value]="canReadInventory() ? criticalLots().length : '—'"
-          [hint]="'operationsDashboard.criticalStockSub' | translate"
+          [label]="'operationsDashboard.delivery.ready' | translate"
+          [value]="delivery.dashboard()?.readyForOperations ?? '—'"
+          [hint]="'operationsDashboard.delivery.readyHint' | translate"
           icon="inventory_2"
-          tone="danger" />
-        <nexa-metric-card
-          [label]="'operationsDashboard.fefoLots' | translate"
-          [value]="canReadInventory() ? fefoLots().length : '—'"
-          [hint]="'operationsDashboard.fefoLotsSub' | translate"
-          icon="schedule"
           tone="warning" />
         <nexa-metric-card
-          [label]="'operationsDashboard.activeDispatches' | translate"
-          [value]="activeDispatches().length"
-          [hint]="'operationsDashboard.activeDispatchesSub' | translate"
+          [label]="'operationsDashboard.delivery.inRoute' | translate"
+          [value]="delivery.dashboard()?.inRoute ?? '—'"
+          [hint]="'operationsDashboard.delivery.inRouteHint' | translate"
           icon="local_shipping"
           tone="info" />
         <nexa-metric-card
-          [label]="'operationsDashboard.pendingPod' | translate"
-          [value]="pendingProof().length"
-          [hint]="'operationsDashboard.openIncidents' | translate: { count: openIncidents().length }"
+          [label]="'operationsDashboard.delivery.incidents' | translate"
+          [value]="delivery.dashboard()?.incidents ?? '—'"
+          [hint]="'operationsDashboard.delivery.incidentsHint' | translate"
+          icon="warning"
+          tone="danger" />
+        <nexa-metric-card
+          [label]="'operationsDashboard.delivery.delivered' | translate"
+          [value]="delivery.dashboard()?.deliveredToday ?? '—'"
+          [hint]="'operationsDashboard.delivery.deliveredHint' | translate"
           icon="verified"
-          tone="info" />
+          tone="success" />
       </section>
-
-      @if (catalogUnavailable()) {
-        <p class="data-warning" role="status">
-          <nexa-icon name="warning" aria-hidden="true" />
-          {{ 'operationsDashboard.catalogUnavailable' | translate }}
-        </p>
-      }
 
       <div class="dashboard-grid">
         <nexa-section-panel
@@ -122,25 +118,16 @@
           class="alerts-panel"
           [title]="'operationsDashboard.operationalAlerts' | translate">
           <div class="alert-list">
-            @for (lot of criticalLots(); track lot.id) {
+            @for (item of openIncidents().slice(0, 5); track item.id) {
               <article class="alert-row">
                 <div>
-                  <strong>{{ productName(lot) }}</strong>
-                  <small>{{ 'operationsDashboard.stockAvailability' | translate: { available: lot.available, unit: lot.unit } }}</small>
+                  <strong>{{ item.dispatchNumber }}</strong>
+                  <small>{{ item.clientName || item.clientCode || item.clientAccountId || '—' }} · {{ destinationLabel(item) }}</small>
                 </div>
-                <nexa-status-badge [label]="lot.status" tone="danger" />
+                <nexa-status-badge [label]="statusKey(item.status) | translate" tone="danger" />
               </article>
             }
-            @for (lot of fefoLots().slice(0, 3); track lot.id) {
-              <article class="alert-row">
-                <div>
-                  <strong>{{ productName(lot) }}</strong>
-                  <small>{{ 'operationsDashboard.lotDue' | translate: { id: lot.id, date: lot.expirationDate } }}</small>
-                </div>
-                <nexa-status-badge [label]="'operationsDashboard.days' | translate: { count: daysUntilExpiry(lot.expirationDate) }" tone="warning" />
-              </article>
-            }
-            @if (!criticalLots().length && !fefoLots().length) {
+            @if (!openIncidents().length) {
               <p class="empty-state">{{ 'operationsDashboard.noAlerts' | translate }}</p>
             }
           </div>
@@ -149,13 +136,13 @@
 
       <nexa-section-panel class="quick-actions-panel" [title]="'operationsDashboard.quickActions' | translate">
         <div class="quick-action-grid">
-          @if (canReadInventory()) {
+          @if (isWarehouseOperations()) {
             <nexa-button routerLink="/ops/operations/inventory" variant="secondary" size="compact">
               <nexa-icon name="inventory_2" />
               {{ 'operationsDashboard.inventory.title' | translate }}
             </nexa-button>
           }
-          @if (canReadDelivery()) {
+          @if (isDeliveryCoordination()) {
             <nexa-button routerLink="/ops/operations/dispatch-orders" size="compact">
               <nexa-icon name="local_shipping" />
               {{ 'operationsDashboard.delivery.dispatchBoard' | translate }}
@@ -185,10 +172,13 @@
         [description]="warehouse.error()!"
         (retry)="warehouse.retry()" />
     } @else {
-      @if (catalogUnavailable()) {
+      @if (warehouseHasPartialData()) {
         <p class="data-warning" role="status">
           <nexa-icon name="warning" aria-hidden="true" />
-          {{ 'operationsDashboard.catalogUnavailable' | translate }}
+          {{ 'operationsDashboard.partialData' | translate }}
+          <nexa-button variant="quiet" size="compact" (click)="warehouse.retry()">
+            {{ 'operationsDashboard.retry' | translate }}
+          </nexa-button>
         </p>
       }
       <section class="metric-grid" [attr.aria-label]="'operationsDashboard.inventory.metricsLabel' | translate">

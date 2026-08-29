@@ -1,7 +1,11 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { TranslatePipe } from '@ngx-translate/core';
-import { CompanyOwnerExecutiveOverviewFacade, CompanyOwnerExecutiveOverviewSnapshot } from './company-owner-executive-overview.facade';
+import {
+  CompanyOwnerExecutiveOverviewFacade,
+  CompanyOwnerExecutiveOverviewSnapshot,
+  CompanyOwnerOverviewProjection,
+} from './company-owner-executive-overview.facade';
 import { EmptyStateComponent } from '../../shared/presentation/components/empty-state/empty-state.component';
 import { ErrorStateComponent } from '../../shared/presentation/components/error-state/error-state.component';
 import { LoadingStateComponent } from '../../shared/presentation/components/loading-state/loading-state.component';
@@ -14,6 +18,7 @@ type OwnerMetricKey = keyof CompanyOwnerExecutiveOverviewSnapshot;
 
 interface OwnerMetricDefinition {
   readonly key: OwnerMetricKey;
+  readonly projection: CompanyOwnerOverviewProjection;
   readonly label: string;
   readonly hint: string;
   readonly icon: string;
@@ -41,14 +46,14 @@ interface OwnerMetricDefinition {
 export class CompanyOwnerExecutiveOverviewPageComponent {
   readonly facade = inject(CompanyOwnerExecutiveOverviewFacade);
   readonly metrics: readonly OwnerMetricDefinition[] = [
-    { key: 'salesOrders', label: 'companyOwnerOverview.metrics.salesOrders', hint: 'companyOwnerOverview.hints.salesOrders', icon: 'receipt_long', tone: 'info' },
-    { key: 'purchaseRequests', label: 'companyOwnerOverview.metrics.purchaseRequests', hint: 'companyOwnerOverview.hints.purchaseRequests', icon: 'request_quote', tone: 'neutral' },
-    { key: 'clientAccounts', label: 'companyOwnerOverview.metrics.clientAccounts', hint: 'companyOwnerOverview.hints.clientAccounts', icon: 'groups', tone: 'neutral' },
-    { key: 'warehouses', label: 'companyOwnerOverview.metrics.warehouses', hint: 'companyOwnerOverview.hints.warehouses', icon: 'warehouse', tone: 'success' },
-    { key: 'inventoryLots', label: 'companyOwnerOverview.metrics.inventoryLots', hint: 'companyOwnerOverview.hints.inventoryLots', icon: 'inventory_2', tone: 'warning' },
-    { key: 'activeDispatches', label: 'companyOwnerOverview.metrics.activeDispatches', hint: 'companyOwnerOverview.hints.activeDispatches', icon: 'local_shipping', tone: 'info' },
-    { key: 'dispatchIncidents', label: 'companyOwnerOverview.metrics.dispatchIncidents', hint: 'companyOwnerOverview.hints.dispatchIncidents', icon: 'report_problem', tone: 'danger' },
-    { key: 'deliveredToday', label: 'companyOwnerOverview.metrics.deliveredToday', hint: 'companyOwnerOverview.hints.deliveredToday', icon: 'task_alt', tone: 'success' },
+    { key: 'salesOrders', projection: 'salesOrders', label: 'companyOwnerOverview.metrics.salesOrders', hint: 'companyOwnerOverview.hints.salesOrders', icon: 'receipt_long', tone: 'info' },
+    { key: 'purchaseRequests', projection: 'purchaseRequests', label: 'companyOwnerOverview.metrics.purchaseRequests', hint: 'companyOwnerOverview.hints.purchaseRequests', icon: 'request_quote', tone: 'neutral' },
+    { key: 'clientAccounts', projection: 'clientAccounts', label: 'companyOwnerOverview.metrics.clientAccounts', hint: 'companyOwnerOverview.hints.clientAccounts', icon: 'groups', tone: 'neutral' },
+    { key: 'warehouses', projection: 'warehouses', label: 'companyOwnerOverview.metrics.warehouses', hint: 'companyOwnerOverview.hints.warehouses', icon: 'warehouse', tone: 'success' },
+    { key: 'inventoryLots', projection: 'inventoryLots', label: 'companyOwnerOverview.metrics.inventoryLots', hint: 'companyOwnerOverview.hints.inventoryLots', icon: 'inventory_2', tone: 'warning' },
+    { key: 'activeDispatches', projection: 'logistics', label: 'companyOwnerOverview.metrics.activeDispatches', hint: 'companyOwnerOverview.hints.activeDispatches', icon: 'local_shipping', tone: 'info' },
+    { key: 'dispatchIncidents', projection: 'logistics', label: 'companyOwnerOverview.metrics.dispatchIncidents', hint: 'companyOwnerOverview.hints.dispatchIncidents', icon: 'report_problem', tone: 'danger' },
+    { key: 'deliveredToday', projection: 'logistics', label: 'companyOwnerOverview.metrics.deliveredToday', hint: 'companyOwnerOverview.hints.deliveredToday', icon: 'task_alt', tone: 'success' },
   ];
 
   constructor() {
@@ -61,9 +66,11 @@ export class CompanyOwnerExecutiveOverviewPageComponent {
   }
 
   metricHint(metric: OwnerMetricDefinition): string {
-    return this.facade.snapshot()[metric.key] === null
-      ? 'companyOwnerOverview.accessNotGranted'
-      : metric.hint;
+    switch (this.facade.projectionState(metric.projection)) {
+      case 'notGranted': return 'companyOwnerOverview.accessNotGranted';
+      case 'failed': return 'companyOwnerOverview.sourceUnavailable';
+      default: return metric.hint;
+    }
   }
 
   eventLabel(event: { readonly eventType: string; readonly resourceType: string; readonly resourceId: string | null }): string {

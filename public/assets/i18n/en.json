@@ -23,10 +23,11 @@
     "subtitle": "Read-only business health from the authorized workspace projections.",
     "metricsLabel": "Workspace business indicators",
     "loading": "Loading workspace indicators…",
-    "errorTitle": "Executive overview unavailable",
-    "errorDescription": "The authorized workspace projections could not be loaded. Try again.",
+    "partialErrorTitle": "Some workspace indicators are unavailable",
+    "partialErrorDescription": "Unavailable authorized sources are identified in their indicators. Other workspace indicators remain available. Retry queries only the unavailable sources.",
     "retry": "Retry",
     "accessNotGranted": "Access not granted for this workspace",
+    "sourceUnavailable": "Data source unavailable. Retry unavailable sources.",
     "metrics": { "salesOrders": "Sales orders", "purchaseRequests": "Purchase Requests", "clientAccounts": "Client Accounts", "warehouses": "Warehouses", "inventoryLots": "Inventory lots", "activeDispatches": "Active dispatches", "dispatchIncidents": "Dispatch incidents", "deliveredToday": "Delivered today" },
     "hints": { "salesOrders": "Total orders visible to Sales", "purchaseRequests": "Total requests visible to Sales", "clientAccounts": "Accounts visible to Sales", "warehouses": "Warehouses visible to Warehouse", "inventoryLots": "Lots tracked by Warehouse", "activeDispatches": "Current operational dispatch workload", "dispatchIncidents": "Incidents in the operational dashboard", "deliveredToday": "Delivered dispatches reported today" },
     "activity": { "title": "Recent business activity", "description": "Events received from the authorized workspace change feed.", "emptyTitle": "No recent activity", "emptyDescription": "New authorized workspace events will appear here." }
@@ -364,6 +365,7 @@
   "operationsDashboard": {
     "eyebrow": "Cold-chain operation",
     "loading": "Loading operations…",
+    "retry": "Retry",
     "errorTitle": "We could not load operations",
     "partialData": "Some operational data is temporarily unavailable; displayed values remain limited to successful API sources.",
     "catalogUnavailable": "Product names could not be loaded; inventory identifiers remain visible from the API.",
@@ -394,7 +396,7 @@
       "proof": "Proof of delivery", "proofHint": "Complete receiver and declared evidence."
     },
     "bannerEyebrow": "S1 validates → S2 executes",
-    "bannerTitle": "{{ dispatches }} active dispatch orders, {{ pod }} pending proof-of-delivery records, and {{ lots }} FEFO-priority lots.",
+    "bannerTitle": "{{ dispatches }} active dispatch orders, {{ pod }} pending proof-of-delivery records, and {{ reservations }} reservations ready for dispatch.",
     "bannerNote": "Use the board to move from document readiness to preparation, route, and proof of delivery.",
     "criticalStock": "Critical stock",
     "criticalStockSub": "Depleted or unavailable lots",
