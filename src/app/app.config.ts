@@ -7,7 +7,8 @@ import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
 import { routes } from './app.routes';
 import { bearerInterceptor } from './core/security/bearer.interceptor';
 import { platformRuntimeConfigFactory, PLATFORM_RUNTIME_CONFIG } from './core/security/runtime-config';
-import { changeFeedPortProvider } from './core/change-feed/infrastructure/mock/change-feed-port.provider';
+import { CHANGE_FEED_PORT } from './core/change-feed/application/change-feed.port';
+import { ChangeFeedClient } from './core/change-feed/infrastructure/change-feed.service';
 import { refreshInterceptor } from './core/security/refresh.interceptor';
 import { PlatformAuthenticationBoundary } from './core/security/platform-authentication.boundary';
 import { AuthApiPort } from './tenantaccessgovernance/iam/domain/ports/auth-api.port';
@@ -16,61 +17,34 @@ import { SecurityApiPort } from './tenantaccessgovernance/iam/domain/ports/secur
 import { AuditApiPort } from './tenantaccessgovernance/iam/domain/ports/audit-api.port';
 import { CompanyAdministrationApiPort } from './tenantaccessgovernance/tenantmanagement/domain/ports/company-administration-api.port';
 import { AuthApiService } from './tenantaccessgovernance/iam/infrastructure/http/auth-api.service';
-import { MockAuthApiService } from './tenantaccessgovernance/iam/infrastructure/mock/mock-auth-api.service';
-import { authApiPortProvider } from './tenantaccessgovernance/iam/infrastructure/mock/auth-api-port.provider';
 import { AccessTokenStore } from './tenantaccessgovernance/iam/infrastructure/token/access-token.store';
 import { SecurityApiService } from './tenantaccessgovernance/iam/infrastructure/security-api.service';
 import { AuditApiService } from './tenantaccessgovernance/iam/infrastructure/audit-api.service';
-import { MockSecurityApiService } from './tenantaccessgovernance/iam/infrastructure/mock/mock-security-api.service';
-import { MockAuditApiService } from './tenantaccessgovernance/iam/infrastructure/mock/mock-audit-api.service';
-import { securityApiPortProvider } from './tenantaccessgovernance/iam/infrastructure/mock/security-api-port.provider';
-import { auditApiPortProvider } from './tenantaccessgovernance/iam/infrastructure/mock/audit-api-port.provider';
 import { CompanyAdministrationApiService } from './tenantaccessgovernance/tenantmanagement/infrastructure/http/company-administration-api.service';
-import { MockCompanyAdministrationApiService } from './tenantaccessgovernance/tenantmanagement/infrastructure/mock/mock-company-administration-api.service';
-import { companyAdministrationApiPortProvider } from './tenantaccessgovernance/tenantmanagement/infrastructure/mock/company-administration-api-port.provider';
 import { CustomerRelationshipsApiPort } from './customerbuyerrelationships/domain/ports/customer-relationships-api.port';
 import { CustomerRelationshipsApiService } from './customerbuyerrelationships/infrastructure/http/customer-relationships-api.service';
-import { MockCustomerRelationshipsApiService } from './customerbuyerrelationships/infrastructure/mock/mock-customer-relationships-api.service';
-import { customerRelationshipsApiPortProvider } from './customerbuyerrelationships/infrastructure/mock/customer-relationships-api-port.provider';
 import { CatalogApiPort } from './catalogcommercialpolicy/domain/ports/catalog-api.port';
 import { CatalogManagementApiPort } from './catalogcommercialpolicy/domain/ports/catalog-management-api.port';
 import { CatalogPromotionTargetsPort } from './catalogcommercialpolicy/domain/ports/catalog-promotion-targets.port';
 import { CatalogApiService } from './catalogcommercialpolicy/infrastructure/http/catalog-api.service';
-import { MockCatalogApiService } from './catalogcommercialpolicy/infrastructure/mock/mock-catalog-api.service';
-import { catalogApiPortProvider } from './catalogcommercialpolicy/infrastructure/mock/catalog-api-port.provider';
 import { CatalogManagementApiService } from './catalogcommercialpolicy/infrastructure/http/catalog-management-api.service';
-import { MockCatalogManagementApiService } from './catalogcommercialpolicy/infrastructure/mock/mock-catalog-management-api.service';
-import { catalogManagementApiPortProvider } from './catalogcommercialpolicy/infrastructure/mock/catalog-management-api-port.provider';
 import { CatalogPromotionTargetsGateway } from './catalogcommercialpolicy/infrastructure/http/catalog-promotion-targets.gateway';
-import { MockCatalogPromotionTargetsGateway } from './catalogcommercialpolicy/infrastructure/mock/mock-catalog-promotion-targets.gateway';
-import { catalogPromotionTargetsPortProvider } from './catalogcommercialpolicy/infrastructure/mock/catalog-promotion-targets-port.provider';
 import { SalesCommitmentCatalogPort, SalesCommitmentCustomerPort } from './salescommitment/domain/ports/sales-commitment-cross-context.ports';
+import { SalesCommitmentApiPort } from './salescommitment/domain/ports/sales-commitment-api.port';
 import { SalesCommitmentCatalogGateway } from './salescommitment/infrastructure/catalog/sales-commitment-catalog.gateway';
 import { SalesCommitmentCustomerGateway } from './salescommitment/infrastructure/customer/sales-commitment-customer.gateway';
 import { SalesCommitmentApiService } from './salescommitment/infrastructure/http/sales-commitment-api.service';
-import { MockSalesCommitmentApiService } from './salescommitment/infrastructure/mock/mock-sales-commitment-api.service';
-import { salesCommitmentApiPortProvider } from './salescommitment/infrastructure/mock/sales-commitment-api-port.provider';
 import { InventoryCatalogPort, SalesOrderVersionPort } from './inventoryavailability/domain/ports/inventory-cross-context.ports';
 import { InventoryCatalogGateway } from './inventoryavailability/infrastructure/catalog/inventory-catalog.gateway';
 import { SalesOrderVersionGateway } from './inventoryavailability/infrastructure/sales/sales-order-version.gateway';
-import { MockInventoryCatalogGateway, MockSalesOrderVersionGateway } from './inventoryavailability/infrastructure/mock/mock-inventory-cross-context';
-import { inventoryCatalogPortProvider, salesOrderVersionPortProvider } from './inventoryavailability/infrastructure/mock/inventory-cross-context.providers';
 import { LogisticsApiPort } from './fulfillmentdelivery/domain/ports/logistics-api.port';
 import { LogisticsApiService } from './fulfillmentdelivery/infrastructure/logistics-api.service';
-import { MockLogisticsApiService } from './fulfillmentdelivery/infrastructure/mock/mock-logistics-api.service';
-import { logisticsApiPortProvider } from './fulfillmentdelivery/infrastructure/mock/logistics-api-port.provider';
 import { PaymentsApiPort } from './payments/domain/ports/payments-api.port';
 import { PaymentsApiService } from './payments/infrastructure/payments-api.service';
-import { MockPaymentsApiService } from './payments/infrastructure/mock/mock-payments-api.service';
-import { paymentsApiPortProvider } from './payments/infrastructure/mock/payments-api-port.provider';
 import { BusinessDocumentsApiPort } from './businessdocuments/domain/ports/business-documents-api.port';
 import { BusinessDocumentsApiService } from './businessdocuments/infrastructure/business-documents-api.service';
-import { MockBusinessDocumentsApiService } from './businessdocuments/infrastructure/mock/mock-business-documents-api.service';
-import { businessDocumentsApiPortProvider } from './businessdocuments/infrastructure/mock/business-documents-api-port.provider';
 import { NotificationsApiPort } from './notifications/domain/ports/notifications-api.port';
 import { NotificationsApiService } from './notifications/infrastructure/notifications-api.service';
-import { MockNotificationsApiService } from './notifications/infrastructure/mock/mock-notifications-api.service';
-import { notificationsApiPortProvider } from './notifications/infrastructure/mock/notifications-api-port.provider';
 import { ManualOrderCartPort } from './salescommitment/application/ports/manual-order-cart.port';
 import { ManualOrderCartStoragePort } from './salescommitment/application/ports/manual-order-cart-storage.port';
 import { ManualOrderCartService } from './salescommitment/application/manual-orders/manual-order-cart.service';
@@ -84,56 +58,42 @@ export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
     { provide: PLATFORM_RUNTIME_CONFIG, useFactory: platformRuntimeConfigFactory },
-    changeFeedPortProvider,
+    ChangeFeedClient,
+    { provide: CHANGE_FEED_PORT, useExisting: ChangeFeedClient },
     provideHttpClient(withInterceptors([bearerInterceptor, refreshInterceptor])),
     AuthApiService,
-    MockAuthApiService,
-    authApiPortProvider,
+    { provide: AuthApiPort, useExisting: AuthApiService },
     { provide: AccessTokenPort, useExisting: AccessTokenStore },
     SecurityApiService,
-    MockSecurityApiService,
-    securityApiPortProvider,
+    { provide: SecurityApiPort, useExisting: SecurityApiService },
     AuditApiService,
-    MockAuditApiService,
-    auditApiPortProvider,
+    { provide: AuditApiPort, useExisting: AuditApiService },
     CompanyAdministrationApiService,
-    MockCompanyAdministrationApiService,
-    companyAdministrationApiPortProvider,
+    { provide: CompanyAdministrationApiPort, useExisting: CompanyAdministrationApiService },
     CustomerRelationshipsApiService,
-    MockCustomerRelationshipsApiService,
-    customerRelationshipsApiPortProvider,
+    { provide: CustomerRelationshipsApiPort, useExisting: CustomerRelationshipsApiService },
     CatalogApiService,
-    MockCatalogApiService,
-    catalogApiPortProvider,
+    { provide: CatalogApiPort, useExisting: CatalogApiService },
     CatalogManagementApiService,
-    MockCatalogManagementApiService,
-    catalogManagementApiPortProvider,
+    { provide: CatalogManagementApiPort, useExisting: CatalogManagementApiService },
     CatalogPromotionTargetsGateway,
-    MockCatalogPromotionTargetsGateway,
-    catalogPromotionTargetsPortProvider,
+    { provide: CatalogPromotionTargetsPort, useExisting: CatalogPromotionTargetsGateway },
     SalesCommitmentApiService,
-    MockSalesCommitmentApiService,
-    salesCommitmentApiPortProvider,
+    { provide: SalesCommitmentApiPort, useExisting: SalesCommitmentApiService },
     { provide: SalesCommitmentCustomerPort, useExisting: SalesCommitmentCustomerGateway },
     { provide: SalesCommitmentCatalogPort, useExisting: SalesCommitmentCatalogGateway },
     InventoryCatalogGateway,
-    MockInventoryCatalogGateway,
-    inventoryCatalogPortProvider,
+    { provide: InventoryCatalogPort, useExisting: InventoryCatalogGateway },
     SalesOrderVersionGateway,
-    MockSalesOrderVersionGateway,
-    salesOrderVersionPortProvider,
+    { provide: SalesOrderVersionPort, useExisting: SalesOrderVersionGateway },
     LogisticsApiService,
-    MockLogisticsApiService,
-    logisticsApiPortProvider,
+    { provide: LogisticsApiPort, useExisting: LogisticsApiService },
     PaymentsApiService,
-    MockPaymentsApiService,
-    paymentsApiPortProvider,
+    { provide: PaymentsApiPort, useExisting: PaymentsApiService },
     BusinessDocumentsApiService,
-    MockBusinessDocumentsApiService,
-    businessDocumentsApiPortProvider,
+    { provide: BusinessDocumentsApiPort, useExisting: BusinessDocumentsApiService },
     NotificationsApiService,
-    MockNotificationsApiService,
-    notificationsApiPortProvider,
+    { provide: NotificationsApiPort, useExisting: NotificationsApiService },
     ManualOrderCartService,
     BrowserManualOrderCartStorageAdapter,
     { provide: ManualOrderCartPort, useExisting: ManualOrderCartService },
