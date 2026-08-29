@@ -1,0 +1,168 @@
+<section class="page warehouses-page">
+  <nexa-page-header
+    [eyebrow]="'warehouse.managementUi.eyebrow' | translate"
+    [title]="'warehouse.managementTitle' | translate"
+    [subtitle]="'warehouse.managementDescription' | translate" />
+
+  @if (facade.loading()) {
+    <nexa-loading-state [label]="'warehouse.loading' | translate" />
+  } @else if (facade.error(); as error) {
+    <nexa-error-state
+      [title]="'warehouse.managementUi.errorTitle' | translate"
+      [description]="error"
+      (retry)="facade.retry()" />
+  } @else {
+    <section class="warehouse-metrics" [attr.aria-label]="'warehouse.managementTitle' | translate">
+      <nexa-metric-card
+        [label]="'warehouse.managementUi.metrics.total' | translate"
+        [value]="facade.warehouses().length"
+        [hint]="'warehouse.managementUi.metrics.totalHint' | translate"
+        icon="warehouse" />
+      <nexa-metric-card
+        [label]="'warehouse.managementUi.metrics.active' | translate"
+        [value]="activeCount()"
+        [hint]="'warehouse.managementUi.metrics.activeHint' | translate"
+        icon="verified"
+        tone="success" />
+      <nexa-metric-card
+        [label]="'warehouse.managementUi.metrics.configured' | translate"
+        [value]="configuredCount()"
+        [hint]="'warehouse.managementUi.metrics.configuredHint' | translate"
+        icon="location_on"
+        tone="info" />
+    </section>
+
+    @if (!facade.canWrite()) {
+      <div class="read-only-banner" role="status">
+        <nexa-icon name="visibility" />
+        <span>{{ 'warehouse.readOnly' | translate }}</span>
+      </div>
+    }
+
+    <nexa-section-panel
+      [title]="'warehouse.selectionTitle' | translate"
+      [description]="'warehouse.selectionDescription' | translate">
+      <div class="context-layout">
+        <label class="field">
+          <span>{{ 'warehouse.currentWarehouse' | translate }}</span>
+          <select [value]="selectedWarehouseId() ?? ''" (change)="selectFromEvent($event)">
+            <option value="">{{ 'warehouse.selectWarehouse' | translate }}</option>
+            @for (item of facade.warehouses(); track item.id) {
+              <option [value]="item.id">{{ item.code }} · {{ item.name }}</option>
+            }
+          </select>
+        </label>
+        @if (selected(); as item) {
+          <div class="selected-context">
+            <div>
+              <span class="context-label">{{ 'warehouse.managementUi.selectedLabel' | translate }}</span>
+              <strong>{{ item.name }}</strong>
+              <small>{{ item.code }}{{ item.address ? ' · ' + item.address : '' }}</small>
+            </div>
+            <nexa-status-badge [label]="('warehouse.status.' + item.status) | translate" [tone]="statusTone(item.status)" />
+          </div>
+        } @else {
+          <p class="context-empty">{{ 'warehouse.managementUi.noSelection' | translate }}</p>
+        }
+      </div>
+    </nexa-section-panel>
+
+    @if (facade.canWrite()) {
+      <nexa-section-panel
+        [title]="'warehouse.createWarehouse' | translate"
+        [description]="'warehouse.managementUi.createDescription' | translate">
+        <form class="warehouse-form" [formGroup]="form" (ngSubmit)="create()">
+          <label class="field">
+            <span>{{ 'warehouse.fields.code' | translate }}</span>
+            <input formControlName="code" [placeholder]="'warehouse.managementUi.codePlaceholder' | translate" />
+          </label>
+          <label class="field field-wide">
+            <span>{{ 'warehouse.fields.name' | translate }}</span>
+            <input formControlName="name" [placeholder]="'warehouse.managementUi.namePlaceholder' | translate" />
+          </label>
+          <label class="field field-wide">
+            <span>{{ 'warehouse.fields.address' | translate }}</span>
+            <input formControlName="address" [placeholder]="'warehouse.managementUi.addressPlaceholder' | translate" />
+          </label>
+          <button class="primary-button" type="submit" [disabled]="form.invalid">
+            <nexa-icon name="add" />
+            {{ 'warehouse.actions.create' | translate }}
+          </button>
+        </form>
+      </nexa-section-panel>
+    }
+
+    @if (selected(); as item) {
+      @if (facade.canWrite()) {
+        <nexa-section-panel
+          [title]="('warehouse.managementUi.editTitle' | translate) + ' · ' + item.code"
+          [description]="'warehouse.managementUi.editDescription' | translate">
+          <form class="warehouse-form" [formGroup]="editForm" (ngSubmit)="update(item)">
+            <label class="field field-wide">
+              <span>{{ 'warehouse.fields.name' | translate }}</span>
+              <input formControlName="name" />
+            </label>
+            <label class="field field-wide">
+              <span>{{ 'warehouse.fields.address' | translate }}</span>
+              <input formControlName="address" />
+            </label>
+            <label class="field">
+              <span>{{ 'warehouse.fields.status' | translate }}</span>
+              <select formControlName="status">
+                <option value="ACTIVE">{{ 'warehouse.status.ACTIVE' | translate }}</option>
+                <option value="SUSPENDED">{{ 'warehouse.status.SUSPENDED' | translate }}</option>
+              </select>
+            </label>
+            <div class="form-actions">
+              <button class="primary-button" type="submit" [disabled]="editForm.invalid">{{ 'warehouse.actions.save' | translate }}</button>
+              <button class="secondary-button" type="button" (click)="clearSelection()">{{ 'warehouse.actions.cancel' | translate }}</button>
+            </div>
+          </form>
+        </nexa-section-panel>
+      }
+    }
+
+    <nexa-section-panel
+      [title]="'warehouse.warehouses' | translate"
+      [description]="'warehouse.managementUi.tableDescription' | translate">
+      @if (facade.warehouses().length) {
+        <div class="table-shell">
+          <table>
+            <caption>{{ 'warehouse.warehouses' | translate }}</caption>
+            <thead>
+              <tr>
+                <th scope="col">{{ 'warehouse.fields.code' | translate }}</th>
+                <th scope="col">{{ 'warehouse.fields.name' | translate }}</th>
+                <th scope="col">{{ 'warehouse.fields.address' | translate }}</th>
+                <th scope="col">{{ 'warehouse.fields.status' | translate }}</th>
+                <th scope="col">{{ 'warehouse.fields.actions' | translate }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (item of facade.warehouses(); track item.id) {
+                <tr>
+                  <td><a class="table-link" [routerLink]="['/ops/operations/warehouses', item.id]">{{ item.code }}</a></td>
+                  <td><strong>{{ item.name }}</strong></td>
+                  <td>{{ item.address || '—' }}</td>
+                  <td><nexa-status-badge [label]="('warehouse.status.' + item.status) | translate" [tone]="statusTone(item.status)" /></td>
+                  <td>
+                    @if (facade.canWrite()) {
+                      <div class="row-actions">
+                        <button class="secondary-button compact" type="button" (click)="select(item)">{{ 'warehouse.actions.update' | translate }}</button>
+                        <button class="danger-button compact" type="button" (click)="facade.suspendWarehouse(item)" [disabled]="item.status !== 'ACTIVE'">{{ 'warehouse.actions.suspend' | translate }}</button>
+                      </div>
+                    } @else {
+                      <span class="muted-value">{{ 'warehouse.managementUi.readOnlyRow' | translate }}</span>
+                    }
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      } @else {
+        <p class="table-empty">{{ 'warehouse.empty' | translate }}</p>
+      }
+    </nexa-section-panel>
+  }
+</section>

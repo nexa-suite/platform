@@ -37,7 +37,7 @@
     <nexa-section-panel
       [title]="'warehouse.movements.historyTitle' | translate"
       [description]="'warehouse.movements.historyDescription' | translate">
-      @if (facade.movements().length) {
+      @if (orderedMovements().length) {
         <div class="table-shell">
           <table>
             <caption>{{ 'warehouse.movements.tableCaption' | translate }}</caption>
@@ -51,7 +51,7 @@
               </tr>
             </thead>
             <tbody>
-              @for (movement of facade.movements(); track movement.id) {
+              @for (movement of orderedMovements(); track movement.id) {
                 <tr>
                   <td>
                     <span class="movement-type" [attr.data-tone]="movementTone(movement.type)">

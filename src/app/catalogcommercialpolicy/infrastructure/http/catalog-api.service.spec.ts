@@ -24,15 +24,19 @@ describe('CatalogApiService', () => {
 
   afterEach(() => httpMock.verify());
 
-  it('sends URL filters and maps only commercial catalog fields', () => {
+  it('sends only supported catalog query filters and maps server pricing evidence', () => {
     service.search({ ...DEFAULT_CATALOG_FILTERS, q: 'queso', status: 'ACTIVE', coldChain: 'FROZEN' }).subscribe((page) => {
       expect(page.items[0]?.name).toBe('Queso');
       expect(page.items[0]?.id).toBe('CAT-1');
+      expect(page.items[0]?.unitPrice).toEqual({ amount: 10, currency: 'PEN' });
+      expect(page.items[0]?.basePrice).toEqual({ amount: 12.5, currency: 'PEN' });
+      expect(page.items[0]?.promotionLabel).toBe('Buyer price');
+      expect(page.items[0]?.status).toBe('ACTIVE');
     });
 
     const request = httpMock.expectOne((candidate) => candidate.url === 'http://api.local/api/v1/catalog-items');
     expect(request.request.params.get('q')).toBe('queso');
-    expect(request.request.params.get('status')).toBe('ACTIVE');
+    expect(request.request.params.has('status')).toBe(false);
     expect(request.request.params.get('coldChain')).toBe('FROZEN');
     request.flush({
       items: [{
@@ -43,6 +47,13 @@ describe('CatalogApiService', () => {
         presentation: 'Caja',
         unitPrice: { amount: '12.50', currency: 'PEN' },
         coldChainRequirement: 'FROZEN',
+        status: 'ACTIVE',
+        availabilityStatus: 'AVAILABLE',
+        promotionLabel: 'Buyer price',
+        basePrice: { amount: '12.50', currency: 'PEN' },
+        effectivePrice: { amount: '10.00', currency: 'PEN' },
+        discountAmount: { amount: '2.50', currency: 'PEN' },
+        currency: 'PEN',
         image: { url: '/catalog-items/queso.png', fileName: 'queso.png' }
       }],
       page: 0,

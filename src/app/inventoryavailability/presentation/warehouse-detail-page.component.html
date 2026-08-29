@@ -1,0 +1,158 @@
+<section class="page zone-detail-page">
+  <a class="back-link" routerLink="/ops/operations/warehouses">
+    <nexa-icon name="arrow_back" />
+    {{ 'warehouse.zoneUi.back' | translate }}
+  </a>
+  <nexa-page-header
+    [eyebrow]="'warehouse.zoneUi.eyebrow' | translate"
+    [title]="'warehouse.zoneUi.title' | translate"
+    [subtitle]="('warehouse.zoneUi.description' | translate) + ' · ' + warehouseId" />
+
+  @if (facade.loading()) {
+    <nexa-loading-state [label]="'warehouse.zoneUi.loading' | translate" />
+  } @else if (facade.error(); as error) {
+    <nexa-error-state
+      [title]="'warehouse.zoneUi.errorTitle' | translate"
+      [description]="error"
+      (retry)="facade.loadZones(warehouseId)" />
+  } @else {
+    <section class="zone-metrics" [attr.aria-label]="'warehouse.zoneUi.title' | translate">
+      <nexa-metric-card
+        [label]="'warehouse.zoneUi.metrics.total' | translate"
+        [value]="facade.zones().length"
+        [hint]="'warehouse.zoneUi.metrics.totalHint' | translate"
+        icon="category" />
+      <nexa-metric-card
+        [label]="'warehouse.zoneUi.metrics.active' | translate"
+        [value]="activeCount()"
+        [hint]="'warehouse.zoneUi.metrics.activeHint' | translate"
+        icon="verified"
+        tone="success" />
+      <nexa-metric-card
+        [label]="'warehouse.zoneUi.metrics.cold' | translate"
+        [value]="temperatureControlledCount()"
+        [hint]="'warehouse.zoneUi.metrics.coldHint' | translate"
+        icon="thermostat"
+        tone="info" />
+    </section>
+
+    @if (facade.canWrite()) {
+      <nexa-section-panel
+        [title]="'warehouse.zoneUi.createTitle' | translate"
+        [description]="'warehouse.zoneUi.createDescription' | translate">
+        <form class="zone-form" [formGroup]="form" (ngSubmit)="createZone()">
+          <label class="field">
+            <span>{{ 'warehouse.fields.code' | translate }}</span>
+            <input formControlName="code" [placeholder]="'warehouse.zoneUi.codePlaceholder' | translate" />
+          </label>
+          <label class="field field-wide">
+            <span>{{ 'warehouse.fields.name' | translate }}</span>
+            <input formControlName="name" [placeholder]="'warehouse.zoneUi.namePlaceholder' | translate" />
+          </label>
+          <label class="field">
+            <span>{{ 'warehouse.zoneUi.type' | translate }}</span>
+            <select formControlName="type">
+              @for (type of zoneTypes; track type) {
+                <option [value]="type">{{ ('warehouse.zoneUi.types.' + type) | translate }}</option>
+              }
+            </select>
+          </label>
+          <label class="field temperature-field">
+            <span>{{ 'warehouse.zoneUi.minimum' | translate }}</span>
+            <input type="number" formControlName="temperatureMin" [placeholder]="'warehouse.zoneUi.degreesPlaceholder' | translate" />
+          </label>
+          <label class="field temperature-field">
+            <span>{{ 'warehouse.zoneUi.maximum' | translate }}</span>
+            <input type="number" formControlName="temperatureMax" [placeholder]="'warehouse.zoneUi.degreesPlaceholder' | translate" />
+          </label>
+          <button class="primary-button" type="submit" [disabled]="form.invalid">
+            <nexa-icon name="add" />
+            {{ 'warehouse.actions.create' | translate }}
+          </button>
+        </form>
+      </nexa-section-panel>
+    }
+
+    @if (selected(); as zone) {
+      @if (facade.canWrite()) {
+        <nexa-section-panel
+          [title]="('warehouse.zoneUi.editTitle' | translate) + ' · ' + zone.code"
+          [description]="'warehouse.zoneUi.editDescription' | translate">
+          <form class="zone-form edit-form" [formGroup]="editForm" (ngSubmit)="updateZone(zone)">
+            <label class="field field-wide">
+              <span>{{ 'warehouse.fields.name' | translate }}</span>
+              <input formControlName="name" />
+            </label>
+            <label class="field temperature-field">
+              <span>{{ 'warehouse.zoneUi.minimum' | translate }}</span>
+              <input type="number" formControlName="temperatureMin" />
+            </label>
+            <label class="field temperature-field">
+              <span>{{ 'warehouse.zoneUi.maximum' | translate }}</span>
+              <input type="number" formControlName="temperatureMax" />
+            </label>
+            <label class="field">
+              <span>{{ 'warehouse.fields.status' | translate }}</span>
+              <select formControlName="status">
+                <option value="ACTIVE">{{ 'warehouse.status.ACTIVE' | translate }}</option>
+                <option value="SUSPENDED">{{ 'warehouse.status.SUSPENDED' | translate }}</option>
+              </select>
+            </label>
+            <div class="form-actions">
+              <button class="primary-button" type="submit" [disabled]="editForm.invalid">{{ 'warehouse.actions.save' | translate }}</button>
+              <button class="secondary-button" type="button" (click)="clearSelection()">{{ 'warehouse.actions.cancel' | translate }}</button>
+            </div>
+          </form>
+        </nexa-section-panel>
+      }
+    }
+
+    <nexa-section-panel
+      [title]="'warehouse.zoneUi.listTitle' | translate"
+      [description]="'warehouse.zoneUi.listDescription' | translate">
+      @if (facade.zones().length) {
+        <div class="table-shell">
+          <table>
+            <caption>{{ 'warehouse.zoneUi.listTitle' | translate }}</caption>
+            <thead>
+              <tr>
+                <th scope="col">{{ 'warehouse.fields.code' | translate }}</th>
+                <th scope="col">{{ 'warehouse.fields.name' | translate }}</th>
+                <th scope="col">{{ 'warehouse.zoneUi.type' | translate }}</th>
+                <th scope="col">{{ 'warehouse.zoneUi.temperature' | translate }}</th>
+                <th scope="col">{{ 'warehouse.fields.status' | translate }}</th>
+                <th scope="col">{{ 'warehouse.fields.actions' | translate }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (zone of facade.zones(); track zone.id) {
+                <tr>
+                  <td><strong>{{ zone.code }}</strong></td>
+                  <td>{{ zone.name }}</td>
+                  <td><span class="zone-type">{{ ('warehouse.zoneUi.types.' + zone.type) | translate }}</span></td>
+                  <td>{{ zone.temperatureMin ?? '—' }} – {{ zone.temperatureMax ?? '—' }} °C</td>
+                  <td><nexa-status-badge [label]="('warehouse.status.' + zone.status) | translate" [tone]="statusTone(zone.status)" /></td>
+                  <td>
+                    @if (facade.canWrite()) {
+                      <div class="row-actions">
+                        <button class="secondary-button compact" type="button" (click)="select(zone)">{{ 'warehouse.actions.update' | translate }}</button>
+                        <button class="danger-button compact" type="button" (click)="facade.updateZone(warehouseId, zone, { status: 'SUSPENDED' })" [disabled]="zone.status !== 'ACTIVE'">{{ 'warehouse.actions.suspend' | translate }}</button>
+                      </div>
+                    } @else {
+                      <span class="muted-value">{{ 'warehouse.managementUi.readOnlyRow' | translate }}</span>
+                    }
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      } @else {
+        <nexa-empty-state
+          icon="category"
+          [title]="'warehouse.zoneUi.emptyTitle' | translate"
+          [description]="'warehouse.zoneUi.emptyDescription' | translate" />
+      }
+    </nexa-section-panel>
+  }
+</section>

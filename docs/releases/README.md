@@ -4,6 +4,7 @@ Release notes are scoped to the Platform repository and distinguish the Angular 
 
 | Release | Summary |
 |---|---|
+| [v0.22.0](./v0.22.0.md) | Design Lab visual parity and API-backed operational surfaces |
 | [v0.21.0](./v0.21.0.md) | Sales dashboard API-source recovery and retryable partial states |
 | [v0.20.0](./v0.20.0.md) | Role-separated API projections and explicit partial-source recovery |
 | [v0.19.0](./v0.19.0.md) | API-backed role continuity and explicit partial-data states |
@@ -28,10 +29,10 @@ Release notes are scoped to the Platform repository and distinguish the Angular 
 |---|---|
 | [UNRELEASED HISTORICAL CANDIDATE: v0.6.0](./v0.6.0.md) | Consolidated into later published work; no tag or GitHub Release |
 
-Current release is `0.21.0`. Company Owner, Sales, Warehouse and
-Logistics/Dispatch remain separated by effective permissions, and operational
-dashboards now load only the projections belonging to their primary role while
-preserving successful API data during partial failures. The Sales dashboard
-also makes supporting API failures explicit and retryable. BOM remains
-OPEN/DEFERRED pending an accepted Product, Blueprint and API contract. This
-does not claim full product migration or pixel-level parity with Vue.
+Current release is `0.22.0`. Platform visual/interaction parity work now covers
+the API-backed B2B client, catalog, warehouse, lots, reservations, movements,
+profile, business documents and operational analytics surfaces. Company Owner,
+Sales, Warehouse and Logistics/Dispatch remain separated by effective
+permissions. BOM remains OPEN/DEFERRED pending an accepted Product, Blueprint
+and API contract. This does not claim full product migration or 100% pixel
+parity with Vue.

@@ -3,6 +3,40 @@
 All notable changes to this project are documented in this file.
 The project uses Semantic Versioning.
 
+## [0.22.0] - 2026-08-29
+
+Design Lab visual parity and API-backed operational surfaces.
+
+### Added
+
+- API-backed B2B client-account list and detail views with commercial identity, buyer association, editable profile data and delivery addresses.
+- Design Lab-aligned catalog browsing/detail composition using the 50 server-backed catalog assets and explicit availability/cold-chain states.
+- Warehouse, lots, stock movements, reservations and warehouse-detail compositions with server state, command safety and loading/empty/error states.
+- Dispatch/operational analytics composition with server-backed fulfillment, documents, movements, routes and workload evidence.
+- Profile, business-document and Company Owner presentation refinements using existing Nexa tokens, icons and role permissions.
+
+### Changed
+
+- The platform shell, navigation, spacing, surfaces, cards, controls, badges and responsive layouts converge on Design Lab v1.0.2 and the supplied Vue reference flows.
+- Visible navigation uses `Despacho`; the canonical internal capability remains `LOGISTICS`.
+- Cross-context analytics now consumes an explicit local application contract assembled at the route composition root; no persistence or domain contract was invented.
+
+### Boundary
+
+- `COMPANY_OWNER`, `SALES`, `WAREHOUSE` and `LOGISTICS`/Dispatch remain separated by the accepted permission model.
+- `BOM` remains `OPEN`/`DEFERRED`: no accepted role, endpoint, entity or lifecycle contract was invented.
+- API, Blueprint, Design Lab and Vue/legacy repositories were not modified.
+- This release is a Platform visual/interaction and integration slice; it does not claim 100% product parity or complete BOM functionality.
+
+### Validation
+
+- Platform unit suite: 177 tests across 84 files passed.
+- Design Lab foundation, catalog-asset and bounded-context validators passed.
+- Production build passed; existing SCSS style-budget warnings remain non-blocking.
+- `npm audit --omit=dev`: 0 vulnerabilities.
+- Browser proof: authenticated ICISA client detail rendered against the local platform, status text was visible, and the 390px viewport had no horizontal overflow.
+- Full credentialed E2E release proof remains environment-dependent because no dedicated local role fixture was available.
+
 ## [0.21.0] - 2026-08-29
 
 Sales dashboard source-state recovery.

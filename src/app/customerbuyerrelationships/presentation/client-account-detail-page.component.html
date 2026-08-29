@@ -1,41 +1,217 @@
-<section class="page"><a mat-button routerLink="/ops/commercial/client-accounts">{{ 'clientAccounts.actions.back' | translate }}</a>
-  @if (facade.state().item) { <div class="page-actions"><button mat-stroked-button type="button" (click)="print()">{{ 'clientAccounts.actions.print' | translate }}</button></div> }
-  @if (facade.state().status === 'loading' || facade.state().status === 'retrying') { <nexa-loading-state [lines]="5" [label]="'clientAccounts.states.detailLoading' | translate" /> }
-  @else if (facade.state().status === 'error') { <nexa-error-state [title]="'clientAccounts.states.errorTitle' | translate" [description]="'clientAccounts.states.detailError' | translate" [retryLabel]="'clientAccounts.actions.retry' | translate" (retry)="retry()" /> }
-  @if (isCreate || facade.state().item) {
-    @if (isCreate) { <nexa-page-header [eyebrow]="'clientAccounts.eyebrow' | translate" [title]="'clientAccounts.actions.create' | translate" [subtitle]="'clientAccounts.states.createDescription' | translate" /> } @else if (facade.state().item; as account) { <nexa-page-header [eyebrow]="'clientAccounts.eyebrow' | translate" [title]="account.commercialName" [subtitle]="account.businessName" /> }
-    <mat-card><mat-card-header><mat-card-subtitle>@if (facade.state().item; as account) { {{ account.code }} · {{ account.segment }} · v{{ account.version }} } @else { {{ 'clientAccounts.states.newAccount' | translate }} }</mat-card-subtitle><mat-card-title>{{ 'clientAccounts.detail.profile' | translate }}</mat-card-title></mat-card-header><mat-card-content>
-      @if (!canWrite()) { <p class="read-only-banner" role="status">{{ 'clientAccounts.states.readOnly' | translate }}</p> }
-      <form [formGroup]="form" class="form" (ngSubmit)="save()"><fieldset [disabled]="!canWrite()"><mat-form-field appearance="outline"><mat-label>{{ 'clientAccounts.fields.code' | translate }}</mat-label><input matInput formControlName="code" /></mat-form-field><mat-form-field appearance="outline"><mat-label>{{ 'clientAccounts.fields.businessName' | translate }}</mat-label><input matInput formControlName="businessName" /></mat-form-field><mat-form-field appearance="outline"><mat-label>{{ 'clientAccounts.fields.commercialName' | translate }}</mat-label><input matInput formControlName="commercialName" /></mat-form-field><mat-form-field appearance="outline"><mat-label>{{ 'clientAccounts.fields.countryCode' | translate }}</mat-label><input matInput formControlName="countryCode" /></mat-form-field><mat-form-field appearance="outline"><mat-label>{{ 'clientAccounts.fields.taxType' | translate }}</mat-label><input matInput formControlName="taxType" /></mat-form-field><mat-form-field appearance="outline"><mat-label>{{ 'clientAccounts.fields.taxValue' | translate }}</mat-label><input matInput formControlName="taxValue" /></mat-form-field><mat-form-field appearance="outline"><mat-label>{{ 'clientAccounts.fields.segment' | translate }}</mat-label><input matInput formControlName="segment" /></mat-form-field><mat-form-field appearance="outline"><mat-label>{{ 'clientAccounts.fields.contactPerson' | translate }}</mat-label><input matInput formControlName="contactPerson" /></mat-form-field><mat-form-field appearance="outline"><mat-label>{{ 'clientAccounts.fields.contactEmail' | translate }}</mat-label><input matInput type="email" formControlName="contactEmail" /></mat-form-field><mat-form-field appearance="outline"><mat-label>{{ 'clientAccounts.fields.phone' | translate }}</mat-label><input matInput formControlName="phone" /></mat-form-field><mat-form-field appearance="outline"><mat-label>{{ 'clientAccounts.fields.deliveryProfile' | translate }}</mat-label><input matInput formControlName="deliveryProfile" /></mat-form-field><mat-form-field appearance="outline"><mat-label>{{ 'clientAccounts.fields.paymentCondition' | translate }}</mat-label><input matInput formControlName="paymentCondition" /></mat-form-field><mat-form-field appearance="outline"><mat-label>{{ 'clientAccounts.fields.buyerMembershipId' | translate }}</mat-label><mat-select formControlName="buyerMembershipId"><mat-option value="">{{ 'clientAccounts.detail.noBuyer' | translate }}</mat-option>@for (candidate of buyerMembershipCandidates(); track candidate.id) { <mat-option [value]="candidate.id">{{ candidate.displayName }} · {{ candidate.email }}</mat-option> }</mat-select></mat-form-field><div class="actions"><button mat-flat-button color="primary" type="submit">{{ isCreate ? ('clientAccounts.actions.create' | translate) : ('clientAccounts.actions.save' | translate) }}</button>@if (facade.state().item; as account) {@if (account.status === 'ACTIVE') {<button mat-stroked-button type="button" (click)="suspend()">{{ 'clientAccounts.actions.suspend' | translate }}</button>} @else {<button mat-stroked-button type="button" (click)="activate()">{{ 'clientAccounts.actions.activate' | translate }}</button>}<button mat-button type="button" (click)="associateBuyer()" [disabled]="!form.controls.buyerMembershipId.value">{{ 'clientAccounts.actions.associateBuyer' | translate }}</button>}</div></fieldset></form>
-      @if (facade.state().item; as account) { <mat-chip-set><mat-chip>{{ account.status }}</mat-chip><mat-chip>{{ account.buyerMembershipId ? buyerMembershipLabel() : ('clientAccounts.detail.noBuyer' | translate) }}</mat-chip></mat-chip-set> }
-      <section class="location-panel" aria-labelledby="client-address-title"><h2 id="client-address-title">{{ 'clientAccounts.detail.addressAndMaps' | translate }}</h2><p>{{ form.controls.deliveryProfile.value || ('clientAccounts.detail.noAddress' | translate) }}</p><div class="location-actions">@if (mapUrl(); as addressMap) { <a mat-stroked-button [href]="addressMap" target="_blank" rel="noopener noreferrer">{{ 'clientAccounts.actions.openMap' | translate }}</a> }<button mat-button type="button" (click)="requestCurrentLocation()" [disabled]="locationStatus() === 'requesting'">{{ 'clientAccounts.actions.useCurrentLocation' | translate }}</button>@if (currentLocationMapUrl(); as locationMap) { <a mat-button [href]="locationMap" target="_blank" rel="noopener noreferrer">{{ 'clientAccounts.actions.openCurrentLocation' | translate }}</a> }</div><p class="location-status" role="status">@switch (locationStatus()) { @case ('requesting') { {{ 'clientAccounts.states.locationRequesting' | translate }} } @case ('ready') { {{ 'clientAccounts.states.locationReady' | translate }} · {{ currentLocation()?.accuracy | number:'1.0-0' }} m } @case ('denied') { {{ 'clientAccounts.states.locationDenied' | translate }} } @case ('timeout') { {{ 'clientAccounts.states.locationTimeout' | translate }} } @case ('unavailable') { {{ 'clientAccounts.states.locationUnavailable' | translate }} } @case ('unsupported') { {{ 'clientAccounts.states.locationUnsupported' | translate }} } }</p></section>
-      @if (facade.state().item; as account) {
-        <section class="address-book" aria-labelledby="address-book-title">
-          <div class="address-book-header"><div><h2 id="address-book-title">{{ 'clientAccounts.detail.addressBook' | translate }}</h2><p>{{ 'clientAccounts.detail.addressBookDescription' | translate }}</p></div><button mat-flat-button color="primary" type="button" (click)="openAddressForm()" [disabled]="!canWrite()">{{ 'clientAccounts.actions.addAddress' | translate }}</button></div>
-          @if (addressError(); as error) { <p class="error-message" role="alert">{{ error | translate }}</p> }
-          @if (addressFormOpen()) {
-            <form class="address-form" [formGroup]="addressForm" (ngSubmit)="saveAddress()">
-              <mat-form-field appearance="outline"><mat-label>{{ 'clientAccounts.detail.addressLabel' | translate }}</mat-label><input matInput formControlName="label" /></mat-form-field>
-              <mat-form-field appearance="outline"><mat-label>{{ 'clientAccounts.detail.roadType' | translate }}</mat-label><mat-select formControlName="addressType"><mat-option value="STREET">{{ 'clientAccounts.detail.streetFallback' | translate }}</mat-option>@for (road of roadTypes(); track road.code) { <mat-option [value]="road.code">{{ road.label }}</mat-option> }</mat-select></mat-form-field>
-              <mat-form-field appearance="outline" class="wide"><mat-label>{{ 'clientAccounts.fields.deliveryProfile' | translate }}</mat-label><input matInput formControlName="line" /></mat-form-field>
-              <mat-form-field appearance="outline" class="wide"><mat-label>{{ 'clientAccounts.detail.receivingInstructions' | translate }}</mat-label><input matInput formControlName="reference" /></mat-form-field>
-              <mat-form-field appearance="outline"><mat-label>{{ 'clientAccounts.detail.recipientName' | translate }}</mat-label><input matInput formControlName="recipientName" /></mat-form-field><mat-form-field appearance="outline"><mat-label>{{ 'clientAccounts.detail.recipientPhone' | translate }}</mat-label><input matInput formControlName="recipientPhone" /></mat-form-field><mat-form-field appearance="outline"><mat-label>{{ 'clientAccounts.detail.streetName' | translate }}</mat-label><input matInput formControlName="streetName" /></mat-form-field><mat-form-field appearance="outline"><mat-label>{{ 'clientAccounts.detail.streetNumber' | translate }}</mat-label><input matInput formControlName="streetNumber" /></mat-form-field><mat-form-field appearance="outline"><mat-label>{{ 'clientAccounts.detail.interior' | translate }}</mat-label><input matInput formControlName="interior" /></mat-form-field><mat-form-field appearance="outline"><mat-label>{{ 'clientAccounts.detail.postalCode' | translate }}</mat-label><input matInput formControlName="postalCode" /></mat-form-field>
-              <mat-form-field appearance="outline" class="wide"><mat-label>{{ 'clientAccounts.detail.receivingHours' | translate }}</mat-label><input matInput formControlName="receivingHours" /></mat-form-field><mat-form-field appearance="outline" class="wide"><mat-label>{{ 'clientAccounts.detail.receivingInstructions' | translate }}</mat-label><textarea matInput rows="2" formControlName="receivingInstructions"></textarea></mat-form-field>
-              <mat-form-field appearance="outline"><mat-label>{{ 'clientAccounts.detail.latitude' | translate }}</mat-label><input matInput type="number" step="0.000001" formControlName="latitude" /></mat-form-field><mat-form-field appearance="outline"><mat-label>{{ 'clientAccounts.detail.longitude' | translate }}</mat-label><input matInput type="number" step="0.000001" formControlName="longitude" /></mat-form-field><button mat-button type="button" (click)="requestCurrentLocation()">{{ 'clientAccounts.actions.useCurrentLocation' | translate }}</button>
-              <label class="select-field">{{ 'clientAccounts.detail.department' | translate }}<select formControlName="departmentCode" (change)="departmentChanged()"><option value="">{{ 'clientAccounts.detail.choose' | translate }}</option>@for (item of departments(); track item.code) { <option [value]="item.code">{{ item.label }}</option> }</select></label>
-              <label class="select-field">{{ 'clientAccounts.detail.province' | translate }}<select formControlName="provinceCode" (change)="provinceChanged()"><option value="">{{ 'clientAccounts.detail.choose' | translate }}</option>@for (item of provinces(); track item.code) { <option [value]="item.code">{{ item.label }}</option> }</select></label>
-              <label class="select-field">{{ 'clientAccounts.detail.district' | translate }}<select formControlName="districtCode"><option value="">{{ 'clientAccounts.detail.choose' | translate }}</option>@for (item of districts(); track item.code) { <option [value]="item.code">{{ item.label }}</option> }</select></label>
-              @if (!editingAddressId()) { <label class="checkbox-field"><input type="checkbox" formControlName="defaultAddress" />{{ 'clientAccounts.detail.defaultAddress' | translate }}</label> }
-              <div class="address-form-actions"><button mat-flat-button color="primary" type="submit" [disabled]="!canWrite()">{{ editingAddressId() ? ('clientAccounts.actions.saveAddress' | translate) : ('clientAccounts.actions.addAddress' | translate) }}</button><button mat-button type="button" (click)="cancelAddress()">{{ 'clientAccounts.actions.cancelAddress' | translate }}</button></div>
-            </form>
-          }
-          <div class="address-list">
-            @for (address of addresses(); track address.id) {
-              <article class="address-card" [class.inactive]="!address.active"><div class="address-title"><strong>{{ address.label }}</strong>@if (address.defaultAddress) { <span class="default-badge">{{ 'clientAccounts.detail.defaultAddress' | translate }}</span> }@if (!address.active) { <span class="inactive-badge">{{ 'clientAccounts.detail.inactiveAddress' | translate }}</span> }</div><p>{{ addressDisplay(address) }}</p><div class="address-actions"><a mat-button [href]="addressMap(address)" target="_blank" rel="noopener noreferrer">{{ 'clientAccounts.actions.openMap' | translate }}</a>@if (address.active) { <button mat-button type="button" (click)="editAddress(address)" [disabled]="!canWrite()">{{ 'clientAccounts.actions.editAddress' | translate }}</button>@if (!address.defaultAddress) { <button mat-button type="button" (click)="makeDefaultAddress(address)" [disabled]="!canWrite()">{{ 'clientAccounts.actions.makeDefault' | translate }}</button> }<button mat-button type="button" (click)="deactivateAddress(address)" [disabled]="!canWrite()">{{ 'clientAccounts.actions.deactivateAddress' | translate }}</button> }</div></article>
-            } @empty { <p class="empty-addresses">{{ 'clientAccounts.detail.noAddresses' | translate }}</p> }
+<section class="client-detail-page">
+  @if (isCreate) {
+    <nexa-page-header
+      [eyebrow]="'clientAccounts.eyebrow' | translate"
+      [title]="'clientAccounts.actions.create' | translate"
+      [subtitle]="'clientAccounts.states.createDescription' | translate">
+      <a page-header-actions class="header-link" routerLink="/ops/commercial/client-accounts">
+        <nexa-icon name="arrow_back" />
+        {{ 'clientAccounts.actions.back' | translate }}
+      </a>
+    </nexa-page-header>
+  } @else if (facade.state().item; as account) {
+    <nexa-page-header
+      [eyebrow]="'clientAccounts.eyebrow' | translate"
+      [title]="account.commercialName || account.businessName || account.code"
+      [subtitle]="account.businessName">
+      <a page-header-actions class="header-link" routerLink="/ops/commercial/client-accounts">
+        <nexa-icon name="arrow_back" />
+        {{ 'clientAccounts.actions.back' | translate }}
+      </a>
+      <button page-header-actions class="header-button" type="button" (click)="print()">
+        <nexa-icon name="description" />
+        {{ 'clientAccounts.actions.print' | translate }}
+      </button>
+    </nexa-page-header>
+  }
+
+  @if (facade.state().status === 'loading' || facade.state().status === 'retrying') {
+    <nexa-loading-state [lines]="5" [label]="'clientAccounts.states.detailLoading' | translate" />
+  } @else if (facade.state().status === 'error') {
+    <nexa-error-state
+      [title]="'clientAccounts.states.errorTitle' | translate"
+      [description]="'clientAccounts.states.detailError' | translate"
+      [retryLabel]="'clientAccounts.actions.retry' | translate"
+      (retry)="retry()" />
+  }
+
+  @if (isCreate) {
+    <section class="panel account-form-panel" aria-labelledby="new-client-account-title">
+      <header class="panel-header">
+        <div>
+          <span class="section-kicker">{{ 'clientAccounts.detail.identity' | translate }}</span>
+          <h2 id="new-client-account-title">{{ 'clientAccounts.detail.profile' | translate }}</h2>
+          <p>{{ 'clientAccounts.detail.editDescription' | translate }}</p>
+        </div>
+      </header>
+      <ng-container *ngTemplateOutlet="accountForm" />
+    </section>
+  }
+
+  @if (facade.state().item; as account) {
+    <section class="account-hero" aria-labelledby="account-hero-title">
+      <div class="hero-avatar" aria-hidden="true"><nexa-icon name="business" /></div>
+      <div class="hero-copy">
+        <span class="hero-kicker">{{ 'clientAccounts.detail.identity' | translate }}</span>
+        <h2 id="account-hero-title">{{ account.commercialName || account.businessName || account.code }}</h2>
+        <p>{{ account.taxType || 'RUC' }} {{ account.taxValue || '—' }} · {{ account.code }} · {{ account.segment || ('clientAccounts.values.notConfigured' | translate) }}</p>
+        <div class="hero-badges">
+          <span [class]="'status-badge tone-' + statusTone(account.status)"><span class="status-dot" aria-hidden="true"></span>{{ statusLabelKey(account.status) | translate }}</span>
+          <span class="relationship-badge"><nexa-icon name="groups" />{{ account.buyerMembershipId ? ('clientAccounts.relationship.associated' | translate) : ('clientAccounts.relationship.notAssociated' | translate) }}</span>
+        </div>
+      </div>
+      <div class="hero-actions">
+        @if (account.status === 'ACTIVE') {
+          <button class="outline-button danger-action" type="button" (click)="suspend()" [disabled]="!canWrite()"><nexa-icon name="pause" />{{ 'clientAccounts.actions.suspend' | translate }}</button>
+        } @else {
+          <button class="outline-button" type="button" (click)="activate()" [disabled]="!canWrite()"><nexa-icon name="check" />{{ 'clientAccounts.actions.activate' | translate }}</button>
+        }
+      </div>
+    </section>
+
+    @if (!canWrite()) {
+      <p class="read-only-banner" role="status"><nexa-icon name="info" />{{ 'clientAccounts.states.readOnly' | translate }}</p>
+    }
+
+    <div class="detail-grid">
+      <section class="panel summary-panel" aria-labelledby="account-summary-title">
+        <header class="panel-header">
+          <div>
+            <span class="section-kicker">{{ 'clientAccounts.detail.identity' | translate }}</span>
+            <h2 id="account-summary-title">{{ 'clientAccounts.detail.summary' | translate }}</h2>
+            <p>{{ 'clientAccounts.detail.summaryDescription' | translate }}</p>
           </div>
-        </section>
+          <span class="version-label">v{{ account.version }}</span>
+        </header>
+        <dl class="summary-list">
+          <div><dt>{{ 'clientAccounts.fields.code' | translate }}</dt><dd>{{ account.code }}</dd></div>
+          <div><dt>{{ 'clientAccounts.fields.taxValue' | translate }}</dt><dd>{{ account.taxType || 'RUC' }} {{ account.taxValue || '—' }}</dd></div>
+          <div><dt>{{ 'clientAccounts.fields.segment' | translate }}</dt><dd>{{ account.segment || ('clientAccounts.values.notConfigured' | translate) }}</dd></div>
+          <div><dt>{{ 'clientAccounts.fields.countryCode' | translate }}</dt><dd>{{ account.countryCode || '—' }}</dd></div>
+          <div><dt>{{ 'clientAccounts.fields.paymentCondition' | translate }}</dt><dd>{{ paymentConditionKey(account.paymentCondition) | translate }}</dd></div>
+          <div><dt>{{ 'clientAccounts.fields.buyerMembershipId' | translate }}</dt><dd class="breakable">{{ account.buyerMembershipId || ('clientAccounts.detail.noBuyer' | translate) }}</dd></div>
+        </dl>
+      </section>
+
+      <section class="panel profile-panel" aria-labelledby="account-profile-title">
+        <header class="panel-header">
+          <div>
+            <span class="section-kicker">{{ 'clientAccounts.detail.profile' | translate }}</span>
+            <h2 id="account-profile-title">{{ 'clientAccounts.detail.editable' | translate }}</h2>
+            <p>{{ 'clientAccounts.detail.editDescription' | translate }}</p>
+          </div>
+        </header>
+        <ng-container *ngTemplateOutlet="accountForm" />
+      </section>
+    </div>
+
+    <section class="panel location-panel" aria-labelledby="client-location-title">
+      <header class="panel-header location-header">
+        <div>
+          <span class="section-kicker">{{ 'clientAccounts.detail.addressAndMaps' | translate }}</span>
+          <h2 id="client-location-title">{{ 'clientAccounts.detail.deliveryLocation' | translate }}</h2>
+          <p>{{ 'clientAccounts.detail.addressDescription' | translate }}</p>
+        </div>
+        <span class="panel-icon" aria-hidden="true"><nexa-icon name="location_on" /></span>
+      </header>
+      <div class="location-content">
+        <div class="location-preview">
+          <span class="preview-label">{{ 'clientAccounts.fields.deliveryProfile' | translate }}</span>
+          <strong>{{ form.controls.deliveryProfile.value || ('clientAccounts.detail.noAddress' | translate) }}</strong>
+          <span>{{ account.countryCode || 'PE' }}</span>
+        </div>
+        <div class="location-actions">
+          @if (mapUrl(); as addressMap) {
+            <a class="outline-button" [href]="addressMap" target="_blank" rel="noopener noreferrer"><nexa-icon name="location_on" />{{ 'clientAccounts.actions.openMap' | translate }}</a>
+          }
+          <button class="quiet-button" type="button" (click)="requestCurrentLocation()" [disabled]="locationStatus() === 'requesting'"><nexa-icon name="location_on" />{{ 'clientAccounts.actions.useCurrentLocation' | translate }}</button>
+          @if (currentLocationMapUrl(); as locationMap) {
+            <a class="quiet-button" [href]="locationMap" target="_blank" rel="noopener noreferrer"><nexa-icon name="open_in_new" />{{ 'clientAccounts.actions.openCurrentLocation' | translate }}</a>
+          }
+        </div>
+      </div>
+      <p class="location-status" role="status">
+        @switch (locationStatus()) {
+          @case ('requesting') { {{ 'clientAccounts.states.locationRequesting' | translate }} }
+          @case ('ready') { {{ 'clientAccounts.states.locationReady' | translate }} · {{ currentLocation()?.accuracy | number:'1.0-0' }} m }
+          @case ('denied') { {{ 'clientAccounts.states.locationDenied' | translate }} }
+          @case ('timeout') { {{ 'clientAccounts.states.locationTimeout' | translate }} }
+          @case ('unavailable') { {{ 'clientAccounts.states.locationUnavailable' | translate }} }
+          @case ('unsupported') { {{ 'clientAccounts.states.locationUnsupported' | translate }} }
+        }
+      </p>
+    </section>
+
+    <section class="panel address-book" aria-labelledby="address-book-title">
+      <header class="panel-header address-book-header">
+        <div>
+          <span class="section-kicker">{{ 'clientAccounts.detail.addressAndMaps' | translate }}</span>
+          <h2 id="address-book-title">{{ 'clientAccounts.detail.addressBook' | translate }}</h2>
+          <p>{{ 'clientAccounts.detail.addressBookDescription' | translate }}</p>
+        </div>
+        <button class="primary-button" type="button" (click)="openAddressForm()" [disabled]="!canWrite()"><nexa-icon name="add" />{{ 'clientAccounts.actions.addAddress' | translate }}</button>
+      </header>
+      @if (addressError(); as error) { <p class="error-message" role="alert">{{ error | translate }}</p> }
+
+      @if (addressFormOpen()) {
+        <form class="address-form" [formGroup]="addressForm" (ngSubmit)="saveAddress()">
+          <div class="form-section-heading"><nexa-icon name="edit" /><div><h3>{{ editingAddressId() ? ('clientAccounts.actions.editAddress' | translate) : ('clientAccounts.actions.addAddress' | translate) }}</h3><p>{{ 'clientAccounts.detail.addressFormDescription' | translate }}</p></div></div>
+          <label class="field"><span>{{ 'clientAccounts.detail.addressLabel' | translate }}</span><input formControlName="label" /></label>
+          <label class="field"><span>{{ 'clientAccounts.detail.roadType' | translate }}</span><select formControlName="addressType"><option value="STREET">{{ 'clientAccounts.detail.streetFallback' | translate }}</option>@for (road of roadTypes(); track road.code) { <option [value]="road.code">{{ road.label }}</option> }</select></label>
+          <label class="field field-wide"><span>{{ 'clientAccounts.fields.deliveryProfile' | translate }}</span><input formControlName="line" /></label>
+          <label class="field field-wide"><span>{{ 'clientAccounts.detail.receivingInstructions' | translate }}</span><input formControlName="reference" /></label>
+          <label class="field"><span>{{ 'clientAccounts.detail.recipientName' | translate }}</span><input formControlName="recipientName" /></label>
+          <label class="field"><span>{{ 'clientAccounts.detail.recipientPhone' | translate }}</span><input formControlName="recipientPhone" /></label>
+          <label class="field"><span>{{ 'clientAccounts.detail.streetName' | translate }}</span><input formControlName="streetName" /></label>
+          <label class="field"><span>{{ 'clientAccounts.detail.streetNumber' | translate }}</span><input formControlName="streetNumber" /></label>
+          <label class="field"><span>{{ 'clientAccounts.detail.interior' | translate }}</span><input formControlName="interior" /></label>
+          <label class="field"><span>{{ 'clientAccounts.detail.postalCode' | translate }}</span><input formControlName="postalCode" /></label>
+          <label class="field field-wide"><span>{{ 'clientAccounts.detail.receivingHours' | translate }}</span><input formControlName="receivingHours" /></label>
+          <label class="field field-wide"><span>{{ 'clientAccounts.detail.receivingInstructions' | translate }}</span><textarea rows="2" formControlName="receivingInstructions"></textarea></label>
+          <label class="field"><span>{{ 'clientAccounts.detail.latitude' | translate }}</span><input type="number" step="0.000001" formControlName="latitude" /></label>
+          <label class="field"><span>{{ 'clientAccounts.detail.longitude' | translate }}</span><input type="number" step="0.000001" formControlName="longitude" /></label>
+          <label class="field"><span>{{ 'clientAccounts.detail.department' | translate }}</span><select formControlName="departmentCode" (change)="departmentChanged()"><option value="">{{ 'clientAccounts.detail.choose' | translate }}</option>@for (item of departments(); track item.code) { <option [value]="item.code">{{ item.label }}</option> }</select></label>
+          <label class="field"><span>{{ 'clientAccounts.detail.province' | translate }}</span><select formControlName="provinceCode" (change)="provinceChanged()"><option value="">{{ 'clientAccounts.detail.choose' | translate }}</option>@for (item of provinces(); track item.code) { <option [value]="item.code">{{ item.label }}</option> }</select></label>
+          <label class="field"><span>{{ 'clientAccounts.detail.district' | translate }}</span><select formControlName="districtCode"><option value="">{{ 'clientAccounts.detail.choose' | translate }}</option>@for (item of districts(); track item.code) { <option [value]="item.code">{{ item.label }}</option> }</select></label>
+          <button class="quiet-button location-form-action" type="button" (click)="requestCurrentLocation()"><nexa-icon name="location_on" />{{ 'clientAccounts.actions.useCurrentLocation' | translate }}</button>
+          @if (!editingAddressId()) { <label class="checkbox-field"><input type="checkbox" formControlName="defaultAddress" />{{ 'clientAccounts.detail.defaultAddress' | translate }}</label> }
+          <div class="address-form-actions"><button class="primary-button" type="submit" [disabled]="!canWrite()"><nexa-icon name="file_check" />{{ editingAddressId() ? ('clientAccounts.actions.saveAddress' | translate) : ('clientAccounts.actions.addAddress' | translate) }}</button><button class="quiet-button" type="button" (click)="cancelAddress()"><nexa-icon name="close" />{{ 'clientAccounts.actions.cancelAddress' | translate }}</button></div>
+        </form>
       }
-    </mat-card-content></mat-card>
+
+      <div class="address-list">
+        @for (address of addresses(); track address.id) {
+          <article class="address-card" [class.is-inactive]="!address.active">
+            <div class="address-card-top"><div><span class="address-label">{{ address.label }}</span><div class="address-badges">@if (address.defaultAddress) { <span class="mini-badge default-badge">{{ 'clientAccounts.detail.defaultAddress' | translate }}</span> } @if (!address.active) { <span class="mini-badge inactive-badge">{{ 'clientAccounts.detail.inactiveAddress' | translate }}</span> }</div></div><span class="address-icon" aria-hidden="true"><nexa-icon name="location_on" /></span></div>
+            <p class="address-text">{{ addressDisplay(address) }}</p>
+            @if (address.recipientName || address.recipientPhone || address.receivingHours) { <div class="address-meta">@if (address.recipientName) { <span><nexa-icon name="person" />{{ address.recipientName }}</span> } @if (address.recipientPhone) { <span><nexa-icon name="phone" />{{ address.recipientPhone }}</span> } @if (address.receivingHours) { <span><nexa-icon name="schedule" />{{ address.receivingHours }}</span> }</div> }
+            <div class="address-actions"><a class="quiet-button" [href]="addressMap(address)" target="_blank" rel="noopener noreferrer"><nexa-icon name="location_on" />{{ 'clientAccounts.actions.openMap' | translate }}</a>@if (address.active) { <button class="quiet-button" type="button" (click)="editAddress(address)" [disabled]="!canWrite()"><nexa-icon name="edit" />{{ 'clientAccounts.actions.editAddress' | translate }}</button>@if (!address.defaultAddress) { <button class="quiet-button" type="button" (click)="makeDefaultAddress(address)" [disabled]="!canWrite()"><nexa-icon name="check" />{{ 'clientAccounts.actions.makeDefault' | translate }}</button> }<button class="quiet-button danger-text" type="button" (click)="deactivateAddress(address)" [disabled]="!canWrite()"><nexa-icon name="close" />{{ 'clientAccounts.actions.deactivateAddress' | translate }}</button> }</div>
+          </article>
+        } @empty { <div class="empty-addresses"><span class="empty-icon"><nexa-icon name="location_on" /></span><strong>{{ 'clientAccounts.detail.noAddresses' | translate }}</strong><p>{{ 'clientAccounts.detail.noAddressesDescription' | translate }}</p></div> }
+      </div>
+    </section>
   }
 </section>
+
+<ng-template #accountForm>
+  <form [formGroup]="form" class="account-form" (ngSubmit)="save()">
+    <fieldset [disabled]="!canWrite()">
+      <div class="field-grid">
+        <label class="field"><span>{{ 'clientAccounts.fields.code' | translate }}</span><input formControlName="code" /></label>
+        <label class="field"><span>{{ 'clientAccounts.fields.segment' | translate }}</span><input formControlName="segment" /></label>
+        <label class="field field-wide"><span>{{ 'clientAccounts.fields.businessName' | translate }}</span><input formControlName="businessName" /></label>
+        <label class="field field-wide"><span>{{ 'clientAccounts.fields.commercialName' | translate }}</span><input formControlName="commercialName" /></label>
+        <label class="field"><span>{{ 'clientAccounts.fields.countryCode' | translate }}</span><input formControlName="countryCode" /></label>
+        <label class="field"><span>{{ 'clientAccounts.fields.taxType' | translate }}</span><input formControlName="taxType" /></label>
+        <label class="field"><span>{{ 'clientAccounts.fields.taxValue' | translate }}</span><input formControlName="taxValue" inputmode="numeric" /></label>
+        <label class="field"><span>{{ 'clientAccounts.fields.paymentCondition' | translate }}</span><input formControlName="paymentCondition" /></label>
+        <label class="field"><span>{{ 'clientAccounts.fields.contactPerson' | translate }}</span><input formControlName="contactPerson" /></label>
+        <label class="field"><span>{{ 'clientAccounts.fields.contactEmail' | translate }}</span><input type="email" formControlName="contactEmail" /></label>
+        <label class="field"><span>{{ 'clientAccounts.fields.phone' | translate }}</span><input formControlName="phone" /></label>
+        <label class="field field-wide"><span>{{ 'clientAccounts.fields.deliveryProfile' | translate }}</span><input formControlName="deliveryProfile" /></label>
+      </div>
+      @if (form.invalid && form.touched) { <p class="form-error" role="alert">{{ 'clientAccounts.states.formInvalid' | translate }}</p> }
+      <div class="form-actions"><button class="primary-button" type="submit"><nexa-icon name="file_check" />{{ isCreate ? ('clientAccounts.actions.create' | translate) : ('clientAccounts.actions.save' | translate) }}</button>@if (facade.state().item; as account) { <label class="buyer-association-field"><span>{{ 'clientAccounts.fields.buyerMembershipId' | translate }}</span><select formControlName="buyerMembershipId"><option value="">{{ 'clientAccounts.detail.noBuyer' | translate }}</option>@for (candidate of buyerMembershipCandidates(); track candidate.id) { <option [value]="candidate.id">{{ candidate.displayName }} · {{ candidate.email }}</option> }</select></label><button class="quiet-button association-action" type="button" (click)="associateBuyer()" [disabled]="!form.controls.buyerMembershipId.value"><nexa-icon name="groups" />{{ 'clientAccounts.actions.associateBuyer' | translate }}</button> }</div>
+    </fieldset>
+  </form>
+</ng-template>
