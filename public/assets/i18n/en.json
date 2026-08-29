@@ -453,6 +453,23 @@
     "operationalAnalytics": "Operational analytics",
     "businessDocuments": "Business documents"
   },
+  "businessDocuments": {
+    "eyebrow": "Operations / Business documents", "title": "Business documents", "subtitle": "Generated documents and immutable evidence across the operational lifecycle.", "notAvailable": "Not available",
+    "readiness": { "eyebrow": "Operational traceability", "title": "Documentation ready for every operation", "description": "Read authoritative server state, generate documents, and preserve linked evidence without losing the history." },
+    "metrics": { "label": "Document summary", "documents": "Visible documents", "documentsHint": "Records on the current page", "generated": "Generated", "generatedHint": "Available for download", "attention": "Needs attention", "attentionHint": "Pending or failed", "evidence": "Evidence available", "evidenceHint": "Objects ready to download" },
+    "filters": { "title": "Document filters", "description": "Filter by server status or by type within the loaded records.", "status": "Status", "all": "All", "type": "Document type", "allTypes": "All types" },
+    "list": { "title": "Generated documents", "description": "Each row preserves the reference, format, status, and date returned by the API.", "caption": "Business documents table" },
+    "fields": { "reference": "Reference", "type": "Type", "format": "Format", "status": "Status", "generated": "Generated", "actions": "Actions", "subject": "Subject" },
+    "types": { "ORDER_SUMMARY": "Order summary", "PURCHASE_REQUEST_SUMMARY": "Purchase request summary", "COMMERCIAL_INVOICE_DRAFT": "Commercial invoice draft", "DELIVERY_GUIDE_DRAFT": "Delivery guide draft", "POD_REPORT": "Proof-of-delivery report", "INCIDENT_REPORT": "Incident report", "PAYMENT_RECEIPT": "Payment receipt" },
+    "status": { "REQUESTED": "Requested", "GENERATING": "Generating", "GENERATED": "Generated", "FAILED": "Failed", "SUPERSEDED": "Superseded", "VOIDED": "Voided" },
+    "evidenceStatus": { "REQUESTED": "Requested", "UPLOADING": "Uploading", "QUARANTINED": "Quarantined", "SCANNING": "Scanning", "AVAILABLE": "Available", "REJECTED": "Rejected", "DELETED": "Deleted" },
+    "actions": { "addDocument": "Generate document", "clearFilters": "Clear filters", "detail": "Detail / log", "download": "Download", "cancel": "Cancel", "requesting": "Requesting…", "request": "Request generation", "notPermitted": "Not permitted", "close": "Close", "regenerate": "Regenerate" },
+    "subjects": { "routeOrder": "Sales order from route" },
+    "generation": { "title": "Generate document", "description": "Choose a subject delivered by the API. Internal identifiers are not edited in this form.", "noSubjects": "No eligible subjects loaded" },
+    "evidence": { "title": "Upload evidence", "description": "Request a quarantined object, then attach the file for security scanning.", "filename": "Filename", "filenamePlaceholder": "pod-photo.jpg", "contentType": "Declared type", "request": "Request upload", "noSubjects": "No eligible subjects loaded", "chooseFile": "Choose file", "listTitle": "Linked evidence", "listDescription": "Evidence preserves its lifecycle and the type detected by the service.", "listCaption": "Document evidence table", "emptyTitle": "No linked evidence", "emptyDescription": "The API has not delivered evidence for the visible subjects yet.", "fields": { "file": "File", "detectedType": "Detected type" } },
+    "detail": { "eyebrow": "Document detail", "subject": "Subject", "type": "Type", "status": "Status", "version": "Version", "format": "Format", "size": "Size", "checksum": "SHA-256 checksum", "failure": "Failure detail", "lifecycle": "Lifecycle log", "lifecycleDescription": "Auditable events delivered by the document service.", "noEvents": "No lifecycle events." },
+    "states": { "errorTitle": "Documents unavailable", "emptyTitle": "No business documents", "emptyDescription": "No document matches the current filters.", "loadError": "The document service did not respond.", "generationError": "The document generation request failed.", "regenerationError": "The document regeneration request failed.", "detailError": "The document detail or lifecycle log failed.", "downloadError": "The document download failed.", "evidenceRequestError": "The evidence upload request failed.", "evidenceUploadError": "The evidence file could not be uploaded.", "evidenceDownloadError": "The evidence download failed.", "detailLoading": "Loading log…" }
+  },
   "warehouse": {
     "operations": "Warehouse Operations",
     "inventory": "Inventory Control",

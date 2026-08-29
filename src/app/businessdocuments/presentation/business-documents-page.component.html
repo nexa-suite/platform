@@ -1,0 +1,280 @@
+<section class="page">
+  <nexa-page-header
+    [eyebrow]="'businessDocuments.eyebrow' | translate"
+    [title]="'businessDocuments.title' | translate"
+    [subtitle]="'businessDocuments.subtitle' | translate">
+    @if (canGenerate()) {
+      <nexa-button page-header-actions variant="primary" size="compact" (click)="openGeneration()">
+        <nexa-icon name="add" />
+        {{ 'businessDocuments.actions.addDocument' | translate }}
+      </nexa-button>
+    }
+  </nexa-page-header>
+
+  @if (loading()) {
+    <nexa-loading-state />
+  } @else if (error(); as message) {
+    <nexa-error-state [title]="'businessDocuments.states.errorTitle' | translate" [description]="message" (retry)="load()" />
+  } @else {
+    <section class="readiness-banner" aria-labelledby="readiness-title">
+      <span class="readiness-icon" aria-hidden="true"><nexa-icon name="verified" /></span>
+      <div>
+        <p class="banner-eyebrow">{{ 'businessDocuments.readiness.eyebrow' | translate }}</p>
+        <h2 id="readiness-title">{{ 'businessDocuments.readiness.title' | translate }}</h2>
+        <p>{{ 'businessDocuments.readiness.description' | translate }}</p>
+      </div>
+    </section>
+
+    <div class="metrics-grid" aria-label="{{ 'businessDocuments.metrics.label' | translate }}">
+      <nexa-metric-card icon="description" [label]="'businessDocuments.metrics.documents' | translate" [value]="documentCount()" [hint]="'businessDocuments.metrics.documentsHint' | translate" tone="info" />
+      <nexa-metric-card icon="verified" [label]="'businessDocuments.metrics.generated' | translate" [value]="generatedCount()" [hint]="'businessDocuments.metrics.generatedHint' | translate" tone="success" />
+      <nexa-metric-card icon="warning" [label]="'businessDocuments.metrics.attention' | translate" [value]="attentionCount()" [hint]="'businessDocuments.metrics.attentionHint' | translate" tone="warning" />
+      <nexa-metric-card icon="inbox" [label]="'businessDocuments.metrics.evidence' | translate" [value]="availableEvidenceCount()" [hint]="'businessDocuments.metrics.evidenceHint' | translate" tone="neutral" />
+    </div>
+
+    <nexa-section-panel [title]="'businessDocuments.filters.title' | translate" [description]="'businessDocuments.filters.description' | translate">
+      <div class="filters">
+        <div class="status-filter">
+          <span class="field-label">{{ 'businessDocuments.filters.status' | translate }}</span>
+          <nexa-segmented-control
+            [label]="'businessDocuments.filters.status' | translate"
+            [options]="statusFilterOptions()"
+            [selected]="statusFilter()"
+            (selectedChange)="applyStatusFilter($event)"
+            size="compact" />
+        </div>
+        <label class="select-field">
+          <span>{{ 'businessDocuments.filters.type' | translate }}</span>
+          <select [value]="typeFilter()" (change)="applyTypeFilter($any($event.target).value)">
+            <option value="">{{ 'businessDocuments.filters.allTypes' | translate }}</option>
+            @for (type of documentTypes; track type) {
+              <option [value]="type">{{ documentTypeLabelKey(type) | translate }}</option>
+            }
+          </select>
+        </label>
+        @if (statusFilter() || typeFilter()) {
+          <nexa-button variant="quiet" size="compact" (click)="resetFilters()">
+            <nexa-icon name="close" />
+            {{ 'businessDocuments.actions.clearFilters' | translate }}
+          </nexa-button>
+        }
+      </div>
+    </nexa-section-panel>
+
+    <nexa-section-panel [title]="'businessDocuments.list.title' | translate" [description]="'businessDocuments.list.description' | translate">
+      @if (filteredDocuments().length) {
+        <div class="table-scroll">
+          <table class="documents-table">
+            <caption class="sr-only">{{ 'businessDocuments.list.caption' | translate }}</caption>
+            <thead>
+              <tr>
+                <th scope="col">{{ 'businessDocuments.fields.reference' | translate }}</th>
+                <th scope="col">{{ 'businessDocuments.fields.type' | translate }}</th>
+                <th scope="col">{{ 'businessDocuments.fields.format' | translate }}</th>
+                <th scope="col">{{ 'businessDocuments.fields.status' | translate }}</th>
+                <th scope="col">{{ 'businessDocuments.fields.generated' | translate }}</th>
+                <th scope="col">{{ 'businessDocuments.fields.actions' | translate }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (document of filteredDocuments(); track document.id) {
+                <tr>
+                  <td>
+                    <div class="reference-cell">
+                      <strong>{{ document.documentNumber || document.id.slice(0, 8) }}</strong>
+                      <small>{{ subjectLabel(document.subjectType, document.subjectId) }}</small>
+                    </div>
+                  </td>
+                  <td>{{ documentTypeLabelKey(document.documentType) | translate }}</td>
+                  <td><span class="format-label">{{ document.format }}</span></td>
+                  <td><nexa-status-badge [label]="statusLabelKey(document.status) | translate" [tone]="statusTone(document.status)" emphasis="standard" /></td>
+                  <td>
+                    @if (document.generatedAt) {
+                      <time [attr.datetime]="document.generatedAt">{{ document.generatedAt | date:'medium' }}</time>
+                    } @else {
+                      <span class="muted">{{ 'businessDocuments.notAvailable' | translate }}</span>
+                    }
+                  </td>
+                  <td>
+                    <div class="actions">
+                      <nexa-button variant="secondary" size="compact" (click)="selectDocument(document)">
+                        <nexa-icon name="visibility" />
+                        {{ 'businessDocuments.actions.detail' | translate }}
+                      </nexa-button>
+                      @if (canDownload()) {
+                        <nexa-button variant="primary" size="compact" [disabled]="document.status !== 'GENERATED'" (click)="download(document)">
+                          <nexa-icon name="description" />
+                          {{ 'businessDocuments.actions.download' | translate }}
+                        </nexa-button>
+                      }
+                    </div>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      } @else {
+        <nexa-empty-state icon="description" [title]="'businessDocuments.states.emptyTitle' | translate" [description]="'businessDocuments.states.emptyDescription' | translate" />
+      }
+    </nexa-section-panel>
+
+    @if (showGeneration() && canGenerate()) {
+      <nexa-section-panel [title]="'businessDocuments.generation.title' | translate" [description]="'businessDocuments.generation.description' | translate">
+        <form class="workflow-form" (submit)="$event.preventDefault(); requestGeneration()">
+          <div class="form-grid">
+            <label>
+              <span>{{ 'businessDocuments.fields.subject' | translate }}</span>
+              <select [value]="generationSubjectKey()" (change)="generationSubjectKey.set($any($event.target).value)">
+                @for (subject of subjectOptions(); track subject.key) { <option [value]="subject.key">{{ subject.label }}</option> }
+                @empty { <option value="">{{ 'businessDocuments.generation.noSubjects' | translate }}</option> }
+              </select>
+            </label>
+            <label>
+              <span>{{ 'businessDocuments.fields.type' | translate }}</span>
+              <select [value]="generationDocumentType()" (change)="generationDocumentType.set($any($event.target).value)">
+                @for (type of documentTypes; track type) { <option [value]="type">{{ documentTypeLabelKey(type) | translate }}</option> }
+              </select>
+            </label>
+            <label>
+              <span>{{ 'businessDocuments.fields.format' | translate }}</span>
+              <select [value]="generationFormat()" (change)="generationFormat.set($any($event.target).value)">
+                @for (format of formats; track format) { <option [value]="format">{{ format }}</option> }
+              </select>
+            </label>
+          </div>
+          <div class="form-actions">
+            <nexa-button variant="quiet" type="button" (click)="closeGeneration()">{{ 'businessDocuments.actions.cancel' | translate }}</nexa-button>
+            <nexa-button type="submit" [disabled]="!generationSubjectKey()" [loading]="saving()">
+              <nexa-icon name="send" />
+              {{ (saving() ? 'businessDocuments.actions.requesting' : 'businessDocuments.actions.request') | translate }}
+            </nexa-button>
+          </div>
+        </form>
+      </nexa-section-panel>
+    }
+
+    @if (canUpload()) {
+      <nexa-section-panel [title]="'businessDocuments.evidence.title' | translate" [description]="'businessDocuments.evidence.description' | translate">
+        <div class="workflow-form">
+          <div class="form-grid">
+            <label>
+              <span>{{ 'businessDocuments.fields.subject' | translate }}</span>
+              <select [value]="evidenceSubjectKey()" (change)="evidenceSubjectKey.set($any($event.target).value)">
+                @for (subject of subjectOptions(); track subject.key) { <option [value]="subject.key">{{ subject.label }}</option> }
+                @empty { <option value="">{{ 'businessDocuments.evidence.noSubjects' | translate }}</option> }
+              </select>
+            </label>
+            <label>
+              <span>{{ 'businessDocuments.evidence.filename' | translate }}</span>
+              <input [value]="evidenceFilename()" (input)="evidenceFilename.set($any($event.target).value)" [placeholder]="'businessDocuments.evidence.filenamePlaceholder' | translate" />
+            </label>
+            <label>
+              <span>{{ 'businessDocuments.evidence.contentType' | translate }}</span>
+              <select [value]="evidenceContentType()" (change)="evidenceContentType.set($any($event.target).value)">
+                <option value="application/pdf">application/pdf</option>
+                <option value="image/jpeg">image/jpeg</option>
+                <option value="image/png">image/png</option>
+                <option value="text/csv">text/csv</option>
+              </select>
+            </label>
+          </div>
+          <input #evidenceFile class="visually-hidden" type="file" (change)="completeEvidence($event)" />
+          <div class="form-actions">
+            <nexa-button variant="secondary" [disabled]="!evidenceSubjectKey() || !evidenceFilename().trim()" [loading]="saving()" (click)="requestEvidence()">
+              <nexa-icon name="inbox" />
+              {{ 'businessDocuments.evidence.request' | translate }}
+            </nexa-button>
+            @if (requestedEvidence(); as requested) {
+              <span class="pending-upload" role="status">
+                <nexa-status-badge [label]="evidenceStatusLabelKey(requested.lifecycleStatus) | translate" tone="warning" />
+                {{ requested.originalFilename }}
+              </span>
+              <nexa-button variant="quiet" size="compact" (click)="chooseEvidenceFile()">{{ 'businessDocuments.evidence.chooseFile' | translate }}</nexa-button>
+            }
+          </div>
+        </div>
+      </nexa-section-panel>
+    }
+
+    <nexa-section-panel [title]="'businessDocuments.evidence.listTitle' | translate" [description]="'businessDocuments.evidence.listDescription' | translate">
+      @if (evidence().length) {
+        <div class="table-scroll">
+          <table class="evidence-table">
+            <caption class="sr-only">{{ 'businessDocuments.evidence.listCaption' | translate }}</caption>
+            <thead>
+              <tr>
+                <th scope="col">{{ 'businessDocuments.evidence.fields.file' | translate }}</th>
+                <th scope="col">{{ 'businessDocuments.fields.subject' | translate }}</th>
+                <th scope="col">{{ 'businessDocuments.fields.status' | translate }}</th>
+                <th scope="col">{{ 'businessDocuments.evidence.fields.detectedType' | translate }}</th>
+                <th scope="col">{{ 'businessDocuments.fields.actions' | translate }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (item of evidence(); track item.id) {
+                <tr>
+                  <td><div class="reference-cell"><strong>{{ item.originalFilename }}</strong><small>{{ formatBytes(item.byteSize) }}</small></div></td>
+                  <td>{{ subjectLabel(item.subjectType, item.subjectId) }}</td>
+                  <td><nexa-status-badge [label]="evidenceStatusLabelKey(item.lifecycleStatus) | translate" [tone]="evidenceTone(item.lifecycleStatus)" emphasis="standard" /></td>
+                  <td>{{ item.detectedContentType || item.declaredContentType }}</td>
+                  <td>
+                    @if (canDownload()) {
+                      <nexa-button variant="secondary" size="compact" [disabled]="item.lifecycleStatus !== 'AVAILABLE'" (click)="downloadEvidence(item)">
+                        <nexa-icon name="description" />
+                        {{ 'businessDocuments.actions.download' | translate }}
+                      </nexa-button>
+                    } @else { <span class="muted">{{ 'businessDocuments.actions.notPermitted' | translate }}</span> }
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      } @else {
+        <nexa-empty-state [compact]="true" icon="inbox" [title]="'businessDocuments.evidence.emptyTitle' | translate" [description]="'businessDocuments.evidence.emptyDescription' | translate" />
+      }
+    </nexa-section-panel>
+
+    @if (selectedDocument(); as detail) {
+      <aside class="detail-panel" aria-labelledby="detail-title">
+        <div class="detail-heading">
+          <div>
+            <p class="eyebrow">{{ 'businessDocuments.detail.eyebrow' | translate }}</p>
+            <h2 id="detail-title">{{ detail.documentNumber || detail.id }}</h2>
+          </div>
+          <nexa-button variant="quiet" size="compact" (click)="selectedDocument.set(null)">
+            <nexa-icon name="close" />
+            {{ 'businessDocuments.actions.close' | translate }}
+          </nexa-button>
+        </div>
+        @if (detailError(); as message) { <p class="inline-error" role="alert">{{ message }}</p> }
+        <dl>
+          <div><dt>{{ 'businessDocuments.detail.subject' | translate }}</dt><dd>{{ subjectLabel(detail.subjectType, detail.subjectId) }}</dd></div>
+          <div><dt>{{ 'businessDocuments.detail.type' | translate }}</dt><dd>{{ documentTypeLabelKey(detail.documentType) | translate }}</dd></div>
+          <div><dt>{{ 'businessDocuments.detail.status' | translate }}</dt><dd><nexa-status-badge [label]="statusLabelKey(detail.status) | translate" [tone]="statusTone(detail.status)" emphasis="standard" /></dd></div>
+          <div><dt>{{ 'businessDocuments.detail.version' | translate }}</dt><dd>{{ detail.version }}</dd></div>
+          <div><dt>{{ 'businessDocuments.detail.format' | translate }}</dt><dd>{{ detail.format }} · {{ detail.contentType || ('businessDocuments.notAvailable' | translate) }}</dd></div>
+          <div><dt>{{ 'businessDocuments.detail.size' | translate }}</dt><dd>{{ formatBytes(detail.byteSize) }}</dd></div>
+          <div class="wide-detail"><dt>{{ 'businessDocuments.detail.checksum' | translate }}</dt><dd>{{ detail.checksumSha256 || ('businessDocuments.notAvailable' | translate) }}</dd></div>
+          @if (detail.failureCode || detail.failureDetail) { <div class="wide-detail"><dt>{{ 'businessDocuments.detail.failure' | translate }}</dt><dd>{{ detail.failureCode || ('businessDocuments.notAvailable' | translate) }}{{ detail.failureDetail ? ' · ' + detail.failureDetail : '' }}</dd></div> }
+        </dl>
+        <div class="detail-actions">
+          @if (canGenerate()) { <nexa-button variant="secondary" [disabled]="saving()" (click)="regenerate(detail)"><nexa-icon name="send" />{{ 'businessDocuments.actions.regenerate' | translate }}</nexa-button> }
+        </div>
+        <div class="lifecycle-heading">
+          <div><h3>{{ 'businessDocuments.detail.lifecycle' | translate }}</h3><p>{{ 'businessDocuments.detail.lifecycleDescription' | translate }}</p></div>
+        </div>
+        @if (detailLoading()) {
+          <p class="loading-inline" role="status">{{ 'businessDocuments.states.detailLoading' | translate }}</p>
+        } @else {
+          <ul class="event-list">
+            @for (event of selectedEvents(); track event.eventId) {
+              <li><strong>{{ event.eventType }}</strong><span>{{ event.status }} · {{ event.occurredAt | date:'medium' }}</span></li>
+            } @empty { <li class="muted">{{ 'businessDocuments.detail.noEvents' | translate }}</li> }
+          </ul>
+        }
+      </aside>
+    }
+  }
+</section>
