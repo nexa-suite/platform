@@ -3,6 +3,39 @@
 All notable changes to this project are documented in this file.
 The project uses Semantic Versioning.
 
+## [0.26.0] - 2026-08-29
+
+Production API-only adapter composition.
+
+### Changed
+
+- Platform application bootstrap and operational route compositions bind
+  directly to HTTP clients and gateways; runtime mock adapters are no longer
+  part of the production provider graph.
+- Fixture adapters remain available only for isolated unit/provider tests.
+- Cross-context ports keep explicit API gateway bindings for Sales, Inventory,
+  Warehouse Operations and Catalog Promotion Targets.
+
+### Boundary
+
+- No API endpoint, entity, state, persistence model, dependency or cross-context
+  contract was invented.
+- `COMPANY_OWNER`, `SALES`, `WAREHOUSE` and `LOGISTICS`/Dispatch remain
+  separated by the accepted permission model.
+- `BOM` remains `OPEN`/`DEFERRED`: no accepted role, endpoint, entity or
+  lifecycle contract exists.
+
+### Validation
+
+- Platform unit suite: 183 tests across 85 files passed.
+- Production build passed with existing component SCSS budget warnings.
+- Design Lab v1.0.2 foundation, catalog-asset and bounded-context validators
+  passed.
+- Pull request #64 CodeQL and both CI verification checks passed.
+- `npm audit --omit=dev`: 0 vulnerabilities remains the prior release baseline;
+  the release branch has no dependency changes.
+- No authenticated live API smoke is claimed from the local machine.
+
 ## [0.25.0] - 2026-08-29
 
 API-backed operational analytics evidence and API-only browser runtime.
