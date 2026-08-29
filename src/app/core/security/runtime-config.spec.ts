@@ -30,10 +30,10 @@ describe('platform runtime configuration', () => {
     expect(platformRuntimeConfigFactory()).toEqual({ apiBaseUrl: '', surface: PLATFORM_SURFACE, dataMode: 'api', tenantProfile: 'generic' });
   });
 
-  it('enables mock data only from the explicit global runtime config', () => {
+  it('keeps browser runtime API-only even when a global requests mock data', () => {
     runtimeGlobal.__NEXA_RUNTIME_CONFIG__ = { apiBaseUrl: 'https://api.local/', surface: ' PLATFORM ', dataMode: 'mock', tenantProfile: 'icisa' };
 
-    expect(platformRuntimeConfigFactory()).toEqual({ apiBaseUrl: 'https://api.local', surface: 'PLATFORM', dataMode: 'mock', tenantProfile: 'icisa' });
+    expect(platformRuntimeConfigFactory()).toEqual({ apiBaseUrl: 'https://api.local', surface: 'PLATFORM', dataMode: 'api', tenantProfile: 'icisa' });
   });
 
   it('keeps only an accepted local demo persona', () => {

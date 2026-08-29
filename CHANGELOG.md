@@ -3,6 +3,47 @@
 All notable changes to this project are documented in this file.
 The project uses Semantic Versioning.
 
+## [0.25.0] - 2026-08-29
+
+API-backed operational analytics evidence and API-only browser runtime.
+
+### Added
+
+- Period-scoped operational analytics controls using the existing Logistics
+  analytics contract.
+- On-time delivery evidence and a dashboard readiness snapshot sourced from
+  existing API projections.
+- Explicit partial-source and date-validation feedback for the analytics view.
+
+### Changed
+
+- Browser runtime now ignores mock switches and resolves API adapters; fixture
+  adapters remain available only for isolated unit/provider tests.
+- Operational analytics preserves the API ratio contract for on-time delivery
+  and renders it as a percentage without changing server semantics.
+- The analytics hero uses the existing semantic surface token instead of a
+  decorative gradient.
+
+### Boundary
+
+- No API endpoint, entity, state, persistence model, dependency or cross-context
+  contract was invented.
+- `COMPANY_OWNER`, `SALES`, `WAREHOUSE` and `LOGISTICS`/Dispatch remain
+  separated by the accepted permission model.
+- `BOM` remains `OPEN`/`DEFERRED`: no accepted role, endpoint, entity or
+  lifecycle contract exists.
+
+### Validation
+
+- Platform unit suite: 183 tests across 85 files passed.
+- Production build passed with existing component SCSS budget warnings.
+- Design Lab v1.0.2 foundation, catalog-asset and bounded-context validators
+  passed.
+- `npm audit --omit=dev`: 0 vulnerabilities.
+- Pull request #61 CodeQL and both CI verification checks passed.
+- No authenticated live API smoke is claimed; the local API endpoint was not
+  available during release preparation.
+
 ## [0.24.0] - 2026-08-29
 
 Operational role personas and readable inventory lots.

@@ -197,6 +197,14 @@ export class OperationalAnalyticsFacade {
     return value === null ? '—' : `${this.percent(value)}%`;
   }
 
+  onTimePercent(value: number | null): number {
+    return value === null ? 0 : Math.min(100, Math.max(0, Math.round(value * 100)));
+  }
+
+  onTimeLabel(value: number | null): string {
+    return value === null ? '—' : `${this.onTimePercent(value)}%`;
+  }
+
   ringBackground(value: number | null): string {
     return `conic-gradient(var(--nexa-color-primary-600) ${this.percent(value)}%, var(--nexa-color-neutral-200) 0)`;
   }

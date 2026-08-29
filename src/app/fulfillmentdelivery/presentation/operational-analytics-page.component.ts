@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { DatePipe, DecimalPipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
@@ -21,12 +21,54 @@ import { OperationalAnalyticsFacade } from '../application/operational-analytics
 })
 export class OperationalAnalyticsPageComponent {
   readonly facade = inject(OperationalAnalyticsFacade);
-  private readonly end = new Date();
-  private readonly start = new Date(this.end.getTime() - 30 * 24 * 60 * 60 * 1000);
+  private readonly defaultTo = new Date();
+  private readonly defaultFrom = new Date(this.defaultTo.getTime() - 29 * 24 * 60 * 60 * 1000);
+  readonly maxDate = dateInputValue(this.defaultTo);
+  readonly fromDate = signal(dateInputValue(this.defaultFrom));
+  readonly toDate = signal(dateInputValue(this.defaultTo));
+  readonly dateError = signal<string | null>(null);
+  readonly periodInvalid = computed(() => {
+    const from = this.fromDate();
+    const to = this.toDate();
+    return !from || !to || from > to;
+  });
 
-  constructor() { this.load(); }
+  constructor() { this.applyPeriod(); }
 
   retry(): void { this.facade.retry(); }
 
-  private load(): void { this.facade.load(this.start.toISOString(), this.end.toISOString()); }
+  setFromDate(event: Event): void {
+    this.fromDate.set((event.target as HTMLInputElement).value);
+    this.dateError.set(null);
+  }
+
+  setToDate(event: Event): void {
+    this.toDate.set((event.target as HTMLInputElement).value);
+    this.dateError.set(null);
+  }
+
+  submitPeriod(event: Event): void {
+    event.preventDefault();
+    this.applyPeriod();
+  }
+
+  applyPeriod(): void {
+    if (this.periodInvalid()) {
+      this.dateError.set('operationalAnalyticsUi.invalidDateRange');
+      return;
+    }
+    this.dateError.set(null);
+    this.facade.load(localDateTime(this.fromDate(), false), localDateTime(this.toDate(), true));
+  }
+}
+
+function dateInputValue(value: Date): string {
+  const year = value.getFullYear();
+  const month = String(value.getMonth() + 1).padStart(2, '0');
+  const day = String(value.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+function localDateTime(value: string, endOfDay: boolean): string {
+  return new Date(`${value}T${endOfDay ? '23:59:59.999' : '00:00:00'}`).toISOString();
 }

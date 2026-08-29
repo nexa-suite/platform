@@ -34,6 +34,42 @@
       </aside>
     }
 
+    <form class="analytics-panel analytics-period" aria-labelledby="analytics-period-title" (submit)="submitPeriod($event)">
+      <header class="panel-header">
+        <div>
+          <span class="section-kicker">{{ 'operationalAnalyticsUi.periodEyebrow' | translate }}</span>
+          <h2 id="analytics-period-title">{{ 'operationalAnalyticsUi.periodTitle' | translate }}</h2>
+          <p>{{ 'operationalAnalyticsUi.periodDescription' | translate }}</p>
+        </div>
+        <nexa-icon name="schedule" />
+      </header>
+      <div class="panel-content">
+        <div class="period-controls form-grid">
+          <label for="analytics-from">
+            <span>{{ 'operationalAnalyticsUi.fromDate' | translate }}</span>
+            <input id="analytics-from" type="date" [value]="fromDate()" [max]="maxDate" (input)="setFromDate($event)" />
+          </label>
+          <label for="analytics-to">
+            <span>{{ 'operationalAnalyticsUi.toDate' | translate }}</span>
+            <input id="analytics-to" type="date" [value]="toDate()" [min]="fromDate()" [max]="maxDate" (input)="setToDate($event)" />
+          </label>
+          <nexa-button type="submit" size="compact" [loading]="facade.loading()">
+            <nexa-icon name="refresh" />
+            {{ 'operationalAnalyticsUi.applyPeriod' | translate }}
+          </nexa-button>
+        </div>
+        @if (dateError(); as error) {
+          <p class="period-feedback period-error" role="alert">{{ error | translate }}</p>
+        } @else {
+          <p class="period-feedback" role="status">
+            {{ 'operationalAnalyticsUi.periodApplied' | translate }}:
+            <strong>{{ data.from | date: 'mediumDate' }} — {{ data.to | date: 'mediumDate' }}</strong>
+            @if (facade.loading()) { <span>{{ 'operationalAnalyticsUi.refreshing' | translate }}</span> }
+          </p>
+        }
+      </div>
+    </form>
+
     <section class="analytics-hero" aria-labelledby="analytics-hero-title">
       <div class="hero-copy">
         <span class="hero-eyebrow">{{ 'operationalAnalyticsUi.controlTower' | translate }}</span>
@@ -41,7 +77,7 @@
         <p>{{ 'operationalAnalyticsUi.heroDescription' | translate }}</p>
       </div>
 
-      <div class="control-metrics" aria-label="Operational readiness">
+      <div class="control-metrics" [attr.aria-label]="'operationalAnalyticsUi.readinessLabel' | translate">
         <article class="control-metric">
           <div class="metric-ring" [style.background]="facade.ringBackground(facade.fulfillmentRate())" aria-hidden="true">
             <span>{{ facade.percentLabel(facade.fulfillmentRate()) }}</span>
@@ -117,6 +153,14 @@
           <p>{{ facade.generatedDocuments() }}/{{ facade.documentsTotal() ?? '—' }} {{ 'operationalAnalyticsUi.documentsReady' | translate }}</p>
         </div>
         <div class="score-track" aria-hidden="true"><span [style.width.%]="facade.percent(facade.documentReadiness())"></span></div>
+      </article>
+      <article class="analytics-score-card">
+        <div class="score-copy">
+          <span class="section-kicker">{{ 'operationalAnalyticsUi.onTimeRate' | translate }}</span>
+          <strong>{{ facade.onTimeLabel(data.onTimeRate) }}</strong>
+          <p>{{ 'operationalAnalyticsUi.onTimeRateDescription' | translate }}</p>
+        </div>
+        <div class="score-track" aria-hidden="true"><span [style.width.%]="facade.onTimePercent(data.onTimeRate)"></span></div>
       </article>
     </section>
 
@@ -229,6 +273,28 @@
           <div><span>{{ 'logistics.fields.podCompleted' | translate }}</span><strong>{{ data.podCompleted }}</strong></div>
         </div>
       </article>
+
+      @if (facade.dashboard(); as dashboard) {
+        <article class="analytics-panel span-full">
+          <header class="panel-header">
+            <div>
+              <h2>{{ 'operationalAnalyticsUi.dashboardSnapshot' | translate }}</h2>
+              <p>{{ 'operationalAnalyticsUi.dashboardSnapshotDescription' | translate }}</p>
+            </div>
+            <nexa-icon name="dashboard" />
+          </header>
+          <div class="panel-content workload-grid">
+            <div><span>{{ 'operationalAnalyticsUi.readyForOperations' | translate }}</span><strong>{{ dashboard.readyForOperations }}</strong></div>
+            <div><span>{{ 'operationalAnalyticsUi.preparing' | translate }}</span><strong>{{ dashboard.preparing }}</strong></div>
+            <div><span>{{ 'operationalAnalyticsUi.assigned' | translate }}</span><strong>{{ dashboard.assigned }}</strong></div>
+            <div><span>{{ 'operationalAnalyticsUi.scheduled' | translate }}</span><strong>{{ dashboard.scheduled }}</strong></div>
+            <div><span>{{ 'operationalAnalyticsUi.readyForRoute' | translate }}</span><strong>{{ dashboard.readyForRoute }}</strong></div>
+            <div><span>{{ 'operationalAnalyticsUi.inRoute' | translate }}</span><strong>{{ dashboard.inRoute }}</strong></div>
+            <div><span>{{ 'operationalAnalyticsUi.podPending' | translate }}</span><strong>{{ dashboard.podPending }}</strong></div>
+            <div><span>{{ 'operationalAnalyticsUi.reservationsReady' | translate }}</span><strong>{{ dashboard.reservationsReady }}</strong></div>
+          </div>
+        </article>
+      }
     </section>
   }
 </section>

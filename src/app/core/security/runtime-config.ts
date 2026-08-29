@@ -36,14 +36,13 @@ function localQueryRuntimeConfig(): Partial<PlatformRuntimeConfig> {
   if (!location || !['localhost', '127.0.0.1', '[::1]'].includes(location.hostname)) return {};
   const params = new URLSearchParams(location.search);
   const stored = readLocalRuntimeConfig();
-  const hasExplicitOverride = params.has('nexaDataMode') || params.has('nexaTenantProfile') || params.has('nexaDemoRole');
+  const hasExplicitOverride = params.has('nexaTenantProfile') || params.has('nexaDemoRole');
   const demoRoleProfile = params.has('nexaDemoRole')
     ? normalizeDemoRoleProfile(params.get('nexaDemoRole'))
     : stored?.demoRoleProfile;
   const resolved = {
-    dataMode: params.has('nexaDataMode')
-      ? params.get('nexaDataMode') === 'mock' ? 'mock' : 'api'
-      : stored?.dataMode ?? 'api',
+    // Production browser runtime is API-only. Mock adapters remain test fixtures.
+    dataMode: 'api',
     tenantProfile: params.has('nexaTenantProfile')
       ? params.get('nexaTenantProfile') === 'icisa' ? 'icisa' : 'generic'
       : stored?.tenantProfile ?? 'generic',
@@ -99,13 +98,15 @@ export function platformRuntimeConfigFactory(): PlatformRuntimeConfig {
   return {
     apiBaseUrl: apiBaseUrl.replace(/\/$/, ''),
     surface: configured?.surface?.trim() || PLATFORM_SURFACE,
-    dataMode: configured?.dataMode === 'mock' ? 'mock' : 'api',
+    // Never activate fixture data from URL, storage, or a runtime global.
+    dataMode: 'api',
     tenantProfile: configured?.tenantProfile === 'icisa' ? 'icisa' : 'generic',
     ...(demoRoleProfile ? { demoRoleProfile } : {}),
   };
 }
 
 export function selectRuntimeAdapter<T>(config: Pick<PlatformRuntimeConfig, 'dataMode'>, apiAdapter: T, mockAdapter: T): T {
+  // Kept for isolated provider tests; production factory always resolves `api`.
   return config.dataMode === 'mock' ? mockAdapter : apiAdapter;
 }
 
