@@ -1,1 +1,172 @@
-<main class="security-page" aria-labelledby="security-title"><h1 id="security-title">{{ 'iamSecurity.profileTitle' | translate }}</h1><form [formGroup]="form" (ngSubmit)="submit()"><label>{{ 'iamSecurity.displayName' | translate }}<input formControlName="displayName" autocomplete="name"></label><label>{{ 'iamSecurity.email' | translate }}<input [value]="facade.profile()?.email" readonly autocomplete="email"></label><label>{{ 'iamSecurity.phone' | translate }}<input formControlName="phone" autocomplete="tel"></label><label>{{ 'iamSecurity.language' | translate }}<select formControlName="preferredLanguage"><option value="es">ES</option><option value="en">EN</option></select></label><label>{{ 'iamSecurity.timezone' | translate }}<input formControlName="timezone" autocomplete="off"></label><button type="submit" [disabled]="form.invalid || facade.busy()">{{ 'iamSecurity.save' | translate }}</button></form>@if (facade.message()) { <p role="status" class="success">{{ facade.message()! | translate }}</p> } @if (facade.error()) { <p role="alert" class="error">{{ facade.error()! | translate }}</p> }</main>
+<div class="profile-page">
+  <nexa-page-header
+    [eyebrow]="'profileUi.eyebrow' | translate"
+    [title]="'profileUi.title' | translate"
+    [subtitle]="'profileUi.subtitle' | translate">
+    <div page-header-actions>
+      <button class="action-button secondary" type="button" (click)="switchAccount()">
+        <nexa-icon name="groups" />
+        {{ 'profileUi.switchAccount' | translate }}
+      </button>
+      <button class="action-button quiet" type="button" (click)="switchAccount()">
+        <nexa-icon name="logout" />
+        {{ 'profileUi.signOut' | translate }}
+      </button>
+    </div>
+  </nexa-page-header>
+
+  @if (!profile() && facade.busy()) {
+    <nexa-loading-state [lines]="5" [label]="'profileUi.loading' | translate" />
+  } @else if (!profile() && facade.error()) {
+    <nexa-error-state
+      [title]="'profileUi.loadErrorTitle' | translate"
+      [description]="'profileUi.loadErrorDescription' | translate"
+      [retryLabel]="'profileUi.retry' | translate"
+      (retry)="load()" />
+  } @else if (profile(); as userProfile) {
+    <section class="profile-hero" aria-labelledby="profile-hero-title">
+      <div class="profile-avatar" aria-hidden="true">{{ initials() }}</div>
+      <div class="profile-hero-copy">
+        @if (roleLabelKey(); as roleKey) {
+          <span class="role-pill"><nexa-icon name="id_card" />{{ roleKey | translate }}</span>
+        } @else if (rawRoleLabel()) {
+          <span class="role-pill"><nexa-icon name="id_card" />{{ rawRoleLabel() }}</span>
+        }
+        <h2 id="profile-hero-title">{{ userProfile.displayName }}</h2>
+        <p>{{ workspaceName() }} · {{ workspaceUrl() }} · {{ userProfile.email }}</p>
+      </div>
+    </section>
+
+    <section class="identity-banner" aria-labelledby="identity-title">
+      <span class="identity-icon"><nexa-icon name="person" /></span>
+      <div>
+        <strong id="identity-title">{{ 'profileUi.identityTitle' | translate }}</strong>
+        <p>{{ 'profileUi.identityDescription' | translate }}</p>
+      </div>
+    </section>
+
+    @if (facade.message()) { <p class="feedback success" role="status">{{ facade.message()! | translate }}</p> }
+    @if (facade.error()) { <p class="feedback error" role="alert">{{ facade.error()! | translate }}</p> }
+
+    <div class="profile-grid">
+      <section class="profile-card account-card" [class.is-editing]="editingAccount()">
+        <header class="card-header">
+          <div>
+            <h2>{{ 'profileUi.personalInfoTitle' | translate }}</h2>
+            <p>{{ 'profileUi.personalInfoDescription' | translate }}</p>
+          </div>
+          @if (!editingAccount()) {
+            <button class="action-button secondary" type="button" (click)="editingAccount.set(true)">
+              <nexa-icon name="edit" />
+              {{ 'profileUi.editAccount' | translate }}
+            </button>
+          }
+        </header>
+        <form class="card-body account-form" [formGroup]="form" (ngSubmit)="submit()">
+          <label class="field">
+            <span>{{ 'profileUi.fullName' | translate }}</span>
+            <input formControlName="displayName" autocomplete="name" [readonly]="!editingAccount()" />
+          </label>
+          <label class="field">
+            <span>{{ 'profileUi.emailAddress' | translate }}</span>
+            <input [value]="userProfile.email" readonly autocomplete="email" />
+          </label>
+          <label class="field">
+            <span>{{ 'profileUi.role' | translate }}</span>
+            <input [value]="roleLabelKey() ? (roleLabelKey()! | translate) : rawRoleLabel()" readonly />
+          </label>
+          <label class="field">
+            <span>{{ 'profileUi.phone' | translate }}</span>
+            <input formControlName="phone" autocomplete="tel" [readonly]="!editingAccount()" />
+          </label>
+          <label class="field">
+            <span>{{ 'profileUi.workspaceSlug' | translate }}</span>
+            <input [value]="workspaceSlug()" readonly />
+          </label>
+          <label class="field">
+            <span>{{ 'profileUi.sessionStatus' | translate }}</span>
+            <input [value]="'profileUi.sessionActive' | translate" readonly />
+          </label>
+          @if (editingAccount()) {
+            <div class="form-actions">
+              <button class="action-button quiet" type="button" (click)="cancelEdit()">{{ 'profileUi.cancel' | translate }}</button>
+              <button class="action-button primary" type="submit" [disabled]="form.invalid || facade.busy()">
+                <nexa-icon name="check" />
+                {{ facade.busy() ? ('profileUi.saving' | translate) : ('profileUi.saveChanges' | translate) }}
+              </button>
+            </div>
+          }
+        </form>
+      </section>
+
+      <section class="profile-card preferences-card" [class.is-editing]="editingPreferences()">
+        <header class="card-header">
+          <div>
+            <h2>{{ 'profileUi.preferencesTitle' | translate }}</h2>
+            <p>{{ 'profileUi.preferencesDescription' | translate }}</p>
+          </div>
+          @if (!editingPreferences()) {
+            <button class="action-button secondary" type="button" (click)="editingPreferences.set(true)">
+              <nexa-icon name="edit" />
+              {{ 'profileUi.editPreferences' | translate }}
+            </button>
+          }
+        </header>
+        <form class="card-body preference-list" [formGroup]="form" (ngSubmit)="submit()">
+          <label class="preference-row" [class.is-editing]="editingPreferences()">
+            <span>{{ 'profileUi.preferredLanguage' | translate }}</span>
+            @if (editingPreferences()) {
+              <select formControlName="preferredLanguage" aria-label="{{ 'profileUi.preferredLanguage' | translate }}">
+                <option value="es">ES</option>
+                <option value="en">EN</option>
+              </select>
+            } @else { <strong>{{ userProfile.preferredLanguage.toUpperCase() }}</strong> }
+          </label>
+          <label class="preference-row" [class.is-editing]="editingPreferences()">
+            <span>{{ 'profileUi.timezone' | translate }}</span>
+            @if (editingPreferences()) {
+              <input formControlName="timezone" aria-label="{{ 'profileUi.timezone' | translate }}" />
+            } @else { <strong>{{ userProfile.timezone }}</strong> }
+          </label>
+          <div class="preference-row">
+            <span>{{ 'profileUi.role' | translate }}</span>
+            <strong>{{ roleLabelKey() ? (roleLabelKey()! | translate) : rawRoleLabel() }}</strong>
+          </div>
+          <div class="preference-row">
+            <span>{{ 'profileUi.sessionStatus' | translate }}</span>
+            <strong>{{ 'profileUi.sessionActive' | translate }}</strong>
+          </div>
+          <div class="preference-row">
+            <span>{{ 'profileUi.workspaceSlug' | translate }}</span>
+            <strong>{{ workspaceSlug() }}</strong>
+          </div>
+          @if (editingPreferences()) {
+            <div class="form-actions">
+              <button class="action-button quiet" type="button" (click)="cancelEdit()">{{ 'profileUi.cancel' | translate }}</button>
+              <button class="action-button primary" type="submit" [disabled]="form.invalid || facade.busy()">
+                <nexa-icon name="check" />
+                {{ facade.busy() ? ('profileUi.saving' | translate) : ('profileUi.savePreferences' | translate) }}
+              </button>
+            </div>
+          }
+        </form>
+      </section>
+
+      <section class="profile-card scope-card">
+        <header class="card-header">
+          <div>
+            <h2>{{ 'profileUi.scopeTitle' | translate }}</h2>
+            <p>{{ 'profileUi.scopeDescription' | translate }}</p>
+          </div>
+        </header>
+        <div class="card-body scope-grid">
+          @for (item of operationalScope(); track item.labelKey) {
+            <div class="scope-item"><nexa-icon name="check" /><span>{{ item.labelKey | translate }}</span></div>
+          } @empty {
+            <p class="scope-empty">{{ 'profileUi.scopeEmpty' | translate }}</p>
+          }
+        </div>
+      </section>
+    </div>
+  }
+</div>

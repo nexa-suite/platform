@@ -21,6 +21,16 @@ type SubjectOption = { readonly key: string; readonly label: string; readonly su
       @if (loading()) { <nexa-loading-state /> }
       @else if (error(); as message) { <nexa-error-state title="Documents unavailable" [description]="message" (retry)="load()" /> }
       @else {
+        <div class="table-scroll">
+          <table>
+            <thead><tr><th>Reference</th><th>Type</th><th>Format</th><th>Status</th><th>Generated</th><th>Actions</th></tr></thead>
+            <tbody>
+              @for (document of documents(); track document.id) {
+                <tr><td>{{ document.documentNumber || subjectLabel(document.subjectType, document.subjectId) }}</td><td>{{ document.documentType }}</td><td>{{ document.format }}</td><td>{{ document.status }}</td><td>{{ document.generatedAt || '—' }}</td><td class="actions"><button type="button" (click)="selectDocument(document)">Detail / log</button><button type="button" [disabled]="document.status !== 'GENERATED'" (click)="download(document)">Download</button></td></tr>
+              } @empty { <tr><td colspan="6">No business documents.</td></tr> }
+            </tbody>
+          </table>
+        </div>
         @if (canGenerate()) {
           <section class="action-panel" aria-labelledby="generation-title">
             <h2 id="generation-title">Generate document</h2>
@@ -33,14 +43,6 @@ type SubjectOption = { readonly key: string; readonly label: string; readonly su
             <button type="button" [disabled]="!generationSubjectKey() || saving()" (click)="requestGeneration()">{{ saving() ? 'Requesting…' : 'Request generation' }}</button>
           </section>
         }
-        <table>
-          <thead><tr><th>Reference</th><th>Type</th><th>Format</th><th>Status</th><th>Generated</th><th>Actions</th></tr></thead>
-          <tbody>
-            @for (document of documents(); track document.id) {
-              <tr><td>{{ document.documentNumber || subjectLabel(document.subjectType, document.subjectId) }}</td><td>{{ document.documentType }}</td><td>{{ document.format }}</td><td>{{ document.status }}</td><td>{{ document.generatedAt || '—' }}</td><td class="actions"><button type="button" (click)="selectDocument(document)">Detail / log</button><button type="button" [disabled]="document.status !== 'GENERATED'" (click)="download(document)">Download</button>@if (canGenerate()) { <button type="button" [disabled]="saving()" (click)="regenerate(document)">Regenerate</button> }</td></tr>
-            } @empty { <tr><td colspan="6">No business documents.</td></tr> }
-          </tbody>
-        </table>
         @if (canUpload()) {
           <section class="action-panel" aria-labelledby="evidence-title">
             <h2 id="evidence-title">Upload evidence</h2>
@@ -56,18 +58,21 @@ type SubjectOption = { readonly key: string; readonly label: string; readonly su
           </section>
         }
         <h2>Evidence</h2>
-        <table>
-          <thead><tr><th>File</th><th>Subject</th><th>Lifecycle</th><th>Detected type</th><th>Action</th></tr></thead>
-          <tbody>
-            @for (evidence of evidence(); track evidence.id) {
-              <tr><td>{{ evidence.originalFilename }}</td><td>{{ subjectLabel(evidence.subjectType, evidence.subjectId) }}</td><td>{{ evidence.lifecycleStatus }}</td><td>{{ evidence.detectedContentType || '—' }}</td><td><button type="button" [disabled]="evidence.lifecycleStatus !== 'AVAILABLE'" (click)="downloadEvidence(evidence)">Download</button></td></tr>
-            } @empty { <tr><td colspan="5">No evidence.</td></tr> }
-          </tbody>
-        </table>
+        <div class="table-scroll">
+          <table>
+            <thead><tr><th>File</th><th>Subject</th><th>Lifecycle</th><th>Detected type</th><th>Action</th></tr></thead>
+            <tbody>
+              @for (evidence of evidence(); track evidence.id) {
+                <tr><td>{{ evidence.originalFilename }}</td><td>{{ subjectLabel(evidence.subjectType, evidence.subjectId) }}</td><td>{{ evidence.lifecycleStatus }}</td><td>{{ evidence.detectedContentType || '—' }}</td><td><button type="button" [disabled]="evidence.lifecycleStatus !== 'AVAILABLE'" (click)="downloadEvidence(evidence)">Download</button></td></tr>
+              } @empty { <tr><td colspan="5">No evidence.</td></tr> }
+            </tbody>
+          </table>
+        </div>
         @if (selectedDocument(); as detail) {
           <aside class="detail-panel" aria-labelledby="detail-title">
             <div class="detail-heading"><h2 id="detail-title">{{ detail.documentNumber || detail.documentType }}</h2><button type="button" (click)="selectedDocument.set(null)">Close</button></div>
             <dl><div><dt>Subject</dt><dd>{{ subjectLabel(detail.subjectType, detail.subjectId) }}</dd></div><div><dt>Status</dt><dd>{{ detail.status }}</dd></div><div><dt>Version</dt><dd>{{ detail.version }}</dd></div><div><dt>Checksum</dt><dd>{{ detail.checksumSha256 || '—' }}</dd></div><div><dt>Failure</dt><dd>{{ detail.failureCode || '—' }}{{ detail.failureDetail ? ' · ' + detail.failureDetail : '' }}</dd></div></dl>
+            @if (canGenerate()) { <button type="button" [disabled]="saving()" (click)="regenerate(detail)">Regenerate</button> }
             <h3>Lifecycle log</h3>
             @if (detailLoading()) { <p role="status">Loading log…</p> } @else { <ul class="event-list">@for (event of selectedEvents(); track event.eventId) { <li><strong>{{ event.eventType }}</strong><span>{{ event.status }} · {{ event.occurredAt }}</span></li> } @empty { <li>No lifecycle events recorded.</li> }</ul> }
           </aside>
@@ -76,6 +81,7 @@ type SubjectOption = { readonly key: string; readonly label: string; readonly su
     </section>
   `,
   styles: [`:host{display:block}.page{display:grid;gap:1rem}.action-panel,.detail-panel{display:grid;gap:.75rem;padding:1rem;border:1px solid #dbe3ee;border-radius:.6rem;background:#fff}.form-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.75rem}label{display:grid;gap:.3rem;font-size:.875rem;color:#475569}input,select{width:100%;padding:.55rem;border:1px solid #cbd5e1;border-radius:.4rem;background:#fff;font:inherit}button{padding:.4rem .7rem;border:0;border-radius:.4rem;background:#2166c1;color:#fff;cursor:pointer;font:inherit}button:disabled{opacity:.55;cursor:not-allowed}.hint{margin:0;color:#64748b}.pending-upload{color:#334155}.actions{display:flex;flex-wrap:wrap;gap:.35rem}table{width:100%;border-collapse:collapse}th,td{padding:.65rem;text-align:left;border-bottom:1px solid #dbe3ee;vertical-align:top}.detail-heading{display:flex;justify-content:space-between;align-items:center}.detail-heading h2{margin:0}dl{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.75rem}dt{font-size:.75rem;color:#64748b}dd{margin:.2rem 0 0;overflow-wrap:anywhere}.event-list{display:grid;gap:.5rem;padding:0;margin:0;list-style:none}.event-list li{display:grid;gap:.2rem;padding:.6rem;background:#f8fafc;border-radius:.4rem}.event-list span{color:#64748b;font-size:.875rem}@media(max-width:820px){.form-grid,dl{grid-template-columns:1fr}.actions{flex-direction:column;align-items:flex-start}}`],
+  styleUrl: './business-documents-page.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class BusinessDocumentsPageComponent {

@@ -6,13 +6,20 @@ import {
   CatalogFilters,
   CatalogPage,
   CatalogMoney,
+  CatalogAppliedPromotion,
   ColdChainRequirement,
   ProductCatalogDetail,
   ProductCatalogItem
 } from '../../domain/models/catalog.models';
 import { CatalogApiPort } from '../../domain/ports/catalog-api.port';
 
-interface CatalogApiMoney { readonly amount: string | number; readonly currency: string; }
+interface CatalogApiMoney { readonly amount?: string | number | null; readonly currency?: string | null; }
+interface CatalogApiPromotion {
+  readonly id?: string | null;
+  readonly name?: string | null;
+  readonly discountType?: string | null;
+  readonly discountAmount?: CatalogApiMoney | null;
+}
 interface CatalogApiImage { readonly url?: string; readonly fileName?: string; }
 interface CatalogApiItem {
   readonly catalogItemId: string;
@@ -31,10 +38,23 @@ interface CatalogApiItem {
   readonly packagingType?: string;
   readonly netWeight?: string | number;
   readonly grossWeight?: string | number;
-  readonly unitPrice: CatalogApiMoney;
+  readonly unitPrice?: CatalogApiMoney | null;
+  readonly unitPriceAmount?: string | number | null;
+  readonly unitPriceCurrency?: string | null;
   readonly coldChainRequirement: string;
+  readonly status?: string | null;
   readonly availabilityStatus?: string;
   readonly nearExpiry?: boolean;
+  readonly promotionLabel?: string | null;
+  readonly basePrice?: CatalogApiMoney | null;
+  readonly effectivePrice?: CatalogApiMoney | null;
+  readonly discountAmount?: CatalogApiMoney | null;
+  readonly currency?: string | null;
+  readonly appliedPromotions?: readonly CatalogApiPromotion[] | null;
+  readonly pricingAsOf?: string | null;
+  readonly availabilityAsOf?: string | null;
+  readonly productVariantCode?: string | null;
+  readonly productVariantName?: string | null;
   readonly image?: CatalogApiImage;
 }
 interface CatalogApiPage {
@@ -63,8 +83,7 @@ export class CatalogApiService implements CatalogApiPort {
       q: filters.q,
       category: filters.category,
       brand: filters.brand,
-      coldChain: filters.coldChain,
-      status: filters.status
+      coldChain: filters.coldChain
     })) {
       if (value) params = params.set(key, value);
     }
@@ -99,6 +118,11 @@ export class CatalogApiService implements CatalogApiPort {
   }
 
   private toItem(item: CatalogApiItem): ProductCatalogItem {
+    const effectivePrice = this.toMoney(
+      item.effectivePrice ?? item.unitPrice ?? { amount: item.unitPriceAmount ?? 0, currency: item.unitPriceCurrency ?? item.currency ?? 'PEN' }
+    );
+    const basePrice = item.basePrice ? this.toMoney(item.basePrice) : effectivePrice;
+    const discountAmount = item.discountAmount ? this.toMoney(item.discountAmount) : this.zeroMoney(basePrice.currency);
     return {
       id: item.catalogItemId,
       productFamilyId: item.productFamilyId ?? null,
@@ -114,10 +138,24 @@ export class CatalogApiService implements CatalogApiPort {
       packagingType: item.packagingType ?? null,
       netWeight: item.netWeight == null ? null : Number(item.netWeight),
       grossWeight: item.grossWeight == null ? null : Number(item.grossWeight),
-      unitPrice: this.toMoney(item.unitPrice),
+      unitPrice: effectivePrice,
+      basePrice,
+      discountAmount,
+      promotionLabel: item.promotionLabel?.trim() || null,
+      appliedPromotions: (item.appliedPromotions ?? []).map((promotion): CatalogAppliedPromotion => ({
+        id: promotion.id ?? '',
+        name: promotion.name ?? null,
+        discountType: promotion.discountType ?? null,
+        discountAmount: this.toMoney(promotion.discountAmount ?? { amount: 0, currency: item.currency ?? effectivePrice.currency })
+      })).filter((promotion) => promotion.id.length > 0),
+      pricingAsOf: item.pricingAsOf ?? null,
       coldChain: this.toColdChain(item.coldChainRequirement),
+      status: item.status ?? 'ACTIVE',
       availabilityStatus: item.availabilityStatus ?? 'UNKNOWN',
       nearExpiry: item.nearExpiry ?? false,
+      availabilityAsOf: item.availabilityAsOf ?? null,
+      productVariantCode: item.productVariantCode ?? null,
+      productVariantName: item.productVariantName ?? null,
       image: {
         url: platformMediaUrl(this.config, item.image?.url),
         fileName: item.image?.fileName ?? null
@@ -126,7 +164,14 @@ export class CatalogApiService implements CatalogApiPort {
   }
 
   private toMoney(money: CatalogApiMoney): CatalogMoney {
-    return { amount: Number(money.amount), currency: money.currency };
+    return {
+      amount: Number.isFinite(Number(money.amount)) ? Number(money.amount) : 0,
+      currency: money.currency?.trim().toUpperCase() || 'PEN'
+    };
+  }
+
+  private zeroMoney(currency: string): CatalogMoney {
+    return { amount: 0, currency };
   }
 
   private toColdChain(value: string): ColdChainRequirement {

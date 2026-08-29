@@ -35,6 +35,13 @@ import { MockInventoryCatalogGateway, MockSalesOrderVersionGateway } from './inv
 import { inventoryCatalogPortProvider, salesOrderVersionPortProvider } from './inventoryavailability/infrastructure/mock/inventory-cross-context.providers';
 import { catalogReadGuard, catalogManageGuard, promotionReadGuard, promotionManageGuard } from './core/security/catalog-access.guard';
 import { tenantManagementRoutes } from './tenantaccessgovernance/tenantmanagement/presentation/tenant-management.routes';
+import { OperationalAnalyticsFacade } from './fulfillmentdelivery/application/operational-analytics.facade';
+import { OperationalAnalyticsSourcesPort } from './fulfillmentdelivery/application/operational-analytics.sources';
+import { LogisticsApiPort } from './fulfillmentdelivery/domain/ports/logistics-api.port';
+import { CatalogApiPort } from './catalogcommercialpolicy/domain/ports/catalog-api.port';
+import { DEFAULT_CATALOG_FILTERS } from './catalogcommercialpolicy/domain/models/catalog.models';
+import { BusinessDocumentsApiPort } from './businessdocuments/domain/ports/business-documents-api.port';
+import { WarehouseOperationsApiPort } from './inventoryavailability/domain/ports/warehouse-operations-api.port';
 
 const roleLandingRedirect: RedirectFunction = () => {
   const auth = inject(PlatformAuthenticationBoundary);
@@ -85,6 +92,29 @@ const warehouseProviders = [
   MockSalesOrderVersionGateway,
   salesOrderVersionPortProvider,
   WarehouseOperationsFacade
+];
+const operationalAnalyticsProviders = [
+  WarehouseOperationsApiService,
+  MockWarehouseOperationsApiService,
+  warehouseOperationsApiPortProvider,
+  {
+    provide: OperationalAnalyticsSourcesPort,
+    useFactory: () => {
+      const logistics = inject(LogisticsApiPort);
+      const catalog = inject(CatalogApiPort);
+      const documents = inject(BusinessDocumentsApiPort);
+      const warehouse = inject(WarehouseOperationsApiPort);
+      return {
+        analytics: (from: string, to: string) => logistics.analytics(from, to),
+        dashboard: () => logistics.dashboard(),
+        dispatches: () => logistics.dispatches(),
+        catalog: () => catalog.search({ ...DEFAULT_CATALOG_FILTERS, page: 0, size: 100 }),
+        documents: () => documents.list(0, 100),
+        movements: () => warehouse.movements(),
+      };
+    },
+  },
+  OperationalAnalyticsFacade,
 ];
 
 export const routes: Routes = [
@@ -170,7 +200,7 @@ export const routes: Routes = [
       { path: 'ops/operations/dispatch-orders/:dispatchOrderId', loadComponent: () => import('./fulfillmentdelivery/presentation/dispatch-detail-page.component').then((module) => module.DispatchDetailPageComponent), canActivate: [permissionGuard(PLATFORM_PERMISSIONS.logisticsRead)] },
       { path: 'ops/operations/proof-of-delivery', loadComponent: () => import('./fulfillmentdelivery/presentation/proof-of-delivery-page.component').then((module) => module.ProofOfDeliveryPageComponent), canActivate: [permissionGuard(PLATFORM_PERMISSIONS.logisticsRead)] },
       { path: 'ops/operations/temperature-incidents', loadComponent: () => import('./fulfillmentdelivery/presentation/temperature-incidents-page.component').then((module) => module.TemperatureIncidentsPageComponent), canActivate: [permissionGuard(PLATFORM_PERMISSIONS.logisticsRead)] },
-      { path: 'ops/operations/operational-analytics', loadComponent: () => import('./fulfillmentdelivery/presentation/operational-analytics-page.component').then((module) => module.OperationalAnalyticsPageComponent), canActivate: [permissionGuard(PLATFORM_PERMISSIONS.logisticsRead)] },
+      { path: 'ops/operations/operational-analytics', loadComponent: () => import('./fulfillmentdelivery/presentation/operational-analytics-page.component').then((module) => module.OperationalAnalyticsPageComponent), canActivate: [permissionGuard(PLATFORM_PERMISSIONS.logisticsRead)], providers: operationalAnalyticsProviders },
       { path: 'ops/operations/business-documents/orders/:orderId', redirectTo: businessDocumentsOrderRedirect },
       { path: 'ops/operations/business-documents', loadComponent: () => import('./businessdocuments/presentation/business-documents-page.component').then((module) => module.BusinessDocumentsPageComponent), canActivate: [permissionGuard(PLATFORM_PERMISSIONS.documentRead)] },
       { path: 'ops/finance/bank-transfers', loadComponent: () => import('./payments/presentation/bank-transfer-review-page.component').then((module) => module.BankTransferReviewPageComponent), canActivate: [permissionGuard(PLATFORM_PERMISSIONS.paymentReconcile)] },

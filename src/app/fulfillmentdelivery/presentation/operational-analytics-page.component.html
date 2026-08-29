@@ -12,65 +12,223 @@
   </nexa-page-header>
 
   @if (facade.loading() && !facade.analytics()) {
-    <nexa-loading-state [label]="'logistics.loading' | translate" [lines]="5" />
-  } @else if (facade.error() && !facade.analytics()) {
+    <nexa-loading-state [label]="'logistics.loading' | translate" [lines]="6" />
+  } @else if (!facade.analytics()) {
     <nexa-error-state
-      [title]="'logistics.unavailable' | translate"
-      [description]="facade.error()!"
+      [title]="'operationalAnalyticsUi.unavailableTitle' | translate"
+      [description]="facade.error() ?? ('operationalAnalyticsUi.unavailableDescription' | translate)"
       (retry)="retry()" />
   } @else if (facade.analytics(); as data) {
+    @if (facade.hasSourceErrors()) {
+      <aside class="partial-notice" role="status">
+        <nexa-icon name="warning" />
+        <div>
+          <strong>{{ 'operationalAnalyticsUi.partialTitle' | translate }}</strong>
+          <span>{{ 'operationalAnalyticsUi.partialDescription' | translate }}</span>
+          <div class="source-list">
+            @for (source of facade.failedSources(); track source) {
+              <span>{{ ('operationalAnalyticsUi.sources.' + source) | translate }}</span>
+            }
+          </div>
+        </div>
+      </aside>
+    }
+
     <section class="analytics-hero" aria-labelledby="analytics-hero-title">
       <div class="hero-copy">
-        <span class="hero-eyebrow">{{ 'logistics.analyticsUi.period' | translate }}</span>
-        <h2 id="analytics-hero-title">{{ 'logistics.analyticsUi.performance' | translate }}</h2>
-        <p>{{ 'logistics.analyticsUi.performanceDescription' | translate }}</p>
+        <span class="hero-eyebrow">{{ 'operationalAnalyticsUi.controlTower' | translate }}</span>
+        <h2 id="analytics-hero-title">{{ 'operationalAnalyticsUi.heroTitle' | translate }}</h2>
+        <p>{{ 'operationalAnalyticsUi.heroDescription' | translate }}</p>
       </div>
-      <div class="hero-rates">
-        <div class="hero-rate"><strong>{{ rateLabel(data.onTimeRate) }}</strong><span>{{ 'logistics.fields.onTime' | translate }}</span></div>
-        <div class="hero-rate"><strong>{{ fulfillmentLabel(data.delivered, data.dispatches) }}</strong><span>{{ 'logistics.fields.delivered' | translate }}</span></div>
+
+      <div class="control-metrics" aria-label="Operational readiness">
+        <article class="control-metric">
+          <div class="metric-ring" [style.background]="facade.ringBackground(facade.fulfillmentRate())" aria-hidden="true">
+            <span>{{ facade.percentLabel(facade.fulfillmentRate()) }}</span>
+          </div>
+          <div class="control-copy">
+            <div class="control-title"><nexa-icon name="verified" /><strong>{{ 'operationalAnalyticsUi.fulfillment' | translate }}</strong></div>
+            <small>{{ data.delivered }}/{{ data.dispatches }} {{ 'operationalAnalyticsUi.deliveredInPeriod' | translate }}</small>
+          </div>
+        </article>
+
+        <article class="control-metric">
+          <div class="metric-ring" [style.background]="facade.ringBackground(facade.documentReadiness())" aria-hidden="true">
+            <span>{{ facade.percentLabel(facade.documentReadiness()) }}</span>
+          </div>
+          <div class="control-copy">
+            <div class="control-title"><nexa-icon name="description" /><strong>{{ 'operationalAnalyticsUi.documentReadiness' | translate }}</strong></div>
+            <small>{{ facade.generatedDocuments() }}/{{ facade.documentsTotal() ?? '—' }} {{ 'operationalAnalyticsUi.documentsReady' | translate }}</small>
+          </div>
+        </article>
+
+        <article class="control-metric">
+          <div class="metric-ring" [style.background]="facade.ringBackground(facade.temperatureHealth())" aria-hidden="true">
+            <span>{{ facade.percentLabel(facade.temperatureHealth()) }}</span>
+          </div>
+          <div class="control-copy">
+            <div class="control-title"><nexa-icon name="thermostat" /><strong>{{ 'operationalAnalyticsUi.temperatureHealth' | translate }}</strong></div>
+            <small>{{ data.temperatureExcursions }} {{ 'operationalAnalyticsUi.temperatureAttention' | translate }}</small>
+          </div>
+        </article>
       </div>
     </section>
 
-    <section class="metric-grid" [attr.aria-label]="'logistics.analytics' | translate">
-      <nexa-metric-card [label]="'logistics.fields.dispatches' | translate" [value]="data.dispatches" [hint]="'logistics.analyticsUi.period' | translate" icon="local_shipping" tone="info" />
-      <nexa-metric-card [label]="'logistics.fields.delivered' | translate" [value]="data.delivered" [hint]="'logistics.analyticsUi.deliveryDetail' | translate" icon="verified" tone="success" />
-      <nexa-metric-card [label]="'logistics.fields.incidents' | translate" [value]="data.incidents" [hint]="'logistics.analyticsUi.incidentDetail' | translate" icon="warning" tone="danger" />
-      <nexa-metric-card [label]="'logistics.fields.excursions' | translate" [value]="data.temperatureExcursions" [hint]="'logistics.analyticsUi.temperatureDetail' | translate" icon="thermostat" tone="warning" />
+    <section class="metric-grid" [attr.aria-label]="'operationalAnalyticsUi.kpiLabel' | translate">
+      <nexa-metric-card
+        [label]="'operationalAnalyticsUi.catalogItems' | translate"
+        [value]="facade.catalogTotal() ?? '—'"
+        [hint]="'operationalAnalyticsUi.catalogItemsHint' | translate"
+        icon="cube"
+        tone="info" />
+      <nexa-metric-card
+        [label]="'operationalAnalyticsUi.dispatchOrders' | translate"
+        [value]="data.dispatches"
+        [hint]="'operationalAnalyticsUi.dispatchOrdersHint' | translate"
+        icon="shopping_cart"
+        tone="neutral" />
+      <nexa-metric-card
+        [label]="'operationalAnalyticsUi.deliveredDispatches' | translate"
+        [value]="data.delivered"
+        [hint]="'operationalAnalyticsUi.deliveredDispatchesHint' | translate"
+        icon="local_shipping"
+        tone="success" />
+      <nexa-metric-card
+        [label]="'operationalAnalyticsUi.temperatureAlerts' | translate"
+        [value]="data.temperatureExcursions"
+        [hint]="'operationalAnalyticsUi.temperatureAlertsHint' | translate"
+        icon="thermostat"
+        tone="warning" />
     </section>
 
-    <div class="analytics-grid">
-      <nexa-section-panel [title]="'logistics.analyticsUi.performance' | translate" [description]="'logistics.analyticsUi.performanceDescription' | translate">
-        <div class="progress-list">
-          <div class="progress-row">
-            <div class="progress-copy"><strong>{{ 'logistics.fields.onTime' | translate }}</strong><span>{{ 'logistics.analyticsUi.onTimeDetail' | translate }}</span></div>
-            <strong>{{ rateLabel(data.onTimeRate) }}</strong>
-            <div class="progress-track"><span [style.width.%]="rateValue(data.onTimeRate)"></span></div>
-          </div>
-          <div class="progress-row">
-            <div class="progress-copy"><strong>{{ 'logistics.fields.delivered' | translate }}</strong><span>{{ 'logistics.analyticsUi.deliveryDetail' | translate }}</span></div>
-            <strong>{{ fulfillmentLabel(data.delivered, data.dispatches) }}</strong>
-            <div class="progress-track"><span [style.width.%]="ratio(data.delivered, data.dispatches)"></span></div>
-          </div>
-          <div class="progress-row">
-            <div class="progress-copy"><strong>{{ 'logistics.fields.podCompleted' | translate }}</strong><span>{{ 'logistics.podUi.completedDescription' | translate }}</span></div>
-            <strong>{{ fulfillmentLabel(data.podCompleted, data.dispatches) }}</strong>
-            <div class="progress-track"><span [style.width.%]="ratio(data.podCompleted, data.dispatches)"></span></div>
-          </div>
+    <section class="analytics-score-grid">
+      <article class="analytics-score-card">
+        <div class="score-copy">
+          <span class="section-kicker">{{ 'operationalAnalyticsUi.fulfillment' | translate }}</span>
+          <strong>{{ facade.percentLabel(facade.fulfillmentRate()) }}</strong>
+          <p>{{ data.delivered }}/{{ data.dispatches }} {{ 'operationalAnalyticsUi.deliveredInPeriod' | translate }}</p>
         </div>
-      </nexa-section-panel>
+        <div class="score-track" aria-hidden="true"><span [style.width.%]="facade.percent(facade.fulfillmentRate())"></span></div>
+      </article>
+      <article class="analytics-score-card">
+        <div class="score-copy">
+          <span class="section-kicker">{{ 'operationalAnalyticsUi.documentReadiness' | translate }}</span>
+          <strong>{{ facade.percentLabel(facade.documentReadiness()) }}</strong>
+          <p>{{ facade.generatedDocuments() }}/{{ facade.documentsTotal() ?? '—' }} {{ 'operationalAnalyticsUi.documentsReady' | translate }}</p>
+        </div>
+        <div class="score-track" aria-hidden="true"><span [style.width.%]="facade.percent(facade.documentReadiness())"></span></div>
+      </article>
+    </section>
 
-      <nexa-section-panel [title]="'logistics.analyticsUi.workload' | translate" [description]="'logistics.analyticsUi.workloadDescription' | translate">
-        <dl class="workload-grid">
-          <div><dt>{{ 'logistics.fields.incidents' | translate }}</dt><dd>{{ data.incidents }}</dd></div>
-          <div><dt>{{ 'logistics.fields.excursions' | translate }}</dt><dd>{{ data.temperatureExcursions }}</dd></div>
-          <div><dt>{{ 'logistics.fields.preparation' | translate }}</dt><dd>{{ data.averagePreparationMinutes | number: '1.0-1' }} {{ 'logistics.analyticsUi.minutes' | translate }}</dd></div>
-          <div><dt>{{ 'logistics.fields.routeDuration' | translate }}</dt><dd>{{ data.averageRouteMinutes | number: '1.0-1' }} {{ 'logistics.analyticsUi.minutes' | translate }}</dd></div>
-        </dl>
-        <div class="status-callout" [class.healthy]="data.incidents === 0 && data.temperatureExcursions === 0">
-          <nexa-icon [name]="data.incidents === 0 && data.temperatureExcursions === 0 ? 'verified' : 'warning'" />
-          <div><strong>{{ data.incidents === 0 && data.temperatureExcursions === 0 ? ('logistics.status.WITHIN_RANGE' | translate) : ('logistics.status.TEMPERATURE_ALERT' | translate) }}</strong><span>{{ 'logistics.analyticsUi.temperatureDetail' | translate }}</span></div>
+    <section class="flow-grid" aria-label="Operational detail">
+      <article class="analytics-panel span-half">
+        <header class="panel-header">
+          <div>
+            <h2>{{ 'operationalAnalyticsUi.ordersByStatus' | translate }}</h2>
+            <p>{{ 'operationalAnalyticsUi.ordersByStatusDescription' | translate }}</p>
+          </div>
+          <nexa-icon name="analytics" />
+        </header>
+        <div class="panel-content status-list">
+          @for (row of facade.statusRows(); track row.status) {
+            <div class="analytics-row">
+              <div class="row-heading">
+                <span class="status-pill"
+                  [class.tone-success]="facade.statusTone(row.status) === 'success'"
+                  [class.tone-info]="facade.statusTone(row.status) === 'info'"
+                  [class.tone-warning]="facade.statusTone(row.status) === 'warning'"
+                  [class.tone-danger]="facade.statusTone(row.status) === 'danger'">
+                  {{ ('logistics.status.' + facade.statusKey(row.status)) | translate }}
+                </span>
+                <strong>{{ row.count }} <small>{{ row.percent }}%</small></strong>
+              </div>
+              <div class="data-bar"><span [class]="'tone-' + facade.statusTone(row.status)" [style.width.%]="facade.maxBarPercent(row.count, facade.statusRows())"></span></div>
+            </div>
+          } @empty {
+            <p class="empty-inline">{{ 'operationalAnalyticsUi.noStatusData' | translate }}</p>
+          }
         </div>
-      </nexa-section-panel>
-    </div>
+      </article>
+
+      <article class="analytics-panel span-half">
+        <header class="panel-header">
+          <div>
+            <h2>{{ 'operationalAnalyticsUi.stockMovements' | translate }}</h2>
+            <p>{{ 'operationalAnalyticsUi.stockMovementsDescription' | translate: { count: facade.movementsTotal() ?? facade.movements().length } }}</p>
+          </div>
+          <nexa-icon name="swap_vert" />
+        </header>
+        <div class="panel-content">
+          <div class="movement-summary">
+            <div><span>{{ 'operationalAnalyticsUi.totalMovements' | translate }}</span><strong>{{ facade.movementsTotal() ?? '—' }}</strong></div>
+            <div><span>{{ 'operationalAnalyticsUi.catalogTouched' | translate }}</span><strong>{{ facade.catalogTouched() }}</strong></div>
+          </div>
+          <div class="movement-list">
+            @for (movement of facade.recentMovements(); track movement.id) {
+              <div class="movement-row">
+                <div class="movement-copy">
+                  <span class="movement-type" [class]="'movement-' + facade.movementDirection(movement.type)">
+                    <span class="movement-dot" aria-hidden="true"></span>
+                    @if (facade.movementTypeKey(movement.type); as typeKey) {
+                      {{ ('warehouse.movements.types.' + typeKey) | translate }}
+                    } @else {
+                      {{ movement.type }}
+                    }
+                  </span>
+                  <strong>{{ facade.catalogName(movement.catalogItemId) }}</strong>
+                  <small>{{ movement.occurredAt | date: 'd MMM, h:mm a' }}</small>
+                </div>
+                <strong class="movement-quantity" [class]="'movement-' + facade.movementDirection(movement.type)">
+                  {{ facade.movementDirection(movement.type) === 'outbound' ? '-' : facade.movementDirection(movement.type) === 'inbound' ? '+' : '' }}{{ movement.quantity | number: '1.0-2' }}
+                  <small>{{ movement.unit }}</small>
+                </strong>
+              </div>
+            } @empty {
+              <p class="empty-inline">{{ 'operationalAnalyticsUi.noMovementData' | translate }}</p>
+            }
+          </div>
+        </div>
+      </article>
+
+      <article class="analytics-panel span-full">
+        <header class="panel-header">
+          <div>
+            <h2>{{ 'operationalAnalyticsUi.dispatchByRoute' | translate }}</h2>
+            <p>{{ 'operationalAnalyticsUi.dispatchByRouteDescription' | translate }}</p>
+          </div>
+          <nexa-icon name="local_shipping" />
+        </header>
+        <div class="panel-content route-grid">
+          @for (row of facade.routeRows(); track row.route || 'pending') {
+            <article class="route-card">
+              <div class="route-heading">
+                <span>{{ row.route || ('operationalAnalyticsUi.routePending' | translate) }}</span>
+                <strong>{{ row.count }}</strong>
+              </div>
+              <div class="data-bar"><span [style.width.%]="facade.maxBarPercent(row.count, facade.routeRows())"></span></div>
+              <small>{{ row.percent }}% {{ 'operationalAnalyticsUi.ofLoadedDispatches' | translate }}</small>
+            </article>
+          } @empty {
+            <p class="empty-inline">{{ 'operationalAnalyticsUi.noRouteData' | translate }}</p>
+          }
+        </div>
+      </article>
+
+      <article class="analytics-panel span-full">
+        <header class="panel-header">
+          <div>
+            <h2>{{ 'operationalAnalyticsUi.operationalWorkload' | translate }}</h2>
+            <p>{{ 'operationalAnalyticsUi.operationalWorkloadDescription' | translate }}</p>
+          </div>
+          <nexa-icon name="monitoring" />
+        </header>
+        <div class="panel-content workload-grid">
+          <div><span>{{ 'logistics.fields.preparation' | translate }}</span><strong>{{ data.averagePreparationMinutes | number: '1.0-1' }} <small>{{ 'logistics.analyticsUi.minutes' | translate }}</small></strong></div>
+          <div><span>{{ 'logistics.fields.routeDuration' | translate }}</span><strong>{{ data.averageRouteMinutes | number: '1.0-1' }} <small>{{ 'logistics.analyticsUi.minutes' | translate }}</small></strong></div>
+          <div><span>{{ 'logistics.fields.incidents' | translate }}</span><strong>{{ data.incidents }}</strong></div>
+          <div><span>{{ 'logistics.fields.podCompleted' | translate }}</span><strong>{{ data.podCompleted }}</strong></div>
+        </div>
+      </article>
+    </section>
   }
 </section>

@@ -1,19 +1,118 @@
-<section class="page">
-  <nexa-page-header [eyebrow]="'clientAccounts.eyebrow' | translate" [title]="'clientAccounts.title' | translate" [subtitle]="'clientAccounts.description' | translate"><div page-header-actions>@if (canWrite()) { <a mat-flat-button color="primary" routerLink="/ops/commercial/client-accounts/new">{{ 'clientAccounts.actions.create' | translate }}</a> }<button mat-stroked-button type="button" (click)="exportCsv()">{{ 'clientAccounts.actions.exportCsv' | translate }}</button></div></nexa-page-header>
-  <mat-card class="filters">
-    <mat-form-field appearance="outline"><mat-label>{{ 'clientAccounts.filters.search' | translate }}</mat-label><input #search matInput (keyup.enter)="searchAccounts(search.value)" /></mat-form-field>
-    <mat-form-field appearance="outline"><mat-label>{{ 'clientAccounts.filters.status' | translate }}</mat-label><mat-select [value]="filters().status" (selectionChange)="filterStatus($event.value)"><mat-option value="">{{ 'clientAccounts.filters.all' | translate }}</mat-option><mat-option value="ACTIVE">{{ 'clientAccounts.status.active' | translate }}</mat-option><mat-option value="SUSPENDED">{{ 'clientAccounts.status.suspended' | translate }}</mat-option></mat-select></mat-form-field>
-    <button mat-flat-button color="primary" type="button" (click)="searchAccounts(search.value)">{{ 'clientAccounts.filters.apply' | translate }}</button>
-  </mat-card>
-  @if (facade.state().status === 'loading') { <nexa-loading-state [lines]="5" [label]="'clientAccounts.states.loading' | translate" /> }
-  @else if (facade.state().status === 'retrying') { <nexa-loading-state [lines]="1" [compact]="true" [label]="'clientAccounts.states.refreshing' | translate" /> }
-  @else if (facade.state().status === 'error') { <nexa-error-state [title]="'clientAccounts.states.errorTitle' | translate" [description]="'clientAccounts.states.errorDescription' | translate" [retryLabel]="'clientAccounts.actions.retry' | translate" (retry)="retry()" /> }
-  @else if (facade.state().status === 'empty') { <nexa-empty-state [title]="'clientAccounts.states.emptyTitle' | translate" [description]="'clientAccounts.states.emptyDescription' | translate" /> }
-  @else {
-    <mat-card><div class="account-list" matSort (matSortChange)="onSort($event)">
-      @for (account of facade.state().page?.items ?? []; track account.id) {
-        <article class="account-row"><div><span class="code">{{ account.code }}</span><h3>{{ account.commercialName }}</h3><p>{{ account.businessName }} · {{ account.contactEmail }}</p></div><div class="row-meta"><mat-chip-set><mat-chip>{{ account.status }}</mat-chip></mat-chip-set><a mat-button [routerLink]="['/ops/commercial/client-accounts', account.id]">{{ 'clientAccounts.actions.open' | translate }}</a></div></article>
+<section class="client-accounts-page">
+  <nexa-page-header
+    [eyebrow]="'clientAccounts.eyebrow' | translate"
+    [title]="'clientAccounts.title' | translate"
+    [subtitle]="'clientAccounts.description' | translate">
+    <div page-header-actions class="header-actions">
+      @if (canWrite()) {
+        <a class="primary-action" routerLink="/ops/commercial/client-accounts/new">
+          <nexa-icon class="action-icon" name="add" />
+          {{ 'clientAccounts.actions.create' | translate }}
+        </a>
       }
-    </div><mat-paginator [length]="facade.state().page?.totalItems ?? 0" [pageIndex]="filters().page" [pageSize]="filters().size" [pageSizeOptions]="[10, 25, 50]" (page)="onPage($event)" /></mat-card>
+      <button class="secondary-action" type="button" (click)="exportCsv()">
+        <nexa-icon class="action-icon" name="description" />
+        {{ 'clientAccounts.actions.exportCsv' | translate }}
+      </button>
+    </div>
+  </nexa-page-header>
+
+  <section class="readiness-banner" aria-labelledby="client-readiness-title">
+    <span class="banner-icon" aria-hidden="true"><nexa-icon name="verified" /></span>
+    <div>
+      <h2 id="client-readiness-title">{{ 'clientAccounts.readiness.title' | translate }}</h2>
+      <p>{{ 'clientAccounts.readiness.description' | translate }}</p>
+    </div>
+  </section>
+
+  @if (facade.state().status !== 'loading' && facade.state().status !== 'error') {
+    <section class="metrics-grid" [attr.aria-label]="'clientAccounts.metrics.label' | translate">
+      <nexa-metric-card [label]="'clientAccounts.metrics.accounts' | translate" [value]="totalAccounts()" [hint]="'clientAccounts.metrics.accountsHint' | translate" icon="groups" />
+      <nexa-metric-card tone="success" [label]="'clientAccounts.metrics.active' | translate" [value]="activeAccounts()" [hint]="'clientAccounts.metrics.activeHint' | translate" icon="check" />
+      <nexa-metric-card tone="warning" [label]="'clientAccounts.metrics.attention' | translate" [value]="attentionAccounts()" [hint]="'clientAccounts.metrics.attentionHint' | translate" icon="warning" />
+    </section>
+  }
+
+  <section class="filter-panel" aria-labelledby="client-filter-title">
+    <header class="filter-heading">
+      <div>
+        <p class="section-kicker">{{ 'clientAccounts.filters.kicker' | translate }}</p>
+        <h2 id="client-filter-title">{{ 'clientAccounts.filters.title' | translate }}</h2>
+      </div>
+      <span class="filter-caption">{{ 'clientAccounts.filters.description' | translate }}</span>
+    </header>
+    <form class="filter-form" (submit)="applyFilters(search.value, status.value); $event.preventDefault()">
+      <label class="field field-search">
+        <span>{{ 'clientAccounts.filters.search' | translate }}</span>
+        <span class="input-with-icon">
+          <nexa-icon class="field-icon" name="search" />
+          <input #search type="search" [value]="filters().q" [placeholder]="'clientAccounts.filters.searchPlaceholder' | translate" />
+        </span>
+      </label>
+      <label class="field">
+        <span>{{ 'clientAccounts.filters.status' | translate }}</span>
+        <select #status [value]="filters().status">
+          <option value="">{{ 'clientAccounts.filters.all' | translate }}</option>
+          <option value="ACTIVE">{{ 'clientAccounts.status.active' | translate }}</option>
+          <option value="SUSPENDED">{{ 'clientAccounts.status.suspended' | translate }}</option>
+        </select>
+      </label>
+      <button class="primary-action filter-submit" type="submit"><nexa-icon class="action-icon" name="search" />{{ 'clientAccounts.filters.apply' | translate }}</button>
+    </form>
+  </section>
+
+  @if (facade.state().status === 'loading') {
+    <nexa-loading-state [lines]="5" [label]="'clientAccounts.states.loading' | translate" />
+  } @else if (facade.state().status === 'retrying') {
+    <nexa-loading-state [lines]="1" [compact]="true" [label]="'clientAccounts.states.refreshing' | translate" />
+  } @else if (facade.state().status === 'error') {
+    <nexa-error-state [title]="'clientAccounts.states.errorTitle' | translate" [description]="'clientAccounts.states.errorDescription' | translate" [retryLabel]="'clientAccounts.actions.retry' | translate" (retry)="retry()" />
+  } @else if (facade.state().status === 'empty') {
+    <nexa-empty-state [title]="'clientAccounts.states.emptyTitle' | translate" [description]="'clientAccounts.states.emptyDescription' | translate" />
+  } @else {
+    <section class="results" aria-labelledby="client-results-title">
+      <header class="results-header">
+        <div>
+          <p class="section-kicker">{{ 'clientAccounts.results.kicker' | translate }}</p>
+          <h2 id="client-results-title">{{ 'clientAccounts.results.title' | translate }}</h2>
+        </div>
+        <span class="results-count">{{ 'clientAccounts.results.showing' | translate:{ range: visibleRange(), total: totalAccounts() } }}</span>
+      </header>
+
+      <div class="account-grid">
+        @for (account of accounts(); track account.id) {
+          <article class="account-card">
+            <header class="account-card-header">
+              <div class="account-heading">
+                <span class="card-kicker">{{ 'clientAccounts.card.kicker' | translate }}</span>
+                <h3>{{ account.commercialName || account.businessName || account.code }}</h3>
+                <p>{{ account.taxType || 'RUC' }} {{ account.taxValue || '—' }} · {{ segmentLabel(account.segment) }}</p>
+              </div>
+              <nexa-status-badge [label]="statusLabelKey(account.status) | translate" [tone]="statusTone(account.status)" emphasis="standard" />
+            </header>
+            <div class="card-divider"></div>
+            <dl class="account-facts">
+              <div class="account-fact"><dt>{{ 'clientAccounts.card.contact' | translate }}</dt><dd>{{ account.contactPerson || '—' }}</dd></div>
+              <div class="account-fact"><dt>{{ 'clientAccounts.card.condition' | translate }}</dt><dd>{{ paymentConditionKey(account.paymentCondition) | translate }}</dd></div>
+              <div class="account-fact"><dt>{{ 'clientAccounts.card.delivery' | translate }}</dt><dd>{{ account.deliveryProfile || '—' }}</dd></div>
+              <div class="account-fact"><dt>{{ 'clientAccounts.card.email' | translate }}</dt><dd class="breakable">{{ account.contactEmail || '—' }}</dd></div>
+            </dl>
+            <div class="relationship-card">
+              <span class="relationship-icon" aria-hidden="true"><nexa-icon name="groups" /></span>
+              <div>
+                <span class="relationship-label">{{ 'clientAccounts.relationship.label' | translate }}</span>
+                <strong>{{ relationshipLabelKey(!!account.buyerMembershipId) | translate }}</strong>
+                <small>{{ account.buyerMembershipId || ('clientAccounts.relationship.help' | translate) }}</small>
+              </div>
+            </div>
+            <footer class="account-card-actions">
+              <a class="primary-action" [routerLink]="['/ops/commercial/client-accounts', account.id]">{{ 'clientAccounts.actions.open' | translate }}<nexa-icon class="action-icon" name="arrow_forward" /></a>
+            </footer>
+          </article>
+        }
+      </div>
+
+      <mat-paginator [length]="totalAccounts()" [pageIndex]="filters().page" [pageSize]="filters().size" [pageSizeOptions]="[10, 25, 50]" (page)="onPage($event)" />
+    </section>
   }
 </section>
