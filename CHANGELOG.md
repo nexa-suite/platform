@@ -107,6 +107,30 @@ Operational role personas and readable inventory lots.
 - Authenticated mock browser proof passed for Warehouse Lots at 1440px and 390px with no page overflow; Dispatch, Company Owner, Sales and Tenant Admin role navigation and target pages rendered without console errors.
 - GitHub PR checks passed, including CodeQL and both mandatory verification jobs.
 
+## [0.23.0] - 2026-08-29
+
+Business Documents and evidence-state presentation.
+
+### Added
+
+- Business Documents aligned with Design Lab v1.0.2.
+- API-backed document and evidence lifecycle, metrics, filters, detail and
+  loading/empty/error states.
+- English/Spanish translations and canonical document permissions.
+- Stable manual-order E2E response capture before navigation.
+
+### Boundary
+
+- BOM remains `OPEN`/`DEFERRED` pending an accepted domain and API contract.
+- No API, Blueprint or legacy repository was modified.
+
+### Validation
+
+- 85 test files and 180 tests passed.
+- Build, bounded-context, design-foundation, catalog-asset, i18n and audit
+  checks passed.
+- Mandatory browser E2E passed in both configured jobs.
+
 ## [0.22.0] - 2026-08-29
 
 Design Lab visual parity and API-backed operational surfaces.
