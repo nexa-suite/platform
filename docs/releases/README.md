@@ -5,15 +5,6 @@ Release notes are scoped to the Platform repository and distinguish the Angular 
 | Release | Summary |
 |---|---|
 | [v0.26.0](./v0.26.0.md) | Production API-only adapter composition |
-| [v0.25.0](./v0.25.0.md) | API-backed operational analytics evidence and API-only runtime |
-| [v0.24.0](./v0.24.0.md) | Operational role personas and readable inventory lots |
-| [v0.22.0](./v0.22.0.md) | Design Lab visual parity and API-backed operational surfaces |
-| [v0.21.0](./v0.21.0.md) | Sales dashboard API-source recovery and retryable partial states |
-| [v0.20.0](./v0.20.0.md) | Role-separated API projections and explicit partial-source recovery |
-| [v0.19.0](./v0.19.0.md) | API-backed role continuity and explicit partial-data states |
-| [v0.16.0](./v0.16.0.md) | Live Company Owner projections and permission-aware role surfaces |
-| [v0.15.0](./v0.15.0.md) | IAM, catalog-backed manual Sales flow and route preview |
-| [v0.14.0](./v0.14.0.md) | Runtime mock slices for generic and ICISA tenants |
 | [v0.13.0](./v0.13.0.md) | Canonical bounded-context layering and Angular composition |
 | [v0.12.0](./v0.12.0.md) | Visual and interaction convergence baseline |
 | [v0.11.0](./v0.11.0.md) | PRE-V1 Architecture & Governance Foundation operations baseline |
@@ -31,8 +22,13 @@ Release notes are scoped to the Platform repository and distinguish the Angular 
 | Draft | Status |
 |---|---|
 | [UNRELEASED HISTORICAL CANDIDATE: v0.6.0](./v0.6.0.md) | Consolidated into later published work; no tag or GitHub Release |
+| [UNRELEASED HISTORICAL CANDIDATE: v0.14.0](./v0.14.0.md) | Implementation evidence only; no tag or GitHub Release |
+| Historical snapshots: v0.15.0-v0.25.0 | Consolidated into v0.26.0; commits remain reachable, refs are not retained |
 
-Current release is `0.26.0`. Platform visual/interaction parity work covers the
+Unindexed files under `docs/releases/` preserve historical evidence only; they do
+not define the retained public release set.
+
+Current retained release is `0.26.0`. Platform visual/interaction parity work covers the
 API-backed B2B client, catalog, warehouse, lots, reservations, movements,
 profile, business documents and operational analytics surfaces. This release
 removes fixture adapters from the production provider graph while keeping them
