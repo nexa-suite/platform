@@ -3,6 +3,14 @@
 All notable changes to this project are documented in this file.
 The project uses Semantic Versioning.
 
+## Historical consolidation
+
+The published `v0.15.0` through `v0.25.0` records were consecutive
+implementation snapshots from the same compressed delivery wave. Their
+release refs are consolidated into the retained `v0.26.0` milestone; the
+commits and detailed entries below remain historical implementation evidence.
+`v0.14.0` has no published tag or GitHub Release.
+
 ## [0.26.0] - 2026-08-29
 
 Production API-only adapter composition.
@@ -368,6 +376,10 @@ IAM and Sales flow hardening for the canonical frontend boundaries.
 ## [0.14.0] - 2026-08-26
 
 Runtime mock slices for generic and ICISA tenant profiles across the canonical frontend boundaries.
+
+### Status
+
+- Unreleased historical candidate: no Git tag or GitHub Release exists for `v0.14.0`.
 
 ### Added
 

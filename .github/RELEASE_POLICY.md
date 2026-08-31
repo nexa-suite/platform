@@ -4,7 +4,17 @@
 
 Nexa repositories version independently using Semantic Versioning. While a repository remains pre-1.0, minor versions may contain approved evolution and patch versions contain compatible fixes or documentation changes. A version applies only to the repository that publishes it.
 
-Every release requires an annotated and SSH-signed Git tag, CHANGELOG entry, versioned release notes and a GitHub Release. Published tags are immutable during normal release operations; an explicitly authorized SCM history migration may reissue a tag only when its target commit is preserved and the release record is audited.
+Every release requires an annotated and SSH-signed Git tag, CHANGELOG entry, versioned release notes and a GitHub Release. Published tags are immutable during normal release operations; an explicitly authorized SCM history migration may consolidate redundant release refs only when retained target commits, evidence and the release audit are preserved.
+
+## Consolidation rule
+
+Publish a version only for a coherent, consumable milestone. Do not create a
+release for every merged PR or small same-day implementation slice. When a
+compressed historical wave is consolidated, retain the final consumable
+version number because it matches the repository package state, document the
+superseded snapshots in the CHANGELOG, and keep all underlying commits
+reachable. Version gaps identify unpublished or consolidated internal
+iterations; future releases increment from the retained public line.
 
 ## Tag signing
 
