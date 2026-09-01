@@ -1,0 +1,25 @@
+# HISTORICAL INTERNAL LABEL — NOT A CURRENT PUBLIC RELEASE — Nexa Platform v0.6.0
+
+This document preserves candidate content later consolidated into published `v0.7.0`. `v0.6.0` has no published tag or GitHub Release.
+
+## Summary
+
+Internal commercial operations for Sales Orders, fulfillment readiness and secure synchronization with the modern API.
+
+## Highlights
+
+- Sales Order list, detail, filters, lifecycle timeline and fulfillment-readiness views.
+- Purchase Request detail can convert only through the API's approved and idempotent contract.
+- Change-feed client uses bearer authentication, logout disconnect, one refresh attempt, bounded reconnect and exponential backoff.
+- Buyer access is excluded from the internal Platform surface; failed or unavailable operations remain visible as error/retry states.
+
+## API and security
+
+- API DTOs are mapped before reaching Angular domain models.
+- Client Account, Purchase Request and Sales Order queries use endpoint-specific filters and server pagination.
+- Sales Order mutations remain server-authorized; the Platform UI does not fabricate success or bypass `If-Match`.
+
+## Validation scope
+
+- Unit tests, optimized build, catalog asset validation and npm audit are required gates.
+- Structural parity is advanced; pixel-level Vue parity is not claimed without matched authenticated captures.

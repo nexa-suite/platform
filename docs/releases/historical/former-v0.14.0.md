@@ -1,4 +1,4 @@
-# Nexa Platform v0.14.0
+# HISTORICAL RELEASE RECORD — FORMER PUBLIC LABEL v0.14.0 — NOT A CURRENT RELEASE
 
 Local release preparation for executable frontend slices over the canonical
 bounded contexts.
