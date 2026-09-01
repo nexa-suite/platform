@@ -1,4 +1,4 @@
-# Nexa Platform v0.20.0
+# HISTORICAL RELEASE RECORD — FORMER PUBLIC LABEL v0.20.0 — NOT A CURRENT RELEASE
 
 Release record for role-separated API projections and explicit recovery from
 partial operational source failures.

@@ -5,13 +5,12 @@ The project uses Semantic Versioning.
 
 ## Historical consolidation
 
-The published `v0.15.0` through `v0.25.0` records were consecutive
-implementation snapshots from one compressed delivery wave. Their public
-release refs were retired during authorized SCM normalization; commits and
-detailed entries remain historical evidence. `v0.14.0` was an internal
-preparation state and has no published tag or GitHub Release.
+Former release labels and retired implementation snapshots remain below as
+historical evidence. Current public headings use the normalized sequence.
 
-## [0.26.0] - 2026-08-29
+## [0.12.0] - 2026-08-29
+
+Former historical label: `v0.26.0`.
 
 Production API-only adapter composition.
 
@@ -44,7 +43,9 @@ Production API-only adapter composition.
   the release branch has no dependency changes.
 - No authenticated live API smoke is claimed from the local machine.
 
-## [0.25.0] - 2026-08-29
+## Historical release records
+
+### Former historical label `v0.25.0` - 2026-08-29
 
 API-backed operational analytics evidence and API-only browser runtime.
 
@@ -85,7 +86,7 @@ API-backed operational analytics evidence and API-only browser runtime.
 - No authenticated live API smoke is claimed; the local API endpoint was not
   available during release preparation.
 
-## [0.24.0] - 2026-08-29
+### Former historical label `v0.24.0` - 2026-08-29
 
 Operational role personas and readable inventory lots.
 
@@ -115,31 +116,7 @@ Operational role personas and readable inventory lots.
 - Authenticated mock browser proof passed for Warehouse Lots at 1440px and 390px with no page overflow; Dispatch, Company Owner, Sales and Tenant Admin role navigation and target pages rendered without console errors.
 - GitHub PR checks passed, including CodeQL and both mandatory verification jobs.
 
-## [0.23.0] - 2026-08-29
-
-Business Documents and evidence-state presentation.
-
-### Added
-
-- Business Documents aligned with Design Lab v1.0.2.
-- API-backed document and evidence lifecycle, metrics, filters, detail and
-  loading/empty/error states.
-- English/Spanish translations and canonical document permissions.
-- Stable manual-order E2E response capture before navigation.
-
-### Boundary
-
-- BOM remains `OPEN`/`DEFERRED` pending an accepted domain and API contract.
-- No API, Blueprint or legacy repository was modified.
-
-### Validation
-
-- 85 test files and 180 tests passed.
-- Build, bounded-context, design-foundation, catalog-asset, i18n and audit
-  checks passed.
-- Mandatory browser E2E passed in both configured jobs.
-
-## [0.22.0] - 2026-08-29
+### Former historical label `v0.22.0` - 2026-08-29
 
 Design Lab visual parity and API-backed operational surfaces.
 
@@ -173,7 +150,7 @@ Design Lab visual parity and API-backed operational surfaces.
 - Browser proof: authenticated ICISA client detail rendered against the local platform, status text was visible, and the 390px viewport had no horizontal overflow.
 - Full credentialed E2E release proof remains environment-dependent because no dedicated local role fixture was available.
 
-## [0.21.0] - 2026-08-29
+### Former historical label `v0.21.0` - 2026-08-29
 
 Sales dashboard source-state recovery.
 
@@ -204,7 +181,7 @@ Sales dashboard source-state recovery.
 - `npm audit --omit=dev`: 0 vulnerabilities.
 - Local authenticated Sales E2E is blocked because this environment has no `NEXA_E2E_SALES_*` or `NEXA_DEV_SALES_*` fixture; GitHub CI remains the release gate.
 
-## [0.20.0] - 2026-08-28
+### Former historical label `v0.20.0` - 2026-08-28
 
 Role-separated API projections for internal operations.
 
@@ -238,7 +215,7 @@ Role-separated API projections for internal operations.
 - Mandatory GitHub CI browser E2E, unit/build checks and CodeQL passed on PR #47.
 - `npm audit --omit=dev`: 0 vulnerabilities.
 
-## [0.19.0] - 2026-08-28
+### Former historical label `v0.19.0` - 2026-08-28
 
 API-backed continuity across internal operational roles.
 
@@ -267,7 +244,7 @@ API-backed continuity across internal operational roles.
 - Authenticated Logistics E2E against Docker: 2/2 passed.
 - `npm audit --omit=dev`: 0 vulnerabilities.
 
-## [0.18.0] - 2026-08-28
+### Former historical label `v0.18.0` - 2026-08-28
 
 API continuity and role-separated operational landings.
 
@@ -286,7 +263,7 @@ API continuity and role-separated operational landings.
 - Role landing and navigation unit tests cover the separated Dispatch area and the absence of a BOM role.
 - Live role E2E remains credential-dependent; the existing pure `COMPANY_OWNER` fixture gap is documented separately.
 
-## [0.17.0] - 2026-08-28
+### Former historical label `v0.17.0` - 2026-08-28
 
 Server-backed Sales and role-separated operations preparation.
 
@@ -313,7 +290,7 @@ Server-backed Sales and role-separated operations preparation.
 - Live Sales manual-order E2E passed against the Docker API.
 - The full role matrix passed 7/8 cases; the pure `COMPANY_OWNER` credential is not currently seeded consistently by the local API bootstrap and remains an environment fixture gap.
 
-## [0.16.0] - 2026-08-28
+### Former historical label `v0.16.0` - 2026-08-28
 
 Server-backed executive projections and permission-aware operational surfaces.
 
@@ -338,7 +315,7 @@ Server-backed executive projections and permission-aware operational surfaces.
 - Focused Company Owner facade tests passed (3/3).
 - Bounded-context, i18n and diff checks are required before publication.
 
-## [0.15.0] - 2026-08-28
+### Former historical label `v0.15.0` - 2026-08-28
 
 IAM and Sales flow hardening for the canonical frontend boundaries.
 
@@ -373,13 +350,9 @@ IAM and Sales flow hardening for the canonical frontend boundaries.
 - API mode remains the default. Mock state is in-memory and does not claim backend persistence, email delivery or production 2FA.
 - Blueprint marks detailed Web acceptance criteria as pending; this release does not claim 100% of those pending criteria.
 
-## [0.14.0] - 2026-08-26
+### Former historical label `v0.14.0` - 2026-08-26
 
 Runtime mock slices for generic and ICISA tenant profiles across the canonical frontend boundaries.
-
-### Status
-
-- Unreleased historical candidate: no Git tag or GitHub Release exists for `v0.14.0`.
 
 ### Added
 
@@ -412,7 +385,9 @@ Runtime mock slices for generic and ICISA tenant profiles across the canonical f
   persistence, authorization, jobs or webhooks.
 - This remains a PRE-V1 functional foundation; it does not claim complete product migration or Production Readiness.
 
-## [0.13.0] - 2026-08-26
+## [0.11.0] - 2026-08-26
+
+Former historical label: `v0.13.0`.
 
 Canonical bounded-context layering and Angular composition release for the internal operations workspace.
 
@@ -440,7 +415,9 @@ Canonical bounded-context layering and Angular composition release for the inter
 - No API endpoints, API contracts or Blueprint canonical definitions were changed by this release.
 - This remains a PRE-V1 architecture release; it does not claim complete product migration or Production Readiness.
 
-## [0.12.0] - 2026-08-23
+## [0.10.0] - 2026-08-23
+
+Former historical label: `v0.12.0`.
 
 Visual and interaction convergence baseline using Nexa Design Lab (v1.0.1) tokens and components.
 
@@ -459,7 +436,9 @@ Visual and interaction convergence baseline using Nexa Design Lab (v1.0.1) token
 
 - Unit tests (`100% PASS`), Design Lab v1.0.1 token checksum validation (`PASS`), catalog asset validation (`PASS`), and production build (`PASS`).
 
-## [0.11.0] - 2026-08-23
+## [0.9.0] - 2026-08-23
+
+Former historical label: `v0.11.0`.
 
 PRE-V1 Architecture & Governance Foundation release for the internal Angular operations workspace.
 
@@ -487,7 +466,9 @@ PRE-V1 Architecture & Governance Foundation release for the internal Angular ope
 - 124 unit tests passed across 60 test suites.
 - Angular production build succeeded.
 
-## [0.10.0] - 2026-08-22
+## [0.8.0] - 2026-08-22
+
+Former historical label: `v0.10.0`.
 
 Functional convergence continuation baseline for the internal Angular operations workspace.
 
@@ -500,11 +481,15 @@ Functional convergence continuation baseline for the internal Angular operations
 
 - Catalog asset validation, tests, production build and CI gates passed.
 
-## [0.7.1] - 2026-08-18
+## [0.7.0] - 2026-08-18
+
+Former historical label: `v0.7.1`.
 
 Operations release stabilization for the internal Angular workspace.
 
-## [0.7.0] - 2026-08-01
+## [0.6.0] - 2026-08-01
+
+Former historical label: `v0.7.0`.
 
 Consolidated Warehouse and Logistics operations workspace.
 
@@ -518,7 +503,7 @@ Consolidated Warehouse and Logistics operations workspace.
 
 - 45 tests, production build, npm audit, canonical Modern Docker build and authenticated responsive browser checks passed.
 
-[Release evidence](https://github.com/nexa-suite/platform/releases/tag/v0.7.0) · [Detailed evidence](https://github.com/nexa-suite/platform/blob/v0.7.0/docs/releases/v0.7.0.md)
+[Release evidence](https://github.com/nexa-suite/platform/releases/tag/v0.6.0) · [Detailed evidence (historical filename)](https://github.com/nexa-suite/platform/blob/v0.6.0/docs/releases/v0.7.0.md)
 
 ## [0.5.0] - 2026-07-30
 
@@ -535,7 +520,9 @@ Consolidated Identity, tenant, security and commercial vertical work; intermedia
 
 [Release evidence](https://github.com/nexa-suite/platform/releases/tag/v0.5.0) · [Detailed evidence](https://github.com/nexa-suite/platform/blob/v0.5.0/docs/releases/v0.5.0.md)
 
-## [0.3.0] - 2026-07-29
+## [0.4.0] - 2026-07-29
+
+Former historical label: `v0.3.0`.
 
 Angular internal operations shell at `/overview`, packaged as a static Nginx image.
 
@@ -548,9 +535,11 @@ Angular internal operations shell at `/overview`, packaged as a static Nginx ima
 
 - Catalog assets, 25 unit tests, production build and `/overview` Playwright smoke passed.
 
-[Release evidence](https://github.com/nexa-suite/platform/releases/tag/v0.3.0) · [Detailed evidence](https://github.com/nexa-suite/platform/blob/v0.3.0/docs/releases/v0.3.0.md)
+[Release evidence](https://github.com/nexa-suite/platform/releases/tag/v0.4.0) · [Detailed evidence (historical filename)](https://github.com/nexa-suite/platform/blob/v0.4.0/docs/releases/v0.3.0.md)
 
-## [0.2.1] - 2026-07-29
+## [0.3.0] - 2026-07-29
+
+Former historical label: `v0.2.1`.
 
 Repository experience and governance update.
 
@@ -562,7 +551,7 @@ Repository experience and governance update.
 
 - Documentation, Mermaid, duplicate cleanup, asset validation, tests and production build checks passed.
 
-[Release evidence](https://github.com/nexa-suite/platform/releases/tag/v0.2.1) · [Detailed evidence](https://github.com/nexa-suite/platform/blob/v0.2.1/docs/releases/v0.2.1.md)
+[Release evidence](https://github.com/nexa-suite/platform/releases/tag/v0.3.0) · [Detailed evidence (historical filename)](https://github.com/nexa-suite/platform/blob/v0.3.0/docs/releases/v0.2.1.md)
 
 ## [0.2.0] - 2026-07-28
 
@@ -592,3 +581,27 @@ Initial independent Angular repository baseline for internal Nexa operations.
 - Repository baseline build and test validation passed before tagging.
 
 [Release evidence](https://github.com/nexa-suite/platform/releases/tag/v0.1.0) · [Detailed evidence](https://github.com/nexa-suite/platform/blob/v0.1.0/docs/releases/v0.1.0.md)
+
+## Historical records retained from develop
+
+### Former historical label `v0.23.0` - 2026-08-29
+
+Business Documents and evidence-state presentation.
+
+### Added
+
+- Business Documents aligned with Design Lab v1.0.2.
+- API-backed document and evidence lifecycle, metrics, filters, detail and loading/empty/error states.
+- English/Spanish translations and canonical document permissions.
+- Stable manual-order E2E response capture before navigation.
+
+### Boundary
+
+- BOM remains `OPEN`/`DEFERRED` pending an accepted domain and API contract.
+- No API, Blueprint or legacy repository was modified.
+
+### Validation
+
+- 85 test files and 180 tests passed.
+- Build, bounded-context, design-foundation, catalog-asset, i18n and audit checks passed.
+- Mandatory browser E2E passed in both configured jobs.
