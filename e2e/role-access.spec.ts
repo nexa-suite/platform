@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
-import { buyerCredentials, requiresCredentials, signIn, ROLE_FIXTURES, type InternalRole } from './support/auth';
+import { buyerCredentials, hasDedicatedCompanyOwnerFixture, requiresCredentials, signIn, ROLE_FIXTURES, type InternalRole } from './support/auth';
 import { credentialEnvironment } from './support/role-fixtures';
 
 const API_URL = process.env.NEXA_API_URL ?? 'http://localhost:8080';
@@ -25,10 +25,6 @@ const REASON_COPY: Record<ForbiddenReason, RegExp> = {
   ROLE_NOT_ASSIGNED: /current roles|roles actuales/i,
   PERMISSION_NOT_GRANTED: /permission required|permiso requerido/i,
 };
-
-const hasDedicatedCompanyOwnerFixture = Boolean(
-  process.env.NEXA_E2E_COMPANY_OWNER_EMAIL && process.env.NEXA_E2E_COMPANY_OWNER_PASSWORD,
-);
 
 const ROLE_ACCESS_MATRIX: readonly RoleAccessCase[] = [
   {
@@ -215,8 +211,8 @@ async function assertDeniedRoute(page: Page, denied: DeniedRoute): Promise<void>
 
 for (const roleCase of ROLE_ACCESS_MATRIX) {
   test(`${roleCase.label} landing and allowed/denied route matrix`, async ({ page }) => {
-    if (roleCase.credentialRole === 'COMPANY_OWNER' && !hasDedicatedCompanyOwnerFixture) {
-      test.skip(true, 'The local API bootstrap exposes COMPANY_OWNER through the founder multi-role fixture; CI provides a dedicated fixture.');
+    if (roleCase.credentialRole === 'COMPANY_OWNER' && !hasDedicatedCompanyOwnerFixture()) {
+      test.skip(true, 'The current API v0.17.0 bootstrap exposes COMPANY_OWNER through the founder multi-role fixture; a dedicated fixture is not part of the accepted baseline.');
     }
     requiresCredentials(roleCase.credentialRole);
     await signInAndAssertRoles(page, roleCase.credentialRole, roleCase.expectedRoles);

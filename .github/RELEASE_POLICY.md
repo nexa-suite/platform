@@ -4,21 +4,30 @@
 
 Nexa repositories version independently using Semantic Versioning. While a repository remains pre-1.0, minor versions may contain approved evolution and patch versions contain compatible fixes or documentation changes. A version applies only to the repository that publishes it.
 
-Every release requires an annotated and SSH-signed Git tag, CHANGELOG entry, versioned release notes and a GitHub Release. Published tags are immutable during normal release operations; an explicitly authorized SCM history migration may consolidate redundant release refs only when retained target commits, evidence and the release audit are preserved.
-
-## Consolidation rule
-
-Publish a version only for a coherent, consumable milestone. Do not create a
-release for every merged PR or small same-day implementation slice. When a
-compressed historical wave is consolidated, retain the final consumable
-version number because it matches the repository package state, document the
-superseded snapshots in the CHANGELOG, and keep all underlying commits
-reachable. Version gaps identify unpublished or consolidated internal
-iterations; future releases increment from the retained public line.
+Every release requires an annotated SSH-signed Git tag, CHANGELOG entry, versioned release notes and a GitHub Release. The tag signature must pass local verification and GitHub verification before publication. Published tags are immutable: do not retag, modify a published version, delete a release or force-push history.
 
 ## Tag signing
 
-Release tags MUST be annotated, signed with the maintainer's registered SSH key, verified locally with `git verify-tag <version>` and shown as `Verified` by GitHub before publication. Configure `tag.gpgSign=true` and `gpg.ssh.allowedSignersFile=.github/release-allowed-signers`; the committed allowlist contains only the public signer identity. The private key remains outside the repository.
+Release tags MUST be annotated, signed with the repository maintainer's
+registered SSH signing key, verified locally with `git verify-tag <version>`
+and shown as `Verified` by GitHub before publication. The private key remains
+outside the repository; the committed `.github/release-allowed-signers` file
+contains only the public signer identity.
+
+## Release cadence
+
+A merged PR is not automatically a release. Accumulate coherent changes on
+`develop` until a real consumable boundary exists. Use release candidates only
+when final validation needs a candidate freeze. Do not publish calendar-driven
+versions or one stable release per implementation PR.
+
+## Historical consolidation
+
+The retained `v0.26.0` version is intentional. Authorized SCM normalization
+retired redundant `v0.15.0` through `v0.25.0` public refs after verifying their
+targets and ancestry; underlying commits remain reachable. Missing numbers do
+not mean missing implementation history. Current corrected tags and releases
+are frozen.
 
 ## GitFlow
 
@@ -38,15 +47,6 @@ GitHub Release
 back-merge to develop
 ```
 
-## Release cadence
-
-A merged PR is not automatically a release. Accumulate feature and fix PRs on
-`develop` while the coherent release scope is being assembled. Create a
-release branch only at a real release boundary, then validate and publish one
-consumable milestone. Use release candidates only when final validation needs a
-candidate freeze. Do not publish calendar-driven versions or one stable
-release per implementation PR.
-
 ## Release checklist
 
 - [ ] Scope approved.
@@ -61,8 +61,7 @@ release per implementation PR.
 - [ ] Version updated.
 - [ ] Release branch created.
 - [ ] `main` merged with `--no-ff`.
-- [ ] Annotated SSH-signed tag created.
-- [ ] `git verify-tag <version>` passed locally and GitHub shows `Verified`.
+- [ ] Annotated tag created.
 - [ ] GitHub Release published.
 - [ ] `develop` back-merged.
 
