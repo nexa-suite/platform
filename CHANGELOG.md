@@ -486,3 +486,98 @@ Functional convergence continuation baseline for the internal Angular operations
 Former historical label: `v0.7.1`.
 
 Operations release stabilization for the internal Angular workspace.
+
+## [0.6.0] - 2026-08-01
+
+Former historical label: `v0.7.0`.
+
+Consolidated Warehouse and Logistics operations workspace.
+
+### Added
+
+- Role-specific Owner, Sales, Warehouse and Logistics navigation with protected operational routes.
+- Warehouse, Zone, Inbound, Lot, Adjustment, Waste, FEFO, Reservation and shortage/release workflows.
+- Dispatch Board and Detail with assignment, scheduling, route readiness/start, temperature, incidents, reprogramming and POD metadata.
+
+### Validation
+
+- 45 tests, production build, npm audit, canonical Modern Docker build and authenticated responsive browser checks passed.
+
+[Release evidence](https://github.com/nexa-suite/platform/releases/tag/v0.6.0) · [Detailed evidence (historical filename)](https://github.com/nexa-suite/platform/blob/v0.6.0/docs/releases/v0.7.0.md)
+
+## [0.5.0] - 2026-07-30
+
+Consolidated Identity, tenant, security and commercial vertical work; intermediate planned versions were not published.
+
+### Added
+
+- Protected internal workspace with Company Administration, Client Accounts and Purchase Request operations.
+- Lazy Catalog, Tenant Management and Sales features with identifier-preserving route aliases.
+
+### Validation
+
+- Catalog validation, focused tests, production build, npm audit and browser route checks passed.
+
+[Release evidence](https://github.com/nexa-suite/platform/releases/tag/v0.5.0) · [Detailed evidence](https://github.com/nexa-suite/platform/blob/v0.5.0/docs/releases/v0.5.0.md)
+
+## [0.4.0] - 2026-07-29
+
+Former historical label: `v0.3.0`.
+
+Angular internal operations shell at `/overview`, packaged as a static Nginx image.
+
+### Added
+
+- Dockerfile, SPA fallback, healthcheck and Compose port `4200`.
+- 50 canonical catalog media assets and EN/ES shell foundations.
+
+### Validation
+
+- Catalog assets, 25 unit tests, production build and `/overview` Playwright smoke passed.
+
+[Release evidence](https://github.com/nexa-suite/platform/releases/tag/v0.4.0) · [Detailed evidence (historical filename)](https://github.com/nexa-suite/platform/blob/v0.4.0/docs/releases/v0.3.0.md)
+
+## [0.3.0] - 2026-07-29
+
+Former historical label: `v0.2.1`.
+
+Repository experience and governance update.
+
+### Changed
+
+- Preserved the Platform release record and its repository governance evidence.
+
+### Validation
+
+- Documentation, Mermaid, duplicate cleanup, asset validation, tests and production build checks passed.
+
+[Release evidence](https://github.com/nexa-suite/platform/releases/tag/v0.3.0) · [Detailed evidence (historical filename)](https://github.com/nexa-suite/platform/blob/v0.3.0/docs/releases/v0.2.1.md)
+
+## [0.2.0] - 2026-07-28
+
+Shared frontend foundations and canonical catalog media.
+
+### Added
+
+- Durable `/overview` routing, responsive shell and reusable operational visual components.
+- EN/ES language service, pure utilities, 50 catalog assets and normalized design foundations.
+
+### Validation
+
+- Angular tests, production build and catalog asset checksum validation passed.
+
+[Release evidence](https://github.com/nexa-suite/platform/releases/tag/v0.2.0) · [Detailed evidence](https://github.com/nexa-suite/platform/blob/v0.2.0/docs/releases/v0.2.0.md)
+
+## [0.1.0] - 2026-07-28
+
+Initial independent Angular repository baseline for internal Nexa operations.
+
+### Added
+
+- Angular standalone application, bounded-context directory structure, initial shell and EN/ES translation surface.
+
+### Validation
+
+- Repository baseline build and test validation passed before tagging.
+
+[Release evidence](https://github.com/nexa-suite/platform/releases/tag/v0.1.0) · [Detailed evidence](https://github.com/nexa-suite/platform/blob/v0.1.0/docs/releases/v0.1.0.md)
