@@ -70,7 +70,7 @@ test.describe('Tenant Administration', () => {
   });
 
   test('pure Company Owner can govern organization and workforce without technical tenant configuration', async ({ page }) => {
-    test.skip(!hasDedicatedCompanyOwnerFixture, 'The current API v0.17.0 bootstrap exposes COMPANY_OWNER through the founder multi-role fixture; a dedicated fixture is not part of the accepted baseline.');
+    test.skip(!hasDedicatedCompanyOwnerFixture(), 'The current API v0.17.0 bootstrap exposes COMPANY_OWNER through the founder multi-role fixture; a dedicated fixture is not part of the accepted baseline.');
     requiresCredentials('COMPANY_OWNER');
     await signIn(page, 'COMPANY_OWNER');
     await page.goto('/ops/operations/company-administration');

@@ -211,8 +211,8 @@ async function assertDeniedRoute(page: Page, denied: DeniedRoute): Promise<void>
 
 for (const roleCase of ROLE_ACCESS_MATRIX) {
   test(`${roleCase.label} landing and allowed/denied route matrix`, async ({ page }) => {
-    if (roleCase.credentialRole === 'COMPANY_OWNER' && !hasDedicatedCompanyOwnerFixture) {
-      test.skip(true, 'The local API bootstrap exposes COMPANY_OWNER through the founder multi-role fixture; CI provides a dedicated fixture.');
+    if (roleCase.credentialRole === 'COMPANY_OWNER' && !hasDedicatedCompanyOwnerFixture()) {
+      test.skip(true, 'The current API v0.17.0 bootstrap exposes COMPANY_OWNER through the founder multi-role fixture; a dedicated fixture is not part of the accepted baseline.');
     }
     requiresCredentials(roleCase.credentialRole);
     await signInAndAssertRoles(page, roleCase.credentialRole, roleCase.expectedRoles);

@@ -49,7 +49,7 @@ async function firstReference(page: Page, path: string, label: string, headers: 
 
 test('Company Owner completes the canonical Product Family, SKU and price mutation chain', async ({ page }) => {
   test.setTimeout(60_000);
-  test.skip(!hasDedicatedCompanyOwnerFixture, 'The current API v0.17.0 bootstrap exposes COMPANY_OWNER through the founder multi-role fixture; a dedicated fixture is not part of the accepted baseline.');
+  test.skip(!hasDedicatedCompanyOwnerFixture(), 'The current API v0.17.0 bootstrap exposes COMPANY_OWNER through the founder multi-role fixture; a dedicated fixture is not part of the accepted baseline.');
   requiresCredentials('COMPANY_OWNER');
   await signIn(page, 'COMPANY_OWNER');
 
