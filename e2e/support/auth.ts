@@ -1,7 +1,7 @@
 import { expect, Page } from '@playwright/test';
 import { credentialEnvironment, type CredentialRole } from './role-fixtures';
 
-export { ROLE_FIXTURES } from './role-fixtures';
+export { ROLE_FIXTURES, hasDedicatedCompanyOwnerFixture } from './role-fixtures';
 export type { CredentialRole } from './role-fixtures';
 
 export type InternalRole = Exclude<CredentialRole, 'BUYER'>;

@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { assertNoBrowserSecrets } from './support/mailpit';
-import { requiresCredentials, signIn } from './support/auth';
+import { hasDedicatedCompanyOwnerFixture, requiresCredentials, signIn } from './support/auth';
 
 test.describe('Tenant Administration', () => {
   test('authenticated tenant admin can inspect every administration surface', async ({ page }) => {
@@ -70,6 +70,7 @@ test.describe('Tenant Administration', () => {
   });
 
   test('pure Company Owner can govern organization and workforce without technical tenant configuration', async ({ page }) => {
+    test.skip(!hasDedicatedCompanyOwnerFixture(), 'The current API v0.17.0 bootstrap exposes COMPANY_OWNER through the founder multi-role fixture; a dedicated fixture is not part of the accepted baseline.');
     requiresCredentials('COMPANY_OWNER');
     await signIn(page, 'COMPANY_OWNER');
     await page.goto('/ops/operations/company-administration');
