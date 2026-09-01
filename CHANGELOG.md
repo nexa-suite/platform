@@ -3,6 +3,14 @@
 All notable changes to this project are documented in this file.
 The project uses Semantic Versioning.
 
+## Historical consolidation
+
+The published `v0.15.0` through `v0.25.0` records were consecutive
+implementation snapshots from one compressed delivery wave. Their public
+release refs were retired during authorized SCM normalization; commits and
+detailed entries remain historical evidence. `v0.14.0` was an internal
+preparation state and has no published tag or GitHub Release.
+
 ## [0.26.0] - 2026-08-29
 
 Production API-only adapter composition.
