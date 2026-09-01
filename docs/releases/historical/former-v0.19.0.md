@@ -1,4 +1,4 @@
-# Nexa Platform v0.19.0
+# HISTORICAL RELEASE RECORD — FORMER PUBLIC LABEL v0.19.0 — NOT A CURRENT RELEASE
 
 Release record for API-backed continuity across the internal role surfaces.
 

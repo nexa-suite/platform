@@ -21,13 +21,12 @@ A merged PR is not automatically a release. Accumulate coherent changes on
 when final validation needs a candidate freeze. Do not publish calendar-driven
 versions or one stable release per implementation PR.
 
-## Historical consolidation
+## Normalized release line
 
-The retained `v0.26.0` version is intentional. Authorized SCM normalization
-retired redundant `v0.15.0` through `v0.25.0` public refs after verifying their
-targets and ancestry; underlying commits remain reachable. Missing numbers do
-not mean missing implementation history. Current corrected tags and releases
-are frozen.
+The current public line ends at `v0.12.0`. Compatible fixes use the next
+patch, such as `v0.12.1`; a coherent new capability uses the next minor,
+such as `v0.13.0`. Historical labels remain provenance only. Underlying
+commits and signed-tag evidence remain immutable.
 
 ## GitFlow
 
