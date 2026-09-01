@@ -1,4 +1,4 @@
-# Nexa Platform v0.21.0
+# HISTORICAL RELEASE RECORD — FORMER PUBLIC LABEL v0.21.0 — NOT A CURRENT RELEASE
 
 Release record for explicit recovery from partial API sources on the Sales
 dashboard.

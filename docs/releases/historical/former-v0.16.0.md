@@ -1,4 +1,4 @@
-# Nexa Platform v0.16.0
+# HISTORICAL RELEASE RECORD — FORMER PUBLIC LABEL v0.16.0 — NOT A CURRENT RELEASE
 
 Release record for live Company Owner projections and permission-aware
 operational role surfaces.

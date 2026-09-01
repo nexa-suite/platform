@@ -1,4 +1,4 @@
-# Nexa Platform v0.15.0
+# HISTORICAL RELEASE RECORD — FORMER PUBLIC LABEL v0.15.0 — NOT A CURRENT RELEASE
 
 Release record for IAM, organization onboarding and manual Sales
 workflow hardening over the canonical bounded contexts.
