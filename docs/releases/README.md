@@ -26,6 +26,24 @@ Release notes are scoped to the Platform repository and distinguish the Angular 
 | [v0.2.0](./v0.2.0.md) | Responsive shell, shared UI foundations and catalog assets |
 | [v0.1.0](./v0.1.0.md) | Initial Angular repository baseline |
 
+## Curated presentation sequence
+
+The following five labels are a presentation index over the verified SemVer
+history. They are not new tags, releases, or replacement versions; the
+canonical SemVer provenance remains authoritative.
+
+| Presentation label | Canonical tag | Verified milestone |
+|---|---|---|
+| Nexa Platform — Release 1 | `v0.1.0` | Initial Angular repository baseline |
+| Nexa Platform — Release 2 | `v0.3.0` | Docker runtime, catalog assets, and browser smoke |
+| Nexa Platform — Release 3 | `v0.7.0` | Consolidated Warehouse and Logistics operations workspace |
+| Nexa Platform — Release 4 | `v0.12.0` | Design Lab visual and interaction convergence baseline |
+| Nexa Platform — Release 5 | `v0.26.0` | API-only production composition and consolidated milestone |
+
+The remaining retained releases (`v0.2.0`, `v0.2.1`, `v0.5.0`, `v0.7.1`,
+`v0.10.0`, `v0.11.0`, and `v0.13.0`) remain valid intermediate evidence. They
+are intentionally not presented as additional top-level milestones.
+
 ## Release-lineage classification
 
 | Version | Classification | Original target | Reachable from retained `v0.26.0` | Meaning |
