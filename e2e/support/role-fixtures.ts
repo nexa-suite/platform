@@ -62,6 +62,12 @@ const runtimeEnvironment =
     }
   ).process?.env ?? {};
 
+export function hasDedicatedCompanyOwnerFixture(): boolean {
+  return Boolean(
+    runtimeEnvironment.NEXA_E2E_COMPANY_OWNER_EMAIL && runtimeEnvironment.NEXA_E2E_COMPANY_OWNER_PASSWORD,
+  );
+}
+
 export function credentialEnvironment(role: CredentialRole): { readonly email?: string; readonly password?: string; readonly workspace: string } {
   const prefix = `NEXA_E2E_${role}`;
   // The local API bootstrap seeds the Company Owner together with the founder

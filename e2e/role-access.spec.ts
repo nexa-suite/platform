@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
-import { buyerCredentials, requiresCredentials, signIn, ROLE_FIXTURES, type InternalRole } from './support/auth';
+import { buyerCredentials, hasDedicatedCompanyOwnerFixture, requiresCredentials, signIn, ROLE_FIXTURES, type InternalRole } from './support/auth';
 import { credentialEnvironment } from './support/role-fixtures';
 
 const API_URL = process.env.NEXA_API_URL ?? 'http://localhost:8080';
@@ -25,10 +25,6 @@ const REASON_COPY: Record<ForbiddenReason, RegExp> = {
   ROLE_NOT_ASSIGNED: /current roles|roles actuales/i,
   PERMISSION_NOT_GRANTED: /permission required|permiso requerido/i,
 };
-
-const hasDedicatedCompanyOwnerFixture = Boolean(
-  process.env.NEXA_E2E_COMPANY_OWNER_EMAIL && process.env.NEXA_E2E_COMPANY_OWNER_PASSWORD,
-);
 
 const ROLE_ACCESS_MATRIX: readonly RoleAccessCase[] = [
   {
