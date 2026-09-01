@@ -1,22 +1,19 @@
 # See https://docs.github.com/get-started/getting-started-with-git/ignoring-files for more about ignoring files.
 
 # Compiled output
-/dist
-/tmp
+/dist/
+/tmp/
 /out-tsc
 /bazel-out
 
 # Node
-/node_modules
-node_modules/
-dist/
-.angular/
-coverage/
-target/
+/node_modules/
+/.angular/
+/coverage/
+/target/
 .env.local
 .local-keys/
-npm-debug.log
-yarn-error.log
+*.log
 
 # IDEs and editors
 .idea/
@@ -37,10 +34,8 @@ yarn-error.log
 .history/*
 
 # Miscellaneous
-/.angular/cache
 .sass-cache/
 /connect.lock
-/coverage
 /libpeerconnection.log
 testem.log
 /typings
@@ -50,8 +45,9 @@ __screenshots__/
 .DS_Store
 ._*
 __MACOSX/
-.worktrees/
-playwright-report/
-test-results/
-.playwright-cli/
+/.worktrees/
+/playwright-report/
+/test-results/
+/e2e/test-results/
+/.playwright-cli/
 Thumbs.db
