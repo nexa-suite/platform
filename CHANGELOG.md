@@ -581,3 +581,27 @@ Initial independent Angular repository baseline for internal Nexa operations.
 - Repository baseline build and test validation passed before tagging.
 
 [Release evidence](https://github.com/nexa-suite/platform/releases/tag/v0.1.0) · [Detailed evidence](https://github.com/nexa-suite/platform/blob/v0.1.0/docs/releases/v0.1.0.md)
+
+## Historical records retained from develop
+
+### Former historical label `v0.23.0` - 2026-08-29
+
+Business Documents and evidence-state presentation.
+
+### Added
+
+- Business Documents aligned with Design Lab v1.0.2.
+- API-backed document and evidence lifecycle, metrics, filters, detail and loading/empty/error states.
+- English/Spanish translations and canonical document permissions.
+- Stable manual-order E2E response capture before navigation.
+
+### Boundary
+
+- BOM remains `OPEN`/`DEFERRED` pending an accepted domain and API contract.
+- No API, Blueprint or legacy repository was modified.
+
+### Validation
+
+- 85 test files and 180 tests passed.
+- Build, bounded-context, design-foundation, catalog-asset, i18n and audit checks passed.
+- Mandatory browser E2E passed in both configured jobs.
