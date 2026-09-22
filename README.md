@@ -2,11 +2,13 @@
 
 <br />
 
+<img src="./docs/assets/nexa.svg" alt="Nexa" width="240" />
+
 # Nexa Platform
 
 **Internal operational workspace for Nexa tenant teams.**
 
-![Angular 22](https://img.shields.io/badge/Angular-22-DD0031?style=flat-square&logo=angular&logoColor=white) ![TypeScript](https://img.shields.io/badge/TypeScript-6.0-3178C6?style=flat-square&logo=typescript&logoColor=white) ![Angular Material](https://img.shields.io/badge/Angular%20Material%2FCDK-22.1-757575?style=flat-square&logo=materialdesign&logoColor=white) ![RxJS](https://img.shields.io/badge/RxJS-7.8-B7178C?style=flat-square&logo=reactivex&logoColor=white) ![Release](https://img.shields.io/github/v/release/nexa-suite/platform?display_name=tag&sort=semver&style=flat-square&label=release)
+![Angular](https://img.shields.io/badge/Angular-22.1.7-DD0031?style=flat-square&logo=angular&logoColor=white) ![TypeScript](https://img.shields.io/badge/TypeScript-6.0.3-3178C6?style=flat-square&logo=typescript&logoColor=white) ![Angular Material/CDK](https://img.shields.io/badge/Angular%20Material%2FCDK-22.1.7-757575?style=flat-square&logo=materialdesign&logoColor=white) ![RxJS](https://img.shields.io/badge/RxJS-7.8.2-B7178C?style=flat-square&logo=reactivex&logoColor=white) ![Latest Git tag](https://img.shields.io/github/v/tag/nexa-suite/platform?sort=semver&style=flat-square&label=latest%20Git%20tag)
 
 [Application](./src/app) · [Architecture](./docs/architecture/bounded-context-map.md) · [Releases](./docs/releases/) · [Contributing](./.github/CONTRIBUTING.md) · [Security](./.github/SECURITY.md)
 
@@ -38,7 +40,8 @@ Academic report and delivery evidence for Nexa Mobile.
 
 ### [Nexa Mobile](https://github.com/nexa-suite/mobile)
 
-Partial unmerged Operations Android/Kotlin/Jetpack Compose evidence; Buyer
+Partial Operations Android/Kotlin/Jetpack Compose implementation evidence is
+integrated in the current Mobile baseline, not a completed Mobile V1. Buyer
 Mobile remains an accepted Flutter/Dart target.
 
 ![Operations Android](https://img.shields.io/badge/Operations%20Mobile-partial%20evidence-3DDC84?style=flat-square&logo=android&logoColor=white) ![Buyer target](https://img.shields.io/badge/Buyer%20Mobile-TARGET%20Flutter%2FDart-64748B?style=flat-square)
@@ -112,10 +115,10 @@ contracts.
 
 | Concern | Current evidence |
 | --- | --- |
-| Framework | Angular 22.1.x |
-| Language | TypeScript 6.0.x with strict configuration |
-| Component system | Angular Material/CDK 22.1.x |
-| State and async | Angular Signals and RxJS 7.8.x |
+| Framework | Angular 22.1.7 (locked) |
+| Language | TypeScript 6.0.3 (locked), strict configuration |
+| Component system | Angular Material/CDK 22.1.7 (locked) |
+| State and async | Angular Signals and RxJS 7.8.2 (locked) |
 | Internationalization | `@ngx-translate/core` 18.0.0 |
 | Styling | SCSS |
 | Package manager | npm |
